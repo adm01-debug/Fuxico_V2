@@ -8,6 +8,7 @@ export interface TrackedEmail {
   sender_email: string | null;
   created_at: string;
   metadata: Record<string, unknown>;
+  user_id: string | null;
   opens?: number;
   clicks?: number;
 }
@@ -56,17 +57,36 @@ export interface EmailDetailResponse {
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error('Not authenticated');
+  }
+  return {
+    'Authorization': `Bearer ${session.access_token}`,
+    'Content-Type': 'application/json',
+  };
+}
+
 export async function getTrackedEmails(): Promise<EmailsResponse> {
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/get-tracking-stats`);
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/get-tracking-stats`, { headers });
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Not authenticated');
+    }
     throw new Error('Failed to fetch tracking data');
   }
   return response.json();
 }
 
 export async function getEmailDetail(trackingId: string): Promise<EmailDetailResponse> {
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/get-tracking-stats?id=${trackingId}`);
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/get-tracking-stats?id=${trackingId}`, { headers });
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Not authenticated');
+    }
     throw new Error('Failed to fetch email details');
   }
   return response.json();
@@ -94,14 +114,16 @@ export interface CreateTrackingResponse {
 }
 
 export async function createTracking(data: CreateTrackingRequest): Promise<CreateTrackingResponse> {
+  const headers = await getAuthHeaders();
   const response = await fetch(`${SUPABASE_URL}/functions/v1/create-tracking`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(data),
   });
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Not authenticated');
+    }
     throw new Error('Failed to create tracking');
   }
   return response.json();
