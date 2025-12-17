@@ -12,23 +12,49 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+
+    // Get auth header to verify user
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Authorization required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Create client with user's token to get their ID
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    })
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
+    
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const url = new URL(req.url)
     const trackingId = url.searchParams.get('id')
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    // Use service role for queries
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // If tracking ID provided, get specific email stats
     if (trackingId) {
-      console.log(`Getting stats for tracking ID: ${trackingId}`)
+      console.log(`Getting stats for tracking ID: ${trackingId} for user: ${user.id}`)
 
-      // Get email details
+      // Get email details - verify it belongs to the user
       const { data: email, error: emailError } = await supabase
         .from('tracked_emails')
         .select('*')
         .eq('tracking_id', trackingId)
+        .eq('user_id', user.id)
         .maybeSingle()
 
       if (emailError || !email) {
@@ -39,14 +65,14 @@ Deno.serve(async (req) => {
       }
 
       // Get all events for this email
-      const { data: events, error: eventsError } = await supabase
+      const { data: events } = await supabase
         .from('tracking_events')
         .select('*')
         .eq('tracking_id', trackingId)
         .order('created_at', { ascending: false })
 
       // Get tracked links
-      const { data: links, error: linksError } = await supabase
+      const { data: links } = await supabase
         .from('tracked_links')
         .select('*')
         .eq('tracking_id', trackingId)
@@ -76,12 +102,13 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Get all emails with basic stats
-    console.log('Getting all tracked emails')
+    // Get all emails with basic stats - filtered by user
+    console.log(`Getting all tracked emails for user: ${user.id}`)
 
     const { data: emails, error: emailsError } = await supabase
       .from('tracked_emails')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(100)
 

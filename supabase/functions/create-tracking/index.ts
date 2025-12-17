@@ -37,6 +37,33 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+
+    // Get auth header to verify user
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Authorization required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Create client with user's token to get their ID
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    })
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
+    
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const body = await req.json()
     const { recipientEmail, subject, senderEmail, links, metadata } = body
 
@@ -47,17 +74,15 @@ Deno.serve(async (req) => {
       })
     }
 
-    console.log(`Creating tracking for email to: ${recipientEmail}`)
+    console.log(`Creating tracking for email to: ${recipientEmail} by user: ${user.id}`)
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    // Use service role to insert (bypasses RLS for admin operations)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Generate unique tracking ID
     const trackingId = generateTrackingId()
 
-    // Create tracked email record
+    // Create tracked email record with user_id
     const { data: emailData, error: emailError } = await supabase
       .from('tracked_emails')
       .insert({
@@ -66,6 +91,7 @@ Deno.serve(async (req) => {
         subject: subject || null,
         sender_email: senderEmail || null,
         metadata: metadata || {},
+        user_id: user.id,
       })
       .select()
       .single()
