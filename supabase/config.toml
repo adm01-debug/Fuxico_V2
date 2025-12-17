@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.track-standalone-link]
 verify_jwt = false
+
+[functions.report-bounce]
+verify_jwt = false

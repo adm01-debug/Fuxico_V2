@@ -12,6 +12,10 @@ export interface TrackedEmail {
   opens?: number;
   clicks?: number;
   selfOpens?: number;
+  delivery_status?: string;
+  bounce_type?: string;
+  bounce_reason?: string;
+  bounce_detected_at?: string;
 }
 
 export interface TrackingEvent {
