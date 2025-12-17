@@ -7,6 +7,7 @@ import { CreateTrackingDialog } from "@/components/dashboard/CreateTrackingDialo
 import { Mail, Eye, MousePointerClick, TrendingUp, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import logoImg from "@/assets/logo.jpg";
 
 const Dashboard = () => {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
@@ -24,9 +25,12 @@ const Dashboard = () => {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-            <h1 className="text-2xl font-bold text-foreground">FUXICO</h1>
-              <p className="text-sm text-muted-foreground">Saiba quando seus emails são lidos</p>
+            <div className="flex items-center gap-3">
+              <img src={logoImg} alt="FUXICO" className="h-10 w-10 rounded-lg object-cover" />
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">FUXICO</h1>
+                <p className="text-sm text-muted-foreground">Saiba quando seus emails são lidos</p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <Button
