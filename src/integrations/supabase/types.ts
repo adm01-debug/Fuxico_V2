@@ -14,7 +14,115 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      tracked_emails: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          recipient_email: string
+          sender_email: string | null
+          subject: string | null
+          tracking_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          recipient_email: string
+          sender_email?: string | null
+          subject?: string | null
+          tracking_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          recipient_email?: string
+          sender_email?: string | null
+          subject?: string | null
+          tracking_id?: string
+        }
+        Relationships: []
+      }
+      tracked_links: {
+        Row: {
+          click_count: number | null
+          created_at: string
+          id: string
+          link_id: string
+          original_url: string
+          tracking_id: string
+        }
+        Insert: {
+          click_count?: number | null
+          created_at?: string
+          id?: string
+          link_id: string
+          original_url: string
+          tracking_id: string
+        }
+        Update: {
+          click_count?: number | null
+          created_at?: string
+          id?: string
+          link_id?: string
+          original_url?: string
+          tracking_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracked_links_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_emails"
+            referencedColumns: ["tracking_id"]
+          },
+        ]
+      }
+      tracking_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_events_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_emails"
+            referencedColumns: ["tracking_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

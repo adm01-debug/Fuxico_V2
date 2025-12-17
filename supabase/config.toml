@@ -1,1 +1,13 @@
 project_id = "npjfwzzapbtcguoupozd"
+
+[functions.track-pixel]
+verify_jwt = false
+
+[functions.track-link]
+verify_jwt = false
+
+[functions.create-tracking]
+verify_jwt = false
+
+[functions.get-tracking-stats]
+verify_jwt = false
