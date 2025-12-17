@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserPreferences } from '@/hooks/use-user-preferences';
 
 // Play a pleasant notification chime using Web Audio API
 function playNotificationSound() {
@@ -69,17 +70,24 @@ function showDesktopNotification(title: string, body: string) {
 export function useRealtimeNotifications() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { preferences } = useUserPreferences();
   const hasRequestedPermission = useRef(false);
 
-  // Request notification permission on mount
+  // Request notification permission on mount if desktop notifications are enabled
   useEffect(() => {
-    if (!hasRequestedPermission.current) {
+    if (!hasRequestedPermission.current && preferences?.desktop_enabled) {
       hasRequestedPermission.current = true;
       requestNotificationPermission();
     }
-  }, []);
+  }, [preferences?.desktop_enabled]);
 
-  const showOpenNotification = useCallback(async (trackingId: string) => {
+  const showOpenNotification = useCallback(async (trackingId: string, isSelfOpen: boolean) => {
+    // Skip if self-open
+    if (isSelfOpen) return;
+    
+    // Check if user wants open notifications
+    if (!preferences?.notify_on_open) return;
+
     const { data: email } = await supabase
       .from('tracked_emails')
       .select('recipient_email, subject, user_id')
@@ -87,17 +95,27 @@ export function useRealtimeNotifications() {
       .single();
 
     if (email && email.user_id === user?.id) {
-      playNotificationSound();
+      // Play sound if enabled
+      if (preferences?.sound_enabled) {
+        playNotificationSound();
+      }
       
       const title = '📧 Email Aberto!';
       const description = `${email.recipient_email} abriu "${email.subject || 'Sem assunto'}"`;
       
       toast({ title, description });
-      showDesktopNotification(title, description);
+      
+      // Show desktop notification if enabled
+      if (preferences?.desktop_enabled) {
+        showDesktopNotification(title, description);
+      }
     }
-  }, [user, toast]);
+  }, [user, toast, preferences]);
 
   const showClickNotification = useCallback(async (trackingId: string, linkUrl: string) => {
+    // Check if user wants click notifications
+    if (!preferences?.notify_on_click) return;
+
     const { data: email } = await supabase
       .from('tracked_emails')
       .select('recipient_email, subject, user_id')
@@ -105,15 +123,22 @@ export function useRealtimeNotifications() {
       .single();
 
     if (email && email.user_id === user?.id) {
-      playNotificationSound();
+      // Play sound if enabled
+      if (preferences?.sound_enabled) {
+        playNotificationSound();
+      }
       
       const title = '🔗 Link Clicado!';
       const description = `${email.recipient_email} clicou em um link`;
       
       toast({ title, description });
-      showDesktopNotification(title, description);
+      
+      // Show desktop notification if enabled
+      if (preferences?.desktop_enabled) {
+        showDesktopNotification(title, description);
+      }
     }
-  }, [user, toast]);
+  }, [user, toast, preferences]);
 
   useEffect(() => {
     if (!user) return;
@@ -132,10 +157,11 @@ export function useRealtimeNotifications() {
             tracking_id: string; 
             event_type: string;
             link_url?: string;
+            is_self_open?: boolean;
           };
           
           if (event.event_type === 'open') {
-            showOpenNotification(event.tracking_id);
+            showOpenNotification(event.tracking_id, event.is_self_open || false);
           } else if (event.event_type === 'click') {
             showClickNotification(event.tracking_id, event.link_url || '');
           }

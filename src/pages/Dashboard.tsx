@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTrackedEmails } from "@/hooks/use-tracking";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRealtimeNotifications } from "@/hooks/use-realtime-notifications";
@@ -11,7 +12,7 @@ import { DocumentsTab } from "@/components/dashboard/DocumentsTab";
 import { LinksTab } from "@/components/dashboard/LinksTab";
 import { BitrixTab } from "@/components/dashboard/BitrixTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Eye, MousePointerClick, TrendingUp, RefreshCw, LogOut, FileText, Link2, Building2 } from "lucide-react";
+import { Mail, Eye, MousePointerClick, TrendingUp, RefreshCw, LogOut, FileText, Link2, Building2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +28,7 @@ import logoImg from "@/assets/logo.jpg";
 
 const Dashboard = () => {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const { data, isLoading, refetch, isFetching } = useTrackedEmails();
   const { user, signOut } = useAuth();
   
@@ -84,6 +86,10 @@ const Dashboard = () => {
                       <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                     </div>
                   </DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Configurações
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut} className="text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
