@@ -9,8 +9,9 @@ import { CreateTrackingDialog } from "@/components/dashboard/CreateTrackingDialo
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { DocumentsTab } from "@/components/dashboard/DocumentsTab";
 import { LinksTab } from "@/components/dashboard/LinksTab";
+import { BitrixTab } from "@/components/dashboard/BitrixTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Eye, MousePointerClick, TrendingUp, RefreshCw, LogOut, FileText, Link2 } from "lucide-react";
+import { Mail, Eye, MousePointerClick, TrendingUp, RefreshCw, LogOut, FileText, Link2, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -110,6 +111,10 @@ const Dashboard = () => {
               <Link2 className="h-4 w-4" />
               Links
             </TabsTrigger>
+            <TabsTrigger value="bitrix" className="gap-2">
+              <Building2 className="h-4 w-4" />
+              Bitrix24
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="emails" className="space-y-6">
@@ -207,6 +212,10 @@ const Dashboard = () => {
 
           <TabsContent value="links">
             <LinksTab />
+          </TabsContent>
+
+          <TabsContent value="bitrix">
+            <BitrixTab />
           </TabsContent>
         </Tabs>
       </main>
