@@ -6,6 +6,7 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { EmailTable } from "@/components/dashboard/EmailTable";
 import { EmailDetail } from "@/components/dashboard/EmailDetail";
 import { CreateTrackingDialog } from "@/components/dashboard/CreateTrackingDialog";
+import { TrendChart } from "@/components/dashboard/TrendChart";
 import { Mail, Eye, MousePointerClick, TrendingUp, RefreshCw, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -131,6 +132,11 @@ const Dashboard = () => {
               />
             </>
           )}
+        </div>
+
+        {/* Trend Chart */}
+        <div className="mb-8">
+          <TrendChart />
         </div>
 
         {/* Main Content */}
