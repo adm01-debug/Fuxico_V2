@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.track-document]
 verify_jwt = false
+
+[functions.track-standalone-link]
+verify_jwt = false
