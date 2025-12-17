@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.get-tracking-stats]
 verify_jwt = false
+
+[functions.track-document]
+verify_jwt = false

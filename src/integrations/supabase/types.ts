@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      document_events: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          document_id: string
+          duration_seconds: number | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          os: string | null
+          page_number: number | null
+          referer: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          document_id: string
+          duration_seconds?: number | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          os?: string | null
+          page_number?: number | null
+          referer?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          document_id?: string
+          duration_seconds?: number | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          os?: string | null
+          page_number?: number | null
+          referer?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_events_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_documents"
+            referencedColumns: ["document_id"]
+          },
+        ]
+      }
+      tracked_documents: {
+        Row: {
+          created_at: string
+          description: string | null
+          document_id: string
+          expires_at: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          recipient_email: string | null
+          recipient_name: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          document_id: string
+          expires_at?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          recipient_email?: string | null
+          recipient_name?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          document_id?: string
+          expires_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          recipient_email?: string | null
+          recipient_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tracked_emails: {
         Row: {
           created_at: string
