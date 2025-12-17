@@ -9,7 +9,9 @@
     API_URL: 'https://npjfwzzapbtcguoupozd.supabase.co/functions/v1',
     PIXEL_ENDPOINT: '/track-pixel',
     CREATE_TRACKING_ENDPOINT: '/create-tracking',
+    REPORT_BOUNCE_ENDPOINT: '/report-bounce',
     CHECK_INTERVAL: 1000, // 1 segundo
+    BOUNCE_CHECK_INTERVAL: 30000, // 30 segundos
   };
 
   // Estado global
@@ -293,6 +295,145 @@
     log('Indicadores de pasta enviados - a implementar');
   }
 
+  // Detectar emails de bounce na caixa de entrada
+  const BOUNCE_SENDERS = [
+    'mailer-daemon',
+    'postmaster',
+    'mail-daemon',
+    'mail delivery',
+    'delivery status notification',
+    'undeliverable',
+    'failed delivery',
+    'mail system',
+    'auto-reply'
+  ];
+
+  const BOUNCE_SUBJECTS = [
+    'undeliverable',
+    'delivery status notification',
+    'delivery failure',
+    'returned mail',
+    'mail delivery failed',
+    'failure notice',
+    'undelivered mail',
+    'não foi possível entregar',
+    'falha na entrega',
+    'email não entregue'
+  ];
+
+  async function checkForBounceEmails() {
+    try {
+      // Procurar por emails de bounce na página atual
+      const emailRows = document.querySelectorAll('tr.zA');
+      
+      for (const row of emailRows) {
+        // Verificar se já processamos este email
+        if (row.dataset.fuxicoBounceChecked) continue;
+        row.dataset.fuxicoBounceChecked = 'true';
+        
+        const senderElement = row.querySelector('.yW .bA4 [email], .yW .yP [email]');
+        const subjectElement = row.querySelector('.y6 .bog');
+        
+        if (!senderElement || !subjectElement) continue;
+        
+        const senderEmail = (senderElement.getAttribute('email') || '').toLowerCase();
+        const senderName = (senderElement.textContent || '').toLowerCase();
+        const subject = (subjectElement.textContent || '').toLowerCase();
+        
+        // Verificar se é um email de bounce
+        const isBounce = BOUNCE_SENDERS.some(s => 
+          senderEmail.includes(s) || senderName.includes(s)
+        ) || BOUNCE_SUBJECTS.some(s => subject.includes(s));
+        
+        if (isBounce) {
+          log('Email de bounce detectado:', subject);
+          
+          // Tentar extrair o email original que bounceou
+          const bouncedEmail = extractBouncedEmailAddress(row);
+          
+          if (bouncedEmail) {
+            await reportBounce(bouncedEmail, subject);
+          }
+        }
+      }
+    } catch (e) {
+      error('Erro ao verificar emails de bounce:', e);
+    }
+  }
+
+  function extractBouncedEmailAddress(row) {
+    // Tentar extrair email do snippet ou preview
+    const snippetElement = row.querySelector('.y2');
+    if (snippetElement) {
+      const snippet = snippetElement.textContent || '';
+      const emailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
+      const matches = snippet.match(emailRegex);
+      if (matches && matches.length > 0) {
+        // Filtrar emails de sistema
+        const userEmails = matches.filter(email => 
+          !BOUNCE_SENDERS.some(s => email.toLowerCase().includes(s))
+        );
+        if (userEmails.length > 0) {
+          return userEmails[0];
+        }
+      }
+    }
+    return null;
+  }
+
+  async function reportBounce(recipientEmail, bounceSubject) {
+    try {
+      const bounceType = bounceSubject.includes('permanent') || bounceSubject.includes('failed') 
+        ? 'hard' 
+        : 'soft';
+      
+      log(`Reportando bounce para: ${recipientEmail} (${bounceType})`);
+      
+      const response = await fetch(`${CONFIG.API_URL}${CONFIG.REPORT_BOUNCE_ENDPOINT}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipient_email: recipientEmail,
+          bounce_type: bounceType,
+          bounce_reason: bounceSubject
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        log('Bounce reportado:', data);
+        showNotification('Bounce Detectado', `Email para ${recipientEmail} não foi entregue`);
+      } else {
+        log('Nenhum tracking encontrado para este bounce');
+      }
+    } catch (e) {
+      error('Erro ao reportar bounce:', e);
+    }
+  }
+
+  // Iniciar verificação periódica de bounces
+  function startBounceDetection() {
+    // Verificar imediatamente
+    checkForBounceEmails();
+    
+    // Verificar periodicamente
+    setInterval(checkForBounceEmails, CONFIG.BOUNCE_CHECK_INTERVAL);
+    
+    // Também verificar quando o DOM muda (navegação no Gmail)
+    const observer = new MutationObserver(() => {
+      setTimeout(checkForBounceEmails, 500);
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+    
+    log('Detecção de bounce iniciada');
+  }
+
   // Inicialização
   async function init() {
     log('Iniciando FUXICO Chrome Extension...');
@@ -315,6 +456,7 @@
     // Iniciar observação
     observeComposeWindows();
     addTrackingIndicatorsToSentFolder();
+    startBounceDetection();
 
     log('FUXICO inicializado com sucesso!');
     

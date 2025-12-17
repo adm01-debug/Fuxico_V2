@@ -195,7 +195,11 @@ export type Database = {
       }
       tracked_emails: {
         Row: {
+          bounce_detected_at: string | null
+          bounce_reason: string | null
+          bounce_type: string | null
           created_at: string
+          delivery_status: string | null
           id: string
           metadata: Json | null
           recipient_email: string
@@ -205,7 +209,11 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          bounce_detected_at?: string | null
+          bounce_reason?: string | null
+          bounce_type?: string | null
           created_at?: string
+          delivery_status?: string | null
           id?: string
           metadata?: Json | null
           recipient_email: string
@@ -215,7 +223,11 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          bounce_detected_at?: string | null
+          bounce_reason?: string | null
+          bounce_type?: string | null
           created_at?: string
+          delivery_status?: string | null
           id?: string
           metadata?: Json | null
           recipient_email?: string
