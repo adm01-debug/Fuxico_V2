@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTrackedEmails } from "@/hooks/use-tracking";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRealtimeNotifications } from "@/hooks/use-realtime-notifications";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { EmailTable } from "@/components/dashboard/EmailTable";
 import { EmailDetail } from "@/components/dashboard/EmailDetail";
@@ -23,6 +24,9 @@ const Dashboard = () => {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
   const { data, isLoading, refetch, isFetching } = useTrackedEmails();
   const { user, signOut } = useAuth();
+  
+  // Real-time notifications for email opens
+  useRealtimeNotifications();
 
   const emails = data?.emails || [];
   const totalEmails = emails.length;
