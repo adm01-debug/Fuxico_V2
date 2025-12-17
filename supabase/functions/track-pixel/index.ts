@@ -14,6 +14,9 @@ const TRANSPARENT_GIF = new Uint8Array([
   0x01, 0x00, 0x3b
 ])
 
+// Time threshold for self-open detection (2 minutes in milliseconds)
+const SELF_OPEN_THRESHOLD_MS = 2 * 60 * 1000
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -44,12 +47,37 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
+    // Get the tracked email to check creation time
+    const { data: trackedEmail, error: emailError } = await supabase
+      .from('tracked_emails')
+      .select('created_at, sender_email, user_id')
+      .eq('tracking_id', trackingId)
+      .maybeSingle()
+
+    if (emailError) {
+      console.error('Error fetching tracked email:', emailError)
+    }
+
     // Get request metadata
     const ipAddress = req.headers.get('x-forwarded-for') || 
                       req.headers.get('x-real-ip') || 
                       'unknown'
     const userAgent = req.headers.get('user-agent') || 'unknown'
     const referer = req.headers.get('referer') || null
+
+    // Detect self-open based on timing
+    let isSelfOpen = false
+    if (trackedEmail?.created_at) {
+      const emailCreatedAt = new Date(trackedEmail.created_at).getTime()
+      const now = Date.now()
+      const timeSinceCreation = now - emailCreatedAt
+      
+      // If opened within 2 minutes of creation, likely a self-open
+      if (timeSinceCreation < SELF_OPEN_THRESHOLD_MS) {
+        isSelfOpen = true
+        console.log(`Detected self-open for tracking ID: ${trackingId} (opened ${timeSinceCreation}ms after creation)`)
+      }
+    }
 
     // Log the open event
     const { error } = await supabase
@@ -60,8 +88,12 @@ Deno.serve(async (req) => {
         ip_address: ipAddress,
         user_agent: userAgent,
         referer: referer,
+        is_self_open: isSelfOpen,
         metadata: {
           timestamp: new Date().toISOString(),
+          time_since_creation_ms: trackedEmail?.created_at 
+            ? Date.now() - new Date(trackedEmail.created_at).getTime() 
+            : null,
           headers: {
             accept: req.headers.get('accept'),
             acceptLanguage: req.headers.get('accept-language'),
@@ -72,7 +104,7 @@ Deno.serve(async (req) => {
     if (error) {
       console.error('Error logging tracking event:', error)
     } else {
-      console.log(`Successfully logged open event for tracking ID: ${trackingId}`)
+      console.log(`Successfully logged ${isSelfOpen ? 'self-' : ''}open event for tracking ID: ${trackingId}`)
     }
 
     // Return transparent GIF

@@ -11,6 +11,7 @@ export interface TrackedEmail {
   user_id: string | null;
   opens?: number;
   clicks?: number;
+  selfOpens?: number;
 }
 
 export interface TrackingEvent {
@@ -23,6 +24,7 @@ export interface TrackingEvent {
   link_url: string | null;
   created_at: string;
   metadata: Record<string, unknown>;
+  is_self_open?: boolean;
 }
 
 export interface TrackedLink {
@@ -39,6 +41,7 @@ export interface TrackingStats {
   uniqueOpens: number;
   totalClicks: number;
   uniqueClicks: number;
+  selfOpens: number;
   firstOpened: string | null;
   lastOpened: string | null;
 }

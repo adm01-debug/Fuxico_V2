@@ -41,6 +41,7 @@ Deno.serve(async (req) => {
 
     const url = new URL(req.url)
     const trackingId = url.searchParams.get('id')
+    const includeSelfOpens = url.searchParams.get('includeSelfOpens') === 'true'
 
     // Use service role for queries
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
@@ -65,7 +66,7 @@ Deno.serve(async (req) => {
       }
 
       // Get all events for this email
-      const { data: events } = await supabase
+      const { data: allEvents } = await supabase
         .from('tracking_events')
         .select('*')
         .eq('tracking_id', trackingId)
@@ -77,9 +78,18 @@ Deno.serve(async (req) => {
         .select('*')
         .eq('tracking_id', trackingId)
 
-      // Calculate stats
-      const openEvents = events?.filter(e => e.event_type === 'open') || []
-      const clickEvents = events?.filter(e => e.event_type === 'click') || []
+      // Filter out self-opens for main stats (unless includeSelfOpens is true)
+      const events = allEvents || []
+      const filteredEvents = includeSelfOpens 
+        ? events 
+        : events.filter(e => !e.is_self_open)
+
+      // Calculate stats (excluding self-opens by default)
+      const openEvents = filteredEvents.filter(e => e.event_type === 'open')
+      const clickEvents = filteredEvents.filter(e => e.event_type === 'click')
+      
+      // Self-open count for display
+      const selfOpenCount = events.filter(e => e.event_type === 'open' && e.is_self_open).length
       
       // Get unique opens by IP
       const uniqueOpens = new Set(openEvents.map(e => e.ip_address)).size
@@ -92,10 +102,11 @@ Deno.serve(async (req) => {
           uniqueOpens,
           totalClicks: clickEvents.length,
           uniqueClicks,
+          selfOpens: selfOpenCount,
           firstOpened: openEvents.length > 0 ? openEvents[openEvents.length - 1].created_at : null,
           lastOpened: openEvents.length > 0 ? openEvents[0].created_at : null,
         },
-        events: events || [],
+        events: events, // Return all events but mark self-opens
         links: links || [],
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -120,21 +131,25 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Get event counts for each email
+    // Get event counts for each email (excluding self-opens)
     const emailsWithStats = await Promise.all(
       (emails || []).map(async (email) => {
         const { data: events } = await supabase
           .from('tracking_events')
-          .select('event_type')
+          .select('event_type, is_self_open')
           .eq('tracking_id', email.tracking_id)
 
-        const opens = events?.filter(e => e.event_type === 'open').length || 0
-        const clicks = events?.filter(e => e.event_type === 'click').length || 0
+        // Exclude self-opens from main counts
+        const filteredEvents = events?.filter(e => !e.is_self_open) || []
+        const opens = filteredEvents.filter(e => e.event_type === 'open').length
+        const clicks = filteredEvents.filter(e => e.event_type === 'click').length
+        const selfOpens = events?.filter(e => e.event_type === 'open' && e.is_self_open).length || 0
 
         return {
           ...email,
           opens,
           clicks,
+          selfOpens,
         }
       })
     )
