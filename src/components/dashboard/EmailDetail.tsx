@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { TrackingEvent } from "@/lib/tracking-api";
+import { cn } from "@/lib/utils";
 
 interface EmailDetailProps {
   trackingId: string;
@@ -92,7 +93,12 @@ export function EmailDetail({ trackingId, onClose }: EmailDetailProps) {
               <span className="text-sm font-medium">Aberturas</span>
             </div>
             <p className="text-2xl font-bold text-success">{stats.totalOpens}</p>
-            <p className="text-xs text-muted-foreground">{stats.uniqueOpens} únicos</p>
+            <p className="text-xs text-muted-foreground">
+              {stats.uniqueOpens} únicos
+              {stats.selfOpens > 0 && (
+                <span className="ml-1">• {stats.selfOpens} self-opens</span>
+              )}
+            </p>
           </div>
           <div className="bg-primary/10 rounded-lg p-4">
             <div className="flex items-center gap-2 text-primary mb-1">
@@ -224,11 +230,19 @@ export function EmailDetail({ trackingId, onClose }: EmailDetailProps) {
               {events.map((event) => (
                 <div 
                   key={event.id}
-                  className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg"
+                  className={cn(
+                    "flex items-start gap-3 p-3 rounded-lg",
+                    event.is_self_open ? "bg-muted/20 opacity-60" : "bg-muted/30"
+                  )}
                 >
-                  <div className={`p-1.5 rounded-full ${
-                    event.event_type === 'open' ? 'bg-success/20 text-success' : 'bg-primary/20 text-primary'
-                  }`}>
+                  <div className={cn(
+                    "p-1.5 rounded-full",
+                    event.is_self_open 
+                      ? "bg-muted text-muted-foreground"
+                      : event.event_type === 'open' 
+                        ? 'bg-success/20 text-success' 
+                        : 'bg-primary/20 text-primary'
+                  )}>
                     {event.event_type === 'open' ? (
                       <Eye className="h-3.5 w-3.5" />
                     ) : (
@@ -236,8 +250,13 @@ export function EmailDetail({ trackingId, onClose }: EmailDetailProps) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium flex items-center gap-2">
                       {event.event_type === 'open' ? 'Email aberto' : 'Link clicado'}
+                      {event.is_self_open && (
+                        <Badge variant="outline" className="text-xs">
+                          Self-open
+                        </Badge>
+                      )}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {format(new Date(event.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}

@@ -267,6 +267,7 @@ export type Database = {
           event_type: string
           id: string
           ip_address: string | null
+          is_self_open: boolean | null
           link_url: string | null
           metadata: Json | null
           referer: string | null
@@ -278,6 +279,7 @@ export type Database = {
           event_type: string
           id?: string
           ip_address?: string | null
+          is_self_open?: boolean | null
           link_url?: string | null
           metadata?: Json | null
           referer?: string | null
@@ -289,6 +291,7 @@ export type Database = {
           event_type?: string
           id?: string
           ip_address?: string | null
+          is_self_open?: boolean | null
           link_url?: string | null
           metadata?: Json | null
           referer?: string | null
