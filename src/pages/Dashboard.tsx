@@ -25,7 +25,7 @@ const Dashboard = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-            <h1 className="text-2xl font-bold text-foreground">Me conta</h1>
+            <h1 className="text-2xl font-bold text-foreground">FUXICO</h1>
               <p className="text-sm text-muted-foreground">Saiba quando seus emails são lidos</p>
             </div>
             <div className="flex items-center gap-3">
