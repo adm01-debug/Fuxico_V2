@@ -76,6 +76,81 @@ export type Database = {
           },
         ]
       }
+      link_click_events: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          id: string
+          ip_address: string | null
+          link_id: string
+          os: string | null
+          referer: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          link_id: string
+          os?: string | null
+          referer?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          link_id?: string
+          os?: string | null
+          referer?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      standalone_tracked_links: {
+        Row: {
+          click_count: number | null
+          created_at: string
+          description: string | null
+          id: string
+          link_id: string
+          original_url: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          click_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          link_id: string
+          original_url: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          click_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          link_id?: string
+          original_url?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tracked_documents: {
         Row: {
           created_at: string
