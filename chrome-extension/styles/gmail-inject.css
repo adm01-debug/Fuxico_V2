@@ -1,0 +1,206 @@
+/* FUXICO - Gmail Injection Styles */
+
+/* Toast Notification */
+.fuxico-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #4285f4, #7c4dff);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(66, 133, 244, 0.4);
+  z-index: 999999;
+  font-family: 'Google Sans', Roboto, sans-serif;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.fuxico-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.fuxico-toast-icon {
+  font-size: 24px;
+}
+
+.fuxico-toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fuxico-toast-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.fuxico-toast-message {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* Toggle Button in Compose Window */
+.fuxico-toggle {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 0 4px;
+}
+
+.fuxico-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 18px;
+  background: #e8eaed;
+  color: #5f6368;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Google Sans', Roboto, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fuxico-toggle-btn:hover {
+  background: #d2d4d7;
+}
+
+.fuxico-toggle-btn.active {
+  background: linear-gradient(135deg, #4285f4, #7c4dff);
+  color: white;
+}
+
+.fuxico-toggle-btn.active:hover {
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.4);
+}
+
+.fuxico-icon {
+  font-size: 14px;
+}
+
+.fuxico-label {
+  letter-spacing: 0.5px;
+}
+
+/* Tracking Status Indicator in Sent Folder */
+.fuxico-status {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.fuxico-status-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.fuxico-status-icon.sent {
+  color: #9aa0a6;
+}
+
+.fuxico-status-icon.opened {
+  color: #34a853;
+}
+
+.fuxico-status-icon.clicked {
+  color: #4285f4;
+}
+
+/* Checkmark icons */
+.fuxico-checkmark {
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.fuxico-checkmark::before {
+  content: '✓';
+  font-size: 12px;
+  color: #9aa0a6;
+}
+
+.fuxico-checkmark.opened::before {
+  content: '✓✓';
+  color: #34a853;
+}
+
+.fuxico-checkmark.clicked::before {
+  content: '✓✓';
+  color: #4285f4;
+}
+
+/* Hover tooltip */
+.fuxico-tooltip {
+  position: absolute;
+  background: #202124;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: 'Google Sans', Roboto, sans-serif;
+  z-index: 999999;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.fuxico-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #202124;
+}
+
+/* Pulse animation for new opens */
+@keyframes fuxico-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.fuxico-status-icon.pulse {
+  animation: fuxico-pulse 0.5s ease-in-out;
+}
+
+/* Badge for unread opens */
+.fuxico-badge {
+  position: relative;
+}
+
+.fuxico-badge::after {
+  content: attr(data-count);
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ea4335;
+  color: white;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 14px;
+  text-align: center;
+}

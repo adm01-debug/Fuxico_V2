@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FUXICO</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="logo">
+        <span class="logo-icon">📧</span>
+        <span class="logo-text">FUXICO</span>
+      </div>
+      <a href="#" class="dashboard-link" id="openDashboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      </a>
+    </header>
+
+    <!-- Status Card -->
+    <div class="status-card">
+      <div class="status-indicator" id="statusIndicator">
+        <div class="status-dot active"></div>
+        <span class="status-text">Tracking Ativo</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="trackingToggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalEmails">-</div>
+        <div class="stat-label">Emails</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-value" id="totalOpens">-</div>
+        <div class="stat-label">Abertos</div>
+      </div>
+      <div class="stat-card primary">
+        <div class="stat-value" id="totalClicks">-</div>
+        <div class="stat-label">Cliques</div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="section">
+      <h3 class="section-title">Atividade Recente</h3>
+      <div class="activity-list" id="activityList">
+        <div class="activity-empty">
+          <span class="activity-empty-icon">📭</span>
+          <span class="activity-empty-text">Nenhuma atividade ainda</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="section">
+      <h3 class="section-title">Configurações</h3>
+      <div class="settings-list">
+        <label class="setting-item">
+          <span class="setting-label">
+            <span class="setting-icon">🔔</span>
+            Notificações
+          </span>
+          <input type="checkbox" id="notificationsToggle" checked>
+        </label>
+        <label class="setting-item">
+          <span class="setting-label">
+            <span class="setting-icon">🔊</span>
+            Som de alerta
+          </span>
+          <input type="checkbox" id="soundToggle">
+        </label>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <span class="version">v1.0.0</span>
+      <a href="#" class="help-link">Ajuda</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
