@@ -8,6 +8,7 @@ import { EmailTable } from "@/components/dashboard/EmailTable";
 import { EmailDetail } from "@/components/dashboard/EmailDetail";
 import { CreateTrackingDialog } from "@/components/dashboard/CreateTrackingDialog";
 import { TrendChart } from "@/components/dashboard/TrendChart";
+import { OpenTimeHeatmap } from "@/components/dashboard/OpenTimeHeatmap";
 import { DocumentsTab } from "@/components/dashboard/DocumentsTab";
 import { LinksTab } from "@/components/dashboard/LinksTab";
 import { BitrixTab } from "@/components/dashboard/BitrixTab";
@@ -165,8 +166,11 @@ const Dashboard = () => {
               )}
             </div>
 
-            {/* Trend Chart */}
-            <TrendChart />
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TrendChart />
+              <OpenTimeHeatmap />
+            </div>
 
             {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
