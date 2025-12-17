@@ -1,18 +1,49 @@
+import { useMemo } from "react";
 import { useEmailDetail } from "@/hooks/use-tracking";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Eye, MousePointerClick, Clock, Globe, Monitor, Link2, X } from "lucide-react";
+import { Eye, MousePointerClick, Clock, Globe, Link2, X, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { TrackingEvent } from "@/lib/tracking-api";
 
 interface EmailDetailProps {
   trackingId: string;
   onClose: () => void;
 }
 
+function processEventsForChart(events: TrackingEvent[]) {
+  if (events.length === 0) return [];
+
+  // Group events by hour
+  const grouped = events.reduce((acc, event) => {
+    const hour = format(new Date(event.created_at), "dd/MM HH:00");
+    if (!acc[hour]) {
+      acc[hour] = { time: hour, opens: 0, clicks: 0 };
+    }
+    if (event.event_type === 'open') {
+      acc[hour].opens += 1;
+    } else if (event.event_type === 'click') {
+      acc[hour].clicks += 1;
+    }
+    return acc;
+  }, {} as Record<string, { time: string; opens: number; clicks: number }>);
+
+  return Object.values(grouped).sort((a, b) => 
+    new Date(a.time.split(' ')[0].split('/').reverse().join('-') + 'T' + a.time.split(' ')[1]).getTime() -
+    new Date(b.time.split(' ')[0].split('/').reverse().join('-') + 'T' + b.time.split(' ')[1]).getTime()
+  );
+}
+
 export function EmailDetail({ trackingId, onClose }: EmailDetailProps) {
   const { data, isLoading } = useEmailDetail(trackingId);
+
+  const chartData = useMemo(() => {
+    if (!data?.events) return [];
+    return processEventsForChart(data.events);
+  }, [data?.events]);
 
   if (isLoading) {
     return (
@@ -72,6 +103,71 @@ export function EmailDetail({ trackingId, onClose }: EmailDetailProps) {
             <p className="text-xs text-muted-foreground">{stats.uniqueClicks} únicos</p>
           </div>
         </div>
+
+        {/* Activity Chart */}
+        {chartData.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-medium flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Atividade ao Longo do Tempo
+            </h4>
+            <div className="bg-muted/30 rounded-lg p-4">
+              <ResponsiveContainer width="100%" height={160}>
+                <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="colorOpens" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    dataKey="time" 
+                    tick={{ fontSize: 10 }} 
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 10 }} 
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
+                    labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="opens"
+                    name="Aberturas"
+                    stroke="hsl(var(--success))"
+                    fillOpacity={1}
+                    fill="url(#colorOpens)"
+                    strokeWidth={2}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="clicks"
+                    name="Cliques"
+                    stroke="hsl(var(--primary))"
+                    fillOpacity={1}
+                    fill="url(#colorClicks)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
         {/* Timestamps */}
         {stats.firstOpened && (
