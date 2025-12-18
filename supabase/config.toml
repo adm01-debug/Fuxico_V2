@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.report-bounce]
 verify_jwt = false
+
+[functions.log-email-activity]
+verify_jwt = false
