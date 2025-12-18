@@ -20,9 +20,11 @@ import {
   Mail,
   Shield,
   ExternalLink,
-  Settings
+  Settings,
+  UserCog
 } from "lucide-react";
 import { AuditConfigTab } from "./AuditConfigTab";
+import { UserRolesTab } from "./UserRolesTab";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
@@ -180,6 +182,10 @@ export function AuditTab() {
           <TabsTrigger value="users" className="gap-2">
             <Users className="h-4 w-4" />
             Atividade por Usuário
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="gap-2">
+            <UserCog className="h-4 w-4" />
+            Gerenciar Roles
           </TabsTrigger>
           <TabsTrigger value="config" className="gap-2">
             <Settings className="h-4 w-4" />
@@ -393,6 +399,10 @@ export function AuditTab() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="roles" className="space-y-4">
+          <UserRolesTab />
         </TabsContent>
 
         <TabsContent value="config" className="space-y-4">
