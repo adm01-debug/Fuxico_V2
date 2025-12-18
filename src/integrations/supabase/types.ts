@@ -76,6 +76,104 @@ export type Database = {
           },
         ]
       }
+      email_audit_logs: {
+        Row: {
+          created_at: string
+          direction: string
+          external_domain: string | null
+          id: string
+          is_external: boolean | null
+          metadata: Json | null
+          recipient_email: string | null
+          sender_email: string | null
+          subject: string | null
+          timestamp: string
+          user_email: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          external_domain?: string | null
+          id?: string
+          is_external?: boolean | null
+          metadata?: Json | null
+          recipient_email?: string | null
+          sender_email?: string | null
+          subject?: string | null
+          timestamp?: string
+          user_email: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          external_domain?: string | null
+          id?: string
+          is_external?: boolean | null
+          metadata?: Json | null
+          recipient_email?: string | null
+          sender_email?: string | null
+          subject?: string | null
+          timestamp?: string
+          user_email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fraud_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string
+          email_audit_log_id: string | null
+          id: string
+          is_resolved: boolean | null
+          metadata: Json | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          user_email: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description: string
+          email_audit_log_id?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          metadata?: Json | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          user_email: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string
+          email_audit_log_id?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          metadata?: Json | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          user_email?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fraud_alerts_email_audit_log_id_fkey"
+            columns: ["email_audit_log_id"]
+            isOneToOne: false
+            referencedRelation: "email_audit_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       link_click_events: {
         Row: {
           browser: string | null
@@ -365,15 +463,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -500,6 +625,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

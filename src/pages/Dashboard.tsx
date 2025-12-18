@@ -12,8 +12,9 @@ import { OpenTimeHeatmap } from "@/components/dashboard/OpenTimeHeatmap";
 import { DocumentsTab } from "@/components/dashboard/DocumentsTab";
 import { LinksTab } from "@/components/dashboard/LinksTab";
 import { BitrixTab } from "@/components/dashboard/BitrixTab";
+import { AuditTab } from "@/components/dashboard/AuditTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Eye, MousePointerClick, TrendingUp, RefreshCw, LogOut, FileText, Link2, Building2, Settings } from "lucide-react";
+import { Mail, Eye, MousePointerClick, TrendingUp, RefreshCw, LogOut, FileText, Link2, Building2, Settings, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -122,6 +123,10 @@ const Dashboard = () => {
               <Building2 className="h-4 w-4" />
               Bitrix24
             </TabsTrigger>
+            <TabsTrigger value="audit" className="gap-2">
+              <Shield className="h-4 w-4" />
+              Auditoria
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="emails" className="space-y-6">
@@ -226,6 +231,10 @@ const Dashboard = () => {
 
           <TabsContent value="bitrix">
             <BitrixTab />
+          </TabsContent>
+
+          <TabsContent value="audit">
+            <AuditTab />
           </TabsContent>
         </Tabs>
       </main>

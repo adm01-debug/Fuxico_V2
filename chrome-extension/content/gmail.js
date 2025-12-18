@@ -10,13 +10,17 @@
     PIXEL_ENDPOINT: '/track-pixel',
     CREATE_TRACKING_ENDPOINT: '/create-tracking',
     REPORT_BOUNCE_ENDPOINT: '/report-bounce',
+    LOG_EMAIL_ACTIVITY_ENDPOINT: '/log-email-activity',
     CHECK_INTERVAL: 1000, // 1 segundo
     BOUNCE_CHECK_INTERVAL: 30000, // 30 segundos
+    AUDIT_CHECK_INTERVAL: 60000, // 1 minuto
   };
 
   // Estado global
   let isTrackingEnabled = true;
   let observedComposeWindows = new Set();
+  let processedEmails = new Set(); // Para evitar logs duplicados de auditoria
+  let authToken = null; // Token de autenticação
 
   // Utilitários
   const log = (msg, ...args) => console.log(`[FUXICO] ${msg}`, ...args);
@@ -25,9 +29,10 @@
   // Carregar configurações do storage
   async function loadSettings() {
     try {
-      const result = await chrome.storage.sync.get(['trackingEnabled']);
+      const result = await chrome.storage.sync.get(['trackingEnabled', 'authToken']);
       isTrackingEnabled = result.trackingEnabled !== false; // default true
-      log('Configurações carregadas. Tracking:', isTrackingEnabled ? 'ON' : 'OFF');
+      authToken = result.authToken || null;
+      log('Configurações carregadas. Tracking:', isTrackingEnabled ? 'ON' : 'OFF', 'Auth:', authToken ? 'YES' : 'NO');
     } catch (e) {
       error('Erro ao carregar configurações:', e);
     }
@@ -434,6 +439,140 @@
     log('Detecção de bounce iniciada');
   }
 
+  // ========== AUDITORIA DE EMAILS ==========
+  
+  // Registrar atividade de email no backend
+  async function logEmailActivity(direction, recipientEmail, senderEmail, subject) {
+    if (!authToken) {
+      log('Token de autenticação não disponível, auditoria não registrada');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${CONFIG.API_URL}${CONFIG.LOG_EMAIL_ACTIVITY_ENDPOINT}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          direction,
+          recipientEmail,
+          senderEmail,
+          subject,
+          timestamp: new Date().toISOString(),
+          metadata: {
+            source: 'chrome-extension',
+          }
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        log(`Atividade registrada: ${direction}`, data.alertsCreated > 0 ? `(${data.alertsCreated} alertas)` : '');
+      } else {
+        error('Erro ao registrar atividade:', await response.text());
+      }
+    } catch (e) {
+      error('Erro de rede ao registrar atividade:', e);
+    }
+  }
+
+  // Extrair email do usuário atual
+  function getCurrentUserEmail() {
+    // Tentar obter do Gmail
+    const accountButton = document.querySelector('a[aria-label*="Google Account"], [data-email]');
+    if (accountButton) {
+      const email = accountButton.getAttribute('data-email') || accountButton.getAttribute('aria-label');
+      const match = email?.match(/[\w.-]+@[\w.-]+\.\w+/);
+      if (match) return match[0];
+    }
+    
+    // Fallback: tentar no header
+    const gbii = document.querySelector('.gb_C .gb_d');
+    if (gbii) {
+      const match = gbii.textContent?.match(/[\w.-]+@[\w.-]+\.\w+/);
+      if (match) return match[0];
+    }
+    
+    return null;
+  }
+
+  // Detectar emails recebidos na inbox
+  async function detectReceivedEmails() {
+    if (!authToken) return;
+    
+    try {
+      const emailRows = document.querySelectorAll('tr.zA');
+      const currentUserEmail = getCurrentUserEmail();
+      
+      for (const row of emailRows) {
+        // Gerar ID único para este email
+        const rowId = row.getAttribute('data-legacy-thread-id') || row.querySelector('.a3s')?.id || '';
+        if (!rowId || processedEmails.has(rowId)) continue;
+        
+        const senderElement = row.querySelector('.yW .bA4 [email], .yW .yP [email]');
+        const subjectElement = row.querySelector('.y6 .bog');
+        
+        if (!senderElement) continue;
+        
+        const senderEmail = senderElement.getAttribute('email') || '';
+        const subject = subjectElement?.textContent || '';
+        
+        // Verificar se não é um email enviado por nós
+        if (senderEmail.toLowerCase() === currentUserEmail?.toLowerCase()) continue;
+        
+        // Verificar se não é email de sistema (bounce, etc)
+        if (BOUNCE_SENDERS.some(s => senderEmail.toLowerCase().includes(s))) continue;
+        
+        // Marcar como processado e registrar
+        processedEmails.add(rowId);
+        
+        // Limitar tamanho do set
+        if (processedEmails.size > 500) {
+          const firstKey = processedEmails.values().next().value;
+          processedEmails.delete(firstKey);
+        }
+        
+        await logEmailActivity('received', currentUserEmail, senderEmail, subject);
+      }
+    } catch (e) {
+      error('Erro ao detectar emails recebidos:', e);
+    }
+  }
+
+  // Modificar a função de envio para também logar auditoria
+  const originalInjectPixelBeforeSend = injectPixelBeforeSend;
+  
+  async function injectPixelBeforeSendWithAudit(composeWindow) {
+    const recipients = extractRecipients(composeWindow);
+    const subject = extractSubject(composeWindow);
+    const currentUserEmail = getCurrentUserEmail();
+    
+    // Chamar função original de pixel
+    if (isTrackingEnabled) {
+      await originalInjectPixelBeforeSend(composeWindow);
+    }
+    
+    // Registrar auditoria para cada destinatário
+    if (authToken && recipients.length > 0) {
+      for (const recipient of recipients) {
+        await logEmailActivity('sent', recipient, currentUserEmail, subject);
+      }
+    }
+  }
+
+  // Iniciar auditoria periódica
+  function startEmailAudit() {
+    // Verificar emails recebidos imediatamente
+    detectReceivedEmails();
+    
+    // Verificar periodicamente
+    setInterval(detectReceivedEmails, CONFIG.AUDIT_CHECK_INTERVAL);
+    
+    log('Auditoria de emails iniciada');
+  }
+
   // Inicialização
   async function init() {
     log('Iniciando FUXICO Chrome Extension...');
@@ -457,6 +596,7 @@
     observeComposeWindows();
     addTrackingIndicatorsToSentFolder();
     startBounceDetection();
+    startEmailAudit();
 
     log('FUXICO inicializado com sucesso!');
     
@@ -475,10 +615,18 @@
       sendResponse({ success: true });
     }
     
+    if (request.action === 'setAuthToken') {
+      authToken = request.token;
+      chrome.storage.sync.set({ authToken: request.token });
+      log('Token de autenticação atualizado');
+      sendResponse({ success: true });
+    }
+    
     if (request.action === 'getStatus') {
       sendResponse({ 
         trackingEnabled: isTrackingEnabled,
-        composeWindowsCount: observedComposeWindows.size 
+        composeWindowsCount: observedComposeWindows.size,
+        hasAuthToken: !!authToken
       });
     }
     
