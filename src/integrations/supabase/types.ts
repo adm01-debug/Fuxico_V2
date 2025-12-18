@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_config: {
+        Row: {
+          business_hours_end: number
+          business_hours_start: number
+          created_at: string
+          id: string
+          internal_domains: string[]
+          timezone: string
+          updated_at: string
+          volume_threshold_daily: number
+          volume_threshold_hourly: number
+        }
+        Insert: {
+          business_hours_end?: number
+          business_hours_start?: number
+          created_at?: string
+          id?: string
+          internal_domains?: string[]
+          timezone?: string
+          updated_at?: string
+          volume_threshold_daily?: number
+          volume_threshold_hourly?: number
+        }
+        Update: {
+          business_hours_end?: number
+          business_hours_start?: number
+          created_at?: string
+          id?: string
+          internal_domains?: string[]
+          timezone?: string
+          updated_at?: string
+          volume_threshold_daily?: number
+          volume_threshold_hourly?: number
+        }
+        Relationships: []
+      }
       document_events: {
         Row: {
           browser: string | null

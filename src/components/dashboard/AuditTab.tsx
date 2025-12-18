@@ -19,8 +19,10 @@ import {
   Users,
   Mail,
   Shield,
-  ExternalLink
+  ExternalLink,
+  Settings
 } from "lucide-react";
+import { AuditConfigTab } from "./AuditConfigTab";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
@@ -169,6 +171,10 @@ export function AuditTab() {
           <TabsTrigger value="users" className="gap-2">
             <Users className="h-4 w-4" />
             Atividade por Usuário
+          </TabsTrigger>
+          <TabsTrigger value="config" className="gap-2">
+            <Settings className="h-4 w-4" />
+            Configurações
           </TabsTrigger>
         </TabsList>
 
@@ -340,6 +346,10 @@ export function AuditTab() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="config" className="space-y-4">
+          <AuditConfigTab />
         </TabsContent>
       </Tabs>
     </div>

@@ -15,47 +15,48 @@ interface EmailActivityRequest {
   metadata?: Record<string, unknown>;
 }
 
-// Company domains (configurable)
-const INTERNAL_DOMAINS = ['company.com', 'empresa.com.br'];
+interface AuditConfig {
+  internal_domains: string[];
+  business_hours_start: number;
+  business_hours_end: number;
+  timezone: string;
+  volume_threshold_hourly: number;
+  volume_threshold_daily: number;
+}
 
-// Business hours configuration
-const BUSINESS_HOURS = {
-  start: 8,  // 8 AM
-  end: 18,   // 6 PM
-  timezone: 'America/Sao_Paulo'
+// Default config as fallback
+const DEFAULT_CONFIG: AuditConfig = {
+  internal_domains: ['company.com', 'empresa.com.br'],
+  business_hours_start: 8,
+  business_hours_end: 18,
+  timezone: 'America/Sao_Paulo',
+  volume_threshold_hourly: 50,
+  volume_threshold_daily: 200,
 };
 
-// Volume thresholds
-const VOLUME_THRESHOLD = {
-  hourly: 50,  // Max emails per hour
-  daily: 200   // Max emails per day
-};
-
-function isExternalDomain(email: string): { isExternal: boolean; domain: string | null } {
+function isExternalDomain(email: string, internalDomains: string[]): { isExternal: boolean; domain: string | null } {
   if (!email) return { isExternal: false, domain: null };
   const domain = email.split('@')[1]?.toLowerCase();
   if (!domain) return { isExternal: false, domain: null };
-  const isExternal = !INTERNAL_DOMAINS.some(d => domain === d || domain.endsWith(`.${d}`));
+  const isExternal = !internalDomains.some(d => domain === d || domain.endsWith(`.${d}`));
   return { isExternal, domain };
 }
 
-function isSuspiciousHour(timestamp: Date): boolean {
-  // Convert to business timezone
+function isSuspiciousHour(timestamp: Date, config: AuditConfig): boolean {
   const options: Intl.DateTimeFormatOptions = { 
-    timeZone: BUSINESS_HOURS.timezone, 
+    timeZone: config.timezone, 
     hour: 'numeric', 
     hour12: false 
   };
   const hour = parseInt(new Intl.DateTimeFormat('en-US', options).format(timestamp));
   const dayOptions: Intl.DateTimeFormatOptions = { 
-    timeZone: BUSINESS_HOURS.timezone, 
+    timeZone: config.timezone, 
     weekday: 'short' 
   };
   const dayOfWeek = new Intl.DateTimeFormat('en-US', dayOptions).format(timestamp);
   
-  // Weekend or outside business hours
   const isWeekend = dayOfWeek === 'Sat' || dayOfWeek === 'Sun';
-  const isOutsideHours = hour < BUSINESS_HOURS.start || hour >= BUSINESS_HOURS.end;
+  const isOutsideHours = hour < config.business_hours_start || hour >= config.business_hours_end;
   
   return isWeekend || isOutsideHours;
 }
@@ -97,9 +98,18 @@ serve(async (req) => {
 
     console.log(`Logging email activity for user ${user.email}: ${direction}`);
 
+    // Fetch audit config from database
+    const { data: configData } = await supabaseClient
+      .from("audit_config")
+      .select("*")
+      .single();
+
+    const config: AuditConfig = configData || DEFAULT_CONFIG;
+    console.log("Using audit config:", config);
+
     const emailTimestamp = timestamp ? new Date(timestamp) : new Date();
     const targetEmail = direction === 'sent' ? recipientEmail : senderEmail;
-    const { isExternal, domain } = isExternalDomain(targetEmail || '');
+    const { isExternal, domain } = isExternalDomain(targetEmail || '', config.internal_domains);
 
     // Insert audit log
     const { data: auditLog, error: insertError } = await supabaseClient
@@ -135,7 +145,7 @@ serve(async (req) => {
     }> = [];
 
     // 1. Check suspicious hours (only for sent emails)
-    if (direction === 'sent' && isSuspiciousHour(emailTimestamp)) {
+    if (direction === 'sent' && isSuspiciousHour(emailTimestamp, config)) {
       const hour = emailTimestamp.getHours();
       const dayOfWeek = emailTimestamp.toLocaleDateString('pt-BR', { weekday: 'long' });
       alerts.push({
@@ -172,17 +182,17 @@ serve(async (req) => {
       .eq("direction", "sent")
       .gte("timestamp", oneDayAgo.toISOString());
 
-    if (hourlyCount && hourlyCount >= VOLUME_THRESHOLD.hourly) {
+    if (hourlyCount && hourlyCount >= config.volume_threshold_hourly) {
       alerts.push({
         alert_type: 'volume_anomaly',
         severity: 'high',
-        description: `Volume anormal: ${hourlyCount} emails enviados na última hora (limite: ${VOLUME_THRESHOLD.hourly})`,
+        description: `Volume anormal: ${hourlyCount} emails enviados na última hora (limite: ${config.volume_threshold_hourly})`,
       });
-    } else if (dailyCount && dailyCount >= VOLUME_THRESHOLD.daily) {
+    } else if (dailyCount && dailyCount >= config.volume_threshold_daily) {
       alerts.push({
         alert_type: 'volume_anomaly',
         severity: 'medium',
-        description: `Volume elevado: ${dailyCount} emails enviados nas últimas 24h (limite: ${VOLUME_THRESHOLD.daily})`,
+        description: `Volume elevado: ${dailyCount} emails enviados nas últimas 24h (limite: ${config.volume_threshold_daily})`,
       });
     }
 
