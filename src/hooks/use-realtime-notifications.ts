@@ -140,10 +140,38 @@ export function useRealtimeNotifications() {
     }
   }, [user, toast, preferences]);
 
+  const showFraudAlertNotification = useCallback((alert: {
+    alert_type: string;
+    severity: string;
+    description: string;
+    user_email: string;
+  }) => {
+    // Play urgent sound for fraud alerts
+    if (preferences?.sound_enabled) {
+      playNotificationSound();
+    }
+    
+    const severityEmoji = alert.severity === 'high' ? '🚨' : alert.severity === 'medium' ? '⚠️' : 'ℹ️';
+    const title = `${severityEmoji} Alerta de Fraude Detectado!`;
+    const description = `${alert.user_email}: ${alert.description}`;
+    
+    toast({ 
+      title, 
+      description,
+      variant: alert.severity === 'high' ? 'destructive' : 'default',
+    });
+    
+    // Show desktop notification if enabled
+    if (preferences?.desktop_enabled) {
+      showDesktopNotification(title, description);
+    }
+  }, [toast, preferences]);
+
   useEffect(() => {
     if (!user) return;
 
-    const channel = supabase
+    // Subscribe to tracking events
+    const trackingChannel = supabase
       .channel('tracking-events-realtime')
       .on(
         'postgres_changes',
@@ -168,11 +196,38 @@ export function useRealtimeNotifications() {
         }
       )
       .subscribe((status) => {
-        console.log('Realtime subscription status:', status);
+        console.log('Tracking events subscription status:', status);
+      });
+
+    // Subscribe to fraud alerts (for admins)
+    const fraudChannel = supabase
+      .channel('fraud-alerts-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'fraud_alerts',
+        },
+        (payload) => {
+          const alert = payload.new as {
+            alert_type: string;
+            severity: string;
+            description: string;
+            user_email: string;
+            user_id: string;
+          };
+          
+          showFraudAlertNotification(alert);
+        }
+      )
+      .subscribe((status) => {
+        console.log('Fraud alerts subscription status:', status);
       });
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(trackingChannel);
+      supabase.removeChannel(fraudChannel);
     };
-  }, [user, showOpenNotification, showClickNotification]);
+  }, [user, showOpenNotification, showClickNotification, showFraudAlertNotification]);
 }
