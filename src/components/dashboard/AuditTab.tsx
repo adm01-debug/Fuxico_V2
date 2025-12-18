@@ -53,6 +53,8 @@ export function AuditTab() {
   const { data: isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
   const [directionFilter, setDirectionFilter] = useState<string>("all");
   const [showResolved, setShowResolved] = useState(false);
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
 
   const { data: stats } = useAuditStats();
   const { data: alerts = [], isLoading: isLoadingAlerts } = useFraudAlerts(showResolved);
@@ -61,6 +63,13 @@ export function AuditTab() {
   });
   const { data: userActivity = [] } = useUserActivitySummary();
   const resolveAlert = useResolveAlert();
+
+  // Filter alerts by severity and type
+  const filteredAlerts = alerts.filter((alert) => {
+    const matchesSeverity = severityFilter === "all" || alert.severity === severityFilter;
+    const matchesType = typeFilter === "all" || alert.alert_type === typeFilter;
+    return matchesSeverity && matchesType;
+  });
 
   const handleResolveAlert = async (alertId: string) => {
     try {
@@ -181,20 +190,58 @@ export function AuditTab() {
         <TabsContent value="alerts" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Alertas de Fraude</CardTitle>
-                  <CardDescription>
-                    Atividades suspeitas detectadas automaticamente
-                  </CardDescription>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Alertas de Fraude</CardTitle>
+                    <CardDescription>
+                      Atividades suspeitas detectadas automaticamente
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="show-resolved"
+                      checked={showResolved}
+                      onCheckedChange={setShowResolved}
+                    />
+                    <Label htmlFor="show-resolved">Mostrar resolvidos</Label>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="show-resolved"
-                    checked={showResolved}
-                    onCheckedChange={setShowResolved}
-                  />
-                  <Label htmlFor="show-resolved">Mostrar resolvidos</Label>
+                <div className="flex flex-wrap gap-3">
+                  <Select value={severityFilter} onValueChange={setSeverityFilter}>
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue placeholder="Severidade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas severidades</SelectItem>
+                      <SelectItem value="high">Alta</SelectItem>
+                      <SelectItem value="medium">Média</SelectItem>
+                      <SelectItem value="low">Baixa</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Tipo de alerta" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os tipos</SelectItem>
+                      <SelectItem value="suspicious_hours">Horário Suspeito</SelectItem>
+                      <SelectItem value="external_recipient">Destinatário Externo</SelectItem>
+                      <SelectItem value="volume_anomaly">Volume Anormal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {(severityFilter !== "all" || typeFilter !== "all") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSeverityFilter("all");
+                        setTypeFilter("all");
+                      }}
+                    >
+                      Limpar filtros
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardHeader>
@@ -203,10 +250,10 @@ export function AuditTab() {
                 <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 </div>
-              ) : alerts.length === 0 ? (
+              ) : filteredAlerts.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
-                  <p>Nenhum alerta {showResolved ? "" : "pendente"}</p>
+                  <p>Nenhum alerta {showResolved ? "" : "pendente"} {(severityFilter !== "all" || typeFilter !== "all") ? "com os filtros selecionados" : ""}</p>
                 </div>
               ) : (
                 <ScrollArea className="h-[400px]">
@@ -223,7 +270,7 @@ export function AuditTab() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {alerts.map((alert) => (
+                      {filteredAlerts.map((alert) => (
                         <AlertRow
                           key={alert.id}
                           alert={alert}
