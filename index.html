@@ -1,26 +1,113 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>Lovable App</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
-
-    <!-- TODO: Update og:title to match your application name -->
-    <meta property="og:title" content="Lovable App" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <!-- Primary Meta Tags -->
+    <title>FUXICO - Rastreamento de Emails</title>
+    <meta name="title" content="FUXICO - Rastreamento de Emails" />
+    <meta name="description" content="Saiba quando seus emails são lidos. Sistema inteligente de rastreamento de aberturas, cliques e documentos." />
+    <meta name="author" content="Promo Brindes" />
+    <meta name="keywords" content="email tracking, rastreamento, emails, aberturas, cliques, CRM, Bitrix24" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="msapplication-TileColor" content="#1a1a2e" />
+    
+    <!-- Apple Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FUXICO" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://fuxico.app/" />
+    <meta property="og:title" content="FUXICO - Rastreamento de Emails" />
+    <meta property="og:description" content="Saiba quando seus emails são lidos. Sistema inteligente de rastreamento." />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://fuxico.app/" />
+    <meta property="twitter:title" content="FUXICO - Rastreamento de Emails" />
+    <meta property="twitter:description" content="Saiba quando seus emails são lidos. Sistema inteligente de rastreamento." />
+    <meta property="twitter:image" content="/og-image.png" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <!-- Preconnect to Supabase -->
+    <link rel="preconnect" href="https://npjfwzzapbtcguoupozd.supabase.co" />
+    <link rel="dns-prefetch" href="https://npjfwzzapbtcguoupozd.supabase.co" />
+
+    <!-- Inline critical CSS for loading state -->
+    <style>
+      #root:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      }
+      #root:empty::after {
+        content: '';
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(99, 102, 241, 0.3);
+        border-top-color: #6366f1;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
 
   <body>
     <div id="root"></div>
+    
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('[FUXICO] SW registered:', registration.scope);
+            })
+            .catch((error) => {
+              console.error('[FUXICO] SW registration failed:', error);
+            });
+        });
+      }
+    </script>
+    
+    <!-- Offline indicator -->
+    <noscript>
+      <style>
+        body::before {
+          content: 'Este aplicativo requer JavaScript para funcionar.';
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          background: #1a1a2e;
+          color: white;
+          font-family: system-ui, -apple-system, sans-serif;
+          text-align: center;
+          padding: 20px;
+        }
+        #root { display: none; }
+      </style>
+    </noscript>
   </body>
 </html>
