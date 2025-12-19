@@ -56,6 +56,7 @@ interface SyncResult {
   isNew?: boolean;
   message?: string;
   error?: string;
+  useMock?: boolean;
 }
 
 // ============================================
@@ -75,7 +76,7 @@ async function getAuthHeaders(): Promise<HeadersInit> {
   };
 }
 
-async function callBitrix24API(action: string, data: Record<string, unknown>): Promise<SyncResult> {
+async function callBitrix24API<T = SyncResult>(action: string, data: Record<string, unknown> = {}): Promise<T & { useMock?: boolean }> {
   const headers = await getAuthHeaders();
   
   const response = await fetch(`${SUPABASE_URL}/functions/v1/bitrix24-sync`, {
@@ -84,13 +85,39 @@ async function callBitrix24API(action: string, data: Record<string, unknown>): P
     body: JSON.stringify({ action, data }),
   });
 
+  const result = await response.json();
+  
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || error.error || 'API request failed');
+    // If Bitrix24 is not configured, signal to use mock
+    if (result.useMock || response.status === 400) {
+      return { ...result, useMock: true } as T & { useMock?: boolean };
+    }
+    throw new Error(result.message || result.error || 'API request failed');
   }
 
-  return response.json();
+  return result;
 }
+
+// ============================================
+// MOCK DATA
+// ============================================
+
+const mockContacts: Bitrix24Contact[] = [
+  { id: '1', name: 'João Silva', email: 'joao@empresa.com', company: 'Empresa ABC', lastActivity: new Date().toISOString() },
+  { id: '2', name: 'Maria Santos', email: 'maria@cliente.com', phone: '11999998888', lastActivity: new Date(Date.now() - 86400000).toISOString() },
+  { id: '3', name: 'Carlos Oliveira', email: 'carlos@parceiro.com', company: 'Parceiro XYZ', source: 'FUXICO' },
+];
+
+const mockActivities: Bitrix24Activity[] = [
+  { id: '1', type: 'email_open', subject: 'Proposta comercial', contactId: '1', contactName: 'João Silva', timestamp: new Date().toISOString() },
+  { id: '2', type: 'link_click', subject: 'Link do catálogo', contactId: '2', contactName: 'Maria Santos', timestamp: new Date(Date.now() - 3600000).toISOString() },
+  { id: '3', type: 'document_view', subject: 'Apresentação.pdf', contactId: '1', contactName: 'João Silva', timestamp: new Date(Date.now() - 7200000).toISOString() },
+];
+
+const mockDeals: Bitrix24Deal[] = [
+  { id: '1', title: 'Brindes Personalizados - ABC', contactId: '1', contactName: 'João Silva', stage: 'Proposta', value: 15000, currency: 'BRL', createdAt: new Date(Date.now() - 172800000).toISOString() },
+  { id: '2', title: 'Kits Corporativos', contactId: '2', contactName: 'Maria Santos', stage: 'Negociação', value: 8500, currency: 'BRL', createdAt: new Date(Date.now() - 86400000).toISOString() },
+];
 
 // ============================================
 // CONFIG HOOK
@@ -109,7 +136,6 @@ export function useBitrix24Config() {
     defaultDealCategory: '0',
   });
 
-  // Carregar config do banco
   useEffect(() => {
     async function loadConfig() {
       try {
@@ -148,7 +174,6 @@ export function useBitrix24Config() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Converter para formato do banco
       const dbUpdates: Record<string, unknown> = {};
       if (updates.webhookUrl !== undefined) dbUpdates.webhook_url = updates.webhookUrl;
       if (updates.autoSyncContacts !== undefined) dbUpdates.auto_sync_contacts = updates.autoSyncContacts;
@@ -158,7 +183,6 @@ export function useBitrix24Config() {
       if (updates.defaultDealStage !== undefined) dbUpdates.default_deal_stage = updates.defaultDealStage;
       if (updates.defaultDealCategory !== undefined) dbUpdates.default_deal_category = updates.defaultDealCategory;
 
-      // Upsert preferências
       await supabase
         .from('user_preferences')
         .upsert({
@@ -168,7 +192,6 @@ export function useBitrix24Config() {
           onConflict: 'user_id',
         });
 
-      // Atualizar estado local
       setConfig(prev => ({
         ...prev,
         ...updates,
@@ -185,42 +208,37 @@ export function useBitrix24Config() {
 }
 
 // ============================================
-// DATA HOOKS (USANDO EDGE FUNCTION OU MOCK)
+// DATA HOOKS - REAL API WITH MOCK FALLBACK
 // ============================================
-
-// Mock data para quando Bitrix24 não está configurado
-const mockContacts: Bitrix24Contact[] = [
-  { id: '1', name: 'João Silva', email: 'joao@empresa.com', company: 'Empresa ABC', lastActivity: new Date().toISOString() },
-  { id: '2', name: 'Maria Santos', email: 'maria@cliente.com', phone: '11999998888', lastActivity: new Date(Date.now() - 86400000).toISOString() },
-  { id: '3', name: 'Carlos Oliveira', email: 'carlos@parceiro.com', company: 'Parceiro XYZ', source: 'FUXICO' },
-];
-
-const mockActivities: Bitrix24Activity[] = [
-  { id: '1', type: 'email_open', subject: 'Proposta comercial', contactId: '1', contactName: 'João Silva', timestamp: new Date().toISOString() },
-  { id: '2', type: 'link_click', subject: 'Link do catálogo', contactId: '2', contactName: 'Maria Santos', timestamp: new Date(Date.now() - 3600000).toISOString() },
-  { id: '3', type: 'document_view', subject: 'Apresentação.pdf', contactId: '1', contactName: 'João Silva', timestamp: new Date(Date.now() - 7200000).toISOString() },
-];
-
-const mockDeals: Bitrix24Deal[] = [
-  { id: '1', title: 'Brindes Personalizados - ABC', contactId: '1', contactName: 'João Silva', stage: 'Proposta', value: 15000, currency: 'BRL', createdAt: new Date(Date.now() - 172800000).toISOString() },
-  { id: '2', title: 'Kits Corporativos', contactId: '2', contactName: 'Maria Santos', stage: 'Negociação', value: 8500, currency: 'BRL', createdAt: new Date(Date.now() - 86400000).toISOString() },
-];
 
 export function useBitrix24Contacts() {
   const { config } = useBitrix24Config();
 
   return useQuery<Bitrix24Contact[]>({
-    queryKey: ['bitrix24', 'contacts', config.useMock],
+    queryKey: ['bitrix24', 'contacts', config.webhookUrl],
     queryFn: async () => {
-      if (config.useMock) {
+      // If no webhook configured, return mock
+      if (!config.webhookUrl) {
         return mockContacts;
       }
       
-      // TODO: Implementar busca real via Edge Function
-      // Por enquanto retorna mock mesmo com webhook configurado
-      return mockContacts;
+      try {
+        const result = await callBitrix24API<{ success: boolean; contacts: Bitrix24Contact[] }>(
+          'get_contacts', 
+          { limit: 50 }
+        );
+        
+        if (result.useMock || !result.success) {
+          return mockContacts;
+        }
+        
+        return result.contacts || mockContacts;
+      } catch (error) {
+        console.error('Error fetching Bitrix24 contacts:', error);
+        return mockContacts;
+      }
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -228,15 +246,29 @@ export function useBitrix24Activities() {
   const { config } = useBitrix24Config();
 
   return useQuery<Bitrix24Activity[]>({
-    queryKey: ['bitrix24', 'activities', config.useMock],
+    queryKey: ['bitrix24', 'activities', config.webhookUrl],
     queryFn: async () => {
-      if (config.useMock) {
+      if (!config.webhookUrl) {
         return mockActivities;
       }
       
-      return mockActivities;
+      try {
+        const result = await callBitrix24API<{ success: boolean; activities: Bitrix24Activity[] }>(
+          'get_activities',
+          { limit: 50 }
+        );
+        
+        if (result.useMock || !result.success) {
+          return mockActivities;
+        }
+        
+        return result.activities || mockActivities;
+      } catch (error) {
+        console.error('Error fetching Bitrix24 activities:', error);
+        return mockActivities;
+      }
     },
-    staleTime: 1000 * 60,
+    staleTime: 1000 * 60, // 1 minute
   });
 }
 
@@ -244,20 +276,34 @@ export function useBitrix24Deals() {
   const { config } = useBitrix24Config();
 
   return useQuery<Bitrix24Deal[]>({
-    queryKey: ['bitrix24', 'deals', config.useMock],
+    queryKey: ['bitrix24', 'deals', config.webhookUrl],
     queryFn: async () => {
-      if (config.useMock) {
+      if (!config.webhookUrl) {
         return mockDeals;
       }
       
-      return mockDeals;
+      try {
+        const result = await callBitrix24API<{ success: boolean; deals: Bitrix24Deal[] }>(
+          'get_deals',
+          { limit: 50 }
+        );
+        
+        if (result.useMock || !result.success) {
+          return mockDeals;
+        }
+        
+        return result.deals || mockDeals;
+      } catch (error) {
+        console.error('Error fetching Bitrix24 deals:', error);
+        return mockDeals;
+      }
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
 // ============================================
-// MUTATION HOOKS (EDGE FUNCTION)
+// MUTATION HOOKS
 // ============================================
 
 export function useSyncContact() {
@@ -271,10 +317,9 @@ export function useSyncContact() {
       phone?: string;
       company?: string;
     }) => {
-      if (config.useMock) {
-        // Simular delay e retorno mock
+      if (!config.webhookUrl) {
         await new Promise(r => setTimeout(r, 500));
-        return { success: true, contactId: Math.floor(Math.random() * 1000), isNew: true };
+        return { success: true, contactId: Math.floor(Math.random() * 1000), isNew: true, useMock: true };
       }
       
       return callBitrix24API('sync_contact', { email, name, phone, company });
@@ -303,9 +348,9 @@ export function useRegisterActivity() {
       trackingId?: string;
       description?: string;
     }) => {
-      if (config.useMock) {
+      if (!config.webhookUrl) {
         await new Promise(r => setTimeout(r, 500));
-        return { success: true, activityId: Math.floor(Math.random() * 1000) };
+        return { success: true, activityId: Math.floor(Math.random() * 1000), useMock: true };
       }
       
       return callBitrix24API('register_activity', { 
@@ -338,9 +383,9 @@ export function useCreateDeal() {
       value?: number;
       source?: string;
     }) => {
-      if (config.useMock) {
+      if (!config.webhookUrl) {
         await new Promise(r => setTimeout(r, 500));
-        return { success: true, dealId: Math.floor(Math.random() * 1000), isNew: true };
+        return { success: true, dealId: Math.floor(Math.random() * 1000), isNew: true, useMock: true };
       }
       
       return callBitrix24API('create_deal', { title, email, value, source });
@@ -356,12 +401,26 @@ export function useSendNotification() {
 
   return useMutation({
     mutationFn: async ({ message, userId }: { message: string; userId?: number }) => {
-      if (config.useMock) {
+      if (!config.webhookUrl) {
         await new Promise(r => setTimeout(r, 200));
-        return { success: true };
+        return { success: true, useMock: true };
       }
       
       return callBitrix24API('send_notification', { message, userId });
     },
   });
+}
+
+// ============================================
+// UTILITY HOOK - Check if using real data
+// ============================================
+
+export function useBitrix24Status() {
+  const { config } = useBitrix24Config();
+  
+  return {
+    isConfigured: !!config.webhookUrl,
+    useMock: !config.webhookUrl,
+    config,
+  };
 }

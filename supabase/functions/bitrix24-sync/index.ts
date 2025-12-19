@@ -1,5 +1,5 @@
 // FUXICO - Edge Function de Sincronização com Bitrix24
-// Integração completa: Contatos, Atividades e Negócios
+// Versão 2.0 - Com endpoints GET para buscar dados reais
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -23,7 +23,8 @@ interface Bitrix24Config {
 }
 
 interface SyncRequest {
-  action: 'sync_contact' | 'register_activity' | 'create_deal' | 'send_notification'
+  action: 'sync_contact' | 'register_activity' | 'create_deal' | 'send_notification' | 
+          'get_contacts' | 'get_activities' | 'get_deals'
   data: Record<string, unknown>
 }
 
@@ -35,7 +36,6 @@ class Bitrix24Client {
   private webhookUrl: string
 
   constructor(webhookUrl: string) {
-    // Garantir que a URL termina sem barra
     this.webhookUrl = webhookUrl.replace(/\/$/, '')
   }
 
@@ -63,8 +63,43 @@ class Bitrix24Client {
   }
 
   // ============================================
-  // CONTATOS
+  // CONTATOS - GET
   // ============================================
+
+  async getContacts(limit = 50): Promise<Array<{
+    id: string
+    name: string
+    email: string
+    phone?: string
+    company?: string
+    source?: string
+    lastActivity?: string
+  }>> {
+    const result = await this.call('crm.contact.list', {
+      select: ['ID', 'NAME', 'LAST_NAME', 'EMAIL', 'PHONE', 'COMPANY_TITLE', 'SOURCE_ID', 'DATE_MODIFY'],
+      order: { 'DATE_MODIFY': 'DESC' },
+      start: 0,
+    }) as Array<{
+      ID: string
+      NAME: string
+      LAST_NAME: string
+      EMAIL: Array<{ VALUE: string }>
+      PHONE: Array<{ VALUE: string }>
+      COMPANY_TITLE: string
+      SOURCE_ID: string
+      DATE_MODIFY: string
+    }>
+
+    return (result || []).slice(0, limit).map(contact => ({
+      id: contact.ID,
+      name: `${contact.NAME || ''} ${contact.LAST_NAME || ''}`.trim() || 'Sem nome',
+      email: contact.EMAIL?.[0]?.VALUE || '',
+      phone: contact.PHONE?.[0]?.VALUE,
+      company: contact.COMPANY_TITLE,
+      source: contact.SOURCE_ID,
+      lastActivity: contact.DATE_MODIFY,
+    }))
+  }
 
   async findContactByEmail(email: string): Promise<number | null> {
     const result = await this.call('crm.contact.list', {
@@ -86,7 +121,6 @@ class Bitrix24Client {
     company?: string
     source?: string
   }): Promise<number> {
-    // Extrair nome do email se não fornecido
     const emailName = data.email.split('@')[0]
     const nameParts = emailName.replace(/[._-]/g, ' ').split(' ')
     
@@ -114,8 +148,70 @@ class Bitrix24Client {
   }
 
   // ============================================
-  // ATIVIDADES
+  // ATIVIDADES - GET
   // ============================================
+
+  async getActivities(limit = 50): Promise<Array<{
+    id: string
+    type: 'email_open' | 'link_click' | 'document_view' | 'email_sent'
+    subject: string
+    contactId: string
+    contactName: string
+    timestamp: string
+  }>> {
+    // Buscar atividades com filtro FUXICO
+    const result = await this.call('crm.activity.list', {
+      filter: {
+        'DIRECTION': 1, // Incoming
+      },
+      select: ['ID', 'TYPE_ID', 'SUBJECT', 'OWNER_ID', 'CREATED', 'DESCRIPTION'],
+      order: { 'CREATED': 'DESC' },
+      start: 0,
+    }) as Array<{
+      ID: string
+      TYPE_ID: string
+      SUBJECT: string
+      OWNER_ID: string
+      CREATED: string
+      DESCRIPTION: string
+    }>
+
+    // Filtrar apenas atividades do FUXICO (baseado na descrição)
+    const fuxicoActivities = (result || [])
+      .filter(a => a.DESCRIPTION?.includes('FUXICO') || a.SUBJECT?.includes('FUXICO'))
+      .slice(0, limit)
+
+    // Mapear tipo reverso
+    const typeReverseMap: Record<string, 'email_open' | 'link_click' | 'document_view' | 'email_sent'> = {
+      '4': 'email_open',
+      '6': 'link_click',
+      '7': 'document_view',
+    }
+
+    // Buscar nomes dos contatos
+    const contactIds = [...new Set(fuxicoActivities.map(a => a.OWNER_ID))]
+    const contactNames: Record<string, string> = {}
+    
+    if (contactIds.length > 0) {
+      const contacts = await this.call('crm.contact.list', {
+        filter: { 'ID': contactIds },
+        select: ['ID', 'NAME', 'LAST_NAME'],
+      }) as Array<{ ID: string; NAME: string; LAST_NAME: string }>
+      
+      contacts?.forEach(c => {
+        contactNames[c.ID] = `${c.NAME || ''} ${c.LAST_NAME || ''}`.trim()
+      })
+    }
+
+    return fuxicoActivities.map(activity => ({
+      id: activity.ID,
+      type: typeReverseMap[activity.TYPE_ID] || 'email_open',
+      subject: activity.SUBJECT,
+      contactId: activity.OWNER_ID,
+      contactName: contactNames[activity.OWNER_ID] || 'Contato desconhecido',
+      timestamp: activity.CREATED,
+    }))
+  }
 
   async createActivity(data: {
     contactId: number
@@ -124,29 +220,25 @@ class Bitrix24Client {
     description: string
     completed?: boolean
   }): Promise<number> {
-    // Mapear tipo para tipo de atividade do Bitrix24
     const typeMap: Record<string, number> = {
-      'email_open': 4,      // Email
-      'link_click': 6,      // Meeting (usando como clique)
-      'document_view': 7,   // Call (usando como visualização)
-      'email_sent': 4,      // Email
+      'email_open': 4,
+      'link_click': 6,
+      'document_view': 7,
+      'email_sent': 4,
     }
 
     const result = await this.call('crm.activity.add', {
       fields: {
-        OWNER_TYPE_ID: 3, // Contact
+        OWNER_TYPE_ID: 3,
         OWNER_ID: data.contactId,
         TYPE_ID: typeMap[data.type] || 4,
         SUBJECT: data.subject,
-        DESCRIPTION: data.description,
+        DESCRIPTION: `[FUXICO] ${data.description}`,
         COMPLETED: data.completed ? 'Y' : 'N',
-        DIRECTION: 1, // Incoming
+        DIRECTION: 1,
         START_TIME: new Date().toISOString(),
         END_TIME: new Date().toISOString(),
         COMMUNICATIONS: [],
-        SETTINGS: {
-          SOURCE: 'FUXICO',
-        },
       },
     }) as number
 
@@ -154,8 +246,76 @@ class Bitrix24Client {
   }
 
   // ============================================
-  // NEGÓCIOS (DEALS)
+  // NEGÓCIOS (DEALS) - GET
   // ============================================
+
+  async getDeals(limit = 50): Promise<Array<{
+    id: string
+    title: string
+    contactId: string
+    contactName: string
+    stage: string
+    value?: number
+    currency?: string
+    createdAt: string
+  }>> {
+    const result = await this.call('crm.deal.list', {
+      filter: { 'SOURCE_ID': 'FUXICO' },
+      select: ['ID', 'TITLE', 'CONTACT_ID', 'STAGE_ID', 'OPPORTUNITY', 'CURRENCY_ID', 'DATE_CREATE'],
+      order: { 'DATE_CREATE': 'DESC' },
+      start: 0,
+    }) as Array<{
+      ID: string
+      TITLE: string
+      CONTACT_ID: string
+      STAGE_ID: string
+      OPPORTUNITY: string
+      CURRENCY_ID: string
+      DATE_CREATE: string
+    }>
+
+    const deals = (result || []).slice(0, limit)
+
+    // Buscar nomes dos contatos
+    const contactIds = [...new Set(deals.map(d => d.CONTACT_ID).filter(Boolean))]
+    const contactNames: Record<string, string> = {}
+    
+    if (contactIds.length > 0) {
+      const contacts = await this.call('crm.contact.list', {
+        filter: { 'ID': contactIds },
+        select: ['ID', 'NAME', 'LAST_NAME'],
+      }) as Array<{ ID: string; NAME: string; LAST_NAME: string }>
+      
+      contacts?.forEach(c => {
+        contactNames[c.ID] = `${c.NAME || ''} ${c.LAST_NAME || ''}`.trim()
+      })
+    }
+
+    // Buscar nomes dos estágios
+    const stageNames: Record<string, string> = {}
+    try {
+      const stages = await this.call('crm.status.list', {
+        filter: { 'ENTITY_ID': 'DEAL_STAGE' },
+      }) as Array<{ STATUS_ID: string; NAME: string }>
+      
+      stages?.forEach(s => {
+        stageNames[s.STATUS_ID] = s.NAME
+      })
+    } catch (e) {
+      console.log('Could not fetch stage names')
+    }
+
+    return deals.map(deal => ({
+      id: deal.ID,
+      title: deal.TITLE,
+      contactId: deal.CONTACT_ID,
+      contactName: contactNames[deal.CONTACT_ID] || 'Sem contato',
+      stage: stageNames[deal.STAGE_ID] || deal.STAGE_ID,
+      value: parseFloat(deal.OPPORTUNITY) || undefined,
+      currency: deal.CURRENCY_ID,
+      createdAt: deal.DATE_CREATE,
+    }))
+  }
 
   async findDealByContact(contactId: number): Promise<number | null> {
     const result = await this.call('crm.deal.list', {
@@ -216,9 +376,8 @@ class Bitrix24Client {
   }
 
   async sendSystemNotification(message: string): Promise<boolean> {
-    // Enviar para todos os admins ou usuário padrão (ID 1)
     await this.call('im.notify.system.add', {
-      USER_ID: 1, // Admin principal
+      USER_ID: 1,
       MESSAGE: message,
     })
     return true
@@ -261,10 +420,9 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Usar service role para operações
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Buscar configuração do Bitrix24 do usuário
+    // Buscar configuração do Bitrix24
     const { data: userPrefs } = await supabase
       .from('user_preferences')
       .select('bitrix24_config')
@@ -276,7 +434,8 @@ Deno.serve(async (req) => {
     if (!bitrixConfig?.webhook_url) {
       return new Response(JSON.stringify({ 
         error: 'Bitrix24 not configured',
-        message: 'Configure o webhook do Bitrix24 nas configurações'
+        message: 'Configure o webhook do Bitrix24 nas configurações',
+        useMock: true
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -285,7 +444,6 @@ Deno.serve(async (req) => {
 
     const bitrix = new Bitrix24Client(bitrixConfig.webhook_url)
 
-    // Parse do body
     const body = await req.json() as SyncRequest
 
     let result: Record<string, unknown> = {}
@@ -295,6 +453,31 @@ Deno.serve(async (req) => {
     // ============================================
 
     switch (body.action) {
+      // GET CONTACTS
+      case 'get_contacts': {
+        const limit = (body.data?.limit as number) || 50
+        const contacts = await bitrix.getContacts(limit)
+        result = { success: true, contacts }
+        break
+      }
+
+      // GET ACTIVITIES
+      case 'get_activities': {
+        const limit = (body.data?.limit as number) || 50
+        const activities = await bitrix.getActivities(limit)
+        result = { success: true, activities }
+        break
+      }
+
+      // GET DEALS
+      case 'get_deals': {
+        const limit = (body.data?.limit as number) || 50
+        const deals = await bitrix.getDeals(limit)
+        result = { success: true, deals }
+        break
+      }
+
+      // SYNC CONTACT
       case 'sync_contact': {
         const { email, name, lastName, phone, company } = body.data as {
           email: string
@@ -311,12 +494,10 @@ Deno.serve(async (req) => {
           })
         }
 
-        // Verificar se contato já existe
         let contactId = await bitrix.findContactByEmail(email)
         let isNew = false
 
         if (!contactId) {
-          // Criar novo contato
           contactId = await bitrix.createContact({ email, name, lastName, phone, company })
           isNew = true
           console.log(`[Bitrix24] Contato criado: ${contactId}`)
@@ -333,6 +514,7 @@ Deno.serve(async (req) => {
         break
       }
 
+      // REGISTER ACTIVITY
       case 'register_activity': {
         const { contactId, email, type, subject, description, trackingId } = body.data as {
           contactId?: number
@@ -348,12 +530,10 @@ Deno.serve(async (req) => {
           break
         }
 
-        // Se não tem contactId, buscar pelo email
         let finalContactId = contactId
         if (!finalContactId && email) {
           finalContactId = await bitrix.findContactByEmail(email) || undefined
 
-          // Se não encontrou e auto_sync_contacts está habilitado, criar
           if (!finalContactId && bitrixConfig.auto_sync_contacts) {
             finalContactId = await bitrix.createContact({ email })
           }
@@ -372,7 +552,6 @@ Deno.serve(async (req) => {
           completed: true,
         })
 
-        // Enviar notificação se habilitado
         if (bitrixConfig.send_notifications) {
           const notificationMsg = type === 'email_open' 
             ? `📬 ${email} abriu seu email: ${subject}`
@@ -392,6 +571,7 @@ Deno.serve(async (req) => {
         break
       }
 
+      // CREATE DEAL
       case 'create_deal': {
         const { contactId, email, title, value, source } = body.data as {
           contactId?: number
@@ -406,7 +586,6 @@ Deno.serve(async (req) => {
           break
         }
 
-        // Buscar ou criar contato
         let finalContactId = contactId
         if (!finalContactId && email) {
           finalContactId = await bitrix.findContactByEmail(email) || undefined
@@ -421,7 +600,6 @@ Deno.serve(async (req) => {
           break
         }
 
-        // Verificar se já existe deal para este contato
         const existingDealId = await bitrix.findDealByContact(finalContactId)
         
         if (existingDealId) {
@@ -453,6 +631,7 @@ Deno.serve(async (req) => {
         break
       }
 
+      // SEND NOTIFICATION
       case 'send_notification': {
         const { message, userId } = body.data as {
           message: string
@@ -489,7 +668,8 @@ Deno.serve(async (req) => {
     console.error('Error in bitrix24-sync function:', error)
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      message: error.message 
+      message: error.message,
+      useMock: true
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
