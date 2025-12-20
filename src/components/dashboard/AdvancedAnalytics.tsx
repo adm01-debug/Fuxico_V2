@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, isWithinInterval } from "date-fns";
+import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, isWithinInterval, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   TrendingUp, 
-  TrendingDown, 
+  TrendingDown,
+  GitCompareArrows,
   BarChart3, 
   Activity,
   Clock,
@@ -32,6 +33,9 @@ import {
   PieChart,
   Pie,
   Cell,
+  Legend,
+  LineChart,
+  Line,
 } from "recharts";
 import { useTrackedEmails, useTrackingStats } from "@/hooks/use-tracking";
 
@@ -141,6 +145,76 @@ export function AdvancedAnalytics() {
       };
     });
   }, [filteredEmails, dateRange]);
+
+  // Calculate previous period for comparison
+  const periodLength = differenceInDays(dateRange.to, dateRange.from) + 1;
+  
+  const previousPeriodEmails = useMemo(() => {
+    if (!emails) return [];
+    
+    const previousFrom = subDays(dateRange.from, periodLength);
+    const previousTo = subDays(dateRange.from, 1);
+    
+    return emails.filter(email => {
+      const emailDate = new Date(email.created_at);
+      return isWithinInterval(emailDate, {
+        start: startOfDay(previousFrom),
+        end: endOfDay(previousTo),
+      });
+    });
+  }, [emails, dateRange, periodLength]);
+
+  // Comparison data for chart
+  const comparisonData = useMemo(() => {
+    const currentDays = eachDayOfInterval({
+      start: dateRange.from,
+      end: dateRange.to,
+    });
+
+    return currentDays.map((day, index) => {
+      const dayStart = startOfDay(day);
+      const dayEnd = endOfDay(day);
+      
+      const currentCount = filteredEmails.filter(email => {
+        const emailDate = new Date(email.created_at);
+        return emailDate >= dayStart && emailDate <= dayEnd;
+      }).length;
+
+      // Get corresponding day from previous period
+      const previousDay = subDays(day, periodLength);
+      const prevDayStart = startOfDay(previousDay);
+      const prevDayEnd = endOfDay(previousDay);
+      
+      const previousCount = previousPeriodEmails.filter(email => {
+        const emailDate = new Date(email.created_at);
+        return emailDate >= prevDayStart && emailDate <= prevDayEnd;
+      }).length;
+
+      return {
+        day: `Dia ${index + 1}`,
+        date: format(day, 'dd/MM'),
+        atual: currentCount,
+        anterior: previousCount,
+      };
+    });
+  }, [filteredEmails, previousPeriodEmails, dateRange, periodLength]);
+
+  // Calculate period comparison stats
+  const periodComparison = useMemo(() => {
+    const currentTotal = filteredEmails.length;
+    const previousTotal = previousPeriodEmails.length;
+    
+    const change = previousTotal > 0 
+      ? Math.round(((currentTotal - previousTotal) / previousTotal) * 100)
+      : currentTotal > 0 ? 100 : 0;
+    
+    return {
+      currentTotal,
+      previousTotal,
+      change,
+      trend: change > 0 ? 'up' : change < 0 ? 'down' : 'neutral' as 'up' | 'down' | 'neutral',
+    };
+  }, [filteredEmails, previousPeriodEmails]);
 
   // Calculate status distribution
   const statusDistribution = useMemo(() => {
@@ -302,20 +376,18 @@ export function AdvancedAnalytics() {
         <StatCard
           title="Total de Emails"
           value={totalFiltered}
+          change={periodComparison.change}
+          trend={periodComparison.trend}
           icon={BarChart3}
         />
         <StatCard
           title="Taxa de Abertura"
           value={`${openRate}%`}
-          change={5}
-          trend="up"
           icon={TrendingUp}
         />
         <StatCard
           title="Taxa de Cliques"
           value={`${clickRate}%`}
-          change={-2}
-          trend="down"
           icon={Target}
         />
         <StatCard
@@ -324,6 +396,87 @@ export function AdvancedAnalytics() {
           icon={Activity}
         />
       </div>
+
+      {/* Period Comparison Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <GitCompareArrows className="h-5 w-5" />
+            Comparação de Períodos
+          </CardTitle>
+          <CardDescription>
+            Período atual ({format(dateRange.from, "dd/MM", { locale: ptBR })} - {format(dateRange.to, "dd/MM", { locale: ptBR })}) 
+            vs Período anterior ({format(subDays(dateRange.from, periodLength), "dd/MM", { locale: ptBR })} - {format(subDays(dateRange.from, 1), "dd/MM", { locale: ptBR })})
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4 mb-4">
+            <Badge variant="default" className="gap-2">
+              <div className="w-3 h-3 rounded-full bg-primary" />
+              Período Atual: {periodComparison.currentTotal} emails
+            </Badge>
+            <Badge variant="secondary" className="gap-2">
+              <div className="w-3 h-3 rounded-full bg-muted-foreground" />
+              Período Anterior: {periodComparison.previousTotal} emails
+            </Badge>
+            <Badge 
+              variant={periodComparison.change >= 0 ? "default" : "destructive"}
+              className="ml-auto"
+            >
+              {periodComparison.change > 0 ? '+' : ''}{periodComparison.change}% variação
+            </Badge>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={comparisonData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis 
+                tick={{ fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                }}
+                formatter={(value: number, name: string) => [
+                  value,
+                  name === 'atual' ? 'Período Atual' : 'Período Anterior'
+                ]}
+              />
+              <Legend 
+                formatter={(value) => value === 'atual' ? 'Período Atual' : 'Período Anterior'}
+              />
+              <Line
+                type="monotone"
+                dataKey="atual"
+                name="atual"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                dot={{ r: 4, fill: 'hsl(var(--primary))' }}
+                activeDot={{ r: 6 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="anterior"
+                name="anterior"
+                stroke="hsl(var(--muted-foreground))"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={{ r: 4, fill: 'hsl(var(--muted-foreground))' }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
