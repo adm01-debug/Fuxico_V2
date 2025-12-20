@@ -69,7 +69,8 @@ export function useTrackedLinks() {
       }));
     },
     enabled: !!user,
-    refetchInterval: 30000,
+    refetchInterval: 120000, // Otimizado: 2 min (era 30s),
+    staleTime: 60000, // Considerar fresco por 1 min
   });
 }
 
