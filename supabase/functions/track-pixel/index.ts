@@ -203,9 +203,11 @@ Deno.serve(async (req: Request) => {
       },
     }
     
-    const { error } = await supabase
+    const { error, data: insertedEvent } = await supabase
       .from('tracking_events')
       .insert(event)
+      .select('tracking_id')
+      .single()
     
     const duration = performance.now() - startTime
     
@@ -226,6 +228,42 @@ Deno.serve(async (req: Request) => {
         ip_address: ipAddress || undefined,
         duration_ms: duration,
       })
+      
+      // Disparar webhook em background se não for self-open
+      if (!selfOpen && insertedEvent) {
+        // Buscar user_id do email rastreado
+        const { data: emailData } = await supabase
+          .from('tracked_emails')
+          .select('user_id, recipient_email, subject')
+          .eq('tracking_id', trackingId)
+          .maybeSingle()
+        
+        if (emailData?.user_id) {
+          // Dispatch webhook assíncrono (fire-and-forget)
+          fetch(`${supabaseUrl}/functions/v1/webhook-dispatch`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({
+              event_type: 'email_open',
+              user_id: emailData.user_id,
+              tracking_id: trackingId,
+              timestamp: new Date().toISOString(),
+              data: {
+                recipient_email: emailData.recipient_email,
+                subject: emailData.subject,
+                ip_address: ipAddress,
+                user_agent: userAgent,
+                is_self_open: selfOpen,
+              },
+            }),
+          }).catch(err => {
+            console.error('[track-pixel] Erro ao disparar webhook:', err)
+          })
+        }
+      }
     }
     
     // Sempre retornar o pixel (mesmo com erro de insert)
