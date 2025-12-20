@@ -1,5 +1,7 @@
-// FUXICO - Edge Function para Webhooks Externos
-// Dispara eventos para n8n, Zapier, Make, ou qualquer endpoint configurado
+// =============================================================================
+// FUXICO - Edge Function: webhook-dispatch
+// Dispara webhooks para sistemas externos (n8n, Zapier, Make, etc.)
+// =============================================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { createHmac } from 'https://deno.land/std@0.177.0/node/crypto.ts'
@@ -9,30 +11,30 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// ============================================
+// =============================================================================
 // TIPOS
-// ============================================
+// =============================================================================
 
-interface WebhookConfig {
-  enabled: boolean
-  url: string | null
-  secret: string | null
-  events: string[]
-  retries: number
-  timeout: number
-}
-
-interface WebhookEvent {
-  event_type: 'email_open' | 'link_click' | 'document_view' | 'bounce_detected' | 'tracking_created'
+interface WebhookPayload {
+  event_type: 'email_open' | 'link_click' | 'bounce' | 'document_view' | 'document_download'
   timestamp: string
-  tracking_id: string
+  tracking_id?: string
   user_id: string
   data: Record<string, unknown>
 }
 
-// ============================================
+interface WebhookConfig {
+  id: string
+  url: string
+  secret: string | null
+  events: string[]
+  is_active: boolean
+  user_id: string
+}
+
+// =============================================================================
 // FUNÇÕES AUXILIARES
-// ============================================
+// =============================================================================
 
 function generateSignature(payload: string, secret: string): string {
   const hmac = createHmac('sha256', secret)
@@ -41,75 +43,100 @@ function generateSignature(payload: string, secret: string): string {
 }
 
 async function sendWebhook(
-  url: string, 
-  event: WebhookEvent, 
+  url: string,
+  payload: WebhookPayload,
   secret: string | null,
   timeout: number = 10000,
-  retries: number = 3
-): Promise<{ success: boolean; statusCode?: number; error?: string }> {
-  const payload = JSON.stringify(event)
+  maxRetries: number = 3
+): Promise<{ success: boolean; statusCode?: number; responseBody?: string; error?: string }> {
+  const body = JSON.stringify(payload)
+  const deliveryId = crypto.randomUUID()
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'User-Agent': 'FUXICO-Webhook/1.0',
-    'X-FUXICO-Event': event.event_type,
-    'X-FUXICO-Delivery': crypto.randomUUID(),
-    'X-FUXICO-Timestamp': event.timestamp,
+    'User-Agent': 'FUXICO-Webhook/2.0',
+    'X-Webhook-Event': payload.event_type,
+    'X-Webhook-Delivery': deliveryId,
+    'X-Webhook-Timestamp': payload.timestamp,
   }
   
-  // Adicionar assinatura se tiver secret
   if (secret) {
-    headers['X-FUXICO-Signature'] = generateSignature(payload, secret)
+    headers['X-Webhook-Secret'] = secret
+    headers['X-Webhook-Signature'] = generateSignature(body, secret)
   }
   
   let lastError: string | undefined
+  let lastStatusCode: number | undefined
+  let lastResponseBody: string | undefined
   
-  for (let attempt = 0; attempt < retries; attempt++) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
+      console.log(`[Webhook] Tentativa ${attempt + 1}/${maxRetries} para ${url}`)
+      
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), timeout)
       
       const response = await fetch(url, {
         method: 'POST',
         headers,
-        body: payload,
+        body,
         signal: controller.signal,
       })
       
       clearTimeout(timeoutId)
+      lastStatusCode = response.status
+      lastResponseBody = await response.text()
       
       if (response.ok) {
-        return { success: true, statusCode: response.status }
+        console.log(`[Webhook] Sucesso: ${response.status}`)
+        return { 
+          success: true, 
+          statusCode: response.status,
+          responseBody: lastResponseBody,
+        }
       }
       
-      lastError = `HTTP ${response.status}: ${await response.text()}`
+      lastError = `HTTP ${response.status}: ${lastResponseBody}`
+      console.warn(`[Webhook] Falha: ${lastError}`)
       
-      // Não retry para erros 4xx (exceto 429)
+      // Não retry para erros 4xx (exceto 429 - rate limit)
       if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-        return { success: false, statusCode: response.status, error: lastError }
+        return { 
+          success: false, 
+          statusCode: response.status, 
+          responseBody: lastResponseBody,
+          error: lastError,
+        }
       }
       
     } catch (error) {
-      lastError = error instanceof Error ? error.message : 'Unknown error'
-      
-      // Se abortou por timeout, conta como falha
       if (error instanceof Error && error.name === 'AbortError') {
         lastError = 'Request timeout'
+      } else {
+        lastError = error instanceof Error ? error.message : 'Unknown error'
       }
+      console.error(`[Webhook] Erro: ${lastError}`)
     }
     
     // Backoff exponencial entre retries
-    if (attempt < retries - 1) {
-      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000))
+    if (attempt < maxRetries - 1) {
+      const delay = Math.pow(2, attempt) * 1000
+      console.log(`[Webhook] Aguardando ${delay}ms antes do próximo retry`)
+      await new Promise(r => setTimeout(r, delay))
     }
   }
   
-  return { success: false, error: lastError }
+  return { 
+    success: false, 
+    statusCode: lastStatusCode,
+    responseBody: lastResponseBody,
+    error: lastError,
+  }
 }
 
-// ============================================
+// =============================================================================
 // HANDLER PRINCIPAL
-// ============================================
+// =============================================================================
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -120,94 +147,112 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
 
-    const body = await req.json() as WebhookEvent
+    const payload = await req.json() as WebhookPayload
     
-    // Validar evento
-    if (!body.event_type || !body.tracking_id || !body.user_id) {
-      return new Response(JSON.stringify({ error: 'Invalid event payload' }), {
+    // Validar payload
+    if (!payload.event_type || !payload.user_id) {
+      console.error('[Webhook] Payload inválido:', payload)
+      return new Response(JSON.stringify({ error: 'Invalid payload: event_type and user_id required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    console.log(`[Webhook] Processando evento: ${body.event_type} para user ${body.user_id}`)
+    console.log(`[Webhook] Processando evento: ${payload.event_type} para user ${payload.user_id}`)
 
     // Buscar configuração de webhook do usuário
-    const { data: userPrefs } = await supabase
-      .from('user_preferences')
-      .select('webhook_config')
-      .eq('user_id', body.user_id)
+    const { data: webhookConfig, error: configError } = await supabase
+      .from('webhook_configs')
+      .select('*')
+      .eq('user_id', payload.user_id)
+      .eq('is_active', true)
       .maybeSingle()
 
-    const webhookConfig = userPrefs?.webhook_config as WebhookConfig | null
+    if (configError) {
+      console.error('[Webhook] Erro ao buscar config:', configError)
+      return new Response(JSON.stringify({ error: 'Failed to fetch webhook config' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
-    if (!webhookConfig?.enabled || !webhookConfig?.url) {
+    if (!webhookConfig) {
+      console.log('[Webhook] Nenhuma configuração ativa encontrada')
       return new Response(JSON.stringify({ 
         success: false, 
-        message: 'Webhook not configured or disabled' 
+        message: 'No active webhook configuration found' 
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    // Verificar se o evento está na lista de eventos habilitados
-    if (!webhookConfig.events.includes(body.event_type)) {
+    // Verificar se o evento está habilitado
+    if (!webhookConfig.events.includes(payload.event_type)) {
+      console.log(`[Webhook] Evento ${payload.event_type} não está habilitado`)
       return new Response(JSON.stringify({ 
         success: false, 
-        message: `Event ${body.event_type} not enabled for webhook` 
+        message: `Event ${payload.event_type} not enabled` 
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    // Enriquecer dados do evento
-    const enrichedEvent: WebhookEvent = {
-      ...body,
-      timestamp: body.timestamp || new Date().toISOString(),
+    // Enriquecer payload
+    const enrichedPayload: WebhookPayload = {
+      ...payload,
+      timestamp: payload.timestamp || new Date().toISOString(),
       data: {
-        ...body.data,
+        ...payload.data,
         source: 'fuxico',
-        version: '1.1.0',
+        version: '2.0.0',
       },
     }
 
     // Enviar webhook
     const result = await sendWebhook(
       webhookConfig.url,
-      enrichedEvent,
+      enrichedPayload,
       webhookConfig.secret,
-      webhookConfig.timeout || 10000,
-      webhookConfig.retries || 3
     )
 
-    // Registrar log do webhook (ignore errors silently since webhook_logs table might not exist)
-    try {
-      await supabase.from('webhook_logs').insert({
-        user_id: body.user_id,
-        event_type: body.event_type,
-        tracking_id: body.tracking_id,
-        webhook_url: webhookConfig.url,
+    // Registrar log
+    const { error: logError } = await supabase
+      .from('webhook_logs')
+      .insert({
+        user_id: payload.user_id,
+        webhook_id: webhookConfig.id,
+        event_type: payload.event_type,
+        tracking_id: payload.tracking_id || null,
+        payload: enrichedPayload,
         success: result.success,
-        status_code: result.statusCode,
-        error_message: result.error,
-        request_payload: enrichedEvent,
+        response_status: result.statusCode || null,
+        response_body: result.responseBody || null,
+        error: result.error || null,
       })
-    } catch (logError) {
-      console.error('Erro ao salvar log de webhook:', logError)
+
+    if (logError) {
+      console.error('[Webhook] Erro ao salvar log:', logError)
     }
 
-    return new Response(JSON.stringify(result), {
+    console.log(`[Webhook] Resultado: ${result.success ? 'sucesso' : 'falha'}`)
+
+    return new Response(JSON.stringify({
+      success: result.success,
+      statusCode: result.statusCode,
+      error: result.error,
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
   } catch (error) {
-    console.error('Error in webhook-dispatch function:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[Webhook] Erro inesperado:', error)
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      message: errorMessage 
+      message: error instanceof Error ? error.message : 'Unknown error',
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

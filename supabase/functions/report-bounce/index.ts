@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Find the tracked email by tracking_id or recipient_email
-    let query = supabase.from('tracked_emails').select('id, tracking_id')
+    let query = supabase.from('tracked_emails').select('id, tracking_id, user_id, recipient_email, subject')
     
     if (tracking_id) {
       query = query.eq('tracking_id', tracking_id)
@@ -80,6 +80,31 @@ Deno.serve(async (req) => {
     }
 
     console.log('Successfully recorded bounce for tracking_id:', email.tracking_id)
+
+    // Dispatch webhook para bounce
+    if (email.user_id) {
+      fetch(`${supabaseUrl}/functions/v1/webhook-dispatch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
+          event_type: 'bounce',
+          user_id: email.user_id,
+          tracking_id: email.tracking_id,
+          timestamp: new Date().toISOString(),
+          data: {
+            recipient_email: email.recipient_email,
+            subject: email.subject,
+            bounce_type: bounce_type || 'unknown',
+            bounce_reason: bounce_reason || 'Email could not be delivered',
+          },
+        }),
+      }).catch(err => {
+        console.error('[report-bounce] Erro ao disparar webhook:', err)
+      })
+    }
 
     return new Response(
       JSON.stringify({ 

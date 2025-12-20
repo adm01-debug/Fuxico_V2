@@ -70,6 +70,40 @@ Deno.serve(async (req) => {
 
     if (eventError) {
       console.error('Error logging click event:', eventError)
+    } else {
+      // Buscar user_id do email para disparar webhook
+      const { data: emailData } = await supabase
+        .from('tracked_emails')
+        .select('user_id, recipient_email, subject')
+        .eq('tracking_id', link.tracking_id)
+        .maybeSingle()
+      
+      if (emailData?.user_id) {
+        // Dispatch webhook assíncrono
+        fetch(`${supabaseUrl}/functions/v1/webhook-dispatch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify({
+            event_type: 'link_click',
+            user_id: emailData.user_id,
+            tracking_id: link.tracking_id,
+            timestamp: new Date().toISOString(),
+            data: {
+              link_id: linkId,
+              original_url: link.original_url,
+              recipient_email: emailData.recipient_email,
+              subject: emailData.subject,
+              ip_address: ipAddress,
+              user_agent: userAgent,
+            },
+          }),
+        }).catch(err => {
+          console.error('[track-link] Erro ao disparar webhook:', err)
+        })
+      }
     }
 
     // Update click count
