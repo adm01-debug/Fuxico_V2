@@ -25,6 +25,8 @@ import {
   FlaskConical,
   UserX,
   Target,
+  Globe,
+  Clock,
 } from 'lucide-react'
 
 // =============================================================================
@@ -49,6 +51,8 @@ const InsightsTab = lazy(() => import('@/components/dashboard/InsightsTab'))
 const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'))
 const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'))
 const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'))
+const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTab').then(m => ({ default: m.GeoAnalyticsTab })))
+const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab').then(m => ({ default: m.EmailSchedulingTab })))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -98,6 +102,8 @@ type TabId =
   | 'documents' 
   | 'reports' 
   | 'analytics'
+  | 'geo'
+  | 'scheduling'
   | 'leads'
   | 'followup'
   | 'insights'
@@ -158,6 +164,18 @@ const TABS: TabConfig[] = [
     label: 'Analytics',
     icon: <TrendingUp className="h-4 w-4" />,
     component: AdvancedAnalytics,
+  },
+  {
+    id: 'geo',
+    label: 'Geo Analytics',
+    icon: <Globe className="h-4 w-4" />,
+    component: GeoAnalyticsTab,
+  },
+  {
+    id: 'scheduling',
+    label: 'Agendamento',
+    icon: <Clock className="h-4 w-4" />,
+    component: EmailSchedulingTab,
   },
   {
     id: 'leads',
