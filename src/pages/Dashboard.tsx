@@ -20,6 +20,7 @@ import {
   Home,
   Webhook,
   Flame,
+  Bell,
 } from 'lucide-react'
 
 // =============================================================================
@@ -39,6 +40,7 @@ const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
 const AdvancedAnalytics = lazy(() => import('@/components/dashboard/AdvancedAnalytics'))
 const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
 const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'))
+const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab').then(m => ({ default: m.FollowUpTab })))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -89,6 +91,7 @@ type TabId =
   | 'reports' 
   | 'analytics'
   | 'leads'
+  | 'followup'
   | 'templates'
   | 'audit'
   | 'users'
@@ -149,6 +152,12 @@ const TABS: TabConfig[] = [
     label: 'Lead Scoring',
     icon: <Flame className="h-4 w-4" />,
     component: LeadScoringTab,
+  },
+  {
+    id: 'followup',
+    label: 'Follow-up',
+    icon: <Bell className="h-4 w-4" />,
+    component: FollowUpTab,
   },
   {
     id: 'templates',
