@@ -569,6 +569,8 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          auto_reminder_days: number
+          auto_reminder_enabled: boolean
           created_at: string
           desktop_enabled: boolean
           email_digest_frequency: string | null
@@ -583,6 +585,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          auto_reminder_days?: number
+          auto_reminder_enabled?: boolean
           created_at?: string
           desktop_enabled?: boolean
           email_digest_frequency?: string | null
@@ -597,6 +601,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          auto_reminder_days?: number
+          auto_reminder_enabled?: boolean
           created_at?: string
           desktop_enabled?: boolean
           email_digest_frequency?: string | null

@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Copy, Check, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useUserPreferences } from "@/hooks/use-user-preferences";
+import { useCreateReminder } from "@/hooks/use-follow-up-reminders";
 
 export function CreateTrackingDialog() {
   const [open, setOpen] = useState(false);
@@ -27,15 +29,28 @@ export function CreateTrackingDialog() {
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { preferences } = useUserPreferences();
+  const createReminder = useCreateReminder();
 
   const mutation = useMutation({
     mutationFn: createTracking,
     onSuccess: (data) => {
       setResult(data);
       queryClient.invalidateQueries({ queryKey: ['tracked-emails'] });
+      
+      // Auto-create reminder if enabled in preferences
+      if (preferences?.auto_reminder_enabled && preferences?.auto_reminder_days) {
+        createReminder.mutate({
+          trackingId: data.trackingId,
+          reminderDays: preferences.auto_reminder_days,
+        });
+      }
+      
       toast({
         title: "Rastreamento criado!",
-        description: "O pixel de rastreamento foi gerado com sucesso.",
+        description: preferences?.auto_reminder_enabled 
+          ? `Pixel gerado e lembrete de ${preferences.auto_reminder_days} dias criado.`
+          : "O pixel de rastreamento foi gerado com sucesso.",
       });
     },
     onError: () => {

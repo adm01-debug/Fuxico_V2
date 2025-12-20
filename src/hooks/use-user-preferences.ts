@@ -14,6 +14,8 @@ export interface UserPreferences {
   notify_on_document_view: boolean;
   notify_on_document_download: boolean;
   email_digest_frequency: string;
+  auto_reminder_enabled: boolean;
+  auto_reminder_days: number;
   created_at: string;
   updated_at: string;
 }
@@ -27,6 +29,8 @@ const defaultPreferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' 
   notify_on_document_view: true,
   notify_on_document_download: true,
   email_digest_frequency: 'daily',
+  auto_reminder_enabled: false,
+  auto_reminder_days: 3,
 };
 
 export function useUserPreferences() {

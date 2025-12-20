@@ -3,10 +3,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2 } from 'lucide-react';
+import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -21,6 +22,13 @@ export default function Settings() {
 
   const handleDigestChange = (value: string) => {
     updatePreferences({ email_digest_frequency: value });
+  };
+
+  const handleReminderDaysChange = (value: string) => {
+    const days = parseInt(value, 10);
+    if (!isNaN(days) && days >= 1 && days <= 30) {
+      updatePreferences({ auto_reminder_days: days });
+    }
   };
 
   if (isLoading) {
@@ -205,6 +213,58 @@ export default function Settings() {
                 disabled={isUpdating}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Auto Reminder Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Lembretes Automáticos
+            </CardTitle>
+            <CardDescription>
+              Configure lembretes automáticos para follow-up de emails não abertos
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="auto_reminder" className="text-base">Criar Lembretes Automaticamente</Label>
+                <p className="text-sm text-muted-foreground">Ao enviar emails rastreados, criar lembrete de follow-up</p>
+              </div>
+              <Switch
+                id="auto_reminder"
+                checked={preferences?.auto_reminder_enabled ?? false}
+                onCheckedChange={(checked) => handleToggle('auto_reminder_enabled', checked)}
+                disabled={isUpdating}
+              />
+            </div>
+
+            {preferences?.auto_reminder_enabled && (
+              <>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="reminder_days" className="text-base">Dias para Lembrete</Label>
+                    <p className="text-sm text-muted-foreground">Após quantos dias sem abertura criar alerta</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="reminder_days"
+                      type="number"
+                      min={1}
+                      max={30}
+                      value={preferences?.auto_reminder_days ?? 3}
+                      onChange={(e) => handleReminderDaysChange(e.target.value)}
+                      disabled={isUpdating}
+                      className="w-20"
+                    />
+                    <span className="text-sm text-muted-foreground">dias</span>
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
