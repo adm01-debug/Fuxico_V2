@@ -409,3 +409,6 @@ export function BitrixTab() {
     </div>
   );
 }
+
+// Default export for lazy loading
+export default BitrixTab;

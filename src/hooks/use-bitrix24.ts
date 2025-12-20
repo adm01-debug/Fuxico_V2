@@ -30,7 +30,7 @@ export interface Bitrix24Contact {
 
 export interface Bitrix24Activity {
   id: string;
-  type: 'email_open' | 'link_click' | 'document_view' | 'email_sent';
+  type: 'email_open' | 'link_click' | 'document_view';
   subject: string;
   contactId: string;
   contactName: string;
@@ -144,23 +144,13 @@ export function useBitrix24Config() {
 
         const { data } = await supabase
           .from('user_preferences')
-          .select('bitrix24_config')
+          .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (data?.bitrix24_config) {
-          const dbConfig = data.bitrix24_config as Record<string, unknown>;
-          setConfig(prev => ({
-            ...prev,
-            webhookUrl: (dbConfig.webhook_url as string) || null,
-            useMock: !dbConfig.webhook_url,
-            autoSyncContacts: dbConfig.auto_sync_contacts as boolean ?? true,
-            autoRegisterActivities: dbConfig.auto_register_activities as boolean ?? true,
-            autoCreateDeals: dbConfig.auto_create_deals as boolean ?? false,
-            sendNotifications: dbConfig.send_notifications as boolean ?? true,
-            defaultDealStage: (dbConfig.default_deal_stage as string) || 'NEW',
-            defaultDealCategory: (dbConfig.default_deal_category as string) || '0',
-          }));
+        // Config not available in current schema, use defaults
+        if (data) {
+          console.log('Bitrix24: using default config');
         }
       } catch (error) {
         console.error('Erro ao carregar config Bitrix24:', error);

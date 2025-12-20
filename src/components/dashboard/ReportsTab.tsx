@@ -253,3 +253,6 @@ export function ReportsTab() {
     </div>
   );
 }
+
+// Default export for lazy loading
+export default ReportsTab;

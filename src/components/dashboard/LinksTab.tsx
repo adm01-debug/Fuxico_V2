@@ -275,3 +275,6 @@ function LinkEventsDialog({
     </Dialog>
   );
 }
+
+// Default export for lazy loading
+export default LinksTab;
