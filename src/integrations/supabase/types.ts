@@ -113,6 +113,51 @@ export type Database = {
         }
         Relationships: []
       }
+      bitrix24_config: {
+        Row: {
+          auto_create_deals: boolean
+          auto_register_activities: boolean
+          auto_sync_contacts: boolean
+          created_at: string
+          default_deal_category: string
+          default_deal_stage: string
+          enabled: boolean
+          id: string
+          send_notifications: boolean
+          updated_at: string
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          auto_create_deals?: boolean
+          auto_register_activities?: boolean
+          auto_sync_contacts?: boolean
+          created_at?: string
+          default_deal_category?: string
+          default_deal_stage?: string
+          enabled?: boolean
+          id?: string
+          send_notifications?: boolean
+          updated_at?: string
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          auto_create_deals?: boolean
+          auto_register_activities?: boolean
+          auto_sync_contacts?: boolean
+          created_at?: string
+          default_deal_category?: string
+          default_deal_stage?: string
+          enabled?: boolean
+          id?: string
+          send_notifications?: boolean
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           created_at: string
@@ -477,6 +522,54 @@ export type Database = {
           os?: string | null
           referer?: string | null
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      scheduled_emails: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          recipient_email: string
+          scheduled_at: string
+          sender_email: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          tracking_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          recipient_email: string
+          scheduled_at: string
+          sender_email?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          tracking_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          recipient_email?: string
+          scheduled_at?: string
+          sender_email?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          tracking_id?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1011,6 +1104,15 @@ export type Database = {
           unique_links_clicked: number
           unique_opens: number
           user_id: string
+        }[]
+      }
+      get_geo_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          city: string
+          click_count: number
+          country: string
+          open_count: number
         }[]
       }
       get_user_tracking_stats: {

@@ -120,51 +120,66 @@ const mockDeals: Bitrix24Deal[] = [
 ];
 
 // ============================================
-// CONFIG HOOK
+// CONFIG HOOK - NOW USING bitrix24_config TABLE
 // ============================================
 
 export function useBitrix24Config() {
-  const [config, setConfig] = useState<Bitrix24Config>({
-    enabled: true,
-    useMock: true,
-    webhookUrl: null,
-    autoSyncContacts: true,
-    autoRegisterActivities: true,
-    autoCreateDeals: false,
-    sendNotifications: true,
-    defaultDealStage: 'NEW',
-    defaultDealCategory: '0',
+  const queryClient = useQueryClient();
+
+  const query = useQuery<Bitrix24Config>({
+    queryKey: ['bitrix24-config'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('bitrix24_config')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching Bitrix24 config:', error);
+        throw error;
+      }
+
+      // Return defaults if no config exists
+      if (!data) {
+        return {
+          enabled: true,
+          useMock: true,
+          webhookUrl: null,
+          autoSyncContacts: true,
+          autoRegisterActivities: true,
+          autoCreateDeals: false,
+          sendNotifications: true,
+          defaultDealStage: 'NEW',
+          defaultDealCategory: '0',
+        };
+      }
+
+      return {
+        enabled: data.enabled,
+        useMock: !data.webhook_url,
+        webhookUrl: data.webhook_url,
+        autoSyncContacts: data.auto_sync_contacts,
+        autoRegisterActivities: data.auto_register_activities,
+        autoCreateDeals: data.auto_create_deals,
+        sendNotifications: data.send_notifications,
+        defaultDealStage: data.default_deal_stage,
+        defaultDealCategory: data.default_deal_category,
+      };
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  useEffect(() => {
-    async function loadConfig() {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data } = await supabase
-          .from('user_preferences')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        // Config not available in current schema, use defaults
-        if (data) {
-          console.log('Bitrix24: using default config');
-        }
-      } catch (error) {
-        console.error('Erro ao carregar config Bitrix24:', error);
-      }
-    }
-    loadConfig();
-  }, []);
-
-  const updateConfig = useCallback(async (updates: Partial<Bitrix24Config>) => {
-    try {
+  const updateMutation = useMutation({
+    mutationFn: async (updates: Partial<Bitrix24Config>) => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) throw new Error('Not authenticated');
 
       const dbUpdates: Record<string, unknown> = {};
+      if (updates.enabled !== undefined) dbUpdates.enabled = updates.enabled;
       if (updates.webhookUrl !== undefined) dbUpdates.webhook_url = updates.webhookUrl;
       if (updates.autoSyncContacts !== undefined) dbUpdates.auto_sync_contacts = updates.autoSyncContacts;
       if (updates.autoRegisterActivities !== undefined) dbUpdates.auto_register_activities = updates.autoRegisterActivities;
@@ -173,28 +188,45 @@ export function useBitrix24Config() {
       if (updates.defaultDealStage !== undefined) dbUpdates.default_deal_stage = updates.defaultDealStage;
       if (updates.defaultDealCategory !== undefined) dbUpdates.default_deal_category = updates.defaultDealCategory;
 
-      await supabase
-        .from('user_preferences')
+      const { data, error } = await supabase
+        .from('bitrix24_config')
         .upsert({
           user_id: user.id,
-          bitrix24_config: dbUpdates,
+          ...dbUpdates,
         }, {
           onConflict: 'user_id',
-        });
+        })
+        .select()
+        .single();
 
-      setConfig(prev => ({
-        ...prev,
-        ...updates,
-        useMock: updates.webhookUrl ? false : !prev.webhookUrl,
-      }));
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitrix24-config'] });
+    },
+  });
 
-    } catch (error) {
-      console.error('Erro ao salvar config Bitrix24:', error);
-      throw error;
-    }
-  }, []);
+  const updateConfig = useCallback(async (updates: Partial<Bitrix24Config>) => {
+    await updateMutation.mutateAsync(updates);
+  }, [updateMutation]);
 
-  return { config, updateConfig };
+  return { 
+    config: query.data || {
+      enabled: true,
+      useMock: true,
+      webhookUrl: null,
+      autoSyncContacts: true,
+      autoRegisterActivities: true,
+      autoCreateDeals: false,
+      sendNotifications: true,
+      defaultDealStage: 'NEW',
+      defaultDealCategory: '0',
+    }, 
+    updateConfig,
+    isLoading: query.isLoading,
+    isUpdating: updateMutation.isPending,
+  };
 }
 
 // ============================================
