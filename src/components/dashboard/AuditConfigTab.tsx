@@ -259,3 +259,6 @@ export function AuditConfigTab() {
     </div>
   );
 }
+
+// Default export for lazy loading
+export default AuditConfigTab;

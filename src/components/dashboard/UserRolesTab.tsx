@@ -259,3 +259,6 @@ export function UserRolesTab() {
     </Card>
   );
 }
+
+// Default export for lazy loading
+export default UserRolesTab;

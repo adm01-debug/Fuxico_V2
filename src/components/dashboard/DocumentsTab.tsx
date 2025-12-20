@@ -298,3 +298,6 @@ function DocumentEventsDialog({
     </Dialog>
   );
 }
+
+// Default export for lazy loading
+export default DocumentsTab;

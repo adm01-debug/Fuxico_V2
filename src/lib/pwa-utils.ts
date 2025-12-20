@@ -165,7 +165,7 @@ export async function subscribeToPush(vapidPublicKey?: string): Promise<PushSubs
     
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: vapidPublicKey ? urlBase64ToUint8Array(vapidPublicKey) : undefined,
+      applicationServerKey: vapidPublicKey ? urlBase64ToUint8Array(vapidPublicKey) as BufferSource : undefined,
     });
 
     console.log('[PWA] Push subscription:', subscription);

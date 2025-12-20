@@ -127,3 +127,6 @@ export function useRemoveRole() {
     },
   });
 }
+
+// Alias for backwards compatibility
+export const useUserRoles = useUsersWithRoles;

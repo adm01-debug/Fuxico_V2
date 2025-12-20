@@ -221,3 +221,6 @@ export function EmailTable({ emails, selectedId, onSelect, showFilters = true }:
 // Export for backward compatibility
 export { useEmailFilters, filterEmails };
 export type { EmailFilters };
+
+// Default export for lazy loading
+export default EmailTable;

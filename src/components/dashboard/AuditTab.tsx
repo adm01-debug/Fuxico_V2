@@ -510,3 +510,6 @@ function LogRow({ log }: { log: EmailAuditLog }) {
     </TableRow>
   );
 }
+
+// Default export for lazy loading
+export default AuditTab;
