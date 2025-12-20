@@ -18,6 +18,7 @@ import {
   Activity,
   TrendingUp,
   Home,
+  Webhook,
 } from 'lucide-react'
 
 // =============================================================================
@@ -35,6 +36,7 @@ const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'))
 const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'))
 const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
 const AdvancedAnalytics = lazy(() => import('@/components/dashboard/AdvancedAnalytics'))
+const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -89,6 +91,7 @@ type TabId =
   | 'users'
   | 'config'
   | 'bitrix'
+  | 'webhooks'
 
 interface TabConfig {
   id: TabId
@@ -167,6 +170,12 @@ const TABS: TabConfig[] = [
     label: 'Bitrix24',
     icon: <Building2 className="h-4 w-4" />,
     component: BitrixTab,
+  },
+  {
+    id: 'webhooks',
+    label: 'Webhooks',
+    icon: <Webhook className="h-4 w-4" />,
+    component: WebhookTab,
   },
 ]
 
