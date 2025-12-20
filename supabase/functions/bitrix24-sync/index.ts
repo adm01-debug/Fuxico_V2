@@ -13,13 +13,18 @@ const corsHeaders = {
 // ============================================
 
 interface Bitrix24Config {
-  webhook_url: string
+  id: string
+  user_id: string
+  enabled: boolean
+  webhook_url: string | null
   auto_sync_contacts: boolean
   auto_register_activities: boolean
   auto_create_deals: boolean
   send_notifications: boolean
   default_deal_stage: string
   default_deal_category: string
+  created_at: string
+  updated_at: string
 }
 
 interface SyncRequest {
@@ -422,14 +427,16 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Buscar configuração do Bitrix24
-    const { data: userPrefs } = await supabase
-      .from('user_preferences')
-      .select('bitrix24_config')
+    // Buscar configuração do Bitrix24 da tabela dedicada
+    const { data: bitrixConfig, error: configError } = await supabase
+      .from('bitrix24_config')
+      .select('*')
       .eq('user_id', user.id)
       .maybeSingle()
 
-    const bitrixConfig = userPrefs?.bitrix24_config as Bitrix24Config | null
+    if (configError) {
+      console.error('Error fetching bitrix24_config:', configError)
+    }
 
     if (!bitrixConfig?.webhook_url) {
       return new Response(JSON.stringify({ 
