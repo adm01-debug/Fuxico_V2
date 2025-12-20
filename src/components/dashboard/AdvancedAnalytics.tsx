@@ -11,7 +11,14 @@ import {
   Target,
   ArrowUpRight,
   ArrowDownRight,
-  CalendarIcon
+  CalendarIcon,
+  Smartphone,
+  Monitor,
+  Users,
+  Zap,
+  Mail,
+  MousePointerClick,
+  Timer
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +44,9 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { useTrackedEmails, useTrackingStats } from "@/hooks/use-tracking";
+import { useTrackedEmails, useTrackingStats, useEngagementMetrics } from "@/hooks/use-tracking";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
 
 interface DateRange {
   from: Date;
@@ -605,6 +614,281 @@ export function AdvancedAnalytics() {
               />
             </BarChart>
           </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Engagement Metrics Section */}
+      <EngagementMetricsSection />
+    </div>
+  );
+}
+
+// Engagement Metrics Component
+function EngagementMetricsSection() {
+  const { data: engagement, isLoading } = useEngagementMetrics();
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24" />
+          ))}
+        </div>
+        <Skeleton className="h-80" />
+      </div>
+    );
+  }
+
+  if (!engagement) return null;
+
+  const { summary, devices, topEmails, emails } = engagement;
+
+  const deviceData = [
+    { name: 'Desktop', value: devices.desktop, icon: Monitor },
+    { name: 'Mobile', value: devices.mobile, icon: Smartphone },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Section Header */}
+      <div className="flex items-center gap-2">
+        <Zap className="h-6 w-6 text-primary" />
+        <h2 className="text-xl font-semibold">Métricas de Engajamento</h2>
+      </div>
+
+      {/* Engagement Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Mail className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Taxa de Abertura</p>
+                <p className="text-2xl font-bold">{summary.openRate}%</p>
+                <p className="text-xs text-muted-foreground">
+                  {summary.emailsWithOpens} de {summary.totalEmails} emails
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-500/10 rounded-lg">
+                <MousePointerClick className="h-5 w-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Taxa de Cliques</p>
+                <p className="text-2xl font-bold">{summary.clickRate}%</p>
+                <p className="text-xs text-muted-foreground">
+                  {summary.emailsWithClicks} emails com cliques
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-500/10 rounded-lg">
+                <Users className="h-5 w-5 text-purple-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Média de Aberturas</p>
+                <p className="text-2xl font-bold">{summary.avgOpensPerEmail}</p>
+                <p className="text-xs text-muted-foreground">por email</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-500/10 rounded-lg">
+                <Timer className="h-5 w-5 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Tempo até Abertura</p>
+                <p className="text-2xl font-bold">
+                  {summary.avgTimeToOpen !== null ? `${summary.avgTimeToOpen}min` : 'N/A'}
+                </p>
+                <p className="text-xs text-muted-foreground">média</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Device Breakdown & Top Emails */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Device Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Dispositivos</CardTitle>
+            <CardDescription>Onde seus emails são abertos</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {deviceData.map((device) => {
+              const total = devices.mobile + devices.desktop;
+              const percentage = total > 0 ? Math.round((device.value / total) * 100) : 0;
+              const DeviceIcon = device.icon;
+              
+              return (
+                <div key={device.name} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <DeviceIcon className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">{device.name}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {device.value} ({percentage}%)
+                    </span>
+                  </div>
+                  <Progress value={percentage} className="h-2" />
+                </div>
+              );
+            })}
+            
+            <div className="pt-4 border-t">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total de aberturas</span>
+                <span className="font-medium">{devices.mobile + devices.desktop}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top Performing Emails */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Top Emails por Engajamento</CardTitle>
+            <CardDescription>Emails com melhor performance</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {topEmails.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nenhum dado de engajamento disponível
+                </p>
+              ) : (
+                topEmails.map((email, index) => (
+                  <div key={email.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
+                    <div className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
+                      index === 0 ? "bg-yellow-500/20 text-yellow-600" :
+                      index === 1 ? "bg-gray-300/30 text-gray-600" :
+                      index === 2 ? "bg-orange-500/20 text-orange-600" :
+                      "bg-muted text-muted-foreground"
+                    )}>
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {email.subject || 'Sem assunto'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {email.recipientEmail}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 text-sm">
+                        <Mail className="h-3 w-3" />
+                        <span>{email.opens}</span>
+                        <MousePointerClick className="h-3 w-3 ml-2" />
+                        <span>{email.clicks}</span>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        Score: {email.engagementScore}
+                      </Badge>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Detailed Email Engagement Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Engajamento Detalhado por Email</CardTitle>
+          <CardDescription>Métricas individuais de cada email rastreado</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Destinatário</TableHead>
+                  <TableHead>Assunto</TableHead>
+                  <TableHead className="text-center">Aberturas</TableHead>
+                  <TableHead className="text-center">Únicas</TableHead>
+                  <TableHead className="text-center">Cliques</TableHead>
+                  <TableHead className="text-center">Tempo</TableHead>
+                  <TableHead className="text-center">Score</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {emails.slice(0, 10).map((email) => (
+                  <TableRow key={email.id}>
+                    <TableCell className="font-medium max-w-[150px] truncate">
+                      {email.recipientEmail}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate">
+                      {email.subject || <span className="text-muted-foreground">Sem assunto</span>}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={email.opens > 0 ? "default" : "secondary"}>
+                        {email.opens}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {email.uniqueOpens}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={email.clicks > 0 ? "default" : "secondary"}>
+                        {email.clicks}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center text-sm text-muted-foreground">
+                      {email.timeToFirstOpen !== null ? `${email.timeToFirstOpen}min` : '-'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className={cn(
+                        "inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold",
+                        email.engagementScore >= 10 ? "bg-green-500/20 text-green-600" :
+                        email.engagementScore >= 5 ? "bg-yellow-500/20 text-yellow-600" :
+                        "bg-muted text-muted-foreground"
+                      )}>
+                        {email.engagementScore}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {emails.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      Nenhum email rastreado encontrado
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          {emails.length > 10 && (
+            <p className="text-sm text-muted-foreground text-center mt-4">
+              Mostrando 10 de {emails.length} emails
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
