@@ -208,6 +208,54 @@ export type Database = {
         }
         Relationships: []
       }
+      follow_up_reminders: {
+        Row: {
+          created_at: string
+          id: string
+          reminded_at: string | null
+          reminder_days: number
+          status: string
+          tracking_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reminded_at?: string | null
+          reminder_days?: number
+          status?: string
+          tracking_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reminded_at?: string | null
+          reminder_days?: number
+          status?: string
+          tracking_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_reminders_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "email_stats_mv"
+            referencedColumns: ["tracking_id"]
+          },
+          {
+            foreignKeyName: "follow_up_reminders_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_emails"
+            referencedColumns: ["tracking_id"]
+          },
+        ]
+      }
       fraud_alerts: {
         Row: {
           alert_type: string
@@ -696,6 +744,18 @@ export type Database = {
       }
     }
     Functions: {
+      get_due_reminders: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          recipient_email: string
+          reminder_days: number
+          subject: string
+          tracking_id: string
+          user_id: string
+        }[]
+      }
       get_emails_with_stats: {
         Args: {
           p_end_date?: string
