@@ -238,6 +238,42 @@ export type Database = {
         }
         Relationships: []
       }
+      email_templates: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          id: string
+          name: string
+          subject: string
+          updated_at: string
+          usage_count: number
+          user_id: string
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          id?: string
+          name: string
+          subject: string
+          updated_at?: string
+          usage_count?: number
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          subject?: string
+          updated_at?: string
+          usage_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       follow_up_reminders: {
         Row: {
           created_at: string
@@ -378,6 +414,51 @@ export type Database = {
           os?: string | null
           referer?: string | null
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      scheduled_reports: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          format: string
+          id: string
+          last_sent_at: string | null
+          metrics: string[]
+          name: string
+          next_send_at: string | null
+          recipients: string[]
+          report_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          format?: string
+          id?: string
+          last_sent_at?: string | null
+          metrics?: string[]
+          name: string
+          next_send_at?: string | null
+          recipients?: string[]
+          report_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          format?: string
+          id?: string
+          last_sent_at?: string | null
+          metrics?: string[]
+          name?: string
+          next_send_at?: string | null
+          recipients?: string[]
+          report_type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

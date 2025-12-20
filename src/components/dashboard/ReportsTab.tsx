@@ -6,47 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Mail, FileText, TrendingUp, Download } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Calendar, Clock, Mail, FileText, TrendingUp, Download, Plus, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ExportDialog } from './ExportDialog';
 import { useTrackedEmails, useTrackingStats } from '@/hooks/use-tracking';
-
-interface ScheduledReport {
-  id: string;
-  name: string;
-  type: 'daily' | 'weekly' | 'monthly';
-  format: 'email' | 'pdf' | 'csv';
-  enabled: boolean;
-  recipients: string[];
-  lastSent?: string;
-  nextSend?: string;
-  metrics: string[];
-}
-
-const defaultReports: ScheduledReport[] = [
-  {
-    id: '1',
-    name: 'Resumo Diário',
-    type: 'daily',
-    format: 'email',
-    enabled: true,
-    recipients: ['equipe@promobrindes.com.br'],
-    lastSent: new Date(Date.now() - 86400000).toISOString(),
-    nextSend: new Date(Date.now() + 43200000).toISOString(),
-    metrics: ['emails_sent', 'opens', 'clicks', 'bounce_rate'],
-  },
-  {
-    id: '2',
-    name: 'Relatório Semanal',
-    type: 'weekly',
-    format: 'pdf',
-    enabled: true,
-    recipients: ['gerencia@promobrindes.com.br'],
-    lastSent: new Date(Date.now() - 604800000).toISOString(),
-    nextSend: new Date(Date.now() + 259200000).toISOString(),
-    metrics: ['emails_sent', 'opens', 'clicks', 'conversions', 'top_recipients'],
-  },
-];
+import { useScheduledReports } from '@/hooks/use-scheduled-reports';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const metricOptions = [
   { value: 'emails_sent', label: 'Emails Enviados' },
@@ -60,10 +27,19 @@ const metricOptions = [
 ];
 
 export function ReportsTab() {
-  const [reports, setReports] = useState<ScheduledReport[]>(defaultReports);
+  const { reports, isLoading, createReport, toggleEnabled, addRecipient, removeRecipient, deleteReport } = useScheduledReports();
   const [newRecipient, setNewRecipient] = useState('');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [newReport, setNewReport] = useState({
+    name: '',
+    report_type: 'weekly' as 'daily' | 'weekly' | 'monthly',
+    format: 'email' as 'email' | 'pdf' | 'csv',
+    recipients: [] as string[],
+    metrics: ['emails_sent', 'opens', 'clicks'] as string[],
+  });
+  const [newReportRecipient, setNewReportRecipient] = useState('');
 
-  const formatDate = (dateStr?: string) => {
+  const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '-';
     return new Date(dateStr).toLocaleString('pt-BR', {
       day: '2-digit',
@@ -73,42 +49,70 @@ export function ReportsTab() {
     });
   };
 
-  const toggleReport = (id: string) => {
-    setReports(reports.map(r => 
-      r.id === id ? { ...r, enabled: !r.enabled } : r
-    ));
-    toast.success('Configuração atualizada');
+  const handleToggleReport = (id: string, currentEnabled: boolean) => {
+    toggleEnabled.mutate({ id, enabled: !currentEnabled });
   };
 
-  const addRecipient = (reportId: string) => {
+  const handleAddRecipient = (reportId: string) => {
     if (!newRecipient || !newRecipient.includes('@')) {
       toast.error('Email inválido');
       return;
     }
-    
-    setReports(reports.map(r => 
-      r.id === reportId 
-        ? { ...r, recipients: [...r.recipients, newRecipient] }
-        : r
-    ));
+    addRecipient.mutate({ id: reportId, email: newRecipient });
     setNewRecipient('');
-    toast.success('Destinatário adicionado');
   };
 
-  const removeRecipient = (reportId: string, email: string) => {
-    setReports(reports.map(r => 
-      r.id === reportId 
-        ? { ...r, recipients: r.recipients.filter(e => e !== email) }
-        : r
-    ));
+  const handleRemoveRecipient = (reportId: string, email: string) => {
+    removeRecipient.mutate({ id: reportId, email });
   };
 
-  const downloadReport = (report: ScheduledReport) => {
+  const handleCreateReport = async () => {
+    if (!newReport.name) {
+      toast.error('Informe o nome do relatório');
+      return;
+    }
+    if (newReport.recipients.length === 0) {
+      toast.error('Adicione pelo menos um destinatário');
+      return;
+    }
+    
+    await createReport.mutateAsync(newReport);
+    setNewReport({
+      name: '',
+      report_type: 'weekly',
+      format: 'email',
+      recipients: [],
+      metrics: ['emails_sent', 'opens', 'clicks'],
+    });
+    setIsCreateOpen(false);
+  };
+
+  const handleAddNewReportRecipient = () => {
+    if (!newReportRecipient || !newReportRecipient.includes('@')) {
+      toast.error('Email inválido');
+      return;
+    }
+    setNewReport(prev => ({
+      ...prev,
+      recipients: [...prev.recipients, newReportRecipient],
+    }));
+    setNewReportRecipient('');
+  };
+
+  const handleToggleMetric = (metric: string) => {
+    setNewReport(prev => ({
+      ...prev,
+      metrics: prev.metrics.includes(metric)
+        ? prev.metrics.filter(m => m !== metric)
+        : [...prev.metrics, metric],
+    }));
+  };
+
+  const downloadReport = (report: typeof reports[0]) => {
     toast.info('Gerando relatório...', {
       description: 'O download iniciará em instantes',
     });
     
-    // Simular download
     setTimeout(() => {
       toast.success('Relatório gerado!', {
         description: `${report.name}.${report.format === 'email' ? 'html' : report.format}`,
@@ -128,11 +132,9 @@ export function ReportsTab() {
     csv: { label: 'CSV', icon: <TrendingUp className="h-4 w-4" /> },
   };
 
-  // Get real data for export
   const { data: emails } = useTrackedEmails();
   const { data: stats } = useTrackingStats();
   
-  // Prepare export data
   const exportData = (emails || []).map(email => ({
     id: email.id,
     tracking_id: email.tracking_id,
@@ -144,6 +146,26 @@ export function ReportsTab() {
     aberturas: (email as any).open_count || 0,
     cliques: (email as any).click_count || 0,
   }));
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-72" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2].map(i => (
+                <Skeleton key={i} className="h-32 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -189,97 +211,240 @@ export function ReportsTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Relatórios Agendados</CardTitle>
-          <CardDescription>
-            Configure relatórios automáticos para receber por email ou download
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {reports.map(report => (
-            <Card key={report.id} className={`${report.enabled ? 'border-primary/30' : 'opacity-60'}`}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${report.enabled ? 'bg-primary/10' : 'bg-muted'}`}>
-                      {typeLabels[report.type].icon}
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{report.name}</h4>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline">{typeLabels[report.type].label}</Badge>
-                        <Badge variant="secondary">{formatLabels[report.format].label}</Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => downloadReport(report)}>
-                      <Download className="h-4 w-4 mr-1" />
-                      Gerar Agora
-                    </Button>
-                    <Switch 
-                      checked={report.enabled}
-                      onCheckedChange={() => toggleReport(report.id)}
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Relatórios Agendados</CardTitle>
+              <CardDescription>
+                Configure relatórios automáticos para receber por email ou download
+              </CardDescription>
+            </div>
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Relatório
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Criar Relatório Agendado</DialogTitle>
+                  <DialogDescription>
+                    Configure um novo relatório automático
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label>Nome do Relatório</Label>
+                    <Input
+                      placeholder="Ex: Resumo Semanal"
+                      value={newReport.name}
+                      onChange={e => setNewReport(prev => ({ ...prev, name: e.target.value }))}
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                  <div>
-                    <span className="text-muted-foreground">Último envio:</span>
-                    <p className="font-medium">{formatDate(report.lastSent)}</p>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Frequência</Label>
+                      <Select
+                        value={newReport.report_type}
+                        onValueChange={(v: 'daily' | 'weekly' | 'monthly') => 
+                          setNewReport(prev => ({ ...prev, report_type: v }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Diário</SelectItem>
+                          <SelectItem value="weekly">Semanal</SelectItem>
+                          <SelectItem value="monthly">Mensal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Formato</Label>
+                      <Select
+                        value={newReport.format}
+                        onValueChange={(v: 'email' | 'pdf' | 'csv') => 
+                          setNewReport(prev => ({ ...prev, format: v }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="pdf">PDF</SelectItem>
+                          <SelectItem value="csv">CSV</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">Próximo envio:</span>
-                    <p className="font-medium">{formatDate(report.nextSend)}</p>
-                  </div>
-                </div>
 
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Métricas incluídas:</Label>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {report.metrics.map(m => (
-                        <Badge key={m} variant="secondary" className="text-xs">
-                          {metricOptions.find(o => o.value === m)?.label || m}
-                        </Badge>
+                  <div className="space-y-2">
+                    <Label>Métricas</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {metricOptions.map(option => (
+                        <div key={option.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={option.value}
+                            checked={newReport.metrics.includes(option.value)}
+                            onCheckedChange={() => handleToggleMetric(option.value)}
+                          />
+                          <label htmlFor={option.value} className="text-sm">
+                            {option.label}
+                          </label>
+                        </div>
                       ))}
                     </div>
                   </div>
 
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Destinatários:</Label>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {report.recipients.map(email => (
-                        <Badge 
-                          key={email} 
-                          variant="outline" 
-                          className="text-xs cursor-pointer hover:bg-destructive/10"
-                          onClick={() => removeRecipient(report.id, email)}
+                  <div className="space-y-2">
+                    <Label>Destinatários</Label>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {newReport.recipients.map(email => (
+                        <Badge
+                          key={email}
+                          variant="secondary"
+                          className="cursor-pointer"
+                          onClick={() => setNewReport(prev => ({
+                            ...prev,
+                            recipients: prev.recipients.filter(e => e !== email),
+                          }))}
                         >
                           {email} ×
                         </Badge>
                       ))}
                     </div>
-                    <div className="flex gap-2 mt-2">
-                      <Input 
-                        placeholder="Adicionar email..."
-                        value={newRecipient}
-                        onChange={e => setNewRecipient(e.target.value)}
-                        className="h-8 text-sm"
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="email@exemplo.com"
+                        value={newReportRecipient}
+                        onChange={e => setNewReportRecipient(e.target.value)}
                       />
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => addRecipient(report.id)}
-                      >
+                      <Button type="button" variant="outline" onClick={handleAddNewReportRecipient}>
                         Adicionar
                       </Button>
                     </div>
                   </div>
+
+                  <Button
+                    onClick={handleCreateReport}
+                    className="w-full"
+                    disabled={createReport.isPending}
+                  >
+                    {createReport.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Plus className="h-4 w-4 mr-2" />
+                    )}
+                    Criar Relatório
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {reports.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>Nenhum relatório agendado.</p>
+              <p className="text-sm">Clique em "Novo Relatório" para começar.</p>
+            </div>
+          ) : (
+            reports.map(report => (
+              <Card key={report.id} className={`${report.enabled ? 'border-primary/30' : 'opacity-60'}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${report.enabled ? 'bg-primary/10' : 'bg-muted'}`}>
+                        {typeLabels[report.report_type]?.icon}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{report.name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline">{typeLabels[report.report_type]?.label}</Badge>
+                          <Badge variant="secondary">{formatLabels[report.format]?.label}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={() => downloadReport(report)}>
+                        <Download className="h-4 w-4 mr-1" />
+                        Gerar Agora
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteReport.mutate(report.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                      <Switch
+                        checked={report.enabled}
+                        onCheckedChange={() => handleToggleReport(report.id, report.enabled)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div>
+                      <span className="text-muted-foreground">Último envio:</span>
+                      <p className="font-medium">{formatDate(report.last_sent_at)}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Próximo envio:</span>
+                      <p className="font-medium">{formatDate(report.next_send_at)}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Métricas incluídas:</Label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {report.metrics.map(m => (
+                          <Badge key={m} variant="secondary" className="text-xs">
+                            {metricOptions.find(o => o.value === m)?.label || m}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Destinatários:</Label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {report.recipients.map(email => (
+                          <Badge
+                            key={email}
+                            variant="outline"
+                            className="text-xs cursor-pointer hover:bg-destructive/10"
+                            onClick={() => handleRemoveRecipient(report.id, email)}
+                          >
+                            {email} ×
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          placeholder="Adicionar email..."
+                          value={newRecipient}
+                          onChange={e => setNewRecipient(e.target.value)}
+                          className="h-8 text-sm"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleAddRecipient(report.id)}
+                        >
+                          Adicionar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </CardContent>
       </Card>
 
@@ -291,20 +456,26 @@ export function ReportsTab() {
         <CardContent>
           <div className="grid grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-primary">156</p>
-              <p className="text-xs text-muted-foreground">Relatórios enviados</p>
+              <p className="text-2xl font-bold text-primary">{reports.length}</p>
+              <p className="text-xs text-muted-foreground">Relatórios configurados</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">98%</p>
-              <p className="text-xs text-muted-foreground">Taxa de entrega</p>
+              <p className="text-2xl font-bold text-green-600">
+                {reports.filter(r => r.enabled).length}
+              </p>
+              <p className="text-xs text-muted-foreground">Ativos</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold">7</p>
-              <p className="text-xs text-muted-foreground">Destinatários ativos</p>
+              <p className="text-2xl font-bold">
+                {reports.reduce((acc, r) => acc + r.recipients.length, 0)}
+              </p>
+              <p className="text-xs text-muted-foreground">Destinatários</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold">2</p>
-              <p className="text-xs text-muted-foreground">Agendamentos ativos</p>
+              <p className="text-2xl font-bold">
+                {reports.filter(r => r.last_sent_at).length}
+              </p>
+              <p className="text-xs text-muted-foreground">Já enviados</p>
             </div>
           </div>
         </CardContent>
@@ -313,5 +484,4 @@ export function ReportsTab() {
   );
 }
 
-// Default export for lazy loading
 export default ReportsTab;
