@@ -22,6 +22,9 @@ import {
   Flame,
   Bell,
   Brain,
+  FlaskConical,
+  UserX,
+  Target,
 } from 'lucide-react'
 
 // =============================================================================
@@ -44,6 +47,8 @@ const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'
 const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab').then(m => ({ default: m.FollowUpTab })))
 const InsightsTab = lazy(() => import('@/components/dashboard/InsightsTab'))
 const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'))
+const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'))
+const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -96,6 +101,9 @@ type TabId =
   | 'leads'
   | 'followup'
   | 'insights'
+  | 'campaigns'
+  | 'abtesting'
+  | 'unsubscribe'
   | 'templates'
   | 'audit'
   | 'users'
@@ -168,6 +176,24 @@ const TABS: TabConfig[] = [
     label: 'Insights IA',
     icon: <Brain className="h-4 w-4" />,
     component: InsightsTab,
+  },
+  {
+    id: 'campaigns',
+    label: 'Campanhas',
+    icon: <Target className="h-4 w-4" />,
+    component: CampaignsTab,
+  },
+  {
+    id: 'abtesting',
+    label: 'Teste A/B',
+    icon: <FlaskConical className="h-4 w-4" />,
+    component: ABTestingTab,
+  },
+  {
+    id: 'unsubscribe',
+    label: 'Exclusão',
+    icon: <UserX className="h-4 w-4" />,
+    component: UnsubscribeTab,
   },
   {
     id: 'templates',

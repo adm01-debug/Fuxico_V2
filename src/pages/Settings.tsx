@@ -95,12 +95,29 @@ export default function Settings() {
                   <p className="text-sm text-muted-foreground">Mostrar notificações do navegador</p>
                 </div>
               </div>
-              <Switch
-                id="desktop"
-                checked={preferences?.desktop_enabled ?? true}
-                onCheckedChange={(checked) => handleToggle('desktop_enabled', checked)}
-                disabled={isUpdating}
-              />
+              <div className="flex items-center gap-2">
+                {typeof Notification !== 'undefined' && Notification.permission === 'denied' && (
+                  <span className="text-xs text-destructive">Bloqueado</span>
+                )}
+                {typeof Notification !== 'undefined' && Notification.permission === 'default' && (
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => Notification.requestPermission()}
+                  >
+                    Ativar
+                  </Button>
+                )}
+                {typeof Notification !== 'undefined' && Notification.permission === 'granted' && (
+                  <span className="text-xs text-green-600">Ativo</span>
+                )}
+                <Switch
+                  id="desktop"
+                  checked={preferences?.desktop_enabled ?? true}
+                  onCheckedChange={(checked) => handleToggle('desktop_enabled', checked)}
+                  disabled={isUpdating}
+                />
+              </div>
             </div>
 
             <Separator />
