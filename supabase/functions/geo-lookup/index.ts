@@ -99,7 +99,8 @@ async function getGeoFromIPAPI(ip: string): Promise<GeoLocation | null> {
       is_proxy: data.proxy || false,
     }
   } catch (error) {
-    console.error('[Geo] Error fetching from ip-api:', error.message)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[Geo] Error fetching from ip-api:', errorMessage)
     return null
   }
 }
@@ -187,24 +188,31 @@ Deno.serve(async (req) => {
       
       // Se tiver event_id, atualizar o evento no banco
       if (body.event_id && geo) {
+        // First get current metadata
+        const { data: currentEvent } = await supabase
+          .from('tracking_events')
+          .select('metadata')
+          .eq('id', body.event_id)
+          .maybeSingle()
+        
+        const currentMetadata = (currentEvent?.metadata as Record<string, unknown>) || {}
+        const updatedMetadata = {
+          ...currentMetadata,
+          geo: {
+            country: geo.country,
+            country_code: geo.country_code,
+            city: geo.city,
+            region: geo.region,
+            latitude: geo.latitude,
+            longitude: geo.longitude,
+            timezone: geo.timezone,
+            is_vpn: geo.is_vpn,
+          }
+        }
+        
         const { error } = await supabase
           .from('tracking_events')
-          .update({
-            metadata: supabase.sql`
-              COALESCE(metadata, '{}'::jsonb) || ${JSON.stringify({
-                geo: {
-                  country: geo.country,
-                  country_code: geo.country_code,
-                  city: geo.city,
-                  region: geo.region,
-                  latitude: geo.latitude,
-                  longitude: geo.longitude,
-                  timezone: geo.timezone,
-                  is_vpn: geo.is_vpn,
-                }
-              })}::jsonb
-            `
-          })
+          .update({ metadata: updatedMetadata })
           .eq('id', body.event_id)
         
         if (error) {
@@ -227,9 +235,10 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in geo-lookup function:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      message: error.message 
+      message: errorMessage 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

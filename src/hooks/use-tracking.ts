@@ -1,5 +1,5 @@
 // =============================================================================
-// FUXICO - Hook de Tracking Simplificado
+// FUXICO - Hook de Tracking Otimizado com RPC
 // =============================================================================
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -16,7 +16,7 @@ export interface TrackedEmail {
   subject: string | null
   sender_email: string | null
   created_at: string
-  metadata: Record<string, unknown> | null
+  metadata: unknown
   delivery_status: string | null
   bounce_type: string | null
   bounce_reason: string | null
@@ -24,11 +24,24 @@ export interface TrackedEmail {
   user_id: string | null
 }
 
+export interface TrackedEmailWithStats extends TrackedEmail {
+  open_count: number
+  click_count: number
+  unique_opens: number
+  first_opened_at: string | null
+  last_opened_at: string | null
+  total_link_clicks: number
+  unique_links_clicked: number
+  total_count?: number
+}
+
 export interface TrackingFilters {
   search?: string
   deliveryStatus?: string
   dateFrom?: string
   dateTo?: string
+  limit?: number
+  offset?: number
 }
 
 // =============================================================================
@@ -36,7 +49,8 @@ export interface TrackingFilters {
 // =============================================================================
 
 /**
- * Hook principal para buscar emails rastreados
+ * Hook principal para buscar emails rastreados (OTIMIZADO com RPC)
+ * Elimina problema N+1 usando view materializada
  */
 export function useTrackedEmails(filters: TrackingFilters = {}) {
   return useQuery({
@@ -45,52 +59,76 @@ export function useTrackedEmails(filters: TrackingFilters = {}) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('User not authenticated')
       
-      let query = supabase
-        .from('tracked_emails')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(100)
+      // Usar a nova RPC otimizada
+      const { data, error } = await supabase.rpc('get_emails_with_stats', {
+        p_user_id: user.id,
+        p_limit: filters.limit || 100,
+        p_offset: filters.offset || 0,
+        p_status: filters.deliveryStatus === 'all' ? null : filters.deliveryStatus || null,
+        p_search: filters.search || null,
+        p_start_date: filters.dateFrom || null,
+        p_end_date: filters.dateTo || null,
+      })
       
-      if (filters.deliveryStatus && filters.deliveryStatus !== 'all') {
-        query = query.eq('delivery_status', filters.deliveryStatus)
+      if (error) {
+        console.error('RPC error, falling back to direct query:', error)
+        // Fallback para query direta se RPC falhar (durante migração)
+        return await fallbackGetEmails(user.id, filters)
       }
       
-      const { data, error } = await query
-      
-      if (error) throw error
-      
-      let filteredData = data || []
-      
-      // Apply text search filter
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase()
-        filteredData = filteredData.filter(email => 
-          email.recipient_email?.toLowerCase().includes(searchLower) ||
-          email.subject?.toLowerCase().includes(searchLower) ||
-          email.sender_email?.toLowerCase().includes(searchLower)
-        )
-      }
-      
-      // Apply date filters
-      if (filters.dateFrom) {
-        const fromDate = new Date(filters.dateFrom)
-        filteredData = filteredData.filter(email => 
-          new Date(email.created_at) >= fromDate
-        )
-      }
-      
-      if (filters.dateTo) {
-        const toDate = new Date(filters.dateTo)
-        filteredData = filteredData.filter(email => 
-          new Date(email.created_at) <= toDate
-        )
-      }
-      
-      return filteredData
+      return (data || []) as TrackedEmailWithStats[]
     },
     staleTime: 60 * 1000,
   })
+}
+
+/**
+ * Fallback para busca direta (caso RPC não esteja disponível)
+ */
+async function fallbackGetEmails(userId: string, filters: TrackingFilters): Promise<TrackedEmail[]> {
+  let query = supabase
+    .from('tracked_emails')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(filters.limit || 100)
+  
+  if (filters.deliveryStatus && filters.deliveryStatus !== 'all') {
+    query = query.eq('delivery_status', filters.deliveryStatus)
+  }
+  
+  const { data, error } = await query
+  
+  if (error) throw error
+  
+  let filteredData = data || []
+  
+  // Apply text search filter
+  if (filters.search) {
+    const searchLower = filters.search.toLowerCase()
+    filteredData = filteredData.filter(email => 
+      email.recipient_email?.toLowerCase().includes(searchLower) ||
+      email.subject?.toLowerCase().includes(searchLower) ||
+      email.sender_email?.toLowerCase().includes(searchLower)
+    )
+  }
+  
+  // Apply date filters
+  if (filters.dateFrom) {
+    const fromDate = new Date(filters.dateFrom)
+    filteredData = filteredData.filter(email => 
+      new Date(email.created_at) >= fromDate
+    )
+  }
+  
+  if (filters.dateTo) {
+    const toDate = new Date(filters.dateTo)
+    filteredData = filteredData.filter(email => 
+      new Date(email.created_at) <= toDate
+    )
+  }
+  
+  return filteredData
 }
 
 /**
@@ -149,7 +187,7 @@ export function useEmailDetail(trackingId: string) {
 }
 
 /**
- * Hook para estatísticas gerais
+ * Hook para estatísticas gerais (OTIMIZADO com RPC)
  */
 export function useTrackingStats() {
   return useQuery({
@@ -158,6 +196,25 @@ export function useTrackingStats() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('User not authenticated')
       
+      // Tentar usar RPC otimizada
+      const { data, error } = await supabase.rpc('get_user_tracking_stats', {
+        p_user_id: user.id
+      })
+      
+      if (!error && data && data.length > 0) {
+        const stats = data[0]
+        return {
+          totalEmails: Number(stats.total_emails) || 0,
+          totalOpens: Number(stats.total_opens) || 0,
+          totalClicks: Number(stats.total_clicks) || 0,
+          bounced: Number(stats.total_bounces) || 0,
+          openRate: Number(stats.open_rate) || 0,
+          clickRate: Number(stats.click_rate) || 0,
+          bounceRate: Number(stats.bounce_rate) || 0,
+        }
+      }
+      
+      // Fallback para query direta
       const { data: emails } = await supabase
         .from('tracked_emails')
         .select('id, delivery_status')
@@ -313,6 +370,26 @@ export function useEngagementMetrics() {
 function calculateEngagementScore(opens: number, clicks: number, uniqueOpens: number): number {
   // Simple engagement score: opens * 1 + clicks * 3 + uniqueOpens * 2
   return opens + (clicks * 3) + (uniqueOpens * 2)
+}
+
+/**
+ * Hook para refresh manual da view materializada
+ */
+export function useRefreshStats() {
+  const queryClient = useQueryClient()
+  
+  return {
+    refresh: async () => {
+      try {
+        await supabase.rpc('refresh_email_stats_mv')
+        queryClient.invalidateQueries({ queryKey: ['tracked-emails'] })
+        queryClient.invalidateQueries({ queryKey: ['tracking-stats'] })
+        queryClient.invalidateQueries({ queryKey: ['engagement-metrics'] })
+      } catch (error) {
+        console.error('Failed to refresh stats:', error)
+      }
+    }
+  }
 }
 
 /**

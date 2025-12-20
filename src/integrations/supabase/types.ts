@@ -402,6 +402,13 @@ export type Database = {
             foreignKeyName: "tracked_links_tracking_id_fkey"
             columns: ["tracking_id"]
             isOneToOne: false
+            referencedRelation: "email_stats_mv"
+            referencedColumns: ["tracking_id"]
+          },
+          {
+            foreignKeyName: "tracked_links_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
             referencedRelation: "tracked_emails"
             referencedColumns: ["tracking_id"]
           },
@@ -445,6 +452,13 @@ export type Database = {
           user_agent?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tracking_events_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "email_stats_mv"
+            referencedColumns: ["tracking_id"]
+          },
           {
             foreignKeyName: "tracking_events_tracking_id_fkey"
             columns: ["tracking_id"]
@@ -522,9 +536,77 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      email_stats_mv: {
+        Row: {
+          bounce_detected_at: string | null
+          bounce_reason: string | null
+          bounce_type: string | null
+          click_count: number | null
+          created_at: string | null
+          delivery_status: string | null
+          first_opened_at: string | null
+          id: string | null
+          last_opened_at: string | null
+          metadata: Json | null
+          open_count: number | null
+          recipient_email: string | null
+          sender_email: string | null
+          subject: string | null
+          total_link_clicks: number | null
+          tracking_id: string | null
+          unique_links_clicked: number | null
+          unique_opens: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      get_emails_with_stats: {
+        Args: {
+          p_end_date?: string
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_start_date?: string
+          p_status?: string
+          p_user_id: string
+        }
+        Returns: {
+          bounce_detected_at: string
+          bounce_reason: string
+          bounce_type: string
+          click_count: number
+          created_at: string
+          delivery_status: string
+          first_opened_at: string
+          id: string
+          last_opened_at: string
+          metadata: Json
+          open_count: number
+          recipient_email: string
+          sender_email: string
+          subject: string
+          total_count: number
+          total_link_clicks: number
+          tracking_id: string
+          unique_links_clicked: number
+          unique_opens: number
+          user_id: string
+        }[]
+      }
+      get_user_tracking_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          bounce_rate: number
+          click_rate: number
+          open_rate: number
+          total_bounces: number
+          total_clicks: number
+          total_emails: number
+          total_opens: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -532,6 +614,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      refresh_email_stats_mv: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
