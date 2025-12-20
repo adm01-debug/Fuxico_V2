@@ -18,7 +18,8 @@ import {
   Zap,
   Mail,
   MousePointerClick,
-  Timer
+  Timer,
+  Download
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { ExportDialog } from "./ExportDialog";
 import {
   AreaChart,
   Area,
@@ -263,6 +265,22 @@ export function AdvancedAnalytics() {
     });
   };
 
+  // Prepare analytics export data
+  const analyticsExportData = useMemo(() => {
+    return filteredEmails.map(email => ({
+      id: email.id,
+      tracking_id: email.tracking_id,
+      destinatario: email.recipient_email,
+      assunto: email.subject || '',
+      remetente: email.sender_email || '',
+      status: email.delivery_status || 'sent',
+      data_envio: email.created_at,
+      aberturas: (email as any).open_count || 0,
+      cliques: (email as any).click_count || 0,
+      aberturas_unicas: (email as any).unique_opens || 0,
+    }));
+  }, [filteredEmails]);
+
   if (emailsLoading || statsLoading) {
     return (
       <div className="space-y-6">
@@ -294,88 +312,99 @@ export function AdvancedAnalytics() {
 
   return (
     <div className="space-y-6">
-      {/* Date Filter */}
+      {/* Date Filter and Export */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Período:</span>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setPresetRange(7)}
-                  className={cn(
-                    dateRange.from.getTime() === subDays(new Date(), 7).setHours(0,0,0,0) && "bg-primary text-primary-foreground"
-                  )}
-                >
-                  7 dias
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setPresetRange(30)}
-                  className={cn(
-                    dateRange.from.getTime() === subDays(new Date(), 30).setHours(0,0,0,0) && "bg-primary text-primary-foreground"
-                  )}
-                >
-                  30 dias
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setPresetRange(90)}
-                >
-                  90 dias
-                </Button>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Período:</span>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setPresetRange(7)}
+                    className={cn(
+                      dateRange.from.getTime() === subDays(new Date(), 7).setHours(0,0,0,0) && "bg-primary text-primary-foreground"
+                    )}
+                  >
+                    7 dias
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setPresetRange(30)}
+                    className={cn(
+                      dateRange.from.getTime() === subDays(new Date(), 30).setHours(0,0,0,0) && "bg-primary text-primary-foreground"
+                    )}
+                  >
+                    30 dias
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setPresetRange(90)}
+                  >
+                    90 dias
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <CalendarIcon className="h-4 w-4" />
+                      {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.from}
+                      onSelect={(date) => date && setDateRange(prev => ({ ...prev, from: date }))}
+                      disabled={(date) => date > dateRange.to || date > new Date()}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                
+                <span className="text-muted-foreground">até</span>
+                
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <CalendarIcon className="h-4 w-4" />
+                      {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.to}
+                      onSelect={(date) => date && setDateRange(prev => ({ ...prev, to: date }))}
+                      disabled={(date) => date < dateRange.from || date > new Date()}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
             
             <div className="flex items-center gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <CalendarIcon className="h-4 w-4" />
-                    {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateRange.from}
-                    onSelect={(date) => date && setDateRange(prev => ({ ...prev, from: date }))}
-                    disabled={(date) => date > dateRange.to || date > new Date()}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+              <Badge variant="secondary">
+                {totalFiltered} emails no período
+              </Badge>
               
-              <span className="text-muted-foreground">até</span>
-              
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <CalendarIcon className="h-4 w-4" />
-                    {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateRange.to}
-                    onSelect={(date) => date && setDateRange(prev => ({ ...prev, to: date }))}
-                    disabled={(date) => date < dateRange.from || date > new Date()}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+              <ExportDialog data={analyticsExportData}>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Exportar
+                </Button>
+              </ExportDialog>
             </div>
-            
-            <Badge variant="secondary" className="ml-auto">
-              {totalFiltered} emails no período
-            </Badge>
           </div>
         </CardContent>
       </Card>

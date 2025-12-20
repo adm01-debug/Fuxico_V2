@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Mail, FileText, TrendingUp, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { ExportDialog } from './ExportDialog';
+import { useTrackedEmails, useTrackingStats } from '@/hooks/use-tracking';
 
 interface ScheduledReport {
   id: string;
@@ -126,8 +128,65 @@ export function ReportsTab() {
     csv: { label: 'CSV', icon: <TrendingUp className="h-4 w-4" /> },
   };
 
+  // Get real data for export
+  const { data: emails } = useTrackedEmails();
+  const { data: stats } = useTrackingStats();
+  
+  // Prepare export data
+  const exportData = (emails || []).map(email => ({
+    id: email.id,
+    tracking_id: email.tracking_id,
+    destinatario: email.recipient_email,
+    assunto: email.subject || '',
+    remetente: email.sender_email || '',
+    status: email.delivery_status || 'sent',
+    data_envio: email.created_at,
+    aberturas: (email as any).open_count || 0,
+    cliques: (email as any).click_count || 0,
+  }));
+
   return (
     <div className="space-y-6">
+      {/* Export Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Exportar Dados</CardTitle>
+              <CardDescription>
+                Exporte seus dados de rastreamento em CSV ou JSON
+              </CardDescription>
+            </div>
+            <ExportDialog data={exportData}>
+              <Button className="gap-2">
+                <Download className="h-4 w-4" />
+                Exportar Dados
+              </Button>
+            </ExportDialog>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-2xl font-bold text-primary">{stats?.totalEmails || 0}</p>
+              <p className="text-xs text-muted-foreground">Emails para exportar</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-2xl font-bold text-green-600">{stats?.totalOpens || 0}</p>
+              <p className="text-xs text-muted-foreground">Aberturas registradas</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-2xl font-bold text-blue-600">{stats?.totalClicks || 0}</p>
+              <p className="text-xs text-muted-foreground">Cliques registrados</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-2xl font-bold">{exportData.length}</p>
+              <p className="text-xs text-muted-foreground">Registros disponíveis</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Relatórios Agendados</CardTitle>
