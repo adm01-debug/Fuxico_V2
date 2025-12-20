@@ -1,0 +1,597 @@
+openapi: 3.0.3
+info:
+  title: FUXICO API
+  description: |
+    API REST do sistema FUXICO para rastreamento de emails.
+    
+    ## Autenticação
+    
+    A API usa JWT Bearer tokens do Supabase Auth. Inclua o token no header:
+    ```
+    Authorization: Bearer <seu_token_jwt>
+    ```
+    
+    ## Rate Limiting
+    
+    - Endpoints públicos: 100 req/min por IP
+    - Endpoints autenticados: 60 req/min por usuário
+    
+    Headers de resposta incluem:
+    - `X-RateLimit-Limit`: Limite da janela
+    - `X-RateLimit-Remaining`: Requisições restantes
+    - `X-RateLimit-Reset`: Timestamp de reset (Unix)
+    
+  version: 1.0.0
+  contact:
+    name: FUXICO Support
+    email: suporte@fuxico.app
+  license:
+    name: Proprietary
+    
+servers:
+  - url: https://npjfwzzapbtcguoupozd.supabase.co/functions/v1
+    description: Produção
+  - url: http://localhost:54321/functions/v1
+    description: Desenvolvimento Local
+
+tags:
+  - name: Tracking
+    description: Criação e consulta de trackings de email
+  - name: Events
+    description: Registro de eventos (aberturas, cliques)
+  - name: Documents
+    description: Rastreamento de documentos
+  - name: Bitrix24
+    description: Integração com CRM Bitrix24
+  - name: Webhooks
+    description: Disparo de webhooks externos
+
+paths:
+  /create-tracking:
+    post:
+      tags: [Tracking]
+      summary: Criar novo tracking de email
+      description: |
+        Cria um novo tracking para monitorar aberturas e cliques de um email.
+        Retorna o tracking_id e URLs para pixel e links.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTrackingRequest'
+            example:
+              recipientEmail: "cliente@empresa.com"
+              subject: "Proposta Comercial - Q1 2025"
+              senderEmail: "vendas@minhaempresa.com"
+              metadata:
+                campaign: "q1-2025"
+                template: "proposta-padrao"
+      responses:
+        '201':
+          description: Tracking criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTrackingResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /get-tracking-stats:
+    get:
+      tags: [Tracking]
+      summary: Listar emails com estatísticas
+      description: |
+        Retorna lista paginada de emails rastreados com estatísticas agregadas.
+        Suporta paginação por offset ou cursor.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Quantidade de registros por página
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Offset para paginação
+        - name: cursor_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Cursor para paginação (created_at do último item)
+        - name: delivery_status
+          in: query
+          schema:
+            type: string
+            enum: [pending, delivered, bounced, failed]
+          description: Filtrar por status de entrega
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Busca por email ou assunto
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Data inicial do filtro
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Data final do filtro
+      responses:
+        '200':
+          description: Lista de emails com estatísticas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackingStatsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /track-pixel:
+    get:
+      tags: [Events]
+      summary: Registrar abertura de email
+      description: |
+        Endpoint chamado automaticamente quando o pixel de rastreamento é carregado.
+        Retorna uma imagem GIF 1x1 transparente.
+        
+        **Nota**: Este endpoint não requer autenticação pois é chamado por clientes de email.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: tracking_id do email
+      responses:
+        '200':
+          description: Imagem GIF 1x1 transparente
+          content:
+            image/gif:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: tracking_id não fornecido
+
+  /track-link:
+    get:
+      tags: [Events]
+      summary: Registrar clique em link
+      description: |
+        Registra o clique e redireciona para a URL original.
+        
+        **Nota**: Este endpoint não requer autenticação.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: ID do link rastreado
+      responses:
+        '302':
+          description: Redirecionamento para URL original
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URL de destino
+        '404':
+          description: Link não encontrado
+
+  /track-document:
+    post:
+      tags: [Documents]
+      summary: Registrar visualização de documento
+      description: Registra eventos de visualização, download ou compartilhamento de documentos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackDocumentRequest'
+      responses:
+        '200':
+          description: Evento registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  eventId:
+                    type: string
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /report-bounce:
+    post:
+      tags: [Events]
+      summary: Reportar bounce de email
+      description: Registra quando um email não foi entregue (bounce hard ou soft).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportBounceRequest'
+      responses:
+        '200':
+          description: Bounce registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /bitrix24-sync:
+    post:
+      tags: [Bitrix24]
+      summary: Sincronizar com Bitrix24
+      description: |
+        Sincroniza contatos, atividades ou deals com o Bitrix24 CRM.
+        Requer configuração prévia do webhook no painel de configurações.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bitrix24SyncRequest'
+      responses:
+        '200':
+          description: Sincronização realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bitrix24SyncResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /webhook-dispatch:
+    post:
+      tags: [Webhooks]
+      summary: Disparar webhook externo
+      description: |
+        Envia evento para webhook configurado (n8n, Zapier, etc).
+        Suporta assinatura HMAC-SHA256 para validação.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookDispatchRequest'
+      responses:
+        '200':
+          description: Webhook enviado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  webhookId:
+                    type: string
+                  statusCode:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /geo-lookup:
+    get:
+      tags: [Events]
+      summary: Consultar geolocalização de IP
+      description: Retorna informações de localização baseadas no IP.
+      parameters:
+        - name: ip
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Endereço IP para consulta
+      responses:
+        '200':
+          description: Dados de geolocalização
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoLookupResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT do Supabase Auth
+
+  schemas:
+    CreateTrackingRequest:
+      type: object
+      required:
+        - recipientEmail
+      properties:
+        recipientEmail:
+          type: string
+          format: email
+          description: Email do destinatário
+        subject:
+          type: string
+          maxLength: 500
+          description: Assunto do email
+        senderEmail:
+          type: string
+          format: email
+          description: Email do remetente
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Dados adicionais customizados
+
+    CreateTrackingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        trackingId:
+          type: string
+          description: ID único do tracking
+        pixelUrl:
+          type: string
+          format: uri
+          description: URL do pixel para inserir no email
+        links:
+          type: array
+          items:
+            type: object
+            properties:
+              originalUrl:
+                type: string
+              trackedUrl:
+                type: string
+
+    TrackingStatsResponse:
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailWithStats'
+        hasMore:
+          type: boolean
+        total:
+          type: integer
+
+    EmailWithStats:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trackingId:
+          type: string
+        recipientEmail:
+          type: string
+        subject:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        deliveryStatus:
+          type: string
+          enum: [pending, delivered, bounced, failed]
+        opens:
+          type: integer
+        clicks:
+          type: integer
+        uniqueOpens:
+          type: integer
+        firstOpenedAt:
+          type: string
+          format: date-time
+          nullable: true
+        lastOpenedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    TrackDocumentRequest:
+      type: object
+      required:
+        - documentId
+      properties:
+        documentId:
+          type: string
+        action:
+          type: string
+          enum: [view, download, print, share]
+          default: view
+        page:
+          type: integer
+          minimum: 1
+        duration:
+          type: number
+          description: Tempo de visualização em segundos
+
+    ReportBounceRequest:
+      type: object
+      required:
+        - trackingId
+        - bounceType
+      properties:
+        trackingId:
+          type: string
+        bounceType:
+          type: string
+          enum: [hard, soft, complaint, unknown]
+        bounceReason:
+          type: string
+        originalRecipient:
+          type: string
+          format: email
+
+    Bitrix24SyncRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [sync_contact, register_activity, create_deal]
+        data:
+          type: object
+          additionalProperties: true
+
+    Bitrix24SyncResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        entityId:
+          type: string
+        message:
+          type: string
+
+    WebhookDispatchRequest:
+      type: object
+      required:
+        - event
+        - webhookUrl
+        - payload
+      properties:
+        event:
+          type: string
+          enum: [email.opened, email.clicked, email.bounced, document.viewed, link.clicked]
+        webhookUrl:
+          type: string
+          format: uri
+        payload:
+          type: object
+          additionalProperties: true
+        secret:
+          type: string
+          description: Secret para assinatura HMAC
+
+    GeoLookupResponse:
+      type: object
+      properties:
+        ip:
+          type: string
+        country:
+          type: string
+        countryCode:
+          type: string
+        region:
+          type: string
+        city:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        timezone:
+          type: string
+        isp:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+              message:
+                type: string
+
+  responses:
+    ValidationError:
+      description: Erro de validação nos dados enviados
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "VALIDATION_ERROR"
+            message: "Invalid input data"
+            details:
+              - path: "recipientEmail"
+                message: "Email inválido"
+
+    Unauthorized:
+      description: Token de autenticação inválido ou ausente
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Token inválido ou expirado"
+
+    RateLimitExceeded:
+      description: Limite de requisições excedido
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "RATE_LIMIT_EXCEEDED"
+            message: "Too many requests"
+            retryAfter: 45
