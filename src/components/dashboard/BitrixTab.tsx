@@ -32,7 +32,7 @@ import {
   useBitrix24Activities,
   useBitrix24Deals
 } from '@/hooks/use-bitrix24';
-import { Bitrix24Activity } from '@/lib/bitrix24';
+import type { Bitrix24Activity } from '@/hooks/use-bitrix24';
 
 function ActivityIcon({ type }: { type: Bitrix24Activity['type'] }) {
   switch (type) {
@@ -49,6 +49,16 @@ function ActivityIcon({ type }: { type: Bitrix24Activity['type'] }) {
 
 function ContactsPanel() {
   const { data: contacts, isLoading, refetch } = useBitrix24Contacts();
+  const { config } = useBitrix24Config();
+
+  if (!config.webhookUrl) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <AlertCircle className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <p className="text-muted-foreground">Configure o webhook do Bitrix24 na aba Configuração</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -73,7 +83,9 @@ function ContactsPanel() {
       </div>
       <ScrollArea className="h-[400px]">
         <div className="space-y-2">
-          {contacts?.map(contact => (
+          {contacts?.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">Nenhum contato encontrado</p>
+          ) : contacts?.map(contact => (
             <Card key={contact.id} className="bg-muted/30">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
@@ -121,6 +133,16 @@ function ContactsPanel() {
 
 function ActivitiesPanel() {
   const { data: activities, isLoading, refetch } = useBitrix24Activities();
+  const { config } = useBitrix24Config();
+
+  if (!config.webhookUrl) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <AlertCircle className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <p className="text-muted-foreground">Configure o webhook do Bitrix24 na aba Configuração</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -145,7 +167,9 @@ function ActivitiesPanel() {
       </div>
       <ScrollArea className="h-[400px]">
         <div className="space-y-2">
-          {activities?.map(activity => (
+          {activities?.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">Nenhuma atividade encontrada</p>
+          ) : activities?.map(activity => (
             <Card key={activity.id} className="bg-muted/30">
               <CardContent className="p-3">
                 <div className="flex items-center gap-3">
@@ -172,6 +196,16 @@ function ActivitiesPanel() {
 
 function DealsPanel() {
   const { data: deals, isLoading, refetch } = useBitrix24Deals();
+  const { config } = useBitrix24Config();
+
+  if (!config.webhookUrl) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <AlertCircle className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <p className="text-muted-foreground">Configure o webhook do Bitrix24 na aba Configuração</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -196,7 +230,9 @@ function DealsPanel() {
       </div>
       <ScrollArea className="h-[400px]">
         <div className="space-y-2">
-          {deals?.map(deal => (
+          {deals?.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">Nenhum negócio encontrado</p>
+          ) : deals?.map(deal => (
             <Card key={deal.id} className="bg-muted/30">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
@@ -230,11 +266,12 @@ function DealsPanel() {
 }
 
 function ConfigPanel() {
-  const { config, updateConfig } = useBitrix24Config();
+  const { config, updateConfig, isUpdating } = useBitrix24Config();
   const [webhookUrl, setWebhookUrl] = useState(config.webhookUrl || '');
+  const isConfigured = !!config.webhookUrl;
 
   const handleSaveWebhook = () => {
-    updateConfig({ webhookUrl, useMock: !webhookUrl });
+    updateConfig({ webhookUrl: webhookUrl || null });
   };
 
   return (
@@ -246,10 +283,10 @@ function ConfigPanel() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {config.useMock ? (
+              {!isConfigured ? (
                 <>
                   <AlertCircle className="h-5 w-5 text-yellow-500" />
-                  <span className="text-sm">Modo de demonstração (dados mockados)</span>
+                  <span className="text-sm">Webhook não configurado</span>
                 </>
               ) : (
                 <>
@@ -258,8 +295,8 @@ function ConfigPanel() {
                 </>
               )}
             </div>
-            <Badge variant={config.useMock ? 'secondary' : 'default'}>
-              {config.useMock ? 'Mock' : 'Produção'}
+            <Badge variant={!isConfigured ? 'secondary' : 'default'}>
+              {!isConfigured ? 'Não configurado' : 'Conectado'}
             </Badge>
           </div>
 
@@ -271,12 +308,12 @@ function ConfigPanel() {
                 value={webhookUrl}
                 onChange={e => setWebhookUrl(e.target.value)}
               />
-              <Button onClick={handleSaveWebhook}>
-                Salvar
+              <Button onClick={handleSaveWebhook} disabled={isUpdating}>
+                {isUpdating ? 'Salvando...' : 'Salvar'}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Deixe vazio para usar o modo de demonstração com dados mockados.
+              Configure o webhook do Bitrix24 para sincronizar dados reais.
             </p>
           </div>
         </CardContent>
