@@ -16,13 +16,15 @@ import {
   Building2,
   Shield,
   Activity,
-  TrendingUp
+  TrendingUp,
+  Home,
 } from 'lucide-react'
 
 // =============================================================================
 // LAZY LOADING
 // =============================================================================
 
+const DashboardHome = lazy(() => import('@/components/dashboard/DashboardHome'))
 const EmailTable = lazy(() => import('@/components/dashboard/EmailTable'))
 const LinksTab = lazy(() => import('@/components/dashboard/LinksTab'))
 const DocumentsTab = lazy(() => import('@/components/dashboard/DocumentsTab'))
@@ -76,6 +78,7 @@ function TabSkeleton() {
 // =============================================================================
 
 type TabId = 
+  | 'home'
   | 'emails' 
   | 'links' 
   | 'documents' 
@@ -99,6 +102,12 @@ interface TabConfig {
 // =============================================================================
 
 const TABS: TabConfig[] = [
+  {
+    id: 'home',
+    label: 'Início',
+    icon: <Home className="h-4 w-4" />,
+    component: DashboardHome,
+  },
   {
     id: 'emails',
     label: 'Emails',
@@ -166,7 +175,7 @@ const TABS: TabConfig[] = [
 // =============================================================================
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState<TabId>('emails')
+  const [activeTab, setActiveTab] = useState<TabId>('home')
   
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value as TabId)
