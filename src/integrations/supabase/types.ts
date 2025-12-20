@@ -50,6 +50,36 @@ export type Database = {
         }
         Relationships: []
       }
+      campaigns: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contact_scores: {
         Row: {
           created_at: string
@@ -431,6 +461,7 @@ export type Database = {
           bounce_detected_at: string | null
           bounce_reason: string | null
           bounce_type: string | null
+          campaign_id: string | null
           created_at: string
           delivery_status: string | null
           id: string
@@ -445,6 +476,7 @@ export type Database = {
           bounce_detected_at?: string | null
           bounce_reason?: string | null
           bounce_type?: string | null
+          campaign_id?: string | null
           created_at?: string
           delivery_status?: string | null
           id?: string
@@ -459,6 +491,7 @@ export type Database = {
           bounce_detected_at?: string | null
           bounce_reason?: string | null
           bounce_type?: string | null
+          campaign_id?: string | null
           created_at?: string
           delivery_status?: string | null
           id?: string
@@ -469,7 +502,15 @@ export type Database = {
           tracking_id?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tracked_emails_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tracked_links: {
         Row: {

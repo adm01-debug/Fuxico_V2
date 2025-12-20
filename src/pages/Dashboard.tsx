@@ -21,6 +21,7 @@ import {
   Webhook,
   Flame,
   Bell,
+  Brain,
 } from 'lucide-react'
 
 // =============================================================================
@@ -41,6 +42,8 @@ const AdvancedAnalytics = lazy(() => import('@/components/dashboard/AdvancedAnal
 const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
 const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'))
 const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab').then(m => ({ default: m.FollowUpTab })))
+const InsightsTab = lazy(() => import('@/components/dashboard/InsightsTab'))
+const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -92,6 +95,7 @@ type TabId =
   | 'analytics'
   | 'leads'
   | 'followup'
+  | 'insights'
   | 'templates'
   | 'audit'
   | 'users'
@@ -158,6 +162,12 @@ const TABS: TabConfig[] = [
     label: 'Follow-up',
     icon: <Bell className="h-4 w-4" />,
     component: FollowUpTab,
+  },
+  {
+    id: 'insights',
+    label: 'Insights IA',
+    icon: <Brain className="h-4 w-4" />,
+    component: InsightsTab,
   },
   {
     id: 'templates',
