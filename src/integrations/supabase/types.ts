@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_tests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          name: string
+          recipient_email: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          variant_a_clicks: number
+          variant_a_opens: number
+          variant_a_sends: number
+          variant_a_subject: string
+          variant_b_clicks: number
+          variant_b_opens: number
+          variant_b_sends: number
+          variant_b_subject: string
+          winner: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          recipient_email?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          variant_a_clicks?: number
+          variant_a_opens?: number
+          variant_a_sends?: number
+          variant_a_subject: string
+          variant_b_clicks?: number
+          variant_b_opens?: number
+          variant_b_sends?: number
+          variant_b_subject: string
+          winner?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          recipient_email?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          variant_a_clicks?: number
+          variant_a_opens?: number
+          variant_a_sends?: number
+          variant_a_subject?: string
+          variant_b_clicks?: number
+          variant_b_opens?: number
+          variant_b_sends?: number
+          variant_b_subject?: string
+          winner?: string | null
+        }
+        Relationships: []
+      }
       audit_config: {
         Row: {
           business_hours_end: number
@@ -688,6 +751,39 @@ export type Database = {
             referencedColumns: ["tracking_id"]
           },
         ]
+      }
+      unsubscribed_emails: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          reason: string | null
+          source: string | null
+          tracking_id: string | null
+          unsubscribed_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          reason?: string | null
+          source?: string | null
+          tracking_id?: string | null
+          unsubscribed_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          reason?: string | null
+          source?: string | null
+          tracking_id?: string | null
+          unsubscribed_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_preferences: {
         Row: {
