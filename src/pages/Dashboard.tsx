@@ -15,7 +15,8 @@ import {
   Users,
   Building2,
   Shield,
-  Activity
+  Activity,
+  TrendingUp
 } from 'lucide-react'
 
 // =============================================================================
@@ -31,6 +32,7 @@ const AuditTab = lazy(() => import('@/components/dashboard/AuditTab'))
 const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'))
 const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'))
 const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
+const AdvancedAnalytics = lazy(() => import('@/components/dashboard/AdvancedAnalytics'))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -78,6 +80,7 @@ type TabId =
   | 'links' 
   | 'documents' 
   | 'reports' 
+  | 'analytics'
   | 'templates'
   | 'audit'
   | 'users'
@@ -119,6 +122,12 @@ const TABS: TabConfig[] = [
     label: 'Relatórios',
     icon: <BarChart3 className="h-4 w-4" />,
     component: ReportsTab,
+  },
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    icon: <TrendingUp className="h-4 w-4" />,
+    component: AdvancedAnalytics,
   },
   {
     id: 'templates',
