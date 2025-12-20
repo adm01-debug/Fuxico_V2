@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Home,
   Webhook,
+  Flame,
 } from 'lucide-react'
 
 // =============================================================================
@@ -37,6 +38,7 @@ const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'
 const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
 const AdvancedAnalytics = lazy(() => import('@/components/dashboard/AdvancedAnalytics'))
 const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
+const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -86,6 +88,7 @@ type TabId =
   | 'documents' 
   | 'reports' 
   | 'analytics'
+  | 'leads'
   | 'templates'
   | 'audit'
   | 'users'
@@ -140,6 +143,12 @@ const TABS: TabConfig[] = [
     label: 'Analytics',
     icon: <TrendingUp className="h-4 w-4" />,
     component: AdvancedAnalytics,
+  },
+  {
+    id: 'leads',
+    label: 'Lead Scoring',
+    icon: <Flame className="h-4 w-4" />,
+    component: LeadScoringTab,
   },
   {
     id: 'templates',
