@@ -90,10 +90,10 @@ async function sendWebhook(
       }
       
     } catch (error) {
-      lastError = error.message
+      lastError = error instanceof Error ? error.message : 'Unknown error'
       
       // Se abortou por timeout, conta como falha
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         lastError = 'Request timeout'
       }
     }
@@ -182,17 +182,21 @@ Deno.serve(async (req) => {
       webhookConfig.retries || 3
     )
 
-    // Registrar log do webhook
-    await supabase.from('webhook_logs').insert({
-      user_id: body.user_id,
-      event_type: body.event_type,
-      tracking_id: body.tracking_id,
-      webhook_url: webhookConfig.url,
-      success: result.success,
-      status_code: result.statusCode,
-      error_message: result.error,
-      request_payload: enrichedEvent,
-    }).catch(err => console.error('Erro ao salvar log de webhook:', err))
+    // Registrar log do webhook (ignore errors silently since webhook_logs table might not exist)
+    try {
+      await supabase.from('webhook_logs').insert({
+        user_id: body.user_id,
+        event_type: body.event_type,
+        tracking_id: body.tracking_id,
+        webhook_url: webhookConfig.url,
+        success: result.success,
+        status_code: result.statusCode,
+        error_message: result.error,
+        request_payload: enrichedEvent,
+      })
+    } catch (logError) {
+      console.error('Erro ao salvar log de webhook:', logError)
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -200,9 +204,10 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in webhook-dispatch function:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      message: error.message 
+      message: errorMessage 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

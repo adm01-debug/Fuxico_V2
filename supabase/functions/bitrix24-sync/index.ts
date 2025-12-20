@@ -666,9 +666,10 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in bitrix24-sync function:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      message: error.message,
+      message: errorMessage,
       useMock: true
     }), {
       status: 500,
