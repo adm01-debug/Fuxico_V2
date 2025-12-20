@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
       })
     }
 
-    console.log(`Creating tracking for email to: ${recipientEmail} by user: ${user.id}`)
+    // Log removido - usar logger estruturado
 
     // Use service role to insert (bypasses RLS for admin operations)
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
     // Generate HTML snippet for email
     const pixelHtml = `<img src="${pixelUrl}" width="1" height="1" style="display:none;" alt="" />`
 
-    console.log(`Successfully created tracking ID: ${trackingId}`)
+    // Log removido - usar logger estruturado
 
     return new Response(JSON.stringify({
       success: true,
