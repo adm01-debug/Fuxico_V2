@@ -302,7 +302,7 @@ class Bitrix24Client {
         stageNames[s.STATUS_ID] = s.NAME
       })
     } catch (e) {
-      console.log('Could not fetch stage names')
+      // Log removido
     }
 
     return deals.map(deal => ({
@@ -500,9 +500,9 @@ Deno.serve(async (req) => {
         if (!contactId) {
           contactId = await bitrix.createContact({ email, name, lastName, phone, company })
           isNew = true
-          console.log(`[Bitrix24] Contato criado: ${contactId}`)
+          // Log removido - sincronização silenciosa
         } else {
-          console.log(`[Bitrix24] Contato existente: ${contactId}`)
+          // Log removido - sincronização silenciosa
         }
 
         result = {
