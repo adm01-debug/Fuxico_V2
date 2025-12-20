@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { format, subDays, startOfDay, endOfDay, eachDayOfInterval } from "date-fns";
+import { useState, useMemo } from "react";
+import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   TrendingUp, 
@@ -9,11 +9,16 @@ import {
   Clock,
   Target,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  CalendarIcon
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import {
   AreaChart,
   Area,
@@ -29,6 +34,11 @@ import {
   Cell,
 } from "recharts";
 import { useTrackedEmails, useTrackingStats } from "@/hooks/use-tracking";
+
+interface DateRange {
+  from: Date;
+  to: Date;
+}
 
 interface DailyTrend {
   date: string;
@@ -86,23 +96,39 @@ function StatCard({
 }
 
 export function AdvancedAnalytics() {
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: subDays(new Date(), 30),
+    to: new Date(),
+  });
+  
   const { data: emails, isLoading: emailsLoading } = useTrackedEmails();
   const { data: stats, isLoading: statsLoading } = useTrackingStats();
 
-  // Calculate daily trends
-  const dailyTrends = useMemo(() => {
+  // Filter emails by date range
+  const filteredEmails = useMemo(() => {
     if (!emails) return [];
     
+    return emails.filter(email => {
+      const emailDate = new Date(email.created_at);
+      return isWithinInterval(emailDate, {
+        start: startOfDay(dateRange.from),
+        end: endOfDay(dateRange.to),
+      });
+    });
+  }, [emails, dateRange]);
+
+  // Calculate daily trends
+  const dailyTrends = useMemo(() => {
     const days = eachDayOfInterval({
-      start: subDays(new Date(), 30),
-      end: new Date(),
+      start: dateRange.from,
+      end: dateRange.to,
     });
 
     return days.map(day => {
       const dayStart = startOfDay(day);
       const dayEnd = endOfDay(day);
       
-      const dayEmails = emails.filter(email => {
+      const dayEmails = filteredEmails.filter(email => {
         const emailDate = new Date(email.created_at);
         return emailDate >= dayStart && emailDate <= dayEnd;
       });
@@ -110,18 +136,16 @@ export function AdvancedAnalytics() {
       return {
         date: format(day, 'dd/MM'),
         emails: dayEmails.length,
-        opens: 0, // Would need events data
-        clicks: 0, // Would need events data
+        opens: 0,
+        clicks: 0,
       };
     });
-  }, [emails]);
+  }, [filteredEmails, dateRange]);
 
   // Calculate status distribution
   const statusDistribution = useMemo(() => {
-    if (!emails) return [];
-    
     const distribution: Record<string, number> = {};
-    emails.forEach(email => {
+    filteredEmails.forEach(email => {
       const status = email.delivery_status || 'sent';
       distribution[status] = (distribution[status] || 0) + 1;
     });
@@ -132,14 +156,12 @@ export function AdvancedAnalytics() {
             name === 'bounced' ? 'Rejeitado' : name,
       value,
     }));
-  }, [emails]);
+  }, [filteredEmails]);
 
   // Calculate hourly distribution
   const hourlyDistribution = useMemo(() => {
-    if (!emails) return [];
-    
     const hours: number[] = new Array(24).fill(0);
-    emails.forEach(email => {
+    filteredEmails.forEach(email => {
       const hour = new Date(email.created_at).getHours();
       hours[hour]++;
     });
@@ -148,7 +170,15 @@ export function AdvancedAnalytics() {
       hour: `${hour.toString().padStart(2, '0')}h`,
       count,
     }));
-  }, [emails]);
+  }, [filteredEmails]);
+
+  // Preset date ranges
+  const setPresetRange = (days: number) => {
+    setDateRange({
+      from: subDays(new Date(), days),
+      to: new Date(),
+    });
+  };
 
   if (emailsLoading || statsLoading) {
     return (
@@ -166,25 +196,112 @@ export function AdvancedAnalytics() {
     );
   }
 
-  const openRate = stats && stats.totalEmails > 0 
-    ? Math.round((stats.totalOpens / stats.totalEmails) * 100) 
+  const totalFiltered = filteredEmails.length;
+  const openRate = totalFiltered > 0 
+    ? Math.round((stats?.totalOpens || 0) / totalFiltered * 100) 
     : 0;
 
   const clickRate = stats && stats.totalOpens > 0 
     ? Math.round((stats.totalClicks / stats.totalOpens) * 100) 
     : 0;
 
-  const bounceRate = stats && stats.totalEmails > 0 
-    ? Math.round((stats.bounced / stats.totalEmails) * 100) 
+  const bounceRate = totalFiltered > 0 
+    ? Math.round((filteredEmails.filter(e => e.bounce_type).length / totalFiltered) * 100) 
     : 0;
 
   return (
     <div className="space-y-6">
+      {/* Date Filter */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Período:</span>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setPresetRange(7)}
+                  className={cn(
+                    dateRange.from.getTime() === subDays(new Date(), 7).setHours(0,0,0,0) && "bg-primary text-primary-foreground"
+                  )}
+                >
+                  7 dias
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setPresetRange(30)}
+                  className={cn(
+                    dateRange.from.getTime() === subDays(new Date(), 30).setHours(0,0,0,0) && "bg-primary text-primary-foreground"
+                  )}
+                >
+                  30 dias
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setPresetRange(90)}
+                >
+                  90 dias
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateRange.from}
+                    onSelect={(date) => date && setDateRange(prev => ({ ...prev, from: date }))}
+                    disabled={(date) => date > dateRange.to || date > new Date()}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              <span className="text-muted-foreground">até</span>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateRange.to}
+                    onSelect={(date) => date && setDateRange(prev => ({ ...prev, to: date }))}
+                    disabled={(date) => date < dateRange.from || date > new Date()}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            
+            <Badge variant="secondary" className="ml-auto">
+              {totalFiltered} emails no período
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total de Emails"
-          value={stats?.totalEmails || 0}
+          value={totalFiltered}
           icon={BarChart3}
         />
         <StatCard
@@ -214,7 +331,9 @@ export function AdvancedAnalytics() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Tendência de Envios</CardTitle>
-            <CardDescription>Últimos 30 dias</CardDescription>
+            <CardDescription>
+              {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} - {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
