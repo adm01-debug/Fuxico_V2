@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
+import { ContactHistoryDialog } from './ContactHistoryDialog';
 import { 
   Loader2, 
   RefreshCw, 
@@ -23,6 +24,7 @@ import {
   MousePointerClick,
   Eye,
   AlertTriangle,
+  History,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -64,7 +66,7 @@ export default function LeadScoringTab() {
   const { data: contacts, isLoading, refetch } = useContactScores();
   const recalculate = useRecalculateScores();
   const [search, setSearch] = useState('');
-
+  const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const handleRecalculate = async () => {
     try {
       const count = await recalculate.mutateAsync();
@@ -173,6 +175,7 @@ export default function LeadScoringTab() {
                   <TableHead>Nível</TableHead>
                   <TableHead className="text-center">
                     <Mail className="h-4 w-4 inline" />
+                    <Mail className="h-4 w-4 inline" />
                   </TableHead>
                   <TableHead className="text-center">
                     <Eye className="h-4 w-4 inline" />
@@ -181,11 +184,12 @@ export default function LeadScoringTab() {
                     <MousePointerClick className="h-4 w-4 inline" />
                   </TableHead>
                   <TableHead>Última Interação</TableHead>
+                  <TableHead className="text-center">Histórico</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredContacts.map((contact) => (
-                  <TableRow key={contact.id}>
+                  <TableRow key={contact.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedContact(contact.email)}>
                     <TableCell className="font-medium">{contact.email}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -205,6 +209,15 @@ export default function LeadScoringTab() {
                         : '—'
                       }
                     </TableCell>
+                    <TableCell className="text-center">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={(e) => { e.stopPropagation(); setSelectedContact(contact.email); }}
+                      >
+                        <History className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -212,6 +225,13 @@ export default function LeadScoringTab() {
           )}
         </CardContent>
       </Card>
+
+      {/* Contact History Dialog */}
+      <ContactHistoryDialog 
+        email={selectedContact}
+        open={!!selectedContact}
+        onOpenChange={(open) => !open && setSelectedContact(null)}
+      />
     </div>
   );
 }
