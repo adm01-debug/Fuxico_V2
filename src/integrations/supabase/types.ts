@@ -50,6 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_scores: {
+        Row: {
+          created_at: string
+          email: string
+          engagement_score: number | null
+          first_interaction_at: string | null
+          id: string
+          last_interaction_at: string | null
+          score_level: string | null
+          total_bounces: number | null
+          total_clicks: number | null
+          total_emails_sent: number | null
+          total_opens: number | null
+          unique_opens: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          engagement_score?: number | null
+          first_interaction_at?: string | null
+          id?: string
+          last_interaction_at?: string | null
+          score_level?: string | null
+          total_bounces?: number | null
+          total_clicks?: number | null
+          total_emails_sent?: number | null
+          total_opens?: number | null
+          unique_opens?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          engagement_score?: number | null
+          first_interaction_at?: string | null
+          id?: string
+          last_interaction_at?: string | null
+          score_level?: string | null
+          total_bounces?: number | null
+          total_clicks?: number | null
+          total_emails_sent?: number | null
+          total_opens?: number | null
+          unique_opens?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       document_events: {
         Row: {
           browser: string | null
@@ -697,7 +748,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      recalculate_all_contact_scores: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
+      update_contact_score: {
+        Args: { p_email: string; p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"

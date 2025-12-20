@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useRealtimeNotifications } from "@/hooks/use-realtime-notifications";
+import { useDesktopNotifications } from "@/hooks/use-desktop-notifications";
 import { getQueryClient, setupCacheSync } from "@/lib/query-cache";
 import { initPWA } from "@/lib/pwa-utils";
 import Dashboard from "./pages/Dashboard";
@@ -17,9 +18,10 @@ import NotFound from "./pages/NotFound";
 // Optimized QueryClient with caching
 const queryClient = getQueryClient();
 
-// Component to initialize realtime notifications
-function RealtimeNotificationsProvider({ children }: { children: React.ReactNode }) {
+// Component to initialize realtime and desktop notifications
+function NotificationsProvider({ children }: { children: React.ReactNode }) {
   useRealtimeNotifications();
+  useDesktopNotifications();
   return <>{children}</>;
 }
 
@@ -46,7 +48,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <RealtimeNotificationsProvider>
+            <NotificationsProvider>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/" element={
@@ -62,7 +64,7 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </RealtimeNotificationsProvider>
+            </NotificationsProvider>
           </BrowserRouter>
         </TooltipProvider>
       </AppInitializer>
