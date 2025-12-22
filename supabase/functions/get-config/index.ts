@@ -1,87 +1,40 @@
-// FUXICO - Edge Function para Configuração Dinâmica
-// Permite que a extensão Chrome obtenha configurações atualizadas
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-Deno.serve(async (req) => {
-  // Handle CORS preflight
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return handleCorsPreflightRequest(req)
   }
 
+  const origin = req.headers.get('origin')
+  const corsHeaders = getCorsHeaders(origin)
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    
-    // Configuração pública (sem dados sensíveis)
     const config = {
+      supabaseUrl: Deno.env.get('SUPABASE_URL'),
+      pixelEndpoint: `${Deno.env.get('SUPABASE_URL')}/functions/v1/track-pixel`,
+      linkEndpoint: `${Deno.env.get('SUPABASE_URL')}/functions/v1/track-link`,
       version: '1.1.0',
-      
-      // URLs
-      supabaseUrl: supabaseUrl,
-      dashboardUrl: 'https://fuxico.lovable.app',
-      
-      // Endpoints das Edge Functions
-      endpoints: {
-        createTracking: '/create-tracking',
-        trackPixel: '/track-pixel',
-        trackLink: '/track-link',
-        trackDocument: '/track-document',
-        trackStandaloneLink: '/track-standalone-link',
-        getStats: '/get-tracking-stats',
-        reportBounce: '/report-bounce',
-        logEmailActivity: '/log-email-activity',
-        getConfig: '/get-config',
-      },
-      
-      // Intervalos (em ms)
-      intervals: {
-        pollOpens: 30000,
-        checkCompose: 1000,
-        bounceCheck: 30000,
-        auditCheck: 60000,
-        tokenRefresh: 1800000, // 30 minutos
-      },
-      
-      // Configurações de detecção
-      detection: {
-        selfOpenThresholdMs: 120000, // 2 minutos
-      },
-      
-      // Features habilitadas
       features: {
-        emailTracking: true,
-        linkTracking: true,
+        selfOpenDetection: true,
+        bounceTracking: true,
         documentTracking: true,
-        bounceDetection: true,
-        emailAudit: true,
-        bitrixIntegration: true,
-        webhooks: true,
-        geolocation: false, // Será habilitado em versão futura
-      },
-      
-      // Limites
-      limits: {
-        maxEmailsPerDay: 1000,
-        maxLinksPerEmail: 50,
-        maxDocumentSizeMb: 10,
-      },
+        linkTracking: true,
+        geoLocation: true
+      }
     }
 
     return new Response(JSON.stringify(config), {
       headers: { 
         ...corsHeaders, 
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300', // Cache por 5 minutos
-      },
+        'Cache-Control': 'public, max-age=3600'
+      }
     })
   } catch (error) {
-    console.error('Error in get-config function:', error)
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   }
 })
