@@ -1,10 +1,11 @@
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
 // FUXICO - Edge Function de Sincronização com Bitrix24
 // Versão 2.0 - Com endpoints GET para buscar dados reais
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
