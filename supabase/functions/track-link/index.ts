@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
+import { addSecurityHeaders } from '../_shared/security-headers.ts'
 
 serve(async (req) => {
   const origin = req.headers.get('origin')
   const corsHeaders = getCorsHeaders(origin)
+  const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+
+  const rateLimitResult = await checkRateLimit(clientIP, 'track-link', 60, 300)
+  if (!rateLimitResult.allowed) {
+    return new Response('Rate limit exceeded', { status: 429, headers: corsHeaders })
+  }
 
   try {
     const supabaseAdmin = createClient(
@@ -20,7 +28,6 @@ serve(async (req) => {
       return new Response('Missing linkId', { status: 400, headers: corsHeaders })
     }
 
-    // Get the original URL
     const { data: link } = await supabaseAdmin
       .from('tracked_links')
       .select('original_url, tracking_id')
@@ -31,32 +38,19 @@ serve(async (req) => {
       return new Response('Link not found', { status: 404, headers: corsHeaders })
     }
 
-    // Log click event
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
     const userAgent = req.headers.get('user-agent') || ''
 
     await supabaseAdmin.from('tracking_events').insert({
       tracking_id: link.tracking_id || trackingId,
       event_type: 'click',
-      ip_address: ip,
+      ip_address: clientIP,
       user_agent: userAgent,
       metadata: { link_id: linkId }
     })
 
-    // Update click count
-    await supabaseAdmin
-      .from('tracked_links')
-      .update({ click_count: supabaseAdmin.rpc('increment') })
-      .eq('id', linkId)
-
-    // Redirect to original URL
     return new Response(null, {
       status: 302,
-      headers: {
-        ...corsHeaders,
-        'Location': link.original_url,
-        'Cache-Control': 'no-cache, no-store'
-      }
+      headers: addSecurityHeaders({ ...corsHeaders, 'Location': link.original_url, 'Cache-Control': 'no-cache, no-store' })
     })
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
