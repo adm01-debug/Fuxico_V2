@@ -1,6 +1,5 @@
 import { ThemeProvider } from "@/lib/theme";
 import { SkipLinks } from "@/lib/accessibility";
-import { initI18n } from "@/lib/i18n";
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -44,10 +43,9 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
-  <>
-      <SkipLinks />
-      <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        <SkipLinks />
     <AuthProvider>
       <AppInitializer>
         <TooltipProvider>
