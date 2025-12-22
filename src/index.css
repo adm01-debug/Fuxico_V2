@@ -129,3 +129,6 @@
     background: hsl(var(--card) / 0.8);
   }
 }
+
+/* Breakpoint XL para telas grandes */
+@import './styles/responsive-xl.css';
