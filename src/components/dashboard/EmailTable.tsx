@@ -224,3 +224,36 @@ export type { EmailFilters };
 
 // Default export for lazy loading
 export default EmailTable;
+
+// Pagination Controls Component
+const PaginationControls = ({ 
+  currentPage, 
+  totalPages, 
+  onPageChange 
+}: { 
+  currentPage: number; 
+  totalPages: number; 
+  onPageChange: (page: number) => void;
+}) => (
+  <div className="flex items-center justify-between px-4 py-3 border-t">
+    <div className="text-sm text-muted-foreground">
+      Página {currentPage} de {totalPages}
+    </div>
+    <div className="flex gap-2">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage <= 1}
+        className="px-3 py-1 text-sm border rounded hover:bg-muted disabled:opacity-50"
+      >
+        Anterior
+      </button>
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+        className="px-3 py-1 text-sm border rounded hover:bg-muted disabled:opacity-50"
+      >
+        Próximo
+      </button>
+    </div>
+  </div>
+);
