@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/lib/theme";
 import { SkipLinks } from "@/lib/accessibility";
 import { initI18n } from "@/lib/i18n";
+import { SkipLinks } from "@/lib/accessibility";
+import { initI18n } from "@/lib/i18n";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
