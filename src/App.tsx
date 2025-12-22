@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/lib/theme";
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -42,6 +43,7 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
     <AuthProvider>
       <AppInitializer>
         <TooltipProvider>
@@ -69,7 +71,8 @@ const App = () => (
         </TooltipProvider>
       </AppInitializer>
     </AuthProvider>
-  </QueryClientProvider>
+  </ThemeProvider>
+    </QueryClientProvider>
 );
 
 export default App;
