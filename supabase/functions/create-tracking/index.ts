@@ -1,157 +1,69 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-function generateTrackingId(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let result = ''
-  for (let i = 0; i < 16; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return result
-}
-
-function generateLinkId(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let result = ''
-  for (let i = 0; i < 8; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return result
-}
-
-Deno.serve(async (req) => {
-  // Handle CORS preflight
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return handleCorsPreflightRequest(req)
   }
 
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { 
-      status: 405,
-      headers: corsHeaders 
-    })
-  }
+  const origin = req.headers.get('origin')
+  const corsHeaders = getCorsHeaders(origin)
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    )
 
-    // Get auth header to verify user
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Authorization required' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    // Create client with user's token to get their ID
-    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    })
-
-    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
-    
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    const body = await req.json()
-    const { recipientEmail, subject, senderEmail, links, metadata } = body
-
+    const { recipientEmail, subject, senderEmail, metadata } = await req.json()
+    
     if (!recipientEmail) {
       return new Response(JSON.stringify({ error: 'recipientEmail is required' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    // Log removido - usar logger estruturado
+    const trackingId = crypto.randomUUID()
 
-    // Use service role to insert (bypasses RLS for admin operations)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-    // Generate unique tracking ID
-    const trackingId = generateTrackingId()
-
-    // Create tracked email record with user_id
-    const { data: emailData, error: emailError } = await supabase
+    const { data, error } = await supabaseClient
       .from('tracked_emails')
       .insert({
         tracking_id: trackingId,
-        recipient_email: recipientEmail,
-        subject: subject || null,
-        sender_email: senderEmail || null,
-        metadata: metadata || {},
         user_id: user.id,
+        recipient_email: recipientEmail,
+        subject: subject || '',
+        sender_email: senderEmail || user.email,
+        metadata: metadata || {}
       })
       .select()
       .single()
 
-    if (emailError) {
-      console.error('Error creating tracked email:', emailError)
-      return new Response(JSON.stringify({ error: 'Failed to create tracking' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
+    if (error) throw error
 
-    // Generate tracking pixel URL
-    const pixelUrl = `${supabaseUrl}/functions/v1/track-pixel?id=${trackingId}`
+    const pixelUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/track-pixel?t=${trackingId}`
 
-    // Process and wrap links if provided
-    const wrappedLinks: { original: string; wrapped: string; linkId: string }[] = []
-    
-    if (links && Array.isArray(links)) {
-      for (const originalUrl of links) {
-        const linkId = generateLinkId()
-        
-        const { error: linkError } = await supabase
-          .from('tracked_links')
-          .insert({
-            tracking_id: trackingId,
-            original_url: originalUrl,
-            link_id: linkId,
-          })
-
-        if (!linkError) {
-          wrappedLinks.push({
-            original: originalUrl,
-            wrapped: `${supabaseUrl}/functions/v1/track-link?l=${linkId}`,
-            linkId: linkId,
-          })
-        }
-      }
-    }
-
-    // Generate HTML snippet for email
-    const pixelHtml = `<img src="${pixelUrl}" width="1" height="1" style="display:none;" alt="" />`
-
-    // Log removido - usar logger estruturado
-
-    return new Response(JSON.stringify({
-      success: true,
-      trackingId,
+    return new Response(JSON.stringify({ 
+      trackingId, 
       pixelUrl,
-      pixelHtml,
-      wrappedLinks,
-      email: emailData,
+      email: data 
     }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   } catch (error) {
-    console.error('Error in create-tracking function:', error)
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   }
 })
