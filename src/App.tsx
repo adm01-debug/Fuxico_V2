@@ -12,7 +12,7 @@ import Auth from "./pages/Auth";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
-// Initialize i18n
+// Initialize internationalization
 initI18n();
 
 const queryClient = new QueryClient();
