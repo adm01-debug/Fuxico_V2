@@ -5,61 +5,26 @@ import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 
-const ReportBounceSchema = z.object({
-  trackingId: z.string().uuid(),
-  bounceType: z.enum(['hard', 'soft', 'unknown']).default('unknown'),
-  bounceReason: z.string().max(1000).optional().default('')
-})
+const bounceSchema = z.object({ trackingId: z.string().uuid(), bounceType: z.string().optional(), bounceReason: z.string().optional() })
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
-
   const origin = req.headers.get('origin')
   const corsHeaders = getCorsHeaders(origin)
-  const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
-  const rateLimitResult = await checkRateLimit(clientIP, 'report-bounce', 60, 60)
-  if (!rateLimitResult.allowed) {
-    return secureJsonResponse({ error: 'Rate limit exceeded' }, 429, corsHeaders)
-  }
+  const rateLimitResult = await checkRateLimit(ip, 'report-bounce', 50, 60)
+  if (!rateLimitResult.allowed) return secureJsonResponse({ error: 'Rate limit exceeded' }, 429, corsHeaders)
 
   try {
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
-    const body = await req.json().catch(() => ({}))
-    const validation = ReportBounceSchema.safeParse(body)
-    if (!validation.success) {
-      return secureJsonResponse({ error: 'Invalid request', details: validation.error.issues }, 400, corsHeaders)
-    }
+    const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
+    const body = await req.json()
+    const validation = bounceSchema.safeParse(body)
+    if (!validation.success) return secureJsonResponse({ error: 'Invalid input' }, 400, corsHeaders)
 
     const { trackingId, bounceType, bounceReason } = validation.data
-
-    const { data, error } = await supabaseAdmin
-      .from('tracked_emails')
-      .update({
-        delivery_status: 'bounced',
-        bounce_type: bounceType,
-        bounce_reason: bounceReason,
-        bounce_detected_at: new Date().toISOString()
-      })
-      .eq('tracking_id', trackingId)
-      .select()
-      .single()
-
+    const { data, error } = await supabaseAdmin.from('tracked_emails').update({ delivery_status: 'bounced', bounce_type: bounceType || 'unknown', bounce_reason: bounceReason || '', bounce_detected_at: new Date().toISOString() }).eq('tracking_id', trackingId).select().single()
     if (error) throw error
-
-    if (bounceType === 'hard' && data) {
-      await supabaseAdmin.from('fraud_alerts').insert({
-        user_id: data.user_id,
-        alert_type: 'hard_bounce',
-        severity: 'low',
-        description: `Hard bounce: ${data.recipient_email}`,
-        metadata: { tracking_id: trackingId, bounce_reason: bounceReason }
-      })
-    }
 
     return secureJsonResponse({ success: true, email: data }, 200, corsHeaders)
   } catch (error) {
