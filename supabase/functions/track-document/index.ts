@@ -1,14 +1,28 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
+import { secureJsonResponse } from '../_shared/security-headers.ts'
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
+
+const TrackDocumentSchema = z.object({
+  d: z.string().uuid().optional(),
+  documentId: z.string().uuid().optional(),
+  page: z.coerce.number().min(1).max(10000).optional().default(1),
+  event: z.enum(['view', 'download', 'print', 'scroll']).optional().default('view')
+}).refine(data => data.d || data.documentId, { message: 'documentId is required' })
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return handleCorsPreflightRequest(req)
-  }
+  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
 
   const origin = req.headers.get('origin')
   const corsHeaders = getCorsHeaders(origin)
+  const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+
+  const rateLimitResult = await checkRateLimit(clientIP, 'track-document', 60, 300)
+  if (!rateLimitResult.allowed) {
+    return secureJsonResponse({ error: 'Rate limit exceeded' }, 429, corsHeaders)
+  }
 
   try {
     const supabaseAdmin = createClient(
@@ -17,54 +31,36 @@ serve(async (req) => {
     )
 
     const url = new URL(req.url)
-    const documentId = url.searchParams.get('d') || url.searchParams.get('documentId')
-    const page = parseInt(url.searchParams.get('page') || '1')
-    const eventType = url.searchParams.get('event') || 'view'
-
-    if (!documentId) {
-      return new Response(JSON.stringify({ error: 'documentId is required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
+    const params = {
+      d: url.searchParams.get('d'),
+      documentId: url.searchParams.get('documentId'),
+      page: url.searchParams.get('page'),
+      event: url.searchParams.get('event')
     }
 
-    // Get client info
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+    const validation = TrackDocumentSchema.safeParse(params)
+    if (!validation.success) {
+      return secureJsonResponse({ error: 'Invalid request', details: validation.error.issues }, 400, corsHeaders)
+    }
+
+    const documentId = validation.data.d || validation.data.documentId
+    const { page, event } = validation.data
     const userAgent = req.headers.get('user-agent') || ''
 
-    // Log document event
     const { error } = await supabaseAdmin
       .from('document_events')
       .insert({
         document_id: documentId,
-        event_type: eventType,
+        event_type: event,
         page_number: page,
-        ip_address: ip,
+        ip_address: clientIP,
         user_agent: userAgent,
-        metadata: {
-          referer: req.headers.get('referer'),
-          timestamp: new Date().toISOString()
-        }
+        metadata: { referer: req.headers.get('referer'), timestamp: new Date().toISOString() }
       })
 
     if (error) throw error
-
-    // Update document stats
-    await supabaseAdmin
-      .from('tracked_documents')
-      .update({ 
-        view_count: supabaseAdmin.rpc('increment_view_count', { doc_id: documentId }),
-        last_viewed_at: new Date().toISOString()
-      })
-      .eq('id', documentId)
-
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    })
+    return secureJsonResponse({ success: true }, 200, corsHeaders)
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    })
+    return secureJsonResponse({ error: error.message }, 500, corsHeaders)
   }
 })
