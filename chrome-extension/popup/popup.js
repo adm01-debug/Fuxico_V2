@@ -223,7 +223,7 @@
       
       return false;
     } catch (error) {
-      console.error('[FUXICO] Erro ao verificar sessão:', error);
+      
       return false;
     }
   }
@@ -251,7 +251,7 @@
       
       return { success: true, user: data.user };
     } catch (error) {
-      console.error('[FUXICO] Erro no login:', error);
+      
       return { success: false, error: error.message };
     }
   }
@@ -283,7 +283,7 @@
         });
       });
     } catch (error) {
-      console.error('[FUXICO] Erro no login com Google:', error);
+      
       showError('Erro ao conectar com Google');
     }
   }
@@ -309,7 +309,7 @@
         window.location.reload();
       }
     } catch (error) {
-      console.error('[FUXICO] Erro ao buscar usuário:', error);
+      
     }
   }
 
@@ -344,7 +344,7 @@
         }).catch(() => {}); // Ignorar erros
       }
     } catch (error) {
-      console.error('[FUXICO] Erro ao fazer logout:', error);
+      
     }
     
     await clearSession();
@@ -401,7 +401,7 @@
         await logout();
       }
     } catch (error) {
-      console.error('[FUXICO] Erro ao buscar stats:', error);
+      
     }
   }
 
@@ -499,7 +499,7 @@
   // ============================================
   
   async function init() {
-    console.log('[FUXICO] Inicializando popup...');
+    
     
     // Atualizar versão
     if (elements.versionText) {
