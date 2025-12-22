@@ -43,8 +43,8 @@
   // UTILITÁRIOS
   // ============================================
   
-  const log = (msg, ...args) => 
-  const error = (msg, ...args) => 
+  const log = (msg, ...args) => // console.log(`[FUXICO] ${msg}`, ...args);
+  const error = (msg, ...args) => // console.error(`[FUXICO ERROR] ${msg}`, ...args);
 
   // ============================================
   // AUTENTICAÇÃO
