@@ -25,7 +25,7 @@ let lastCheckTimestamp = null;
 // ============================================
 
 chrome.runtime.onInstalled.addListener((details) => {
-  console.log('[FUXICO] Extensão instalada:', details.reason);
+  
   
   // Configurar valores padrão
   chrome.storage.sync.set({
@@ -44,7 +44,7 @@ chrome.storage.sync.get(['authToken', 'user'], (result) => {
   if (result.authToken) {
     authToken = result.authToken;
     currentUser = result.user;
-    console.log('[FUXICO] Token carregado do storage');
+    
   }
 });
 
@@ -70,7 +70,7 @@ async function refreshAuthToken() {
     const result = await chrome.storage.sync.get(['refreshToken', 'tokenExpiry']);
     
     if (!result.refreshToken) {
-      console.log('[FUXICO] Sem refresh token, usuário precisa fazer login');
+      
       return;
     }
     
@@ -81,12 +81,12 @@ async function refreshAuthToken() {
       const diffMinutes = (expiry - now) / 60000;
       
       if (diffMinutes > 10) {
-        console.log('[FUXICO] Token ainda válido por', Math.round(diffMinutes), 'minutos');
+        , 'minutos');
         return;
       }
     }
     
-    console.log('[FUXICO] Renovando token...');
+    
     
     const response = await fetch(`${CONFIG.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
       method: 'POST',
@@ -116,14 +116,14 @@ async function refreshAuthToken() {
       // Notificar content scripts
       broadcastAuthUpdate();
       
-      console.log('[FUXICO] Token renovado com sucesso');
+      
     } else {
-      console.error('[FUXICO] Erro ao renovar token:', response.status);
+      
       // Token inválido, limpar sessão
       await clearAuth();
     }
   } catch (error) {
-    console.error('[FUXICO] Erro ao renovar token:', error);
+    
   }
 }
 
@@ -158,7 +158,7 @@ async function checkForNewOpens() {
       if (result.authToken) {
         authToken = result.authToken;
       } else {
-        console.log('[FUXICO] Sem autenticação, pulando verificação');
+        
         return;
       }
     }
@@ -209,7 +209,7 @@ async function checkForNewOpens() {
     lastCheckTimestamp = new Date().toISOString();
     
   } catch (error) {
-    console.error('[FUXICO] Erro ao verificar aberturas:', error);
+    
   }
 }
 
@@ -230,7 +230,7 @@ async function showNotification(title, message, id) {
       silent: !settings.soundEnabled,
     });
   } catch (error) {
-    console.error('[FUXICO] Erro ao criar notificação:', error);
+    
   }
 }
 
@@ -245,7 +245,7 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 // ============================================
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('[FUXICO] Mensagem recebida:', request.action);
+  
 
   // Auth state changed (do popup)
   if (request.action === 'authStateChanged') {
@@ -253,9 +253,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     currentUser = request.user;
     
     if (request.isAuthenticated) {
-      console.log('[FUXICO] Usuário autenticado:', currentUser?.email);
+      
     } else {
-      console.log('[FUXICO] Usuário desconectado');
+      
     }
     
     // Notificar content scripts
@@ -327,7 +327,7 @@ async function trackEmail(data) {
 
     return await response.json();
   } catch (error) {
-    console.error('[FUXICO] Erro ao registrar tracking:', error);
+    
     return { success: false, error: error.message };
   }
 }
@@ -356,9 +356,9 @@ async function getStats() {
     
     return await response.json();
   } catch (error) {
-    console.error('[FUXICO] Erro ao obter stats:', error);
+    
     return { emails: [], total: 0 };
   }
 }
 
-console.log('[FUXICO] Service Worker iniciado - v' + CONFIG.VERSION);
+
