@@ -14,6 +14,8 @@ export interface AuditConfig {
 
 export function useAuditConfig() {
   return useQuery({
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
     queryKey: ["audit-config"],
     queryFn: async () => {
       const { data, error } = await supabase
