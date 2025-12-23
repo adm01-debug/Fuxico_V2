@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -98,7 +99,7 @@ export function ExportDialog({ onExport, data = [], children }: ExportDialogProp
       toast.success('Exportação concluída com sucesso!');
       setOpen(false);
     } catch (error) {
-      console.error('Export error:', error);
+      log.error('Export error:', error);
       toast.error('Erro ao exportar dados');
     } finally {
       setIsExporting(false);
