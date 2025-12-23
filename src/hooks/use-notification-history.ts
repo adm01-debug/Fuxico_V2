@@ -20,6 +20,8 @@ export function useNotificationHistory(limit = 50) {
   const queryClient = useQueryClient();
 
   const { data: notifications, isLoading, error } = useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['notification-history', user?.id, limit],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -140,3 +142,4 @@ export function useNotificationHistory(limit = 50) {
     addNotification: addNotification.mutate,
   };
 }
+
