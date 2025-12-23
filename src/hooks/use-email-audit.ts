@@ -62,7 +62,7 @@ export function useIsAdmin() {
         .maybeSingle();
 
       if (error) {
-        console.error('Error checking admin status:', error);
+        
         return false;
       }
 
