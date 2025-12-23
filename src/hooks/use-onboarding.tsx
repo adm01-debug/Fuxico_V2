@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TourConfig, getTour } from '@/lib/onboarding-config';
@@ -55,7 +56,7 @@ function setStoredState(state: Partial<OnboardingState>): void {
     const current = getStoredState();
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...state }));
   } catch {
-    console.error('Failed to save onboarding state');
+    log.error('Failed to save onboarding state');
   }
 }
 
@@ -82,7 +83,7 @@ export function useOnboarding(): UseOnboardingReturn {
   const startTour = useCallback((tourId: string) => {
     const tour = getTour(tourId);
     if (!tour) {
-      console.error(`Tour "${tourId}" not found`);
+      log.error(`Tour "${tourId}" not found`);
       return;
     }
 
