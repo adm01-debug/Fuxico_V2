@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,7 +37,7 @@ export function useGeoStats() {
         .rpc('get_geo_stats', { p_user_id: user.id });
 
       if (error) {
-        console.error('Error fetching geo stats:', error);
+        log.error('Error fetching geo stats:', error);
         throw error;
       }
 
