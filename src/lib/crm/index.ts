@@ -17,3 +17,8 @@ export { HubSpotAdapter } from './adapters/hubspot-adapter';
 
 // Manager
 export { crmManager, CRMManager } from './crm-manager';
+
+// Helper function
+export function getSupportedProviders() {
+  return ['bitrix24', 'hubspot'] as const;
+}
