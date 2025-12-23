@@ -49,6 +49,8 @@ export interface AuditStats {
 // Check if current user is admin
 export function useIsAdmin() {
   return useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['is-admin'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -80,6 +82,8 @@ export function useEmailAuditLogs(filters?: {
   isExternal?: boolean;
 }) {
   return useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['email-audit-logs', filters],
     queryFn: async () => {
       let query = supabase
@@ -115,6 +119,8 @@ export function useEmailAuditLogs(filters?: {
 // Fetch fraud alerts (admin only)
 export function useFraudAlerts(showResolved = false) {
   return useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['fraud-alerts', showResolved],
     queryFn: async () => {
       let query = supabase
@@ -163,6 +169,8 @@ export function useResolveAlert() {
 // Get audit statistics
 export function useAuditStats() {
   return useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['audit-stats'],
     queryFn: async () => {
       const today = new Date();
@@ -217,6 +225,8 @@ export function useAuditStats() {
 // Get user activity summary
 export function useUserActivitySummary() {
   return useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['user-activity-summary'],
     queryFn: async () => {
       const today = new Date();
