@@ -80,6 +80,7 @@ export function useTrackedEmails(filters: TrackingFilters = {}) {
       return (data || []) as TrackedEmailWithStats[]
     },
     staleTime: 60 * 1000,
+    gcTime: 30 * 60 * 1000, // 30 minutos
   })
 }
 
@@ -236,6 +237,7 @@ export function useTrackingStats() {
       }
     },
     staleTime: 2 * 60 * 1000,
+    gcTime: 30 * 60 * 1000, // 30 minutos
   })
 }
 
@@ -365,6 +367,7 @@ export function useEngagementMetrics() {
       }
     },
     staleTime: 2 * 60 * 1000,
+    gcTime: 30 * 60 * 1000, // 30 minutos
   })
 }
 
