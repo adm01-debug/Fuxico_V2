@@ -1,0 +1,76 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "refresh": "Actualizar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "yes": "Sí",
+    "no": "No",
+    "all": "Todos",
+    "none": "Ninguno",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "register": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "home": "Inicio",
+    "emails": "Correos",
+    "documents": "Documentos",
+    "links": "Enlaces",
+    "reports": "Informes",
+    "settings": "Configuración",
+    "totalEmails": "Total de Correos",
+    "totalOpens": "Total de Aperturas",
+    "totalClicks": "Total de Clics",
+    "openRate": "Tasa de Apertura",
+    "clickRate": "Tasa de Clics"
+  },
+  "emails": {
+    "subject": "Asunto",
+    "recipient": "Destinatario",
+    "sender": "Remitente",
+    "status": "Estado",
+    "opened": "Abierto",
+    "clicked": "Clic",
+    "bounced": "Rebotado",
+    "pending": "Pendiente",
+    "delivered": "Entregado",
+    "noEmails": "No se encontraron correos",
+    "trackEmail": "Rastrear Correo",
+    "createTracking": "Crear Rastreo"
+  },
+  "notifications": {
+    "emailOpened": "¡Correo Abierto!",
+    "linkClicked": "¡Enlace Clickeado!",
+    "newBounce": "Nuevo Rebote Detectado",
+    "exportComplete": "Exportación Completada"
+  },
+  "errors": {
+    "generic": "Ocurrió un error. Inténtalo de nuevo.",
+    "unauthorized": "Acceso no autorizado.",
+    "notFound": "No encontrado.",
+    "validation": "Datos inválidos.",
+    "network": "Error de conexión."
+  }
+}
