@@ -27,6 +27,8 @@ export interface WebhookLog {
 export function useWebhookConfig() {
   return useQuery<WebhookConfig | null>({
     queryKey: ['webhook-config'],
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
@@ -45,6 +47,8 @@ export function useWebhookConfig() {
 export function useWebhookLogs(limit = 20) {
   return useQuery<WebhookLog[]>({
     queryKey: ['webhook-logs', limit],
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -84,6 +88,8 @@ export function useSaveWebhookConfig() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['webhook-config'] });
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     },
   });
 }
