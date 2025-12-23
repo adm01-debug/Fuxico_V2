@@ -1,33 +1,72 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { log } from '@/lib/logger';
 
-interface Props {
+// Sentry integration - will be initialized if DSN is provided
+const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
+
+interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
 }
 
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+// Initialize Sentry if DSN is available
+const initSentry = async () => {
+  if (SENTRY_DSN) {
+    try {
+      const Sentry = await import('@sentry/react');
+      Sentry.init({
+        dsn: SENTRY_DSN,
+        environment: import.meta.env.MODE,
+        tracesSampleRate: 0.1,
+        replaysSessionSampleRate: 0.1,
+        replaysOnErrorSampleRate: 1.0,
+      });
+      return Sentry;
+    } catch (e) {
+      log.warn('Sentry not available', e);
+    }
+  }
+  return null;
+};
+
+// Lazy load Sentry
+let SentryInstance: typeof import('@sentry/react') | null = null;
+initSentry().then(s => { SentryInstance = s; });
+
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<State> {
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({ errorInfo });
-    // Em produção, enviar para serviço de monitoramento
-    if (import.meta.env.PROD) {
-      // TODO: Integrar com Sentry ou similar
+    
+    // Log to console in development
+    log.error('ErrorBoundary caught an error:', { error, errorInfo });
+    
+    // Send to Sentry if available
+    if (SentryInstance) {
+      SentryInstance.captureException(error, {
+        contexts: {
+          react: {
+            componentStack: errorInfo.componentStack,
+          },
+        },
+      });
     }
   }
 
@@ -46,41 +85,35 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-                <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
-            </div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Algo deu errado
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Ocorreu um erro inesperado. Por favor, tente recarregar a página.
-            </p>
-            {import.meta.env.DEV && this.state.error && (
-              <details className="mb-4 text-left">
-                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                  Detalhes do erro (dev)
-                </summary>
-                <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-700 rounded text-xs overflow-auto max-h-32">
+              <CardTitle>Algo deu errado</CardTitle>
+              <CardDescription>
+                Ocorreu um erro inesperado. Nossa equipe foi notificada.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {import.meta.env.DEV && this.state.error && (
+                <div className="bg-muted p-3 rounded-md text-sm font-mono overflow-auto max-h-32">
                   {this.state.error.toString()}
-                  {this.state.errorInfo?.componentStack}
-                </pre>
-              </details>
-            )}
-            <div className="flex gap-3 justify-center">
-              <Button onClick={this.handleReload} variant="default">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Recarregar
-              </Button>
-              <Button onClick={this.handleGoHome} variant="outline">
-                <Home className="h-4 w-4 mr-2" />
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="flex gap-2 justify-center">
+              <Button variant="outline" onClick={this.handleGoHome}>
+                <Home className="mr-2 h-4 w-4" />
                 Início
               </Button>
-            </div>
-          </div>
+              <Button onClick={this.handleReload}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Recarregar
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       );
     }
