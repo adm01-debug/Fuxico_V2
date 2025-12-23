@@ -12,6 +12,8 @@ export interface UserWithRole {
 // Fetch all users with their roles (admin only)
 export function useUsersWithRoles() {
   return useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['users-with-roles'],
     queryFn: async () => {
       // Get all users from email_audit_logs (unique emails)
@@ -130,3 +132,4 @@ export function useRemoveRole() {
 
 // Alias for backwards compatibility
 export const useUserRoles = useUsersWithRoles;
+
