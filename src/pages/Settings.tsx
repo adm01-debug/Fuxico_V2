@@ -11,8 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType, setNotificationVolume } from '@/lib/notification-sound';
-import { useEffect } from 'react';
+import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType } from '@/lib/notification-sound';
 
 export default function Settings() {
   const { preferences, isLoading, updatePreferences, isUpdating } = useUserPreferences();
@@ -36,30 +35,29 @@ export default function Settings() {
 
   const handleSoundTypeChange = (value: string) => {
     updatePreferences({ notification_sound_type: value });
-    // Play the selected sound as preview
-    playNotificationSound('warning', value as NotificationSoundType, currentVolume);
+    // Play the selected sound as preview with warning volume
+    playNotificationSound('warning', value as NotificationSoundType, warningVolume);
   };
 
-  const handleVolumeChange = (value: number[]) => {
-    const volume = value[0];
-    setNotificationVolume(volume);
-    updatePreferences({ notification_volume: volume });
+  const handleWarningVolumeChange = (value: number[]) => {
+    updatePreferences({ warning_volume: value[0] });
   };
 
-  const handleVolumeCommit = (value: number[]) => {
-    // Play sound preview when user finishes adjusting volume
+  const handleWarningVolumeCommit = (value: number[]) => {
     playNotificationSound('warning', currentSoundType, value[0]);
   };
 
-  const currentSoundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
-  const currentVolume = preferences?.notification_volume ?? 0.5;
+  const handleCriticalVolumeChange = (value: number[]) => {
+    updatePreferences({ critical_volume: value[0] });
+  };
 
-  // Sync global volume with preferences
-  useEffect(() => {
-    if (preferences?.notification_volume !== undefined) {
-      setNotificationVolume(preferences.notification_volume);
-    }
-  }, [preferences?.notification_volume]);
+  const handleCriticalVolumeCommit = (value: number[]) => {
+    playNotificationSound('critical', currentSoundType, value[0]);
+  };
+
+  const currentSoundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
+  const warningVolume = preferences?.warning_volume ?? 0.4;
+  const criticalVolume = preferences?.critical_volume ?? 0.7;
 
   if (isLoading) {
     return (
@@ -136,48 +134,71 @@ export default function Settings() {
                     </SelectContent>
                   </Select>
                 </div>
+                
+                {/* Warning Volume */}
                 <div className="flex items-center gap-4">
-                  <Label className="text-sm min-w-20">Volume:</Label>
+                  <Label className="text-sm min-w-28">Volume Aviso:</Label>
                   <div className="flex items-center gap-2 flex-1">
-                    {currentVolume === 0 ? (
+                    {warningVolume === 0 ? (
                       <VolumeX className="h-4 w-4 text-muted-foreground" />
-                    ) : currentVolume < 0.5 ? (
+                    ) : warningVolume < 0.5 ? (
                       <Volume1 className="h-4 w-4 text-muted-foreground" />
                     ) : (
                       <Volume2 className="h-4 w-4 text-muted-foreground" />
                     )}
                     <Slider
-                      value={[currentVolume]}
-                      onValueChange={handleVolumeChange}
-                      onValueCommit={handleVolumeCommit}
+                      value={[warningVolume]}
+                      onValueChange={handleWarningVolumeChange}
+                      onValueCommit={handleWarningVolumeCommit}
                       min={0}
                       max={1}
                       step={0.1}
                       className="w-32"
                       disabled={isUpdating}
                     />
-                    <span className="text-sm text-muted-foreground w-10">{Math.round(currentVolume * 100)}%</span>
+                    <span className="text-sm text-muted-foreground w-10">{Math.round(warningVolume * 100)}%</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => playNotificationSound('warning', currentSoundType, warningVolume)}
+                      title="Testar som de aviso"
+                    >
+                      <Play className="h-3 w-3" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => playNotificationSound('warning', currentSoundType, currentVolume)}
-                    title="Testar som de aviso"
-                  >
-                    <Play className="h-3 w-3 mr-1" />
-                    Aviso
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => playNotificationSound('critical', currentSoundType, currentVolume)}
-                    title="Testar som crítico"
-                  >
-                    <Play className="h-3 w-3 mr-1" />
-                    Crítico
-                  </Button>
+                
+                {/* Critical Volume */}
+                <div className="flex items-center gap-4">
+                  <Label className="text-sm min-w-28">Volume Crítico:</Label>
+                  <div className="flex items-center gap-2 flex-1">
+                    {criticalVolume === 0 ? (
+                      <VolumeX className="h-4 w-4 text-destructive" />
+                    ) : criticalVolume < 0.5 ? (
+                      <Volume1 className="h-4 w-4 text-destructive" />
+                    ) : (
+                      <Volume2 className="h-4 w-4 text-destructive" />
+                    )}
+                    <Slider
+                      value={[criticalVolume]}
+                      onValueChange={handleCriticalVolumeChange}
+                      onValueCommit={handleCriticalVolumeCommit}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      className="w-32"
+                      disabled={isUpdating}
+                    />
+                    <span className="text-sm text-muted-foreground w-10">{Math.round(criticalVolume * 100)}%</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => playNotificationSound('critical', currentSoundType, criticalVolume)}
+                      title="Testar som crítico"
+                    >
+                      <Play className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}

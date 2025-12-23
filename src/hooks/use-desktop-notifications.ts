@@ -166,7 +166,9 @@ export function useDesktopNotifications() {
           // Play notification sound if enabled
           if (preferences?.sound_enabled !== false) {
             const soundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
-            const volume = preferences?.notification_volume ?? 0.5;
+            const volume = isCritical 
+              ? (preferences?.critical_volume ?? 0.7)
+              : (preferences?.warning_volume ?? 0.4);
             playNotificationSound(isCritical ? 'critical' : 'warning', soundType, volume);
           }
 

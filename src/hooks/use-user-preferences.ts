@@ -18,6 +18,8 @@ export interface UserPreferences {
   auto_reminder_days: number;
   notification_sound_type: string;
   notification_volume: number;
+  warning_volume: number;
+  critical_volume: number;
   created_at: string;
   updated_at: string;
 }
@@ -35,6 +37,8 @@ const defaultPreferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' 
   auto_reminder_days: 3,
   notification_sound_type: 'gentle',
   notification_volume: 0.5,
+  warning_volume: 0.4,
+  critical_volume: 0.7,
 };
 
 export function useUserPreferences() {
