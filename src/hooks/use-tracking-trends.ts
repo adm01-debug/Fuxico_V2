@@ -69,7 +69,7 @@ export function useTrackingTrends(days: number = 7) {
       }));
     },
     enabled: !!user,
-    refetchInterval: 60000,
+    gcTime: 1000 * 60 * 30, staleTime: 1000 * 60 * 5, refetchInterval: 60000,
   });
 }
 
