@@ -14,6 +14,16 @@ interface NotificationEvent {
   metadata?: Record<string, unknown>;
 }
 
+interface BounceAlertEvent {
+  id: string;
+  user_id: string;
+  domain: string;
+  bounce_rate: number;
+  threshold: number;
+  alert_type: string;
+  created_at: string;
+}
+
 export function useDesktopNotifications() {
   const { user } = useAuth();
   const permissionRef = useRef<NotificationPermission>('default');
@@ -40,15 +50,15 @@ export function useDesktopNotifications() {
   }, []);
 
   // Show desktop notification
-  const showNotification = useCallback((title: string, body: string, icon?: string) => {
+  const showNotification = useCallback((title: string, body: string, options?: { icon?: string; tag?: string }) => {
     if (permissionRef.current !== 'granted') return;
 
     try {
       const notification = new Notification(title, {
         body,
-        icon: icon || '/favicon.ico',
+        icon: options?.icon || '/favicon.ico',
         badge: '/favicon.ico',
-        tag: 'fuxico-notification',
+        tag: options?.tag || 'fuxico-notification',
       });
 
       notification.onclick = () => {
@@ -63,7 +73,7 @@ export function useDesktopNotifications() {
     }
   }, []);
 
-  // Subscribe to realtime events
+  // Subscribe to tracking events
   useEffect(() => {
     if (!user?.id) return;
 
@@ -113,14 +123,65 @@ export function useDesktopNotifications() {
         }
       )
       .subscribe((status) => {
-        console.log('[Notifications] Subscription status:', status);
+        console.log('[Notifications] Tracking subscription status:', status);
       });
 
     return () => {
-      console.log('[Notifications] Unsubscribing from realtime events');
+      console.log('[Notifications] Unsubscribing from tracking events');
       supabase.removeChannel(channel);
     };
   }, [user?.id, requestPermission, showNotification]);
+
+  // Subscribe to bounce alerts
+  useEffect(() => {
+    if (!user?.id) return;
+
+    console.log('[Notifications] Subscribing to bounce alerts for user:', user.id);
+
+    const bounceChannel = supabase
+      .channel('bounce-alert-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'bounce_alerts',
+        },
+        (payload) => {
+          const alert = payload.new as BounceAlertEvent;
+          console.log('[Notifications] New bounce alert:', alert);
+
+          // Only notify if it's the current user's alert
+          if (alert.user_id !== user.id) return;
+
+          const isCritical = alert.alert_type === 'critical_bounce_rate';
+          const emoji = isCritical ? '🚨' : '⚠️';
+          const severity = isCritical ? 'CRÍTICO' : 'Aviso';
+          const title = `${emoji} Alerta de Bounce ${severity}`;
+          const body = `Domínio: ${alert.domain}\nTaxa de bounce: ${alert.bounce_rate.toFixed(1)}% (limite: ${alert.threshold}%)`;
+
+          // Show toast with appropriate variant
+          toast({
+            title,
+            description: `${alert.domain} - Taxa de bounce: ${alert.bounce_rate.toFixed(1)}%`,
+            variant: isCritical ? 'destructive' : 'default',
+          });
+
+          // Show desktop notification
+          showNotification(title, body, { 
+            tag: `bounce-alert-${alert.id}`,
+          });
+        }
+      )
+      .subscribe((status) => {
+        console.log('[Notifications] Bounce alerts subscription status:', status);
+      });
+
+    return () => {
+      console.log('[Notifications] Unsubscribing from bounce alerts');
+      supabase.removeChannel(bounceChannel);
+    };
+  }, [user?.id, showNotification]);
 
   return {
     requestPermission,
