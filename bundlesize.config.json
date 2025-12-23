@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "path": "dist/assets/index-*.js",
+      "maxSize": "250 kB",
+      "compression": "gzip"
+    },
+    {
+      "path": "dist/assets/index-*.css",
+      "maxSize": "50 kB",
+      "compression": "gzip"
+    },
+    {
+      "path": "dist/assets/react-vendor-*.js",
+      "maxSize": "50 kB",
+      "compression": "gzip"
+    },
+    {
+      "path": "dist/assets/ui-vendor-*.js",
+      "maxSize": "80 kB",
+      "compression": "gzip"
+    },
+    {
+      "path": "dist/assets/chart-vendor-*.js",
+      "maxSize": "100 kB",
+      "compression": "gzip"
+    }
+  ]
+}
