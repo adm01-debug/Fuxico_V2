@@ -184,7 +184,7 @@ function RealtimeEvents({ events, isLoading }: RealtimeEventsProps) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+          <div key={i} className="flex items-center gap-3 p-3 xl:p-4 xl:gap-4 bg-muted/50 rounded-lg">
             <Skeleton className="h-8 w-8 rounded-full" />
             <div className="flex-1 space-y-1">
               <Skeleton className="h-4 w-32" />
@@ -213,7 +213,7 @@ function RealtimeEvents({ events, isLoading }: RealtimeEventsProps) {
         {events.map((event) => (
           <div
             key={event.id}
-            className="flex items-center gap-3 p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
+            className="flex items-center gap-3 p-3 xl:p-4 xl:gap-4 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
           >
             <div className="h-8 w-8 rounded-full bg-background flex items-center justify-center">
               {getEventIcon(event.type)}
@@ -256,7 +256,7 @@ function BounceAlerts({ alerts, isLoading }: BounceAlertsProps) {
     return (
       <div className="space-y-2">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="p-3 border border-destructive/20 bg-destructive/5 rounded-lg">
+          <div key={i} className="p-3 xl:p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
             <div className="flex items-start gap-2">
               <Skeleton className="h-5 w-5" />
               <div className="flex-1 space-y-1">
@@ -288,7 +288,7 @@ function BounceAlerts({ alerts, isLoading }: BounceAlertsProps) {
         {alerts.map((alert) => (
           <div
             key={alert.id}
-            className="p-3 border border-destructive/20 bg-destructive/5 rounded-lg"
+            className="p-3 xl:p-4 border border-destructive/20 bg-destructive/5 rounded-lg"
           >
             <div className="flex items-start gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
@@ -602,7 +602,7 @@ export default function DashboardHome() {
       </div>
 
       {/* Métricas Principais */}
-      <main role="main" aria-label="Dashboard principal" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <main role="main" aria-label="Dashboard principal" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 xl:gap-6">
         <MetricCard
           title="Total de Emails"
           value={metrics.totalEmails.toLocaleString('pt-BR')}
@@ -637,7 +637,7 @@ export default function DashboardHome() {
       </div>
 
       {/* Grid Principal */}
-      <main role="main" aria-label="Dashboard principal" className="grid gap-6 lg:grid-cols-3">
+      <main role="main" aria-label="Dashboard principal" className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8">
         {/* Gráfico de Tendência */}
         <Card role="region" aria-label="Estatísticas" className="lg:col-span-2">
           <CardHeader>
