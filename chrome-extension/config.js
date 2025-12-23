@@ -73,7 +73,7 @@ const FUXICO_CONFIG = {
     try {
       // Verificar se já carregou recentemente
       if (this._lastFetch && (Date.now() - this._lastFetch) < this.INTERVALS.CONFIG_REFRESH) {
-        // console.log('[FUXICO Config] Usando config em cache');
+        // // console.log('[FUXICO Config] Usando config em cache');
         return true;
       }
       
@@ -120,7 +120,7 @@ const FUXICO_CONFIG = {
       this._isRemoteLoaded = true;
       this._lastFetch = Date.now();
       
-      // console.log('[FUXICO Config] Configuração remota carregada:', this.VERSION);
+      // // console.log('[FUXICO Config] Configuração remota carregada:', this.VERSION);
       return true;
       
     } catch (error) {
