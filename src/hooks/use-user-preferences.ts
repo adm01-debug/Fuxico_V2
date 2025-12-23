@@ -17,6 +17,7 @@ export interface UserPreferences {
   auto_reminder_enabled: boolean;
   auto_reminder_days: number;
   notification_sound_type: string;
+  notification_volume: number;
   created_at: string;
   updated_at: string;
 }
@@ -33,6 +34,7 @@ const defaultPreferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' 
   auto_reminder_enabled: false,
   auto_reminder_days: 3,
   notification_sound_type: 'gentle',
+  notification_volume: 0.5,
 };
 
 export function useUserPreferences() {
