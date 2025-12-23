@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock } from 'lucide-react';
+import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
+import { playNotificationSound, playSuccessSound } from '@/lib/notification-sound';
 
 export default function Settings() {
   const { preferences, isLoading, updatePreferences, isUpdating } = useUserPreferences();
@@ -77,12 +78,32 @@ export default function Settings() {
                   <p className="text-sm text-muted-foreground">Tocar som ao receber notificações</p>
                 </div>
               </div>
-              <Switch
-                id="sound"
-                checked={preferences?.sound_enabled ?? true}
-                onCheckedChange={(checked) => handleToggle('sound_enabled', checked)}
-                disabled={isUpdating}
-              />
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => playNotificationSound('warning')}
+                  title="Testar som de aviso"
+                >
+                  <Play className="h-3 w-3 mr-1" />
+                  Aviso
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => playNotificationSound('critical')}
+                  title="Testar som crítico"
+                >
+                  <Play className="h-3 w-3 mr-1" />
+                  Crítico
+                </Button>
+                <Switch
+                  id="sound"
+                  checked={preferences?.sound_enabled ?? true}
+                  onCheckedChange={(checked) => handleToggle('sound_enabled', checked)}
+                  disabled={isUpdating}
+                />
+              </div>
             </div>
 
             <Separator />
