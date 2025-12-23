@@ -113,7 +113,7 @@ export function useBitrix24Config() {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching Bitrix24 config:', error);
+        
         throw error;
       }
 
@@ -342,7 +342,7 @@ export function useRegisterActivity() {
       queryClient.invalidateQueries({ queryKey: ['bitrix24', 'activities'] });
     },
     onError: (error) => {
-      console.error('Erro ao registrar atividade:', error.message);
+      
     },
   });
 }
