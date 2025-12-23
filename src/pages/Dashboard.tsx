@@ -27,6 +27,7 @@ import {
   Target,
   Globe,
   Clock,
+  HeartPulse,
 } from 'lucide-react'
 
 // =============================================================================
@@ -53,6 +54,7 @@ const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'))
 const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'))
 const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTab').then(m => ({ default: m.GeoAnalyticsTab })))
 const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab').then(m => ({ default: m.EmailSchedulingTab })))
+const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab').then(m => ({ default: m.DeliverabilityTab })))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -104,6 +106,7 @@ type TabId =
   | 'analytics'
   | 'geo'
   | 'scheduling'
+  | 'deliverability'
   | 'leads'
   | 'followup'
   | 'insights'
@@ -176,6 +179,12 @@ const TABS: TabConfig[] = [
     label: 'Agendamento',
     icon: <Clock className="h-4 w-4" />,
     component: EmailSchedulingTab,
+  },
+  {
+    id: 'deliverability',
+    label: 'Deliverability',
+    icon: <HeartPulse className="h-4 w-4" />,
+    component: DeliverabilityTab,
   },
   {
     id: 'leads',

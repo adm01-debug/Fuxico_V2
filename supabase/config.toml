@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.track-beacon]
 verify_jwt = false
+
+[functions.check-deliverability]
+verify_jwt = false

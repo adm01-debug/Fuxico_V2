@@ -239,6 +239,57 @@ export type Database = {
         }
         Relationships: []
       }
+      deliverability_logs: {
+        Row: {
+          created_at: string
+          delivery_rate: number | null
+          domain: string
+          emails_bounced: number | null
+          emails_delivered: number | null
+          emails_opened: number | null
+          emails_sent: number | null
+          hard_bounces: number | null
+          id: string
+          period_end: string
+          period_start: string
+          reputation_score: number | null
+          soft_bounces: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_rate?: number | null
+          domain: string
+          emails_bounced?: number | null
+          emails_delivered?: number | null
+          emails_opened?: number | null
+          emails_sent?: number | null
+          hard_bounces?: number | null
+          id?: string
+          period_end: string
+          period_start: string
+          reputation_score?: number | null
+          soft_bounces?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_rate?: number | null
+          domain?: string
+          emails_bounced?: number | null
+          emails_delivered?: number | null
+          emails_opened?: number | null
+          emails_sent?: number | null
+          hard_bounces?: number | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          reputation_score?: number | null
+          soft_bounces?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       document_events: {
         Row: {
           browser: string | null
@@ -300,6 +351,63 @@ export type Database = {
             referencedColumns: ["document_id"]
           },
         ]
+      }
+      domain_reputation: {
+        Row: {
+          bounce_rate: number | null
+          created_at: string
+          dkim_valid: boolean | null
+          dmarc_valid: boolean | null
+          domain: string
+          id: string
+          last_checked_at: string | null
+          open_rate: number | null
+          reputation_score: number | null
+          spf_valid: boolean | null
+          total_bounced: number | null
+          total_delivered: number | null
+          total_opened: number | null
+          total_sent: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bounce_rate?: number | null
+          created_at?: string
+          dkim_valid?: boolean | null
+          dmarc_valid?: boolean | null
+          domain: string
+          id?: string
+          last_checked_at?: string | null
+          open_rate?: number | null
+          reputation_score?: number | null
+          spf_valid?: boolean | null
+          total_bounced?: number | null
+          total_delivered?: number | null
+          total_opened?: number | null
+          total_sent?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bounce_rate?: number | null
+          created_at?: string
+          dkim_valid?: boolean | null
+          dmarc_valid?: boolean | null
+          domain?: string
+          id?: string
+          last_checked_at?: string | null
+          open_rate?: number | null
+          reputation_score?: number | null
+          spf_valid?: boolean | null
+          total_bounced?: number | null
+          total_delivered?: number | null
+          total_opened?: number | null
+          total_sent?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       email_audit_logs: {
         Row: {
@@ -1061,6 +1169,20 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_domain_deliverability: {
+        Args: { p_user_id: string }
+        Returns: {
+          bounce_rate: number
+          delivery_rate: number
+          domain: string
+          open_rate: number
+          reputation_score: number
+          total_bounced: number
+          total_delivered: number
+          total_opened: number
+          total_sent: number
+        }[]
+      }
       get_due_reminders: {
         Args: never
         Returns: {
