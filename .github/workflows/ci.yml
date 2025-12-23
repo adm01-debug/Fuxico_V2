@@ -1,9 +1,3 @@
-# =============================================================================
-# FUXICO - CI/CD Pipeline
-# Arquivo: .github/workflows/ci.yml
-# Descrição: Pipeline completo de integração e deploy contínuo
-# =============================================================================
-
 name: CI/CD Pipeline
 
 on:
@@ -12,229 +6,99 @@ on:
   pull_request:
     branches: [main, develop]
 
-env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '8'
-
-# Cancelar runs anteriores do mesmo branch
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  # ===========================================================================
-  # JOB 1: LINT E TYPECHECK
-  # ===========================================================================
   lint:
-    name: 🔍 Lint & Typecheck
     runs-on: ubuntu-latest
-    
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-      
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
-      
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      
-      - name: 📦 Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: 🔍 ESLint
-        run: pnpm lint
-      
-      - name: 🔷 TypeScript Check
-        run: pnpm typecheck
-  
-  # ===========================================================================
-  # JOB 2: TESTES UNITÁRIOS
-  # ===========================================================================
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: npm run lint
+      - run: npx tsc --noEmit
+
   test:
-    name: 🧪 Tests
     runs-on: ubuntu-latest
     needs: lint
-    
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-      
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
-      
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: npm run test:coverage
+      - uses: codecov/codecov-action@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      
-      - name: 📦 Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: 🧪 Run tests with coverage
-        run: pnpm test:coverage
-      
-      - name: 📊 Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           fail_ci_if_error: false
           verbose: true
-      
-      - name: 📄 Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
+
+  security:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          name: test-results
-          path: |
-            coverage/
-            test-results/
-          retention-days: 7
-  
-  # ===========================================================================
-  # JOB 3: BUILD
-  # ===========================================================================
+          languages: javascript-typescript
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
   build:
-    name: 🏗️ Build
     runs-on: ubuntu-latest
     needs: [lint, test]
-    
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-      
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
-      
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      
-      - name: 📦 Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: 🏗️ Build application
-        run: pnpm build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-      
-      - name: 📦 Upload build artifacts
-        uses: actions/upload-artifact@v4
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
-          retention-days: 7
-  
-  # ===========================================================================
-  # JOB 4: DEPLOY EDGE FUNCTIONS (apenas main)
-  # ===========================================================================
-  deploy-functions:
-    name: 🚀 Deploy Edge Functions
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-      
-      - name: 🦕 Setup Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-      
-      - name: 📦 Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      
-      - name: 🔐 Login to Supabase
-        run: supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      
-      - name: 🚀 Deploy Edge Functions
-        run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-  
-  # ===========================================================================
-  # JOB 5: DEPLOY FRONTEND (apenas main)
-  # ===========================================================================
-  deploy-frontend:
-    name: 🌐 Deploy Frontend
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-      - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-      
-      # Deploy para Vercel (exemplo)
-      - name: 🚀 Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: ./dist
-  
-  # ===========================================================================
-  # JOB 6: NOTIFICAÇÃO
-  # ===========================================================================
-  notify:
-    name: 📢 Notify
-    runs-on: ubuntu-latest
-    needs: [build, deploy-functions, deploy-frontend]
-    if: always() && github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: 📊 Check job results
-        id: check
-        run: |
-          if [[ "${{ needs.build.result }}" == "success" ]] && \
-             [[ "${{ needs.deploy-functions.result }}" == "success" ]] && \
-             [[ "${{ needs.deploy-frontend.result }}" == "success" ]]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: 📬 Send Slack notification
-        if: ${{ secrets.SLACK_WEBHOOK_URL }}
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ steps.check.outputs.status }}
-          fields: repo,message,commit,author,action,eventName,ref,workflow
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-# =============================================================================
-# NOTAS:
-# 
-# Secrets necessários:
-# - VITE_SUPABASE_URL
-# - VITE_SUPABASE_ANON_KEY
-# - SUPABASE_ACCESS_TOKEN
-# - SUPABASE_PROJECT_REF
-# - CODECOV_TOKEN (opcional)
-# - VERCEL_TOKEN (se usar Vercel)
-# - VERCEL_ORG_ID (se usar Vercel)
-# - VERCEL_PROJECT_ID (se usar Vercel)
-# - SLACK_WEBHOOK_URL (opcional)
-# =============================================================================
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci --legacy-peer-deps
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
