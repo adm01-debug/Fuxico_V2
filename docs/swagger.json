@@ -1,0 +1,142 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FUXICO Email Tracking API",
+    "description": "API para rastreamento de emails com pixel invisível",
+    "version": "1.1.0",
+    "contact": {
+      "name": "FUXICO Team",
+      "url": "https://github.com/adm01-debug/fuxico"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://{project}.supabase.co/functions/v1",
+      "variables": {
+        "project": {
+          "default": "your-project"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/create-tracking": {
+      "post": {
+        "summary": "Criar rastreamento",
+        "tags": ["Tracking"],
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["recipientEmail"],
+                "properties": {
+                  "recipientEmail": {"type": "string", "format": "email"},
+                  "subject": {"type": "string"},
+                  "senderEmail": {"type": "string", "format": "email"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Tracking criado"},
+          "401": {"description": "Não autorizado"}
+        }
+      }
+    },
+    "/track-pixel": {
+      "get": {
+        "summary": "Registrar abertura de email",
+        "tags": ["Tracking"],
+        "parameters": [
+          {"name": "t", "in": "query", "required": true, "schema": {"type": "string"}}
+        ],
+        "responses": {
+          "200": {"description": "Pixel 1x1 GIF"}
+        }
+      }
+    },
+    "/track-link": {
+      "get": {
+        "summary": "Registrar clique em link",
+        "tags": ["Tracking"],
+        "parameters": [
+          {"name": "l", "in": "query", "required": true, "schema": {"type": "string"}}
+        ],
+        "responses": {
+          "302": {"description": "Redirect para URL original"}
+        }
+      }
+    },
+    "/get-tracking-stats": {
+      "get": {
+        "summary": "Obter estatísticas",
+        "tags": ["Stats"],
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50}},
+          {"name": "cursor", "in": "query", "schema": {"type": "string"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de emails com stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "emails": {"type": "array"},
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "hasMore": {"type": "boolean"},
+                        "nextCursor": {"type": "string"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/report-bounce": {
+      "post": {
+        "summary": "Reportar bounce",
+        "tags": ["Tracking"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["trackingId"],
+                "properties": {
+                  "trackingId": {"type": "string", "format": "uuid"},
+                  "bounceType": {"type": "string"},
+                  "bounceReason": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Bounce registrado"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
