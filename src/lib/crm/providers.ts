@@ -1,18 +1,11 @@
-// =============================================================================
-// FUXICO - CRM Providers Registry
-// Registro centralizado de todos os adaptadores CRM suportados
-// =============================================================================
-
 import { BaseCRMAdapter } from './adapters/base-adapter';
 import { CRMConfig } from './types';
 import { Bitrix24Adapter } from './adapters/bitrix24-adapter';
 import { HubSpotAdapter } from './adapters/hubspot-adapter';
+import { SalesforceAdapter } from './adapters/salesforce-adapter';
+import { PipedriveAdapter } from './adapters/pipedrive-adapter';
 
-// =============================================================================
-// TIPOS
-// =============================================================================
-
-export type CRMProvider = 'bitrix24' | 'hubspot';
+export type CRMProvider = 'bitrix24' | 'hubspot' | 'salesforce' | 'pipedrive';
 
 export interface CRMProviderDetails {
   id: CRMProvider;
@@ -31,10 +24,6 @@ export interface ConfigField {
   placeholder?: string;
 }
 
-// =============================================================================
-// REGISTRO DE PROVIDERS
-// =============================================================================
-
 export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
   bitrix24: {
     id: 'bitrix24',
@@ -52,43 +41,54 @@ export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
     name: 'HubSpot',
     description: 'Plataforma de CRM, marketing e vendas',
     logo: '/icons/hubspot.svg',
-    features: ['Contatos', 'Empresas', 'Negócios', 'Timeline'],
+    features: ['Contatos', 'Empresas', 'Negócios', 'Tickets'],
     configFields: [
-      { key: 'accessToken', label: 'Access Token', type: 'password', required: true, placeholder: 'pat-na1-...' },
+      { key: 'apiKey', label: 'API Key', type: 'password', required: true, placeholder: 'pat-na1-...' },
+    ],
+  },
+  salesforce: {
+    id: 'salesforce',
+    name: 'Salesforce',
+    description: 'CRM empresarial líder mundial',
+    logo: '/icons/salesforce.svg',
+    features: ['Leads', 'Oportunidades', 'Contas', 'Tarefas'],
+    configFields: [
+      { key: 'clientId', label: 'Client ID', type: 'text', required: true },
+      { key: 'clientSecret', label: 'Client Secret', type: 'password', required: true },
+      { key: 'refreshToken', label: 'Refresh Token', type: 'password', required: true },
+    ],
+  },
+  pipedrive: {
+    id: 'pipedrive',
+    name: 'Pipedrive',
+    description: 'CRM focado em pipeline de vendas',
+    logo: '/icons/pipedrive.svg',
+    features: ['Pessoas', 'Organizações', 'Negócios', 'Atividades'],
+    configFields: [
+      { key: 'apiKey', label: 'API Token', type: 'password', required: true, placeholder: 'Seu API token do Pipedrive' },
     ],
   },
 };
 
-// =============================================================================
-// FACTORY FUNCTION
-// =============================================================================
-
-export function createCRMAdapter(
-  provider: CRMProvider,
-  config: CRMConfig
-): BaseCRMAdapter {
+export function createCRMAdapter(provider: CRMProvider, config: CRMConfig): BaseCRMAdapter {
   switch (provider) {
     case 'bitrix24':
       return new Bitrix24Adapter(config);
     case 'hubspot':
       return new HubSpotAdapter(config);
+    case 'salesforce':
+      return new SalesforceAdapter(config);
+    case 'pipedrive':
+      return new PipedriveAdapter(config);
     default:
-      throw new Error(`Unknown CRM provider: ${provider}`);
+      throw new Error(`CRM provider ${provider} not supported`);
   }
 }
 
-// =============================================================================
-// HELPERS
-// =============================================================================
-
-export function getProviderInfo(provider: CRMProvider): CRMProviderDetails {
+export function getCRMProviderDetails(provider: CRMProvider): CRMProviderDetails {
   return CRM_PROVIDERS[provider];
 }
 
-export function getAllProviders(): CRMProviderDetails[] {
+export function getAllCRMProviders(): CRMProviderDetails[] {
   return Object.values(CRM_PROVIDERS);
-}
-
-export function isValidProvider(provider: string): provider is CRMProvider {
-  return provider in CRM_PROVIDERS;
 }
