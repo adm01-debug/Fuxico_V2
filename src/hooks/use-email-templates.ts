@@ -31,6 +31,8 @@ export function useEmailTemplates() {
   const queryClient = useQueryClient();
 
   const { data: templates = [], isLoading, error } = useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['email-templates', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
