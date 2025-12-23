@@ -1,89 +1,144 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { getCorsHeaders } from '../_shared/cors.ts';
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
-const RegisterWebhookSchema = z.object({
-  action: z.literal('register'),
-  webhookUrl: z.string().url(),
-  events: z.array(z.enum(['email.opened', 'email.clicked', 'email.bounced', 'document.viewed', 'link.clicked'])).min(1),
+const RegisterSchema = z.object({
+  action: z.literal("register"),
+  name: z.string().min(1),
+  url: z.string().url(),
+  events: z.array(z.string()).min(1),
 });
 
-const UnregisterWebhookSchema = z.object({
-  action: z.literal('unregister'),
+const UnregisterSchema = z.object({
+  action: z.literal("unregister"),
   webhookId: z.string().uuid(),
 });
 
 const TriggerSchema = z.object({
-  action: z.literal('trigger'),
-  event: z.string(),
-  data: z.record(z.any()),
+  action: z.literal("trigger"),
+  webhookId: z.string().uuid(),
+  eventType: z.string(),
+  payload: z.record(z.any()),
 });
 
-const RequestSchema = z.union([RegisterWebhookSchema, UnregisterWebhookSchema, TriggerSchema]);
+const RequestSchema = z.union([RegisterSchema, UnregisterSchema, TriggerSchema]);
 
 serve(async (req) => {
-  const origin = req.headers.get('origin');
+  const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
-  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
 
   try {
-    const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) throw new Error('Missing authorization');
-    
-    const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-    if (!user) throw new Error('Unauthorized');
+    const clientIP = req.headers.get("x-forwarded-for") || "unknown";
+    const rateLimitResult = await checkRateLimit(clientIP, "zapier-webhook", 50, 60);
+    if (!rateLimitResult.allowed) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const body = await req.json();
-    
-    // Validate input
-    const result = RequestSchema.safeParse(body);
-    if (!result.success) {
-      return new Response(JSON.stringify({ error: 'Invalid input', details: result.error.issues }), 
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
+    const validatedData = RequestSchema.parse(body);
 
-    const validatedBody = result.data;
-
-    if (validatedBody.action === 'register') {
-      const { data, error } = await supabase.from('zapier_webhooks').insert({
+    if (validatedData.action === "register") {
+      const { data, error } = await supabase.from("zapier_webhooks").insert({
         user_id: user.id,
-        webhook_url: validatedBody.webhookUrl,
-        events: validatedBody.events,
-        is_active: true
+        name: validatedData.name,
+        url: validatedData.url,
+        events: validatedData.events,
+        is_active: true,
       }).select().single();
+
       if (error) throw error;
-      return new Response(JSON.stringify(data), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ success: true, webhook: data }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    if (validatedBody.action === 'unregister') {
-      await supabase.from('zapier_webhooks').delete().eq('id', validatedBody.webhookId).eq('user_id', user.id);
-      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (validatedData.action === "unregister") {
+      const { error } = await supabase.from("zapier_webhooks")
+        .delete()
+        .eq("id", validatedData.webhookId)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    if (validatedBody.action === 'trigger') {
-      const { data: webhooks } = await supabase.from('zapier_webhooks')
-        .select('*').eq('user_id', user.id).eq('is_active', true).contains('events', [validatedBody.event]);
-      
-      const results = [];
-      for (const webhook of webhooks || []) {
-        try {
-          await fetch(webhook.webhook_url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ event: validatedBody.event, data: validatedBody.data, timestamp: new Date().toISOString() })
-          });
-          results.push({ webhookId: webhook.id, success: true });
-        } catch (e) {
-          results.push({ webhookId: webhook.id, success: false, error: e.message });
-        }
+    if (validatedData.action === "trigger") {
+      const { data: webhook } = await supabase.from("zapier_webhooks")
+        .select("*")
+        .eq("id", validatedData.webhookId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (!webhook) {
+        return new Response(JSON.stringify({ error: "Webhook not found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
-      return new Response(JSON.stringify({ triggered: results.length, results }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+      await fetch(webhook.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validatedData.payload),
+      });
+
+      await supabase.from("zapier_webhooks").update({ last_triggered_at: new Date().toISOString() })
+        .eq("id", validatedData.webhookId);
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    throw new Error('Invalid action');
+    return new Response(JSON.stringify({ error: "Invalid action" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (error instanceof z.ZodError) {
+      return new Response(JSON.stringify({ error: "Validation error", details: error.errors }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
