@@ -1,250 +1,106 @@
-// =============================================================================
-// FUXICO - Desktop Notifications Hook
-// =============================================================================
+import { useState, useEffect, useCallback } from 'react';
+import { log } from '@/lib/logger';
 
-import { useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { playNotificationSound, NotificationSoundType } from '@/lib/notification-sound';
-import { useUserPreferences } from '@/hooks/use-user-preferences';
-import { Json } from '@/integrations/supabase/types';
-
-// Helper to save notification to history
-async function saveToHistory(
-  userId: string,
-  type: string,
-  severity: 'info' | 'warning' | 'critical' | 'success',
-  title: string,
-  message: string,
-  metadata: Json = {}
-) {
-  try {
-    await supabase
-      .from('notification_history')
-      .insert([{
-        user_id: userId,
-        type,
-        severity,
-        title,
-        message,
-        metadata,
-      }]);
-  } catch (error) {
-    console.error('[Notifications] Failed to save to history:', error);
-  }
-}
-
-interface NotificationEvent {
-  tracking_id: string;
-  event_type: 'open' | 'click';
-  created_at: string;
-  metadata?: Record<string, unknown>;
-}
-
-interface BounceAlertEvent {
-  id: string;
-  user_id: string;
-  domain: string;
-  bounce_rate: number;
-  threshold: number;
-  alert_type: string;
-  created_at: string;
+interface NotificationOptions {
+  title: string;
+  body: string;
+  icon?: string;
+  tag?: string;
+  requireInteraction?: boolean;
+  onClick?: () => void;
 }
 
 export function useDesktopNotifications() {
-  const { user } = useAuth();
-  const { preferences } = useUserPreferences();
-  const permissionRef = useRef<NotificationPermission>('default');
+  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [isSupported, setIsSupported] = useState(false);
 
-  // Request notification permission
-  const requestPermission = useCallback(async () => {
-    if (!('Notification' in window)) {
-      console.log('[Notifications] Not supported in this browser');
-      return false;
+  useEffect(() => {
+    setIsSupported('Notification' in window);
+    if ('Notification' in window) {
+      setPermission(Notification.permission);
     }
-
-    if (Notification.permission === 'granted') {
-      permissionRef.current = 'granted';
-      return true;
-    }
-
-    if (Notification.permission !== 'denied') {
-      const permission = await Notification.requestPermission();
-      permissionRef.current = permission;
-      return permission === 'granted';
-    }
-
-    return false;
   }, []);
 
-  // Show desktop notification
-  const showNotification = useCallback((title: string, body: string, options?: { icon?: string; tag?: string }) => {
-    if (permissionRef.current !== 'granted') return;
+  const requestPermission = useCallback(async () => {
+    if (!isSupported) {
+      log.warn('Notifications not supported in this browser');
+      return 'denied';
+    }
 
     try {
-      const notification = new Notification(title, {
-        body,
-        icon: options?.icon || '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: options?.tag || 'fuxico-notification',
-      });
-
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
-      };
-
-      // Auto close after 5 seconds
-      setTimeout(() => notification.close(), 5000);
+      const result = await Notification.requestPermission();
+      setPermission(result);
+      log.debug('Notification permission result', { result });
+      return result;
     } catch (error) {
-      console.error('[Notifications] Error showing notification:', error);
+      log.error('Error requesting notification permission', error);
+      return 'denied';
     }
-  }, []);
+  }, [isSupported]);
 
-  // Subscribe to tracking events
-  useEffect(() => {
-    if (!user?.id) return;
+  const showNotification = useCallback(
+    (options: NotificationOptions) => {
+      if (!isSupported || permission !== 'granted') {
+        log.debug('Cannot show notification', { isSupported, permission });
+        return null;
+      }
 
-    // Request permission on mount
-    requestPermission();
+      try {
+        const notification = new Notification(options.title, {
+          body: options.body,
+          icon: options.icon || '/icon-192.png',
+          tag: options.tag,
+          requireInteraction: options.requireInteraction,
+        });
 
-    console.log('[Notifications] Subscribing to realtime events for user:', user.id);
-
-    const channel = supabase
-      .channel('tracking-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'tracking_events',
-        },
-        async (payload) => {
-          const event = payload.new as NotificationEvent;
-          console.log('[Notifications] New tracking event:', event);
-
-          // Skip self-opens
-          if ((event as any).is_self_open) return;
-
-          // Get email details
-          const { data: emailData } = await supabase
-            .from('tracked_emails')
-            .select('recipient_email, subject, user_id')
-            .eq('tracking_id', event.tracking_id)
-            .maybeSingle();
-
-          // Only notify if it's the current user's email
-          if (!emailData || emailData.user_id !== user.id) return;
-
-          const eventTypeLabel = event.event_type === 'open' ? '📧 Email Aberto' : '🔗 Link Clicado';
-          const title = eventTypeLabel;
-          const body = `${emailData.recipient_email}\n${emailData.subject || 'Sem assunto'}`;
-
-          // Save to history
-          saveToHistory(
-            user.id,
-            event.event_type === 'open' ? 'email_open' : 'link_click',
-            'info',
-            title,
-            `${emailData.recipient_email} - ${emailData.subject || 'Sem assunto'}`,
-            { tracking_id: event.tracking_id, recipient: emailData.recipient_email }
-          );
-
-          // Show toast
-          toast({
-            title: eventTypeLabel,
-            description: `${emailData.recipient_email} - ${emailData.subject || 'Sem assunto'}`,
-          });
-
-          // Show desktop notification
-          showNotification(title, body);
+        if (options.onClick) {
+          notification.onclick = () => {
+            window.focus();
+            options.onClick?.();
+            notification.close();
+          };
         }
-      )
-      .subscribe((status) => {
-        console.log('[Notifications] Tracking subscription status:', status);
+
+        log.debug('Notification shown', { title: options.title });
+        return notification;
+      } catch (error) {
+        log.error('Error showing notification', error);
+        return null;
+      }
+    },
+    [isSupported, permission]
+  );
+
+  const showEmailOpenedNotification = useCallback(
+    (recipientEmail: string, subject: string) => {
+      return showNotification({
+        title: '📧 Email Aberto!',
+        body: `${recipientEmail} abriu: ${subject}`,
+        tag: `email-opened-${Date.now()}`,
+        requireInteraction: false,
       });
+    },
+    [showNotification]
+  );
 
-    return () => {
-      console.log('[Notifications] Unsubscribing from tracking events');
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, requestPermission, showNotification]);
-
-  // Subscribe to bounce alerts
-  useEffect(() => {
-    if (!user?.id) return;
-
-    console.log('[Notifications] Subscribing to bounce alerts for user:', user.id);
-
-    const bounceChannel = supabase
-      .channel('bounce-alert-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'bounce_alerts',
-        },
-        (payload) => {
-          const alert = payload.new as BounceAlertEvent;
-          console.log('[Notifications] New bounce alert:', alert);
-
-          // Only notify if it's the current user's alert
-          if (alert.user_id !== user.id) return;
-
-          const isCritical = alert.alert_type === 'critical_bounce_rate';
-          const emoji = isCritical ? '🚨' : '⚠️';
-          const severity = isCritical ? 'CRÍTICO' : 'Aviso';
-          const title = `${emoji} Alerta de Bounce ${severity}`;
-          const body = `Domínio: ${alert.domain}\nTaxa de bounce: ${alert.bounce_rate.toFixed(1)}% (limite: ${alert.threshold}%)`;
-
-          // Play notification sound if enabled
-          if (preferences?.sound_enabled !== false) {
-            const soundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
-            const volume = isCritical 
-              ? (preferences?.critical_volume ?? 0.7)
-              : (preferences?.warning_volume ?? 0.4);
-            playNotificationSound(isCritical ? 'critical' : 'warning', soundType, volume);
-          }
-
-          // Save to history
-          saveToHistory(
-            user.id,
-            'bounce_alert',
-            isCritical ? 'critical' : 'warning',
-            title,
-            `${alert.domain} - Taxa de bounce: ${alert.bounce_rate.toFixed(1)}%`,
-            { domain: alert.domain, bounce_rate: alert.bounce_rate, threshold: alert.threshold }
-          );
-
-          // Show toast with appropriate variant
-          toast({
-            title,
-            description: `${alert.domain} - Taxa de bounce: ${alert.bounce_rate.toFixed(1)}%`,
-            variant: isCritical ? 'destructive' : 'default',
-          });
-
-          // Show desktop notification
-          showNotification(title, body, { 
-            tag: `bounce-alert-${alert.id}`,
-          });
-        }
-      )
-      .subscribe((status) => {
-        console.log('[Notifications] Bounce alerts subscription status:', status);
+  const showLinkClickedNotification = useCallback(
+    (recipientEmail: string, linkUrl: string) => {
+      return showNotification({
+        title: '🔗 Link Clicado!',
+        body: `${recipientEmail} clicou em: ${linkUrl}`,
+        tag: `link-clicked-${Date.now()}`,
+        requireInteraction: false,
       });
-
-    return () => {
-      console.log('[Notifications] Unsubscribing from bounce alerts');
-      supabase.removeChannel(bounceChannel);
-    };
-  }, [user?.id, showNotification]);
+    },
+    [showNotification]
+  );
 
   return {
+    permission,
+    isSupported,
     requestPermission,
     showNotification,
-    isSupported: 'Notification' in window,
-    permission: permissionRef.current,
+    showEmailOpenedNotification,
+    showLinkClickedNotification,
   };
 }
