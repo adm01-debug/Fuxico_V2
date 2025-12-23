@@ -77,6 +77,39 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_thresholds: {
+        Row: {
+          bounce_rate_critical: number | null
+          bounce_rate_warning: number | null
+          created_at: string
+          id: string
+          low_delivery_rate: number | null
+          low_open_rate: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bounce_rate_critical?: number | null
+          bounce_rate_warning?: number | null
+          created_at?: string
+          id?: string
+          low_delivery_rate?: number | null
+          low_open_rate?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bounce_rate_critical?: number | null
+          bounce_rate_warning?: number | null
+          created_at?: string
+          id?: string
+          low_delivery_rate?: number | null
+          low_open_rate?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_config: {
         Row: {
           business_hours_end: number
@@ -155,6 +188,45 @@ export type Database = {
           updated_at?: string
           user_id?: string
           webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      bounce_alerts: {
+        Row: {
+          alert_type: string
+          bounce_rate: number
+          created_at: string
+          domain: string
+          id: string
+          is_read: boolean | null
+          is_resolved: boolean | null
+          resolved_at: string | null
+          threshold: number
+          user_id: string
+        }
+        Insert: {
+          alert_type?: string
+          bounce_rate: number
+          created_at?: string
+          domain: string
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          resolved_at?: string | null
+          threshold: number
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          bounce_rate?: number
+          created_at?: string
+          domain?: string
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          resolved_at?: string | null
+          threshold?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -1181,6 +1253,15 @@ export type Database = {
           total_delivered: number
           total_opened: number
           total_sent: number
+        }[]
+      }
+      check_bounce_alerts: {
+        Args: { p_user_id: string }
+        Returns: {
+          bounce_rate: number
+          domain: string
+          severity: string
+          threshold: number
         }[]
       }
       get_due_reminders: {

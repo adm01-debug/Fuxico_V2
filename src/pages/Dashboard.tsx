@@ -25,6 +25,7 @@ import {
   FlaskConical,
   UserX,
   Target,
+  AlertTriangle,
   Globe,
   Clock,
   HeartPulse,
@@ -55,6 +56,7 @@ const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'
 const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTab').then(m => ({ default: m.GeoAnalyticsTab })))
 const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab').then(m => ({ default: m.EmailSchedulingTab })))
 const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab').then(m => ({ default: m.DeliverabilityTab })))
+const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab').then(m => ({ default: m.BounceAlertsTab })))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -107,6 +109,7 @@ type TabId =
   | 'geo'
   | 'scheduling'
   | 'deliverability'
+  | 'bouncealerts'
   | 'leads'
   | 'followup'
   | 'insights'
@@ -185,6 +188,12 @@ const TABS: TabConfig[] = [
     label: 'Deliverability',
     icon: <HeartPulse className="h-4 w-4" />,
     component: DeliverabilityTab,
+  },
+  {
+    id: 'bouncealerts',
+    label: 'Alertas Bounce',
+    icon: <AlertTriangle className="h-4 w-4" />,
+    component: BounceAlertsTab,
   },
   {
     id: 'leads',
