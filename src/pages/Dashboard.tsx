@@ -290,16 +290,16 @@ export default function Dashboard() {
   }, [])
   
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+    <div className="container mx-auto p-6 xl:p-8 xl:max-w-screen-2xl">
+      <h1 className="text-3xl font-bold mb-6 xl:text-4xl xl:mb-8">Dashboard</h1>
       
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="mb-6 flex flex-wrap gap-1">
+        <TabsList className="mb-6 flex flex-wrap gap-1 xl:gap-2">
           {TABS.map(tab => (
             <TabsTrigger 
               key={tab.id} 
               value={tab.id}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 xl:gap-3"
             >
               {tab.icon}
               <span className="hidden sm:inline">{tab.label}</span>
