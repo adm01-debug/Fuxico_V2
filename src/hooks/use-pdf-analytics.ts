@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -54,7 +55,7 @@ export function usePDFAnalytics() {
         time_spent_ms: timeSpentMs
       });
     } catch (error) {
-      console.error('Error tracking page view:', error);
+      log.error('Error tracking page view:', error);
     }
   }, []);
 
