@@ -6,6 +6,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { playNotificationSound } from '@/lib/notification-sound';
 
 interface NotificationEvent {
   tracking_id: string;
@@ -159,6 +160,9 @@ export function useDesktopNotifications() {
           const severity = isCritical ? 'CRÍTICO' : 'Aviso';
           const title = `${emoji} Alerta de Bounce ${severity}`;
           const body = `Domínio: ${alert.domain}\nTaxa de bounce: ${alert.bounce_rate.toFixed(1)}% (limite: ${alert.threshold}%)`;
+
+          // Play notification sound
+          playNotificationSound(isCritical ? 'critical' : 'warning');
 
           // Show toast with appropriate variant
           toast({
