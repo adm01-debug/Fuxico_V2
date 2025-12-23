@@ -29,9 +29,9 @@ export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
   bitrix24: {
     id: 'bitrix24',
     name: 'Bitrix24',
-    description: 'CRM completo com automação de marketing e vendas',
+    description: 'CRM completo com automacao de marketing e vendas',
     logo: '/icons/bitrix24.svg',
-    features: ['Contatos', 'Negócios', 'Atividades', 'Automação'],
+    features: ['Contatos', 'Negocios', 'Atividades', 'Automacao'],
     configFields: [
       { key: 'webhookUrl', label: 'Webhook URL', type: 'url', required: true, placeholder: 'https://seu-portal.bitrix24.com.br/rest/...' },
       { key: 'userId', label: 'User ID', type: 'text', required: true },
@@ -42,7 +42,7 @@ export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
     name: 'HubSpot',
     description: 'Plataforma de CRM, marketing e vendas',
     logo: '/icons/hubspot.svg',
-    features: ['Contatos', 'Empresas', 'Negócios', 'Tickets'],
+    features: ['Contatos', 'Empresas', 'Negocios', 'Tickets'],
     configFields: [
       { key: 'apiKey', label: 'API Key', type: 'password', required: true, placeholder: 'pat-na1-...' },
     ],
@@ -50,7 +50,7 @@ export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
   salesforce: {
     id: 'salesforce',
     name: 'Salesforce',
-    description: 'CRM empresarial líder mundial',
+    description: 'CRM empresarial lider mundial',
     logo: '/icons/salesforce.svg',
     features: ['Leads', 'Oportunidades', 'Contas', 'Tarefas'],
     configFields: [
@@ -64,7 +64,7 @@ export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
     name: 'Pipedrive',
     description: 'CRM focado em pipeline de vendas',
     logo: '/icons/pipedrive.svg',
-    features: ['Pessoas', 'Organizações', 'Negócios', 'Atividades'],
+    features: ['Pessoas', 'Organizacoes', 'Negocios', 'Atividades'],
     configFields: [
       { key: 'apiKey', label: 'API Token', type: 'password', required: true, placeholder: 'Seu API token do Pipedrive' },
     ],
@@ -74,7 +74,7 @@ export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
     name: 'Zoho CRM',
     description: 'CRM completo da suite Zoho',
     logo: '/icons/zoho.svg',
-    features: ['Contatos', 'Leads', 'Negócios', 'Tarefas'],
+    features: ['Contatos', 'Leads', 'Negocios', 'Tarefas'],
     configFields: [
       { key: 'clientId', label: 'Client ID', type: 'text', required: true },
       { key: 'clientSecret', label: 'Client Secret', type: 'password', required: true },
@@ -96,7 +96,7 @@ export function createCRMAdapter(provider: CRMProvider, config: CRMConfig): Base
     case 'zoho':
       return new ZohoAdapter(config);
     default:
-      throw new Error(`CRM provider ${provider} not supported`);
+      throw new Error('CRM provider not supported');
   }
 }
 
