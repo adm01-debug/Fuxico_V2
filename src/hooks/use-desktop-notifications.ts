@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { playNotificationSound } from '@/lib/notification-sound';
+import { useUserPreferences } from '@/hooks/use-user-preferences';
 
 interface NotificationEvent {
   tracking_id: string;
@@ -27,6 +28,7 @@ interface BounceAlertEvent {
 
 export function useDesktopNotifications() {
   const { user } = useAuth();
+  const { preferences } = useUserPreferences();
   const permissionRef = useRef<NotificationPermission>('default');
 
   // Request notification permission
@@ -161,8 +163,10 @@ export function useDesktopNotifications() {
           const title = `${emoji} Alerta de Bounce ${severity}`;
           const body = `Domínio: ${alert.domain}\nTaxa de bounce: ${alert.bounce_rate.toFixed(1)}% (limite: ${alert.threshold}%)`;
 
-          // Play notification sound
-          playNotificationSound(isCritical ? 'critical' : 'warning');
+          // Play notification sound if enabled
+          if (preferences?.sound_enabled !== false) {
+            playNotificationSound(isCritical ? 'critical' : 'warning');
+          }
 
           // Show toast with appropriate variant
           toast({
