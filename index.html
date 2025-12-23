@@ -3,25 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://esm.sh;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com;
-      img-src 'self' data: https: blob:;
-      connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://ip-api.com https://dns.google;
-      frame-src 'self' https://accounts.google.com;
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      upgrade-insecure-requests;
-    ">
+    
+    <!-- Primary Meta Tags -->
+    <title>FUXICO - Rastreamento de Emails Profissional</title>
+    <meta name="title" content="FUXICO - Rastreamento de Emails Profissional" />
+    <meta name="description" content="Saiba quando seus emails são lidos. Sistema completo de rastreamento de aberturas, cliques em links e visualização de documentos. Integração com Bitrix24 CRM." />
+    <meta name="keywords" content="email tracking, rastreamento de emails, email analytics, Bitrix24, CRM, produtividade" />
+    <meta name="author" content="FUXICO" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://fuxico.app" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fuxico.app/" />
+    <meta property="og:title" content="FUXICO - Rastreamento de Emails Profissional" />
+    <meta property="og:description" content="Saiba quando seus emails são lidos. Sistema completo de rastreamento de aberturas, cliques e documentos." />
+    <meta property="og:image" content="https://fuxico.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="FUXICO" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://fuxico.app/" />
+    <meta name="twitter:title" content="FUXICO - Rastreamento de Emails Profissional" />
+    <meta name="twitter:description" content="Saiba quando seus emails são lidos. Sistema completo de rastreamento de aberturas, cliques e documentos." />
+    <meta name="twitter:image" content="https://fuxico.app/og-image.png" />
+    
+    <!-- Theme Color -->
     <meta name="theme-color" content="#6366f1" />
-    <meta name="description" content="FUXICO - Sistema de Rastreamento de Emails" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="msapplication-TileColor" content="#6366f1" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.ipify.org; frame-ancestors 'none';" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
+    
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
-    <title>FUXICO - Email Tracking</title>
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://xmyzikprjopdbrvebqez.supabase.co" />
   </head>
   <body>
     <div id="root"></div>
