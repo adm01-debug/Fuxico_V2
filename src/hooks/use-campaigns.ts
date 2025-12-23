@@ -25,6 +25,8 @@ export function useCampaigns() {
   const { user } = useAuth();
 
   return useQuery({
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
     queryKey: ['campaigns', user?.id],
     queryFn: async (): Promise<CampaignWithStats[]> => {
       const { data: campaigns, error } = await supabase
