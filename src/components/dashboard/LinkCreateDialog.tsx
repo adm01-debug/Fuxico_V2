@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -77,7 +78,7 @@ export function LinkCreateDialog() {
       queryClient.invalidateQueries({ queryKey: ["tracked-links"] });
 
     } catch (error) {
-      console.error("Error creating link:", error);
+      log.error("Error creating link:", error);
       toast({
         title: "Erro",
         description: "Falha ao criar link",
