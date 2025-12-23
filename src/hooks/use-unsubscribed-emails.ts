@@ -19,6 +19,8 @@ export function useUnsubscribedEmails() {
   const queryClient = useQueryClient();
 
   const { data: unsubscribedEmails = [], isLoading, error } = useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['unsubscribed-emails', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -124,3 +126,4 @@ export function useUnsubscribedEmails() {
     isUnsubscribed,
   };
 }
+
