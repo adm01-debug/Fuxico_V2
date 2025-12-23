@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,7 +91,7 @@ export function DocumentUploadDialog() {
       queryClient.invalidateQueries({ queryKey: ["tracked-documents"] });
 
     } catch (error) {
-      console.error("Error uploading document:", error);
+      log.error("Error uploading document:", error);
       toast({
         title: "Erro",
         description: "Falha ao enviar documento",
