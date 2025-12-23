@@ -35,6 +35,8 @@ export interface ContactHistoryItem {
 
 export function useContactHistory(email: string | null) {
   return useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['contact-history', email],
     queryFn: async () => {
       if (!email) return { emails: [], events: [], timeline: [] };
