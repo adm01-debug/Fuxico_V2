@@ -1063,6 +1063,7 @@ export type Database = {
           auto_reminder_days: number
           auto_reminder_enabled: boolean
           created_at: string
+          critical_volume: number | null
           desktop_enabled: boolean
           email_digest_frequency: string | null
           email_enabled: boolean
@@ -1076,11 +1077,13 @@ export type Database = {
           sound_enabled: boolean
           updated_at: string
           user_id: string
+          warning_volume: number | null
         }
         Insert: {
           auto_reminder_days?: number
           auto_reminder_enabled?: boolean
           created_at?: string
+          critical_volume?: number | null
           desktop_enabled?: boolean
           email_digest_frequency?: string | null
           email_enabled?: boolean
@@ -1094,11 +1097,13 @@ export type Database = {
           sound_enabled?: boolean
           updated_at?: string
           user_id: string
+          warning_volume?: number | null
         }
         Update: {
           auto_reminder_days?: number
           auto_reminder_enabled?: boolean
           created_at?: string
+          critical_volume?: number | null
           desktop_enabled?: boolean
           email_digest_frequency?: string | null
           email_enabled?: boolean
@@ -1112,6 +1117,7 @@ export type Database = {
           sound_enabled?: boolean
           updated_at?: string
           user_id?: string
+          warning_volume?: number | null
         }
         Relationships: []
       }
