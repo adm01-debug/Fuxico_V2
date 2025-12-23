@@ -56,6 +56,8 @@ export function useScheduledReports() {
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading, error } = useQuery({
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     queryKey: ['scheduled-reports', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -221,3 +223,4 @@ export function useScheduledReports() {
     removeRecipient,
   };
 }
+
