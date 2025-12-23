@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { playNotificationSound, playSuccessSound } from '@/lib/notification-sound';
+import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType } from '@/lib/notification-sound';
 
 export default function Settings() {
   const { preferences, isLoading, updatePreferences, isUpdating } = useUserPreferences();
@@ -31,6 +31,14 @@ export default function Settings() {
       updatePreferences({ auto_reminder_days: days });
     }
   };
+
+  const handleSoundTypeChange = (value: string) => {
+    updatePreferences({ notification_sound_type: value });
+    // Play the selected sound as preview
+    playNotificationSound('warning', value as NotificationSoundType);
+  };
+
+  const currentSoundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
 
   if (isLoading) {
     return (
@@ -78,33 +86,57 @@ export default function Settings() {
                   <p className="text-sm text-muted-foreground">Tocar som ao receber notificações</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => playNotificationSound('warning')}
-                  title="Testar som de aviso"
-                >
-                  <Play className="h-3 w-3 mr-1" />
-                  Aviso
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => playNotificationSound('critical')}
-                  title="Testar som crítico"
-                >
-                  <Play className="h-3 w-3 mr-1" />
-                  Crítico
-                </Button>
-                <Switch
-                  id="sound"
-                  checked={preferences?.sound_enabled ?? true}
-                  onCheckedChange={(checked) => handleToggle('sound_enabled', checked)}
-                  disabled={isUpdating}
-                />
-              </div>
+              <Switch
+                id="sound"
+                checked={preferences?.sound_enabled ?? true}
+                onCheckedChange={(checked) => handleToggle('sound_enabled', checked)}
+                disabled={isUpdating}
+              />
             </div>
+
+            {preferences?.sound_enabled && (
+              <div className="ml-8 space-y-3">
+                <div className="flex items-center gap-4">
+                  <Label htmlFor="soundType" className="text-sm min-w-20">Tipo de som:</Label>
+                  <Select
+                    value={currentSoundType}
+                    onValueChange={handleSoundTypeChange}
+                    disabled={isUpdating}
+                  >
+                    <SelectTrigger id="soundType" className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {NOTIFICATION_SOUNDS.map((sound) => (
+                        <SelectItem key={sound.value} value={sound.value}>
+                          {sound.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => playNotificationSound('warning', currentSoundType)}
+                    title="Testar som de aviso"
+                  >
+                    <Play className="h-3 w-3 mr-1" />
+                    Aviso
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => playNotificationSound('critical', currentSoundType)}
+                    title="Testar som crítico"
+                  >
+                    <Play className="h-3 w-3 mr-1" />
+                    Crítico
+                  </Button>
+                </div>
+              </div>
+            )}
 
             <Separator />
 
