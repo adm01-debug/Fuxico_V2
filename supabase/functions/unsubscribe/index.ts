@@ -2,7 +2,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
-import { addSecurityHeaders } from '../_shared/security-headers.ts'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
@@ -11,10 +10,12 @@ serve(async (req) => {
   const corsHeaders = getCorsHeaders(origin)
   const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
+  const htmlHeaders = { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8', 'X-Content-Type-Options': 'nosniff' }
+
   const rateLimitResult = await checkRateLimit(clientIP, 'unsubscribe', 60, 30)
   if (!rateLimitResult.allowed) {
     return new Response(renderHtml('Erro', 'Muitas requisições. Tente novamente em alguns minutos.'), {
-      status: 429, headers: addSecurityHeaders({ ...corsHeaders, 'Content-Type': 'text/html' })
+      status: 429, headers: htmlHeaders
     })
   }
 
@@ -30,7 +31,7 @@ serve(async (req) => {
 
     if (!email || !email.includes('@')) {
       return new Response(renderHtml('Erro', 'Email inválido'), {
-        status: 400, headers: addSecurityHeaders({ ...corsHeaders, 'Content-Type': 'text/html' })
+        status: 400, headers: htmlHeaders
       })
     }
 
@@ -40,20 +41,26 @@ serve(async (req) => {
       userId = tracked?.user_id
     }
 
-    await supabaseAdmin.from('unsubscribed_emails').insert({
+    const { error } = await supabaseAdmin.from('unsubscribed_emails').insert({
       user_id: userId,
       email: email.toLowerCase(),
       reason: 'User requested via unsubscribe link',
       source: 'link',
       tracking_id: trackingId
-    }).catch(() => {})
+    })
+
+    // Ignora erro de duplicata
+    if (error && !error.message?.includes('duplicate')) {
+      console.error('Unsubscribe error:', error)
+    }
 
     return new Response(renderHtml('Descadastrado', 'Você foi removido da lista com sucesso.'), {
-      headers: addSecurityHeaders({ ...corsHeaders, 'Content-Type': 'text/html' })
+      status: 200, headers: htmlHeaders
     })
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Unsubscribe error:', error)
     return new Response(renderHtml('Erro', 'Ocorreu um erro. Tente novamente.'), {
-      status: 500, headers: addSecurityHeaders({ ...corsHeaders, 'Content-Type': 'text/html' })
+      status: 500, headers: htmlHeaders
     })
   }
 })

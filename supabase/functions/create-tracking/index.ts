@@ -51,7 +51,8 @@ serve(async (req) => {
 
     const pixelUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/track-pixel?t=${trackingId}`
     return secureJsonResponse({ trackingId, pixelUrl, email: data }, 200, corsHeaders)
-  } catch (error) {
-    return secureJsonResponse({ error: error.message }, 500, corsHeaders)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
 })

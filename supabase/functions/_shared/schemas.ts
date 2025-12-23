@@ -10,23 +10,12 @@ import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 // TIPOS BASE REUTILIZÁVEIS
 // =============================================================================
 
-/** Email válido */
 export const emailSchema = z.string().email('Email inválido');
-
-/** UUID v4 */
 export const uuidSchema = z.string().uuid('UUID inválido');
-
-/** URL válida */
 export const urlSchema = z.string().url('URL inválida');
-
-/** Timestamp ISO */
 export const isoDateSchema = z.string().datetime('Data/hora inválida');
-
-/** String não vazia com tamanho máximo */
 export const stringSchema = (max = 500) => 
   z.string().min(1, 'Campo obrigatório').max(max, `Máximo ${max} caracteres`);
-
-/** Número positivo */
 export const positiveNumberSchema = z.number().positive('Deve ser positivo');
 
 // =============================================================================
@@ -41,6 +30,18 @@ export const createTrackingSchema = z.object({
 });
 
 export type CreateTrackingInput = z.infer<typeof createTrackingSchema>;
+
+// =============================================================================
+// SCHEMAS PARA AI-INSIGHTS
+// =============================================================================
+
+export const aiInsightsSchema = z.object({
+  trackingIds: z.array(z.string()).optional(),
+  timeRange: z.enum(['7d', '30d', '90d']).optional().default('30d'),
+  type: z.enum(['engagement', 'deliverability', 'patterns']).optional().default('engagement'),
+});
+
+export type AiInsightsInput = z.infer<typeof aiInsightsSchema>;
 
 // =============================================================================
 // SCHEMAS PARA TRACK-PIXEL / TRACK-LINK
@@ -79,6 +80,11 @@ export type GetTrackingStatsInput = z.infer<typeof getTrackingStatsSchema>;
 // SCHEMAS PARA BITRIX24-SYNC
 // =============================================================================
 
+export const bitrix24SyncSchema = z.object({
+  action: z.enum(['sync_contact', 'create_activity', 'create_deal']),
+  data: z.record(z.unknown()),
+});
+
 export const bitrix24SyncContactSchema = z.object({
   email: emailSchema,
   name: stringSchema(200).optional(),
@@ -100,6 +106,7 @@ export const bitrix24SyncDealSchema = z.object({
   currency: z.string().length(3).optional().default('BRL'),
 });
 
+export type Bitrix24SyncInput = z.infer<typeof bitrix24SyncSchema>;
 export type Bitrix24SyncContactInput = z.infer<typeof bitrix24SyncContactSchema>;
 export type Bitrix24SyncActivityInput = z.infer<typeof bitrix24SyncActivitySchema>;
 export type Bitrix24SyncDealInput = z.infer<typeof bitrix24SyncDealSchema>;
@@ -159,7 +166,7 @@ export const trackDocumentSchema = z.object({
   documentId: z.string().min(1),
   action: z.enum(['view', 'download', 'print', 'share']).optional().default('view'),
   page: z.number().int().min(1).optional(),
-  duration: z.number().min(0).optional(), // segundos
+  duration: z.number().min(0).optional(),
 });
 
 export type TrackDocumentInput = z.infer<typeof trackDocumentSchema>;
@@ -178,28 +185,12 @@ export type GeoLookupInput = z.infer<typeof geoLookupSchema>;
 // UTILITÁRIOS DE VALIDAÇÃO
 // =============================================================================
 
-/**
- * Resultado da validação
- */
 export interface ValidationResult<T> {
   success: boolean;
   data?: T;
-  errors?: Array<{
-    path: string;
-    message: string;
-  }>;
+  errors?: Array<{ path: string; message: string }>;
 }
 
-/**
- * Valida dados contra um schema Zod
- * 
- * @example
- * const result = validate(createTrackingSchema, body);
- * if (!result.success) {
- *   return errorResponse(result.errors);
- * }
- * // result.data está tipado corretamente
- */
 export function validate<T>(
   schema: z.ZodSchema<T>,
   data: unknown
@@ -207,10 +198,7 @@ export function validate<T>(
   const result = schema.safeParse(data);
   
   if (result.success) {
-    return {
-      success: true,
-      data: result.data,
-    };
+    return { success: true, data: result.data };
   }
   
   return {
@@ -222,9 +210,6 @@ export function validate<T>(
   };
 }
 
-/**
- * Cria Response de erro de validação
- */
 export function validationErrorResponse(
   errors: Array<{ path: string; message: string }>
 ): Response {
@@ -241,14 +226,6 @@ export function validationErrorResponse(
   );
 }
 
-/**
- * Middleware de validação para Edge Functions
- * 
- * @example
- * const body = await req.json();
- * const validationResponse = validateRequest(createTrackingSchema, body);
- * if (validationResponse) return validationResponse;
- */
 export function validateRequest<T>(
   schema: z.ZodSchema<T>,
   data: unknown
@@ -262,13 +239,6 @@ export function validateRequest<T>(
   return result.data!;
 }
 
-// =============================================================================
-// SANITIZAÇÃO
-// =============================================================================
-
-/**
- * Remove campos sensíveis de um objeto para logging
- */
 export function sanitizeForLogging<T extends Record<string, unknown>>(
   data: T,
   sensitiveFields: string[] = ['password', 'token', 'secret', 'apiKey', 'authorization']
@@ -284,9 +254,6 @@ export function sanitizeForLogging<T extends Record<string, unknown>>(
   return sanitized;
 }
 
-/**
- * Escapa HTML para prevenir XSS
- */
 export function escapeHtml(str: string): string {
   const htmlEscapes: Record<string, string> = {
     '&': '&amp;',
@@ -299,13 +266,10 @@ export function escapeHtml(str: string): string {
   return str.replace(/[&<>"']/g, char => htmlEscapes[char]);
 }
 
-/**
- * Remove caracteres perigosos de strings
- */
 export function sanitizeString(str: string): string {
   return str
-    .replace(/[<>]/g, '') // Remove < e >
-    .replace(/javascript:/gi, '') // Remove javascript:
-    .replace(/on\w+=/gi, '') // Remove event handlers
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
     .trim();
 }

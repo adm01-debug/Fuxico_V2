@@ -31,7 +31,8 @@ serve(async (req) => {
     if (error) throw error
 
     return secureJsonResponse({ emails: data || [], count: data?.length || 0 }, 200, { ...corsHeaders, 'Cache-Control': 'private, max-age=30' })
-  } catch (error) {
-    return secureJsonResponse({ error: error.message }, 500, corsHeaders)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
 })

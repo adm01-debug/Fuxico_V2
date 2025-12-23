@@ -24,7 +24,8 @@ serve(async (req) => {
       return secureJsonResponse({ country: data.country, city: data.city, region: data.regionName, timezone: data.timezone }, 200, corsHeaders)
     }
     return secureJsonResponse({ country: 'Unknown', city: 'Unknown' }, 200, corsHeaders)
-  } catch (error) {
-    return secureJsonResponse({ error: error.message }, 500, corsHeaders)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
 })

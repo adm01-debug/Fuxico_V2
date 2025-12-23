@@ -37,7 +37,8 @@ serve(async (req) => {
     if (error) throw error
 
     return secureJsonResponse({ success: true, log: data }, 200, corsHeaders)
-  } catch (error) {
-    return secureJsonResponse({ error: error.message }, 500, corsHeaders)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
 })
