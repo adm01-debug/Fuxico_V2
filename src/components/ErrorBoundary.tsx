@@ -1,118 +1,129 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { log } from '@/lib/logger';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { captureException, addBreadcrumb, setContext } from '@/lib/sentry';
 
-// Sentry integration - will be initialized if DSN is provided
-const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
-
-interface ErrorBoundaryProps {
+interface Props {
   children: ReactNode;
   fallback?: ReactNode;
 }
 
-interface ErrorBoundaryState {
+interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
+  eventId: string | null;
 }
 
-// Initialize Sentry if DSN is available
-const initSentry = async () => {
-  if (SENTRY_DSN) {
-    try {
-      const Sentry = await import('@sentry/react');
-      Sentry.init({
-        dsn: SENTRY_DSN,
-        environment: import.meta.env.MODE,
-        tracesSampleRate: 0.1,
-        replaysSessionSampleRate: 0.1,
-        replaysOnErrorSampleRate: 1.0,
-      });
-      return Sentry;
-    } catch (e) {
-      log.warn('Sentry not available', e);
-    }
-  }
-  return null;
-};
+class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null,
+    eventId: null,
+  };
 
-// Lazy load Sentry
-let SentryInstance: typeof import('@sentry/react') | null = null;
-initSentry().then(s => { SentryInstance = s; });
-
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
-  }
-
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+  public static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    this.setState({ errorInfo });
-    
-    // Log to console in development
-    log.error('ErrorBoundary caught an error:', { error, errorInfo });
-    
-    // Send to Sentry if available
-    if (SentryInstance) {
-      SentryInstance.captureException(error, {
-        contexts: {
-          react: {
-            componentStack: errorInfo.componentStack,
-          },
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    // Add breadcrumb for context
+    addBreadcrumb({
+      category: 'error-boundary',
+      message: `Error caught: ${error.message}`,
+      level: 'error',
+      data: {
+        componentStack: errorInfo.componentStack,
+      },
+    });
+
+    // Set error context
+    setContext('errorBoundary', {
+      componentStack: errorInfo.componentStack,
+      errorMessage: error.message,
+      errorName: error.name,
+    });
+
+    // Capture exception with Sentry
+    const eventId = captureException(error, {
+      contexts: {
+        react: {
+          componentStack: errorInfo.componentStack,
         },
-      });
-    }
+      },
+    });
+
+    this.setState({
+      error,
+      errorInfo,
+      eventId,
+    });
   }
 
-  handleReload = (): void => {
+  private handleReload = (): void => {
     window.location.reload();
   };
 
-  handleGoHome = (): void => {
+  private handleGoHome = (): void => {
     window.location.href = '/';
   };
 
-  render(): ReactNode {
+  public render(): ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-background">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
+              <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
               <CardTitle>Algo deu errado</CardTitle>
               <CardDescription>
-                Ocorreu um erro inesperado. Nossa equipe foi notificada.
+                Ocorreu um erro inesperado. Nossa equipe foi notificada automaticamente.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {import.meta.env.DEV && this.state.error && (
-                <div className="bg-muted p-3 rounded-md text-sm font-mono overflow-auto max-h-32">
-                  {this.state.error.toString()}
+                <div className="p-3 bg-muted rounded-lg text-sm font-mono overflow-auto max-h-32">
+                  <p className="text-destructive font-semibold">{this.state.error.message}</p>
+                  {this.state.errorInfo && (
+                    <pre className="mt-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                      {this.state.errorInfo.componentStack}
+                    </pre>
+                  )}
                 </div>
               )}
+              
+              {this.state.eventId && (
+                <p className="text-xs text-muted-foreground text-center">
+                  ID do erro: {this.state.eventId}
+                </p>
+              )}
+
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={this.handleGoHome}
+                >
+                  <Home className="h-4 w-4 mr-2" />
+                  Início
+                </Button>
+                <Button 
+                  className="flex-1"
+                  onClick={this.handleReload}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Recarregar
+                </Button>
+              </div>
             </CardContent>
-            <CardFooter className="flex gap-2 justify-center">
-              <Button variant="outline" onClick={this.handleGoHome}>
-                <Home className="mr-2 h-4 w-4" />
-                Início
-              </Button>
-              <Button onClick={this.handleReload}>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Recarregar
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       );
