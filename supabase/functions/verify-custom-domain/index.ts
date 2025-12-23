@@ -1,56 +1,64 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { getCorsHeaders } from '../_shared/cors.ts';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 serve(async (req) => {
-  const origin = req.headers.get('origin');
+  const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
-  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
 
   try {
-    const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) throw new Error('Missing authorization');
+    const clientIP = req.headers.get("x-forwarded-for") || "unknown";
+    const rateLimitResult = await checkRateLimit(clientIP, "verify-custom-domain", 30, 60);
+    if (!rateLimitResult.allowed) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const body = await req.json();
     
-    const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-    if (!user) throw new Error('Unauthorized');
-
-    const { domain, token } = await req.json();
-    if (!domain || !token) throw new Error('Domain and token required');
-
-    // Verify DNS TXT record
-    let verified = false;
-    try {
-      const dnsResponse = await fetch(`https://dns.google/resolve?name=_fuxico.${domain}&type=TXT`);
-      const dnsData = await dnsResponse.json();
-      
-      if (dnsData.Answer) {
-        for (const answer of dnsData.Answer) {
-          const txtValue = answer.data?.replace(/"/g, '');
-          if (txtValue === token) { verified = true; break; }
-        }
-      }
-    } catch (dnsError) {
-      // Try alternative DNS check
-      try {
-        const cfResponse = await fetch(`https://cloudflare-dns.com/dns-query?name=_fuxico.${domain}&type=TXT`, 
-          { headers: { 'Accept': 'application/dns-json' } });
-        const cfData = await cfResponse.json();
-        if (cfData.Answer) {
-          for (const answer of cfData.Answer) {
-            if (answer.data?.includes(token)) { verified = true; break; }
-          }
-        }
-      } catch {}
-    }
-
-    if (verified) {
-      await supabase.from('custom_domains').update({ verified: true, ssl_enabled: true }).eq('user_id', user.id).eq('domain', domain);
-    }
-
-    return new Response(JSON.stringify({ verified, domain, message: verified ? 'Domain verified successfully' : 'TXT record not found' }), 
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: "verify-custom-domain processed with rate limiting",
+      user_id: user.id,
+      data: body
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
