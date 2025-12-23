@@ -39,6 +39,8 @@ export function useBounceAlerts() {
   const queryClient = useQueryClient();
 
   const alertsQuery = useQuery({
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
     queryKey: ['bounce-alerts', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -56,6 +58,8 @@ export function useBounceAlerts() {
   });
 
   const thresholdsQuery = useQuery({
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
     queryKey: ['alert-thresholds', user?.id],
     queryFn: async () => {
       if (!user?.id) return defaultThresholds;
