@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 // =============================================================================
 // FUXICO - Dashboard Home Consolidado
 // Componente: src/components/dashboard/DashboardHome.tsx
@@ -524,7 +525,7 @@ export default function DashboardHome() {
           setBounceAlerts(formattedBounces);
         }
       } catch (error) {
-        console.error('Error loading recent data:', error);
+        log.error('Error loading recent data:', error);
       }
     }
 
