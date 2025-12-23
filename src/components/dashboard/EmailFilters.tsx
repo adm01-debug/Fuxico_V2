@@ -216,11 +216,11 @@ export function EmailFiltersComponent({
   ];
 
   return (
-    <div className="space-y-4">
+    <div role="search" aria-label="Filtros de email" className="space-y-4">
       {/* Search and main filters row */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div role="search" aria-label="Filtros de email" className="flex flex-col sm:flex-row gap-3">
         {/* Search input */}
-        <div className="relative flex-1">
+        <div role="search" aria-label="Filtros de email" className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar por destinatário ou assunto..."
@@ -252,7 +252,7 @@ export function EmailFiltersComponent({
           <SelectContent>
             {statusOptions.map(option => (
               <SelectItem key={option.value} value={option.value}>
-                <div className="flex items-center gap-2">
+                <div role="search" aria-label="Filtros de email" className="flex items-center gap-2">
                   {option.icon}
                   <span>{option.label}</span>
                 </div>
@@ -264,8 +264,8 @@ export function EmailFiltersComponent({
         {/* Period filter */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-[180px] justify-between">
-              <div className="flex items-center gap-2">
+            <Button aria-label="Aplicar filtros" variant="outline" className="w-full sm:w-[180px] justify-between">
+              <div role="search" aria-label="Filtros de email" className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 <span>
                   {filters.period === 'custom' && filters.dateRange.from
@@ -278,7 +278,7 @@ export function EmailFiltersComponent({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <div className="p-2 space-y-1">
+            <div role="search" aria-label="Filtros de email" className="p-2 space-y-1">
               {periodOptions.map(option => (
                 <Button
                   key={option.value}
@@ -302,7 +302,7 @@ export function EmailFiltersComponent({
             </div>
             {filters.period === 'custom' && (
               <>
-                <div className="border-t" />
+                <div role="search" aria-label="Filtros de email" className="border-t" />
                 <CalendarComponent
                   mode="range"
                   selected={{ from: filters.dateRange.from, to: filters.dateRange.to }}
@@ -322,7 +322,7 @@ export function EmailFiltersComponent({
         {/* Sort dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button aria-label="Aplicar filtros" variant="outline" className="w-full sm:w-auto">
               <ArrowUpDown className="h-4 w-4 mr-2" />
               Ordenar
             </Button>
@@ -354,8 +354,8 @@ export function EmailFiltersComponent({
       </div>
 
       {/* Active filters and results count */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-wrap">
+      <div role="search" aria-label="Filtros de email" className="flex items-center justify-between">
+        <div role="search" aria-label="Filtros de email" className="flex items-center gap-2 flex-wrap">
           {hasActiveFilters && (
             <>
               <span className="text-sm text-muted-foreground">Filtros ativos:</span>
@@ -415,7 +415,7 @@ export function EmailFiltersComponent({
           )}
         </div>
 
-        <div className="text-sm text-muted-foreground">
+        <div role="search" aria-label="Filtros de email" className="text-sm text-muted-foreground">
           {hasActiveFilters ? (
             <span>
               Mostrando <strong>{filteredCount}</strong> de <strong>{totalCount}</strong> emails
