@@ -1,0 +1,76 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "refresh": "Atualizar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "yes": "Sim",
+    "no": "Não",
+    "all": "Todos",
+    "none": "Nenhum",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso"
+  },
+  "auth": {
+    "login": "Entrar",
+    "logout": "Sair",
+    "register": "Cadastrar",
+    "email": "E-mail",
+    "password": "Senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "rememberMe": "Lembrar de mim"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "home": "Início",
+    "emails": "Emails",
+    "documents": "Documentos",
+    "links": "Links",
+    "reports": "Relatórios",
+    "settings": "Configurações",
+    "totalEmails": "Total de Emails",
+    "totalOpens": "Total de Aberturas",
+    "totalClicks": "Total de Cliques",
+    "openRate": "Taxa de Abertura",
+    "clickRate": "Taxa de Cliques"
+  },
+  "emails": {
+    "subject": "Assunto",
+    "recipient": "Destinatário",
+    "sender": "Remetente",
+    "status": "Status",
+    "opened": "Aberto",
+    "clicked": "Clicado",
+    "bounced": "Devolvido",
+    "pending": "Pendente",
+    "delivered": "Entregue",
+    "noEmails": "Nenhum email encontrado",
+    "trackEmail": "Rastrear Email",
+    "createTracking": "Criar Rastreamento"
+  },
+  "notifications": {
+    "emailOpened": "Email Aberto!",
+    "linkClicked": "Link Clicado!",
+    "newBounce": "Novo Bounce Detectado",
+    "exportComplete": "Exportação Concluída"
+  },
+  "errors": {
+    "generic": "Ocorreu um erro. Tente novamente.",
+    "unauthorized": "Acesso não autorizado.",
+    "notFound": "Não encontrado.",
+    "validation": "Dados inválidos.",
+    "network": "Erro de conexão."
+  }
+}
