@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 // =============================================================================
 // FUXICO - Hook de Tracking Otimizado com RPC
 // =============================================================================
@@ -71,7 +72,7 @@ export function useTrackedEmails(filters: TrackingFilters = {}) {
       })
       
       if (error) {
-        console.error('RPC error, falling back to direct query:', error)
+        log.error('RPC error, falling back to direct query:', error)
         // Fallback para query direta se RPC falhar (durante migração)
         return await fallbackGetEmails(user.id, filters)
       }
@@ -386,7 +387,7 @@ export function useRefreshStats() {
         queryClient.invalidateQueries({ queryKey: ['tracking-stats'] })
         queryClient.invalidateQueries({ queryKey: ['engagement-metrics'] })
       } catch (error) {
-        console.error('Failed to refresh stats:', error)
+        log.error('Failed to refresh stats:', error)
       }
     }
   }
