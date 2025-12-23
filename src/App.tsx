@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/lib/theme";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SkipLinks } from "@/lib/accessibility";
 import { initI18n } from "@/lib/i18n";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -20,7 +21,8 @@ initI18n();
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
         <TooltipProvider>
@@ -43,6 +45,7 @@ const App = () => (
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
