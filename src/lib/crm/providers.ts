@@ -4,8 +4,9 @@ import { Bitrix24Adapter } from './adapters/bitrix24-adapter';
 import { HubSpotAdapter } from './adapters/hubspot-adapter';
 import { SalesforceAdapter } from './adapters/salesforce-adapter';
 import { PipedriveAdapter } from './adapters/pipedrive-adapter';
+import { ZohoAdapter } from './adapters/zoho-adapter';
 
-export type CRMProvider = 'bitrix24' | 'hubspot' | 'salesforce' | 'pipedrive';
+export type CRMProvider = 'bitrix24' | 'hubspot' | 'salesforce' | 'pipedrive' | 'zoho';
 
 export interface CRMProviderDetails {
   id: CRMProvider;
@@ -68,6 +69,18 @@ export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
       { key: 'apiKey', label: 'API Token', type: 'password', required: true, placeholder: 'Seu API token do Pipedrive' },
     ],
   },
+  zoho: {
+    id: 'zoho',
+    name: 'Zoho CRM',
+    description: 'CRM completo da suite Zoho',
+    logo: '/icons/zoho.svg',
+    features: ['Contatos', 'Leads', 'Negócios', 'Tarefas'],
+    configFields: [
+      { key: 'clientId', label: 'Client ID', type: 'text', required: true },
+      { key: 'clientSecret', label: 'Client Secret', type: 'password', required: true },
+      { key: 'refreshToken', label: 'Refresh Token', type: 'password', required: true },
+    ],
+  },
 };
 
 export function createCRMAdapter(provider: CRMProvider, config: CRMConfig): BaseCRMAdapter {
@@ -80,6 +93,8 @@ export function createCRMAdapter(provider: CRMProvider, config: CRMConfig): Base
       return new SalesforceAdapter(config);
     case 'pipedrive':
       return new PipedriveAdapter(config);
+    case 'zoho':
+      return new ZohoAdapter(config);
     default:
       throw new Error(`CRM provider ${provider} not supported`);
   }
