@@ -7,10 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType } from '@/lib/notification-sound';
+import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType, setNotificationVolume } from '@/lib/notification-sound';
+import { useEffect } from 'react';
 
 export default function Settings() {
   const { preferences, isLoading, updatePreferences, isUpdating } = useUserPreferences();
@@ -35,10 +37,29 @@ export default function Settings() {
   const handleSoundTypeChange = (value: string) => {
     updatePreferences({ notification_sound_type: value });
     // Play the selected sound as preview
-    playNotificationSound('warning', value as NotificationSoundType);
+    playNotificationSound('warning', value as NotificationSoundType, currentVolume);
+  };
+
+  const handleVolumeChange = (value: number[]) => {
+    const volume = value[0];
+    setNotificationVolume(volume);
+    updatePreferences({ notification_volume: volume });
+  };
+
+  const handleVolumeCommit = (value: number[]) => {
+    // Play sound preview when user finishes adjusting volume
+    playNotificationSound('warning', currentSoundType, value[0]);
   };
 
   const currentSoundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
+  const currentVolume = preferences?.notification_volume ?? 0.5;
+
+  // Sync global volume with preferences
+  useEffect(() => {
+    if (preferences?.notification_volume !== undefined) {
+      setNotificationVolume(preferences.notification_volume);
+    }
+  }, [preferences?.notification_volume]);
 
   if (isLoading) {
     return (
@@ -115,11 +136,34 @@ export default function Settings() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="flex items-center gap-4">
+                  <Label className="text-sm min-w-20">Volume:</Label>
+                  <div className="flex items-center gap-2 flex-1">
+                    {currentVolume === 0 ? (
+                      <VolumeX className="h-4 w-4 text-muted-foreground" />
+                    ) : currentVolume < 0.5 ? (
+                      <Volume1 className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Volume2 className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <Slider
+                      value={[currentVolume]}
+                      onValueChange={handleVolumeChange}
+                      onValueCommit={handleVolumeCommit}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      className="w-32"
+                      disabled={isUpdating}
+                    />
+                    <span className="text-sm text-muted-foreground w-10">{Math.round(currentVolume * 100)}%</span>
+                  </div>
+                </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => playNotificationSound('warning', currentSoundType)}
+                    onClick={() => playNotificationSound('warning', currentSoundType, currentVolume)}
                     title="Testar som de aviso"
                   >
                     <Play className="h-3 w-3 mr-1" />
@@ -128,7 +172,7 @@ export default function Settings() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => playNotificationSound('critical', currentSoundType)}
+                    onClick={() => playNotificationSound('critical', currentSoundType, currentVolume)}
                     title="Testar som crítico"
                   >
                     <Play className="h-3 w-3 mr-1" />

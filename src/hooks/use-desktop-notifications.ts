@@ -166,7 +166,8 @@ export function useDesktopNotifications() {
           // Play notification sound if enabled
           if (preferences?.sound_enabled !== false) {
             const soundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
-            playNotificationSound(isCritical ? 'critical' : 'warning', soundType);
+            const volume = preferences?.notification_volume ?? 0.5;
+            playNotificationSound(isCritical ? 'critical' : 'warning', soundType, volume);
           }
 
           // Show toast with appropriate variant
