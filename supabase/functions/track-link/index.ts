@@ -26,7 +26,8 @@ serve(async (req) => {
     await supabaseAdmin.from('tracking_events').insert({ tracking_id: link.tracking_id, event_type: 'click', ip_address: ip, user_agent: userAgent, metadata: { link_id: linkId } })
 
     return new Response(null, { status: 302, headers: { ...corsHeaders, 'Location': link.original_url, 'Cache-Control': 'no-cache' } })
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return new Response(JSON.stringify({ error: message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 })

@@ -26,7 +26,8 @@ serve(async (req) => {
     await supabaseAdmin.from('document_events').insert({ document_id: documentId, event_type: eventType, page_number: page, ip_address: ip, user_agent: userAgent, metadata: { timestamp: new Date().toISOString() } })
 
     return secureJsonResponse({ success: true }, 200, corsHeaders)
-  } catch (error) {
-    return secureJsonResponse({ error: error.message }, 500, corsHeaders)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
 })
