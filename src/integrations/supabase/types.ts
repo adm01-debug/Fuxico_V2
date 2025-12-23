@@ -1067,6 +1067,7 @@ export type Database = {
           email_digest_frequency: string | null
           email_enabled: boolean
           id: string
+          notification_sound_type: string | null
           notify_on_click: boolean
           notify_on_document_download: boolean
           notify_on_document_view: boolean
@@ -1083,6 +1084,7 @@ export type Database = {
           email_digest_frequency?: string | null
           email_enabled?: boolean
           id?: string
+          notification_sound_type?: string | null
           notify_on_click?: boolean
           notify_on_document_download?: boolean
           notify_on_document_view?: boolean
@@ -1099,6 +1101,7 @@ export type Database = {
           email_digest_frequency?: string | null
           email_enabled?: boolean
           id?: string
+          notification_sound_type?: string | null
           notify_on_click?: boolean
           notify_on_document_download?: boolean
           notify_on_document_view?: boolean

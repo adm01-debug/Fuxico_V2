@@ -6,7 +6,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { playNotificationSound } from '@/lib/notification-sound';
+import { playNotificationSound, NotificationSoundType } from '@/lib/notification-sound';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
 
 interface NotificationEvent {
@@ -165,7 +165,8 @@ export function useDesktopNotifications() {
 
           // Play notification sound if enabled
           if (preferences?.sound_enabled !== false) {
-            playNotificationSound(isCritical ? 'critical' : 'warning');
+            const soundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
+            playNotificationSound(isCritical ? 'critical' : 'warning', soundType);
           }
 
           // Show toast with appropriate variant
