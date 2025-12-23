@@ -92,7 +92,7 @@ function MetricCard({
 }: MetricCardProps) {
   if (isLoading) {
     return (
-      <Card className={className}>
+      <Card role="region" aria-label="Estatísticas" className={className}>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
@@ -108,7 +108,7 @@ function MetricCard({
   }
 
   return (
-    <Card className={`hover:shadow-lg transition-shadow ${className}`}>
+    <Card role="region" aria-label="Estatísticas" className={`hover:shadow-lg transition-shadow ${className}`}>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>
@@ -602,7 +602,7 @@ export default function DashboardHome() {
       </div>
 
       {/* Métricas Principais */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <main role="main" aria-label="Dashboard principal" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Total de Emails"
           value={metrics.totalEmails.toLocaleString('pt-BR')}
@@ -637,9 +637,9 @@ export default function DashboardHome() {
       </div>
 
       {/* Grid Principal */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <main role="main" aria-label="Dashboard principal" className="grid gap-6 lg:grid-cols-3">
         {/* Gráfico de Tendência */}
-        <Card className="lg:col-span-2">
+        <Card role="region" aria-label="Estatísticas" className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -691,8 +691,8 @@ export default function DashboardHome() {
       </Card>
 
       {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+      <main role="main" aria-label="Dashboard principal" className="grid gap-4 md:grid-cols-3">
+        <Card role="region" aria-label="Estatísticas" className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center">
@@ -710,7 +710,7 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
+        <Card role="region" aria-label="Estatísticas" className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -726,7 +726,7 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
+        <Card role="region" aria-label="Estatísticas" className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-lg bg-green-500/20 flex items-center justify-center">
