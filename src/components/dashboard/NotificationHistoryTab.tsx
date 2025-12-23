@@ -1,9 +1,13 @@
+import { useState, useMemo } from 'react';
 import { useNotificationHistory, NotificationHistoryItem } from '@/hooks/use-notification-history';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { 
   Bell, 
   BellOff, 
@@ -17,10 +21,14 @@ import {
   Mail,
   Link as LinkIcon,
   FileText,
-  Clock
+  Clock,
+  Filter,
+  CalendarIcon,
+  X
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { DateRange } from 'react-day-picker';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -139,6 +147,47 @@ export default function NotificationHistoryTab() {
     clearAll 
   } = useNotificationHistory();
 
+  // Filter states
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [severityFilter, setSeverityFilter] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  // Filter notifications
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter(notification => {
+      // Type filter
+      if (typeFilter !== 'all' && notification.type !== typeFilter) {
+        return false;
+      }
+
+      // Severity filter
+      if (severityFilter !== 'all' && notification.severity !== severityFilter) {
+        return false;
+      }
+
+      // Date range filter
+      if (dateRange?.from) {
+        const notificationDate = new Date(notification.created_at);
+        if (isBefore(notificationDate, startOfDay(dateRange.from))) {
+          return false;
+        }
+        if (dateRange.to && isAfter(notificationDate, endOfDay(dateRange.to))) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [notifications, typeFilter, severityFilter, dateRange]);
+
+  const hasActiveFilters = typeFilter !== 'all' || severityFilter !== 'all' || dateRange?.from;
+
+  const clearFilters = () => {
+    setTypeFilter('all');
+    setSeverityFilter('all');
+    setDateRange(undefined);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -156,7 +205,7 @@ export default function NotificationHistoryTab() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
@@ -208,6 +257,89 @@ export default function NotificationHistoryTab() {
               )}
             </div>
           </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3 pt-4 border-t mt-4">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filtros:</span>
+            </div>
+
+            {/* Type Filter */}
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-[180px] h-9">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os tipos</SelectItem>
+                <SelectItem value="bounce_alert">Alerta de Bounce</SelectItem>
+                <SelectItem value="email_open">Email Aberto</SelectItem>
+                <SelectItem value="link_click">Link Clicado</SelectItem>
+                <SelectItem value="document_view">Documento Visualizado</SelectItem>
+                <SelectItem value="reminder">Lembrete</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Severity Filter */}
+            <Select value={severityFilter} onValueChange={setSeverityFilter}>
+              <SelectTrigger className="w-[160px] h-9">
+                <SelectValue placeholder="Severidade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas severidades</SelectItem>
+                <SelectItem value="info">Info</SelectItem>
+                <SelectItem value="warning">Aviso</SelectItem>
+                <SelectItem value="critical">Crítico</SelectItem>
+                <SelectItem value="success">Sucesso</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Date Range Filter */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9 justify-start text-left font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} - {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+                      </>
+                    ) : (
+                      format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
+                    )
+                  ) : (
+                    <span>Período</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                  locale={ptBR}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {/* Clear Filters */}
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
+                <X className="h-4 w-4 mr-1" />
+                Limpar filtros
+              </Button>
+            )}
+
+            {/* Results count */}
+            {hasActiveFilters && (
+              <span className="text-sm text-muted-foreground ml-auto">
+                {filteredNotifications.length} de {notifications.length} notificações
+              </span>
+            )}
+          </div>
         </CardHeader>
         
         <CardContent>
@@ -219,10 +351,21 @@ export default function NotificationHistoryTab() {
                 Suas notificações aparecerão aqui quando você receber alertas
               </p>
             </div>
+          ) : filteredNotifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Filter className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium">Nenhuma notificação encontrada</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Nenhuma notificação corresponde aos filtros selecionados
+              </p>
+              <Button variant="outline" size="sm" onClick={clearFilters}>
+                Limpar filtros
+              </Button>
+            </div>
           ) : (
             <ScrollArea className="h-[500px] pr-4">
               <div className="space-y-3">
-                {notifications.map(notification => (
+                {filteredNotifications.map(notification => (
                   <NotificationCard
                     key={notification.id}
                     notification={notification}
