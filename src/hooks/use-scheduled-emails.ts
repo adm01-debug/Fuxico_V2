@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -75,7 +76,7 @@ export function useCreateScheduledEmail() {
       toast.success('Email agendado com sucesso!');
     },
     onError: (error) => {
-      console.error('Error scheduling email:', error);
+      log.error('Error scheduling email:', error);
       toast.error('Erro ao agendar email');
     },
   });
@@ -117,7 +118,7 @@ export function useUpdateScheduledEmail() {
       toast.success('Email atualizado!');
     },
     onError: (error) => {
-      console.error('Error updating scheduled email:', error);
+      log.error('Error updating scheduled email:', error);
       toast.error('Erro ao atualizar email');
     },
   });
@@ -140,7 +141,7 @@ export function useCancelScheduledEmail() {
       toast.success('Agendamento cancelado');
     },
     onError: (error) => {
-      console.error('Error cancelling scheduled email:', error);
+      log.error('Error cancelling scheduled email:', error);
       toast.error('Erro ao cancelar agendamento');
     },
   });
@@ -163,7 +164,7 @@ export function useDeleteScheduledEmail() {
       toast.success('Email excluído');
     },
     onError: (error) => {
-      console.error('Error deleting scheduled email:', error);
+      log.error('Error deleting scheduled email:', error);
       toast.error('Erro ao excluir email');
     },
   });
