@@ -8,6 +8,32 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { playNotificationSound, NotificationSoundType } from '@/lib/notification-sound';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
+import { Json } from '@/integrations/supabase/types';
+
+// Helper to save notification to history
+async function saveToHistory(
+  userId: string,
+  type: string,
+  severity: 'info' | 'warning' | 'critical' | 'success',
+  title: string,
+  message: string,
+  metadata: Json = {}
+) {
+  try {
+    await supabase
+      .from('notification_history')
+      .insert([{
+        user_id: userId,
+        type,
+        severity,
+        title,
+        message,
+        metadata,
+      }]);
+  } catch (error) {
+    console.error('[Notifications] Failed to save to history:', error);
+  }
+}
 
 interface NotificationEvent {
   tracking_id: string;
@@ -115,6 +141,16 @@ export function useDesktopNotifications() {
           const title = eventTypeLabel;
           const body = `${emailData.recipient_email}\n${emailData.subject || 'Sem assunto'}`;
 
+          // Save to history
+          saveToHistory(
+            user.id,
+            event.event_type === 'open' ? 'email_open' : 'link_click',
+            'info',
+            title,
+            `${emailData.recipient_email} - ${emailData.subject || 'Sem assunto'}`,
+            { tracking_id: event.tracking_id, recipient: emailData.recipient_email }
+          );
+
           // Show toast
           toast({
             title: eventTypeLabel,
@@ -171,6 +207,16 @@ export function useDesktopNotifications() {
               : (preferences?.warning_volume ?? 0.4);
             playNotificationSound(isCritical ? 'critical' : 'warning', soundType, volume);
           }
+
+          // Save to history
+          saveToHistory(
+            user.id,
+            'bounce_alert',
+            isCritical ? 'critical' : 'warning',
+            title,
+            `${alert.domain} - Taxa de bounce: ${alert.bounce_rate.toFixed(1)}%`,
+            { domain: alert.domain, bounce_rate: alert.bounce_rate, threshold: alert.threshold }
+          );
 
           // Show toast with appropriate variant
           toast({

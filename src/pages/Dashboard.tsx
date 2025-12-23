@@ -21,6 +21,7 @@ import {
   Webhook,
   Flame,
   Bell,
+  BellRing,
   Brain,
   FlaskConical,
   UserX,
@@ -57,6 +58,7 @@ const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTa
 const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab').then(m => ({ default: m.EmailSchedulingTab })))
 const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab').then(m => ({ default: m.DeliverabilityTab })))
 const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab').then(m => ({ default: m.BounceAlertsTab })))
+const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -110,6 +112,7 @@ type TabId =
   | 'scheduling'
   | 'deliverability'
   | 'bouncealerts'
+  | 'notifications'
   | 'leads'
   | 'followup'
   | 'insights'
@@ -194,6 +197,12 @@ const TABS: TabConfig[] = [
     label: 'Alertas Bounce',
     icon: <AlertTriangle className="h-4 w-4" />,
     component: BounceAlertsTab,
+  },
+  {
+    id: 'notifications',
+    label: 'Histórico',
+    icon: <BellRing className="h-4 w-4" />,
+    component: NotificationHistoryTab,
   },
   {
     id: 'leads',
