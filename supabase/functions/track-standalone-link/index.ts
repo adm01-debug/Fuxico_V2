@@ -1,30 +1,67 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { getCorsHeaders } from '../_shared/cors.ts'
-import { checkRateLimit } from '../_shared/rate-limit.ts'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const TrackStandaloneLinkSchema = z.object({
+  l: z.string().uuid().optional(),
+  linkId: z.string().uuid().optional(),
+}).refine(data => data.l || data.linkId, {
+  message: "Either 'l' or 'linkId' must be provided"
+});
 
 serve(async (req) => {
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+  const origin = req.headers.get("origin");
+  const corsHeaders = getCorsHeaders(origin);
 
-  const rateLimitResult = await checkRateLimit(ip, 'track-standalone-link', 300, 60)
-  if (!rateLimitResult.allowed) return new Response('Rate limit', { status: 429, headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
 
   try {
-    const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
-    const url = new URL(req.url)
-    const linkId = url.searchParams.get('id')
-    if (!linkId) return new Response('Missing ID', { status: 400, headers: corsHeaders })
+    const clientIP = req.headers.get("x-forwarded-for") || "unknown";
+    const rateLimitResult = await checkRateLimit(clientIP, "track-standalone-link", 100, 60);
+    if (!rateLimitResult.allowed) {
+      return new Response(null, { status: 429, headers: corsHeaders });
+    }
 
-    const { data: link } = await supabaseAdmin.from('tracked_links').select('*').eq('id', linkId).single()
-    if (!link) return new Response('Not found', { status: 404, headers: corsHeaders })
+    const url = new URL(req.url);
+    const params = {
+      l: url.searchParams.get("l") || undefined,
+      linkId: url.searchParams.get("linkId") || undefined,
+    };
+    
+    const validatedData = TrackStandaloneLinkSchema.parse(params);
+    const linkId = validatedData.l || validatedData.linkId;
 
-    await supabaseAdmin.from('tracking_events').insert({ tracking_id: link.tracking_id, event_type: 'click', ip_address: ip, user_agent: req.headers.get('user-agent') || '', metadata: { standalone: true } })
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-    return new Response(null, { status: 302, headers: { ...corsHeaders, 'Location': link.original_url } })
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return new Response(message, { status: 500, headers: corsHeaders })
+    const { data: link } = await supabase
+      .from("standalone_tracked_links")
+      .select("*")
+      .eq("id", linkId)
+      .single();
+
+    if (!link) {
+      return new Response("Link not found", { status: 404, headers: corsHeaders });
+    }
+
+    await supabase.from("standalone_tracked_links")
+      .update({ click_count: (link.click_count || 0) + 1 })
+      .eq("id", linkId);
+
+    return new Response(null, {
+      status: 302,
+      headers: { ...corsHeaders, Location: link.destination_url },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return new Response("Invalid parameters", { status: 400, headers: corsHeaders });
+    }
+    return new Response("Error", { status: 500, headers: corsHeaders });
   }
-})
+});
