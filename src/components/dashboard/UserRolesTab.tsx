@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -66,7 +67,7 @@ export function UserRolesTab() {
       }
     } catch (error) {
       toast.error("Erro ao atualizar role");
-      console.error(error);
+      log.error(error);
     } finally {
       setConfirmAction(null);
     }
