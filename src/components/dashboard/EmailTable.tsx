@@ -102,7 +102,7 @@ function EmailRow({
             bounceReason={email.bounce_reason}
           />
         </div>
-        <p className="text-sm text-muted-foreground truncate">
+        <p className="text-sm text-muted-foreground xl:text-base truncate">
           {email.subject || "Sem assunto"}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
@@ -200,7 +200,7 @@ export function EmailTable({ emails, selectedId, onSelect, showFilters = true }:
         {filteredEmails.length === 0 ? (
           <EmptyState hasFilters={hasActiveFilters} />
         ) : (
-          <ScrollArea className="flex-1">
+          <ScrollArea role="region" aria-label="Lista de emails rastreados" className="xl:max-h-none flex-1">
             <div className="divide-y divide-border">
               {filteredEmails.map((email) => (
                 <EmailRow
@@ -236,7 +236,7 @@ const PaginationControls = ({
   onPageChange: (page: number) => void;
 }) => (
   <div className="flex items-center justify-between px-4 py-3 border-t">
-    <div className="text-sm text-muted-foreground">
+    <div className="text-sm text-muted-foreground xl:text-base">
       Página {currentPage} de {totalPages}
     </div>
     <div className="flex gap-2">
