@@ -3,19 +3,18 @@
 // Registro centralizado de todos os adaptadores CRM suportados
 // =============================================================================
 
-import { BaseCRMAdapter, CRMConfig } from './adapters/base-adapter';
-import { Bitrix24Adapter, Bitrix24Config } from './adapters/bitrix24-adapter';
-import { HubSpotAdapter, HubSpotConfig } from './adapters/hubspot-adapter';
-import { SalesforceAdapter, SalesforceConfig } from './adapters/salesforce-adapter';
-import { PipedriveAdapter, PipedriveConfig } from './adapters/pipedrive-adapter';
+import { BaseCRMAdapter } from './adapters/base-adapter';
+import { CRMConfig } from './types';
+import { Bitrix24Adapter } from './adapters/bitrix24-adapter';
+import { HubSpotAdapter } from './adapters/hubspot-adapter';
 
 // =============================================================================
 // TIPOS
 // =============================================================================
 
-export type CRMProvider = 'bitrix24' | 'hubspot' | 'salesforce' | 'pipedrive';
+export type CRMProvider = 'bitrix24' | 'hubspot';
 
-export interface CRMProviderInfo {
+export interface CRMProviderDetails {
   id: CRMProvider;
   name: string;
   description: string;
@@ -36,7 +35,7 @@ export interface ConfigField {
 // REGISTRO DE PROVIDERS
 // =============================================================================
 
-export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderInfo> = {
+export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderDetails> = {
   bitrix24: {
     id: 'bitrix24',
     name: 'Bitrix24',
@@ -58,30 +57,6 @@ export const CRM_PROVIDERS: Record<CRMProvider, CRMProviderInfo> = {
       { key: 'accessToken', label: 'Access Token', type: 'password', required: true, placeholder: 'pat-na1-...' },
     ],
   },
-  salesforce: {
-    id: 'salesforce',
-    name: 'Salesforce',
-    description: 'Líder mundial em CRM empresarial',
-    logo: '/icons/salesforce.svg',
-    features: ['Leads', 'Contatos', 'Oportunidades', 'Tarefas'],
-    configFields: [
-      { key: 'instanceUrl', label: 'Instance URL', type: 'url', required: true, placeholder: 'https://sua-empresa.my.salesforce.com' },
-      { key: 'clientId', label: 'Client ID', type: 'text', required: true },
-      { key: 'clientSecret', label: 'Client Secret', type: 'password', required: true },
-      { key: 'refreshToken', label: 'Refresh Token', type: 'password', required: true },
-    ],
-  },
-  pipedrive: {
-    id: 'pipedrive',
-    name: 'Pipedrive',
-    description: 'CRM focado em pipeline de vendas',
-    logo: '/icons/pipedrive.svg',
-    features: ['Pessoas', 'Organizações', 'Negócios', 'Atividades'],
-    configFields: [
-      { key: 'apiToken', label: 'API Token', type: 'password', required: true },
-      { key: 'companyDomain', label: 'Company Domain', type: 'text', required: true, placeholder: 'sua-empresa' },
-    ],
-  },
 };
 
 // =============================================================================
@@ -94,13 +69,9 @@ export function createCRMAdapter(
 ): BaseCRMAdapter {
   switch (provider) {
     case 'bitrix24':
-      return new Bitrix24Adapter(config as Bitrix24Config);
+      return new Bitrix24Adapter(config);
     case 'hubspot':
-      return new HubSpotAdapter(config as HubSpotConfig);
-    case 'salesforce':
-      return new SalesforceAdapter(config as SalesforceConfig);
-    case 'pipedrive':
-      return new PipedriveAdapter(config as PipedriveConfig);
+      return new HubSpotAdapter(config);
     default:
       throw new Error(`Unknown CRM provider: ${provider}`);
   }
@@ -110,11 +81,11 @@ export function createCRMAdapter(
 // HELPERS
 // =============================================================================
 
-export function getProviderInfo(provider: CRMProvider): CRMProviderInfo {
+export function getProviderInfo(provider: CRMProvider): CRMProviderDetails {
   return CRM_PROVIDERS[provider];
 }
 
-export function getAllProviders(): CRMProviderInfo[] {
+export function getAllProviders(): CRMProviderDetails[] {
   return Object.values(CRM_PROVIDERS);
 }
 
