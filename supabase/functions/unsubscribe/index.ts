@@ -51,14 +51,14 @@ serve(async (req) => {
 
     // Ignora erro de duplicata
     if (error && !error.message?.includes('duplicate')) {
-      console.error('Unsubscribe error:', error)
+      
     }
 
     return new Response(renderHtml('Descadastrado', 'Você foi removido da lista com sucesso.'), {
       status: 200, headers: htmlHeaders
     })
   } catch (error: unknown) {
-    console.error('Unsubscribe error:', error)
+    
     return new Response(renderHtml('Erro', 'Ocorreu um erro. Tente novamente.'), {
       status: 500, headers: htmlHeaders
     })
