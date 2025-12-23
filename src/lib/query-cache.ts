@@ -1,3 +1,4 @@
+import { log } from './logger';
 // =============================================================================
 // FUXICO - React Query Cache Utilities
 // Arquivo: src/lib/query-cache.ts
@@ -270,7 +271,7 @@ export function persistQueryCache(queryClient: QueryClient): void {
   try {
     localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(persistedCache));
   } catch (error) {
-    console.error('[QueryCache] Failed to persist cache:', error);
+    log.error('[QueryCache] Failed to persist cache', error);
   }
 }
 
@@ -294,9 +295,9 @@ export function restoreQueryCache(queryClient: QueryClient): void {
       });
     });
     
-    console.log('[QueryCache] Restored cache from localStorage');
+    log.debug('[QueryCache] Restored cache from localStorage');
   } catch (error) {
-    console.error('[QueryCache] Failed to restore cache:', error);
+    log.error('[QueryCache] Failed to restore cache', error);
   }
 }
 
