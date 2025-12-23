@@ -24,15 +24,41 @@ serve(async (req) => {
     if (authError || !user) return secureJsonResponse({ error: 'Unauthorized' }, 401, corsHeaders)
 
     const url = new URL(req.url)
-    const limit = Math.min(parseInt(url.searchParams.get('limit') || '100'), 500)
+    const limit = Math.min(parseInt(url.searchParams.get('limit') || '50'), 100)
+    const cursor = url.searchParams.get('cursor') // ISO timestamp for cursor-based pagination
     const offset = parseInt(url.searchParams.get('offset') || '0')
 
-    const { data, error } = await supabaseClient.rpc('get_emails_with_stats', { p_user_id: user.id, p_limit: limit, p_offset: offset })
+    let query = supabaseClient
+      .from('email_stats_mv')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(limit + 1) // Fetch one extra to check if there's more
+
+    // Use cursor if provided, otherwise use offset
+    if (cursor) {
+      query = query.lt('created_at', cursor)
+    } else if (offset > 0) {
+      query = query.range(offset, offset + limit)
+    }
+
+    const { data, error } = await query
     if (error) throw error
 
-    return secureJsonResponse({ emails: data || [], count: data?.length || 0 }, 200, { ...corsHeaders, 'Cache-Control': 'private, max-age=30' })
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return secureJsonResponse({ error: message }, 500, corsHeaders)
+    const hasMore = data && data.length > limit
+    const emails = hasMore ? data.slice(0, limit) : (data || [])
+    const nextCursor = hasMore && emails.length > 0 ? emails[emails.length - 1].created_at : null
+
+    return secureJsonResponse({
+      emails,
+      pagination: {
+        limit,
+        hasMore,
+        nextCursor,
+        total: emails.length
+      }
+    }, 200, { ...corsHeaders, 'Cache-Control': 'private, max-age=30' })
+  } catch (error) {
+    return secureJsonResponse({ error: error.message }, 500, corsHeaders)
   }
 })
