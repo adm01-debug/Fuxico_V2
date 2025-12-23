@@ -36,6 +36,8 @@ export function useABTests() {
   const queryClient = useQueryClient();
 
   const { data: tests = [], isLoading, error } = useQuery({
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
     queryKey: ['ab-tests', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
