@@ -34,7 +34,7 @@ function playNotificationSound() {
     oscillator.start(now);
     oscillator.stop(now + 0.5);
   } catch (error) {
-    console.log('Could not play notification sound:', error);
+    
   }
 }
 
@@ -196,7 +196,7 @@ export function useRealtimeNotifications() {
         }
       )
       .subscribe((status) => {
-        console.log('Tracking events subscription status:', status);
+        
       });
 
     // Subscribe to fraud alerts (for admins)
@@ -222,7 +222,7 @@ export function useRealtimeNotifications() {
         }
       )
       .subscribe((status) => {
-        console.log('Fraud alerts subscription status:', status);
+        
       });
 
     return () => {
