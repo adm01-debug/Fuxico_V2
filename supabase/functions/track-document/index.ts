@@ -1,47 +1,67 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { getCorsHeaders } from '../_shared/cors.ts';
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const TrackDocumentSchema = z.object({
   documentId: z.string().uuid(),
-  page: z.number().int().positive().optional(),
-  timeSpent: z.number().positive().optional(),
+  page: z.number().int().min(1).optional(),
+  timeSpent: z.number().min(0).optional(),
   viewerEmail: z.string().email().optional(),
 });
 
 serve(async (req) => {
-  const origin = req.headers.get('origin');
+  const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
-  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
 
   try {
-    const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    const body = await req.json();
-    
-    // Validate input
-    const result = TrackDocumentSchema.safeParse(body);
-    if (!result.success) {
-      return new Response(JSON.stringify({ error: 'Invalid input', details: result.error.issues }), 
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    const clientIP = req.headers.get("x-forwarded-for") || "unknown";
+    const rateLimitResult = await checkRateLimit(clientIP, "track-document", 60, 60);
+    if (!rateLimitResult.allowed) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const { documentId, page, timeSpent, viewerEmail } = result.data;
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-    const userAgent = req.headers.get('user-agent') || '';
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-    await supabase.from('document_events').insert({
-      document_id: documentId,
-      event_type: page ? 'page_view' : 'open',
-      page_number: page,
-      time_spent_seconds: timeSpent,
-      viewer_email: viewerEmail,
-      ip_address: ip,
-      user_agent: userAgent
+    const body = await req.json();
+    const validatedData = TrackDocumentSchema.parse(body);
+
+    const { error } = await supabase.from("document_events").insert({
+      document_id: validatedData.documentId,
+      event_type: "view",
+      page_number: validatedData.page || 1,
+      time_spent: validatedData.timeSpent || 0,
+      viewer_email: validatedData.viewerEmail,
+      ip_address: clientIP,
+      user_agent: req.headers.get("user-agent"),
     });
 
-    return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (error) throw error;
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (error instanceof z.ZodError) {
+      return new Response(JSON.stringify({ error: "Validation error", details: error.errors }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
