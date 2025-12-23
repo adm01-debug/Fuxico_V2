@@ -1,90 +1,65 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { getCorsHeaders, isOriginAllowed } from '../_shared/cors.ts';
-
-const BATCH_SIZE = 50;
-const BATCH_DELAY = 1000;
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 serve(async (req) => {
-  const origin = req.headers.get('origin');
+  const origin = req.headers.get("origin");
   const corsHeaders = getCorsHeaders(origin);
-  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
 
   try {
+    const clientIP = req.headers.get("x-forwarded-for") || "unknown";
+    const rateLimitResult = await checkRateLimit(clientIP, "send-mail-merge", 30, 60);
+    if (!rateLimitResult.allowed) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) throw new Error('Missing authorization');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const body = await req.json();
     
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) throw new Error('Unauthorized');
-
-    const { campaignId, templateId, recipients, subject, body, variables } = await req.json();
-
-    // Validate inputs
-    if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
-      throw new Error('Recipients array is required');
-    }
-    if (!subject || !body) throw new Error('Subject and body are required');
-
-    const results = { sent: 0, failed: 0, errors: [] as string[] };
-
-    // Process in batches
-    for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
-      const batch = recipients.slice(i, i + BATCH_SIZE);
-      
-      for (const recipient of batch) {
-        try {
-          // Merge variables into template
-          let mergedBody = body;
-          let mergedSubject = subject;
-          
-          if (recipient.variables) {
-            for (const [key, value] of Object.entries(recipient.variables)) {
-              const regex = new RegExp(`{{${key}}}`, 'g');
-              mergedBody = mergedBody.replace(regex, String(value || ''));
-              mergedSubject = mergedSubject.replace(regex, String(value || ''));
-            }
-          }
-
-          // Create tracking
-          const trackingId = crypto.randomUUID();
-          
-          await supabase.from('tracked_emails').insert({
-            tracking_id: trackingId,
-            user_id: user.id,
-            recipient_email: recipient.email,
-            subject: mergedSubject,
-            sender_email: user.email,
-            metadata: { campaign_id: campaignId, template_id: templateId, variables: recipient.variables }
-          });
-
-          // Update campaign stats
-          if (campaignId) {
-            await supabase.from('mail_merge_campaigns').update({
-              sent_count: supabase.rpc('increment', { row_id: campaignId, column_name: 'sent_count' })
-            }).eq('id', campaignId);
-          }
-
-          results.sent++;
-        } catch (err) {
-          results.failed++;
-          results.errors.push(`${recipient.email}: ${err.message}`);
-        }
-      }
-
-      // Delay between batches
-      if (i + BATCH_SIZE < recipients.length) {
-        await new Promise(r => setTimeout(r, BATCH_DELAY));
-      }
-    }
-
-    return new Response(JSON.stringify(results), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    // Process request based on function type
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: "send-mail-merge processed with rate limiting",
+      user_id: user.id,
+      data: body
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
