@@ -1,3 +1,4 @@
+import { log } from './logger';
 /**
  * Cache implementation with TTL support
  * Compatible with Upstash Redis or in-memory fallback
@@ -37,7 +38,7 @@ class CacheManager {
           return JSON.parse(data.result) as T;
         }
       } catch (error) {
-        console.warn('Redis cache get failed, using memory cache');
+        log.warn('Redis cache get failed, using memory cache');
       }
     }
 
@@ -69,7 +70,7 @@ class CacheManager {
           }),
         });
       } catch (error) {
-        console.warn('Redis cache set failed, using memory cache');
+        log.warn('Redis cache set failed, using memory cache');
       }
     }
 
@@ -89,7 +90,7 @@ class CacheManager {
           headers: { Authorization: `Bearer ${this.redisToken}` },
         });
       } catch (error) {
-        console.warn('Redis cache delete failed');
+        log.warn('Redis cache delete failed');
       }
     }
 
