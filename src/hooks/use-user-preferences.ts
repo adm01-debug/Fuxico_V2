@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -103,7 +104,7 @@ export function useUserPreferences() {
         description: 'Não foi possível salvar suas preferências.',
         variant: 'destructive',
       });
-      console.error('Error updating preferences:', error);
+      log.error('Error updating preferences:', error);
     },
   });
 
