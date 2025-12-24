@@ -124,7 +124,7 @@ const FUXICO_CONFIG = {
       return true;
       
     } catch (error) {
-      console.warn('[FUXICO Config] Erro ao carregar config remota, usando fallback:', error.message);
+      // console.warn('[FUXICO Config] Erro ao carregar config remota, usando fallback:', error.message);
       return false;
     }
   },
@@ -138,7 +138,7 @@ const FUXICO_CONFIG = {
   getEndpointUrl(endpoint) {
     const path = this.ENDPOINTS[endpoint];
     if (!path) {
-      console.warn(`[FUXICO Config] Endpoint desconhecido: ${endpoint}`);
+      // console.warn(`[FUXICO Config] Endpoint desconhecido: ${endpoint}`);
       return null;
     }
     return `${this.API_URL}${path}`;
