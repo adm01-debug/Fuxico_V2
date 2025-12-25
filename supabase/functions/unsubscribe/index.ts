@@ -1,88 +1,61 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 
-const UnsubscribeSchema = z.object({
-  email: z.string().email(),
-  trackingId: z.string().optional(),
-  reason: z.string().max(500).optional(),
+const UnsubSchema = z.object({
+  token: z.string().min(1),
+  email: z.string().email().optional(),
+  reason: z.string().max(500).optional()
 });
 
 serve(async (req) => {
-  const origin = req.headers.get("origin");
-  const corsHeaders = getCorsHeaders(origin);
-
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
-    const rateLimitResult = await checkRateLimit(clientIP, "unsubscribe", 30, 60);
-    if (!rateLimitResult.allowed) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const rateLimit = await checkRateLimit(clientIP, "unsub", 20, 60);
+    if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
+
+    const url = new URL(req.url);
+    const token = url.searchParams.get("token") || url.searchParams.get("t");
+    let body = {};
+    if (req.method === "POST") body = await req.json();
+
+    const validation = UnsubSchema.safeParse({ token, ...body });
+    if (!validation.success || !token) {
+      return secureErrorResponse("Invalid unsubscribe request", 400, corsHeaders);
     }
 
-    let body;
-    if (req.method === "GET") {
-      const url = new URL(req.url);
-      body = {
-        email: url.searchParams.get("email") || "",
-        trackingId: url.searchParams.get("trackingId") || undefined,
-        reason: url.searchParams.get("reason") || undefined,
-      };
-    } else {
-      body = await req.json();
-    }
+    const { reason } = validation.data;
+    const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
-    const validatedData = UnsubscribeSchema.parse(body);
+    const { data: sub } = await supabase.from("email_subscriptions").select("*").eq("unsubscribe_token", token).single();
+    if (!sub) return secureErrorResponse("Invalid token", 404, corsHeaders);
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    const { error } = await supabase.from("unsubscribed_emails").upsert({
-      email: validatedData.email,
-      tracking_id: validatedData.trackingId,
-      reason: validatedData.reason,
+    await supabase.from("email_subscriptions").update({
+      status: "unsubscribed",
       unsubscribed_at: new Date().toISOString(),
-    }, { onConflict: "email" });
+      unsubscribe_reason: reason,
+      unsubscribe_ip: clientIP
+    }).eq("id", sub.id);
 
-    if (error) throw error;
-
-    if (req.method === "GET") {
+    if (req.headers.get("accept")?.includes("text/html")) {
       return new Response(`
-        <html>
-          <head><title>Unsubscribed</title></head>
-          <body style="font-family: sans-serif; text-align: center; padding: 50px;">
-            <h1>✓ Successfully Unsubscribed</h1>
-            <p>You will no longer receive emails from this sender.</p>
-          </body>
-        </html>
-      `, {
-        headers: { ...corsHeaders, "Content-Type": "text/html" },
-      });
+        <!DOCTYPE html>
+        <html><head><title>Unsubscribed</title></head>
+        <body style="font-family: sans-serif; text-align: center; padding: 50px;">
+          <h1>Successfully Unsubscribed</h1>
+          <p>You have been removed from our mailing list.</p>
+        </body></html>
+      `, { headers: { ...corsHeaders, "Content-Type": "text/html" } });
     }
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return secureJsonResponse({ success: true, message: "Successfully unsubscribed" }, corsHeaders);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: "Validation error", details: error.errors }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 });
