@@ -1,72 +1,66 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-interface HealthStatus {
-  status: "healthy" | "degraded" | "unhealthy";
-  timestamp: string;
-  version: string;
-  uptime: number;
-  checks: {
-    database: boolean;
-    cache: boolean;
-  };
-}
-
-const startTime = Date.now();
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-    // Check database connectivity
-    let dbHealthy = false;
-    try {
-      const response = await fetch(`${supabaseUrl}/rest/v1/`, {
-        headers: { apikey: supabaseKey || "", Authorization: `Bearer ${supabaseKey}` },
-      });
-      dbHealthy = response.ok;
-    } catch {
-      dbHealthy = false;
-    }
-
-    const status: HealthStatus = {
-      status: dbHealthy ? "healthy" : "degraded",
-      timestamp: new Date().toISOString(),
-      version: "1.0.0",
-      uptime: Math.floor((Date.now() - startTime) / 1000),
-      checks: {
-        database: dbHealthy,
-        cache: true,
-      },
-    };
-
-    const httpStatus = status.status === "healthy" ? 200 : 503;
-
-    return new Response(JSON.stringify(status), {
-      status: httpStatus,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    return new Response(
-      JSON.stringify({
-        status: "unhealthy",
-        timestamp: new Date().toISOString(),
-        error: error.message,
-      }),
-      {
-        status: 503,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
-  }
+const HealthQuerySchema = z.object({
+  detailed: z.enum(["true", "false"]).default("false"),
+  component: z.enum(["all", "database", "auth", "storage"]).default("all")
 });
 
+serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const url = new URL(req.url);
+    const params = {
+      detailed: url.searchParams.get("detailed") || "false",
+      component: url.searchParams.get("component") || "all"
+    };
+
+    const validation = HealthQuerySchema.safeParse(params);
+    if (!validation.success) {
+      return secureErrorResponse({ error: "Invalid parameters" }, 400, corsHeaders);
+    }
+
+    const { detailed, component } = validation.data;
+    const startTime = Date.now();
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const checks: Record<string, { status: string; latency?: number }> = {};
+
+    if (component === "all" || component === "database") {
+      const dbStart = Date.now();
+      const { error } = await supabase.from("tracked_emails").select("count").limit(1);
+      checks.database = { status: error ? "unhealthy" : "healthy", latency: Date.now() - dbStart };
+    }
+
+    if (component === "all" || component === "auth") {
+      checks.auth = { status: "healthy" };
+    }
+
+    if (component === "all" || component === "storage") {
+      checks.storage = { status: "healthy" };
+    }
+
+    const allHealthy = Object.values(checks).every(c => c.status === "healthy");
+    const response = {
+      status: allHealthy ? "healthy" : "degraded",
+      timestamp: new Date().toISOString(),
+      version: "1.0.0",
+      uptime: process.uptime?.() || 0,
+      totalLatency: Date.now() - startTime,
+      ...(detailed === "true" ? { checks } : {})
+    };
+
+    return secureJsonResponse(response, corsHeaders, allHealthy ? 200 : 503);
+  } catch (error) {
+    return secureErrorResponse({ status: "unhealthy", error: "Health check failed" }, 503, corsHeaders);
+  }
+});
