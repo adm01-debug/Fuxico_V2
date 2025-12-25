@@ -1,64 +1,73 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
-import { checkRateLimit } from '../_shared/rate-limit.ts'
-import { secureJsonResponse } from '../_shared/security-headers.ts'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+
+const StatsQuerySchema = z.object({
+  limit: z.number().int().min(1).max(500).default(100),
+  offset: z.number().int().min(0).default(0),
+  cursor: z.string().datetime().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  status: z.enum(["all", "opened", "clicked", "bounced"]).default("all")
+});
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
-
-  const rateLimitResult = await checkRateLimit(ip, 'get-tracking-stats', 30, 60)
-  if (!rateLimitResult.allowed) return secureJsonResponse({ error: 'Rate limit exceeded' }, 429, corsHeaders)
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
-    )
+    const clientIP = req.headers.get("x-forwarded-for") || "unknown";
+    const rateLimit = await checkRateLimit(clientIP, "tracking-stats", 60, 60);
+    if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
-    if (authError || !user) return secureJsonResponse({ error: 'Unauthorized' }, 401, corsHeaders)
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
-    const url = new URL(req.url)
-    const limit = Math.min(parseInt(url.searchParams.get('limit') || '50'), 100)
-    const cursor = url.searchParams.get('cursor') // ISO timestamp for cursor-based pagination
-    const offset = parseInt(url.searchParams.get('offset') || '0')
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
 
-    let query = supabaseClient
-      .from('email_stats_mv')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(limit + 1) // Fetch one extra to check if there's more
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
-    // Use cursor if provided, otherwise use offset
-    if (cursor) {
-      query = query.lt('created_at', cursor)
-    } else if (offset > 0) {
-      query = query.range(offset, offset + limit)
+    const url = new URL(req.url);
+    const params = {
+      limit: parseInt(url.searchParams.get("limit") || "100"),
+      offset: parseInt(url.searchParams.get("offset") || "0"),
+      cursor: url.searchParams.get("cursor") || undefined,
+      startDate: url.searchParams.get("startDate") || undefined,
+      endDate: url.searchParams.get("endDate") || undefined,
+      status: url.searchParams.get("status") || "all"
+    };
+
+    const validation = StatsQuerySchema.safeParse(params);
+    if (!validation.success) {
+      return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
     }
 
-    const { data, error } = await query
-    if (error) throw error
+    const { limit, offset, cursor, startDate, endDate, status } = validation.data;
 
-    const hasMore = data && data.length > limit
-    const emails = hasMore ? data.slice(0, limit) : (data || [])
-    const nextCursor = hasMore && emails.length > 0 ? emails[emails.length - 1].created_at : null
+    const { data, error } = await supabase.rpc("get_emails_with_stats", {
+      p_user_id: user.id,
+      p_limit: limit,
+      p_offset: offset,
+      p_cursor_date: cursor || null
+    });
+
+    if (error) return secureErrorResponse("Database error", 500, corsHeaders);
+
+    const nextCursor = data && data.length === limit ? data[data.length - 1].created_at : null;
 
     return secureJsonResponse({
-      emails,
-      pagination: {
-        limit,
-        hasMore,
-        nextCursor,
-        total: emails.length
-      }
-    }, 200, { ...corsHeaders, 'Cache-Control': 'private, max-age=30' })
+      emails: data || [],
+      pagination: { limit, offset, nextCursor, hasMore: !!nextCursor }
+    }, corsHeaders);
   } catch (error) {
-    return secureJsonResponse({ error: error.message }, 500, corsHeaders)
+    return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-})
+});
