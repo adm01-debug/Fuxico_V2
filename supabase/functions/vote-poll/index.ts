@@ -1,64 +1,61 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+
+const VoteSchema = z.object({
+  pollId: z.string().uuid(),
+  optionId: z.string().uuid(),
+  voterEmail: z.string().email().optional(),
+  voterName: z.string().max(200).optional(),
+  metadata: z.record(z.unknown()).optional()
+});
 
 serve(async (req) => {
-  const origin = req.headers.get("origin");
-  const corsHeaders = getCorsHeaders(origin);
-
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
-    const rateLimitResult = await checkRateLimit(clientIP, "vote-poll", 30, 60);
-    if (!rateLimitResult.allowed) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const rateLimit = await checkRateLimit(clientIP, "vote", 20, 60);
+    if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
     const body = await req.json();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: "vote-poll processed with rate limiting",
-      user_id: user.id,
-      data: body
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const validation = VoteSchema.safeParse(body);
+    if (!validation.success) return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+
+    const { pollId, optionId, voterEmail, voterName, metadata } = validation.data;
+
+    const { data: poll } = await supabase.from("polls").select("*, poll_options(*)").eq("id", pollId).single();
+    if (!poll) return secureErrorResponse("Poll not found", 404, corsHeaders);
+    if (poll.status !== "active") return secureErrorResponse("Poll is not active", 400, corsHeaders);
+    if (poll.expires_at && new Date(poll.expires_at) < new Date()) return secureErrorResponse("Poll has expired", 400, corsHeaders);
+
+    const optionExists = poll.poll_options?.some((o: { id: string }) => o.id === optionId);
+    if (!optionExists) return secureErrorResponse("Invalid option", 400, corsHeaders);
+
+    const { data: existingVote } = await supabase.from("poll_votes").select("id").eq("poll_id", pollId).eq("voter_ip", clientIP).single();
+    if (existingVote && !poll.allow_multiple_votes) return secureErrorResponse("Already voted", 400, corsHeaders);
+
+    const voteId = crypto.randomUUID();
+    await supabase.from("poll_votes").insert({
+      id: voteId,
+      poll_id: pollId,
+      option_id: optionId,
+      voter_ip: clientIP,
+      voter_email: voterEmail,
+      voter_name: voterName,
+      metadata
     });
+
+    await supabase.from("poll_options").update({ votes_count: poll.poll_options.find((o: { id: string }) => o.id === optionId).votes_count + 1 }).eq("id", optionId);
+
+    return secureJsonResponse({ success: true, voteId }, corsHeaders);
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 });
