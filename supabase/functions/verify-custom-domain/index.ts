@@ -1,64 +1,59 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+
+const DomainSchema = z.object({
+  domain: z.string().regex(/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/, "Invalid domain format"),
+  verificationType: z.enum(["dns", "file", "meta"]).default("dns")
+});
 
 serve(async (req) => {
-  const origin = req.headers.get("origin");
-  const corsHeaders = getCorsHeaders(origin);
-
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
-    const rateLimitResult = await checkRateLimit(clientIP, "verify-custom-domain", 30, 60);
-    if (!rateLimitResult.allowed) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const rateLimit = await checkRateLimit(clientIP, "verify-domain", 10, 60);
+    if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!authHeader) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { global: { headers: { Authorization: authHeader } } });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
     const body = await req.json();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: "verify-custom-domain processed with rate limiting",
+    const validation = DomainSchema.safeParse(body);
+    if (!validation.success) return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+
+    const { domain, verificationType } = validation.data;
+
+    const verificationToken = `fuxico-verify-${crypto.randomUUID().slice(0, 8)}`;
+    const verificationRecord = verificationType === "dns" ? `TXT _fuxico.${domain} = ${verificationToken}` : `/${verificationToken}.txt`;
+
+    await supabase.from("custom_domains").upsert({
       user_id: user.id,
-      data: body
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      domain,
+      verification_type: verificationType,
+      verification_token: verificationToken,
+      status: "pending",
+      updated_at: new Date().toISOString()
     });
+
+    return secureJsonResponse({
+      success: true,
+      domain,
+      verificationType,
+      verificationInstructions: verificationType === "dns" 
+        ? `Add TXT record: _fuxico.${domain} with value: ${verificationToken}`
+        : `Upload file to: https://${domain}/${verificationToken}.txt`,
+      token: verificationToken
+    }, corsHeaders);
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 });
