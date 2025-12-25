@@ -1,65 +1,80 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+
+const EmailSchema = z.object({
+  to: z.string().email(),
+  subject: z.string().min(1).max(500),
+  body: z.string().min(1),
+  trackingEnabled: z.boolean().default(true)
+});
+
+const BatchEmailSchema = z.object({
+  emails: z.array(EmailSchema).min(1).max(100),
+  templateId: z.string().uuid().optional(),
+  scheduledAt: z.string().datetime().optional(),
+  priority: z.enum(["low", "normal", "high"]).default("normal")
+});
 
 serve(async (req) => {
-  const origin = req.headers.get("origin");
-  const corsHeaders = getCorsHeaders(origin);
-
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
-    const rateLimitResult = await checkRateLimit(clientIP, "send-batch-emails", 30, 60);
-    if (!rateLimitResult.allowed) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const rateLimit = await checkRateLimit(clientIP, "batch-email", 5, 60);
+    if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!authHeader) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
     const body = await req.json();
-    
-    // Process request based on function type
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: "send-batch-emails processed with rate limiting",
+    const validation = BatchEmailSchema.safeParse(body);
+    if (!validation.success) {
+      return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+    }
+
+    const { emails, templateId, scheduledAt, priority } = validation.data;
+
+    const batchId = crypto.randomUUID();
+    const results = emails.map((email, index) => ({
+      id: crypto.randomUUID(),
+      batchId,
+      index,
+      to: email.to,
+      status: "queued",
+      trackingId: email.trackingEnabled ? crypto.randomUUID() : null
+    }));
+
+    await supabase.from("email_batches").insert({
+      id: batchId,
       user_id: user.id,
-      data: body
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      total_count: emails.length,
+      status: scheduledAt ? "scheduled" : "processing",
+      scheduled_at: scheduledAt,
+      priority
     });
+
+    return secureJsonResponse({
+      success: true,
+      batchId,
+      totalEmails: emails.length,
+      status: scheduledAt ? "scheduled" : "processing",
+      results
+    }, corsHeaders);
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 });
