@@ -1,0 +1,38 @@
+import { Search, X } from 'lucide-react';
+import { Input } from './input';
+import { Button } from './button';
+import { cn } from '@/lib/utils';
+
+interface SearchInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+  autoFocus?: boolean;
+}
+
+export function SearchInput({ value, onChange, placeholder = 'Buscar...', className, autoFocus }: SearchInputProps) {
+  return (
+    <div className={cn('relative', className)}>
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="pl-9 pr-9"
+        autoFocus={autoFocus}
+      />
+      {value && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+          onClick={() => onChange('')}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+}
