@@ -1,64 +1,65 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+
+const SignerSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1).max(200),
+  order: z.number().int().positive().optional()
+});
+
+const SignatureRequestSchema = z.object({
+  documentId: z.string().uuid(),
+  signers: z.array(SignerSchema).min(1).max(10),
+  message: z.string().max(1000).optional(),
+  expiresAt: z.string().datetime().optional(),
+  reminderDays: z.number().int().min(1).max(30).optional()
+});
 
 serve(async (req) => {
-  const origin = req.headers.get("origin");
-  const corsHeaders = getCorsHeaders(origin);
-
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
-    const rateLimitResult = await checkRateLimit(clientIP, "send-signature-request", 30, 60);
-    if (!rateLimitResult.allowed) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const rateLimit = await checkRateLimit(clientIP, "sig-request", 10, 60);
+    if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!authHeader) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { global: { headers: { Authorization: authHeader } } });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
     const body = await req.json();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: "send-signature-request processed with rate limiting",
-      user_id: user.id,
-      data: body
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    const validation = SignatureRequestSchema.safeParse(body);
+    if (!validation.success) return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+
+    const { documentId, signers, message, expiresAt } = validation.data;
+
+    const { data: doc } = await supabase.from("tracked_documents").select("*").eq("id", documentId).eq("user_id", user.id).single();
+    if (!doc) return secureErrorResponse("Document not found", 404, corsHeaders);
+
+    const requestId = crypto.randomUUID();
+    const signerRecords = signers.map((s, i) => ({
+      id: crypto.randomUUID(),
+      request_id: requestId,
+      email: s.email,
+      name: s.name,
+      order: s.order || i + 1,
+      status: "pending",
+      token: crypto.randomUUID()
+    }));
+
+    await supabase.from("signature_requests").insert({ id: requestId, document_id: documentId, user_id: user.id, message, expires_at: expiresAt });
+    await supabase.from("signature_signers").insert(signerRecords);
+
+    return secureJsonResponse({ success: true, requestId, signers: signerRecords.map(s => ({ email: s.email, status: s.status })) }, corsHeaders);
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 });
