@@ -1,71 +1,59 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 
-const GetConfigSchema = z.object({
-  key: z.string().optional(),
-  userId: z.string().uuid().optional(),
+const ConfigQuerySchema = z.object({
+  keys: z.array(z.string()).optional()
 });
 
 serve(async (req) => {
-  const origin = req.headers.get("origin");
-  const corsHeaders = getCorsHeaders(origin);
-
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
-    const rateLimitResult = await checkRateLimit(clientIP, "get-config", 60, 60);
-    if (!rateLimitResult.allowed) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const rateLimit = await checkRateLimit(clientIP, "config", 30, 60);
+    if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
 
     const url = new URL(req.url);
-    const params = {
-      key: url.searchParams.get("key") || undefined,
-      userId: url.searchParams.get("userId") || undefined,
+    const keys = url.searchParams.get("keys")?.split(",") || [];
+
+    const validation = ConfigQuerySchema.safeParse({ keys: keys.length > 0 ? keys : undefined });
+    if (!validation.success) return secureErrorResponse({ error: "Invalid parameters" }, 400, corsHeaders);
+
+    const config = {
+      version: "1.0.0",
+      features: {
+        tracking: true,
+        documents: true,
+        links: true,
+        audit: true,
+        bitrix24: true,
+        zapier: true
+      },
+      limits: {
+        maxEmailsPerDay: 1000,
+        maxDocumentsPerMonth: 100,
+        maxLinksPerEmail: 50
+      },
+      tracking: {
+        pixelUrl: Deno.env.get("SUPABASE_URL") + "/functions/v1/track-pixel",
+        linkUrl: Deno.env.get("SUPABASE_URL") + "/functions/v1/track-link"
+      }
     };
-    
-    const validatedData = GetConfigSchema.parse(params);
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    let query = supabase.from("audit_config").select("*");
-    
-    if (validatedData.key) {
-      query = query.eq("key", validatedData.key);
-    }
-    if (validatedData.userId) {
-      query = query.eq("user_id", validatedData.userId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-
-    return new Response(JSON.stringify({ config: data }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({ error: "Validation error", details: error.errors }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (keys.length > 0) {
+      const filteredConfig: Record<string, unknown> = {};
+      keys.forEach(key => {
+        if (key in config) filteredConfig[key] = (config as Record<string, unknown>)[key];
       });
+      return secureJsonResponse(filteredConfig, corsHeaders);
     }
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+
+    return secureJsonResponse(config, corsHeaders);
+  } catch (error) {
+    return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 });
