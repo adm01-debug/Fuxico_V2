@@ -1,73 +1,61 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 const TrackPixelSchema = z.object({
-  t: z.string().min(1),
+  t: z.string().min(1)
 });
 
-// 1x1 transparent GIF
-const PIXEL = new Uint8Array([
+const TRANSPARENT_GIF = new Uint8Array([
   0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00,
   0x80, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x21,
   0xf9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00,
   0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x44,
-  0x01, 0x00, 0x3b,
+  0x01, 0x00, 0x3b
 ]);
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const headers = {
+    "Content-Type": "image/gif",
+    "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
+    "Access-Control-Allow-Origin": "*",
+    "X-Content-Type-Options": "nosniff"
+  };
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
-    const rateLimitResult = await checkRateLimit(clientIP, "track-pixel", 200, 60);
-    if (!rateLimitResult.allowed) {
-      return new Response(PIXEL, {
-        headers: { ...corsHeaders, "Content-Type": "image/gif" },
-      });
-    }
+    const userAgent = req.headers.get("user-agent") || "";
+    
+    const rateLimit = await checkRateLimit(clientIP, "pixel", 200, 60);
+    if (!rateLimit.allowed) return new Response(TRANSPARENT_GIF, { headers });
 
     const url = new URL(req.url);
-    const params = { t: url.searchParams.get("t") || "" };
-    
-    const validatedData = TrackPixelSchema.parse(params);
-    const trackingId = validatedData.t;
+    const trackingId = url.searchParams.get("t");
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+    const validation = TrackPixelSchema.safeParse({ t: trackingId });
+    if (!validation.success || !trackingId) {
+      return new Response(TRANSPARENT_GIF, { headers });
+    }
 
-    const userAgent = req.headers.get("user-agent") || "";
-    const isSelfOpen = userAgent.includes("GoogleImageProxy") || 
-                       userAgent.includes("YahooMailProxy");
+    const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
+
+    const { data: email } = await supabase.from("tracked_emails").select("user_id, sender_email").eq("tracking_id", trackingId).single();
+
+    const isSelfOpen = email?.sender_email && clientIP.includes(email.sender_email);
 
     await supabase.from("tracking_events").insert({
       tracking_id: trackingId,
       event_type: "open",
       ip_address: clientIP,
       user_agent: userAgent,
-      is_self_open: isSelfOpen,
+      is_self_open: isSelfOpen || false
     });
 
-    return new Response(PIXEL, {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "image/gif",
-        "Cache-Control": "no-store, no-cache, must-revalidate",
-      },
-    });
+    return new Response(TRANSPARENT_GIF, { headers });
   } catch (error) {
-    return new Response(PIXEL, {
-      headers: { ...corsHeaders, "Content-Type": "image/gif" },
-    });
+    return new Response(TRANSPARENT_GIF, { headers });
   }
 });
