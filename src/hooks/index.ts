@@ -1,0 +1,34 @@
+/**
+ * FUXICO - Hooks Index
+ * 
+ * Central export for all custom hooks
+ */
+
+// Core hooks
+export { useTracking } from './use-tracking';
+export { useUserRoles } from './use-user-roles';
+export { useUserPreferences } from './use-user-preferences';
+
+// UI hooks
+export { useDebouncedValue, useDebouncedCallback } from './use-debounced-value';
+export { useLocalStorage } from './use-local-storage';
+export { useMediaQuery, useIsMobile, useIsDesktop, usePrefersDarkMode } from './use-media-query';
+export { useOnlineStatus, useNetworkStatus } from './use-online-status';
+export { useClipboard } from './use-clipboard';
+export { useIntersectionObserver } from './use-intersection-observer';
+export { useVirtualList } from './use-virtual-list';
+export { useKeyboardNavigation, SHORTCUTS } from './use-keyboard-navigation';
+
+// Feature hooks
+export { useBitrix24 } from './use-bitrix24';
+export { useEmailAudit } from './use-email-audit';
+export { useRealtimeNotifications } from './use-realtime-notifications';
+export { useTrackedDocuments } from './use-tracked-documents';
+export { useTrackedLinks } from './use-tracked-links';
+export { useTrackingTrends } from './use-tracking-trends';
+export { useOnboarding } from './use-onboarding';
+export { useAuditConfig } from './use-audit-config';
+export { useExportWorker } from './use-export-worker';
+
+// Toast
+export { useToast, toast } from './use-toast';
