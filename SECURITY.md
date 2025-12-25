@@ -9,60 +9,66 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within FUXICO, please send an email to 
-**security@fuxico.app**. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability, please send an email to 
+security@fuxico.app. Do NOT create a public GitHub issue.
 
-**Please do NOT create a public GitHub issue for security vulnerabilities.**
-
-### What to Include
-
-When reporting a vulnerability, please include:
-
+### What to include:
 - Description of the vulnerability
-- Steps to reproduce the issue
-- Potential impact assessment
+- Steps to reproduce
+- Potential impact
 - Suggested fix (if any)
-- Your contact information
 
-### Response Timeline
-
-- **Initial response**: Within 24 hours
-- **Status update**: Within 72 hours
-- **Resolution**: 7-14 days (depending on severity)
+### Response Timeline:
+- Initial response: 24 hours
+- Status update: 72 hours
+- Resolution: 7-14 days (depending on severity)
 
 ## Security Measures
 
-FUXICO implements the following security measures:
+### 🔒 IP Whitelist (NEW)
 
-### Data Protection
-- All data encrypted at rest and in transit (TLS 1.3)
-- Row Level Security (RLS) on all database tables
-- Sensitive data hashing with bcrypt
+All Edge Functions are protected by IP whitelist. Only authorized IPs can access the API.
 
-### Authentication & Authorization
-- JWT authentication with short expiration
-- Refresh token rotation
-- Role-based access control (RBAC)
-- Session management with secure cookies
+**Configuration:**
+1. Set `WHITELISTED_IPS` environment variable in Supabase Dashboard
+2. Or edit `supabase/functions/_shared/ip-whitelist.ts`
 
-### API Security
-- Rate limiting on all endpoints
-- Input validation with Zod schemas
-- CORS restricted to allowed origins
-- Security headers (CSP, X-Frame-Options, etc.)
+**See:** [docs/IP-SECURITY.md](docs/IP-SECURITY.md) for detailed configuration.
 
-### Infrastructure
-- Supabase managed infrastructure
-- Automated security updates
-- Regular security audits
-- DDoS protection
+### Other Security Measures
 
-## Bug Bounty Program
+- ✅ All data encrypted at rest and in transit
+- ✅ Row Level Security (RLS) on all database tables
+- ✅ Rate limiting on all API endpoints (100 req/min)
+- ✅ Input validation with Zod schemas
+- ✅ CORS restricted to allowed origins
+- ✅ JWT authentication with expiration
+- ✅ Security headers on all responses
+- ✅ Request logging and monitoring
 
-We currently do not have a formal bug bounty program, but we appreciate
-responsible disclosure and will acknowledge security researchers who
-report valid vulnerabilities.
+## Security Headers
 
-## Contact
+All responses include:
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+```
 
-For security-related inquiries: security@fuxico.app
+## Rate Limiting
+
+| Endpoint Type | Limit |
+|--------------|-------|
+| Public (tracking) | 1000 req/min |
+| Authenticated | 100 req/min |
+| Admin | 200 req/min |
+
+## Audit Logging
+
+All access attempts are logged:
+- Successful accesses
+- Blocked IPs
+- Rate limit violations
+- Authentication failures
