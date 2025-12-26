@@ -4,8 +4,10 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { createLogger } from '../_shared/logger.ts'
 
 const CertificateSchema = z.object({
+const log = createLogger('generate-delivery-certificate')
   trackingId: z.string().min(1),
   recipientEmail: z.string().email(),
   recipientName: z.string().min(1).max(200).optional(),
