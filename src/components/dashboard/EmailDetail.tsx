@@ -74,7 +74,7 @@ export function EmailDetail({ trackingId, onClose }: EmailDetailProps) {
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="font-semibold text-lg">Detalhes do Email</h2>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button aria-label="Action button"  variant="ghost" size="icon" onClick={onClose}>
           <X className="h-5 w-5" />
         </Button>
       </div>
@@ -84,7 +84,7 @@ export function EmailDetail({ trackingId, onClose }: EmailDetailProps) {
         <div className="space-y-2">
           <h3 className="font-medium text-foreground">{email.recipient_email}</h3>
           <p className="text-muted-foreground">{email.subject || "Sem assunto"}</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground" aria-live="polite">
             Criado em {format(new Date(email.created_at), "dd MMM yyyy 'às' HH:mm", { locale: ptBR })}
           </p>
         </div>
