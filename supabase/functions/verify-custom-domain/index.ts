@@ -4,7 +4,9 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { createLogger } from '../_shared/logger.ts'
 
+const log = createLogger('verify-custom-domain')
 const DomainSchema = z.object({
   domain: z.string().regex(/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/, "Invalid domain format"),
   verificationType: z.enum(["dns", "file", "meta"]).default("dns")
