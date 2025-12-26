@@ -4,8 +4,10 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { createLogger } from '../_shared/logger.ts'
 
 const WatermarkSchema = z.object({
+const log = createLogger('create-watermarked-pdf')
   documentId: z.string().uuid(),
   watermarkText: z.string().min(1).max(200),
   position: z.enum(["center", "diagonal", "footer"]).default("diagonal"),
