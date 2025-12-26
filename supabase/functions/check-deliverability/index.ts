@@ -4,8 +4,10 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { createLogger } from '../_shared/logger.ts'
 
 const DeliverabilitySchema = z.object({
+const log = createLogger('check-deliverability')
   email: z.string().email(),
   checkMx: z.boolean().default(true),
   checkSyntax: z.boolean().default(true),
