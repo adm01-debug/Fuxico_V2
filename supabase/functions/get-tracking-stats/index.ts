@@ -4,7 +4,9 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { createLogger } from '../_shared/logger.ts'
 
+const log = createLogger('get-tracking-stats')
 const StatsQuerySchema = z.object({
   limit: z.number().int().min(1).max(500).default(100),
   offset: z.number().int().min(0).default(0),
