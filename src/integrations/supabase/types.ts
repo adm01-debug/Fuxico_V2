@@ -897,6 +897,39 @@ export type Database = {
         }
         Relationships: []
       }
+      login_lockouts: {
+        Row: {
+          created_at: string
+          email: string
+          failed_attempts: number
+          id: string
+          ip_address: string | null
+          last_failed_at: string | null
+          lockout_until: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          failed_attempts?: number
+          id?: string
+          ip_address?: string | null
+          last_failed_at?: string | null
+          lockout_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          failed_attempts?: number
+          id?: string
+          ip_address?: string | null
+          last_failed_at?: string | null
+          lockout_until?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mfa_settings: {
         Row: {
           backup_codes: string[] | null
@@ -1827,6 +1860,15 @@ export type Database = {
           threshold: number
         }[]
       }
+      check_lockout_status: {
+        Args: { _email: string; _ip_address?: string }
+        Returns: {
+          failed_attempts: number
+          is_locked: boolean
+          lockout_remaining_seconds: number
+          lockout_until: string
+        }[]
+      }
       check_login_attempts: {
         Args: {
           _email: string
@@ -1941,7 +1983,16 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: number
       }
+      record_failed_login: {
+        Args: { _email: string; _ip_address?: string }
+        Returns: {
+          is_now_locked: boolean
+          lockout_seconds: number
+          total_attempts: number
+        }[]
+      }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
+      reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       update_contact_score: {
         Args: { p_email: string; p_user_id: string }
         Returns: undefined
