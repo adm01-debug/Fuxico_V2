@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,25 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Eye, EyeOff, Lock, AlertTriangle } from 'lucide-react';
 import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/ui/password-strength-indicator';
+import { supabase } from '@/integrations/supabase/client';
 import logoImg from '@/assets/logo.jpg';
+
+// Format seconds to readable time
+const formatLockoutTime = (seconds: number): string => {
+  if (seconds < 60) return `${seconds} segundos`;
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  if (minutes < 60) {
+    return remainingSeconds > 0 
+      ? `${minutes}min ${remainingSeconds}s` 
+      : `${minutes} minutos`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return `${hours}h ${remainingMinutes}min`;
+};
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -20,11 +36,68 @@ const Auth = () => {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   
+  // Lockout state
+  const [isLockedOut, setIsLockedOut] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  
   const passwordStrength = usePasswordStrength(signupPassword);
   
   const { signInWithGoogle, signInWithEmail, signUpWithEmail, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Countdown timer for lockout
+  useEffect(() => {
+    if (lockoutSeconds > 0) {
+      const timer = setInterval(() => {
+        setLockoutSeconds(prev => {
+          if (prev <= 1) {
+            setIsLockedOut(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [lockoutSeconds]);
+
+  // Check lockout status when email changes
+  const checkLockoutStatus = useCallback(async (emailToCheck: string) => {
+    if (!emailToCheck) return;
+    
+    try {
+      const { data, error } = await supabase.rpc('check_lockout_status', {
+        _email: emailToCheck.toLowerCase()
+      });
+      
+      if (!error && data && data.length > 0) {
+        const status = data[0];
+        if (status.is_locked) {
+          setIsLockedOut(true);
+          setLockoutSeconds(status.lockout_remaining_seconds);
+          setFailedAttempts(status.failed_attempts);
+        } else {
+          setIsLockedOut(false);
+          setLockoutSeconds(0);
+          setFailedAttempts(status.failed_attempts || 0);
+        }
+      }
+    } catch (err) {
+      console.warn('Error checking lockout status:', err);
+    }
+  }, []);
+
+  // Check lockout when email field loses focus
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      if (email) {
+        checkLockoutStatus(email);
+      }
+    }, 500);
+    return () => clearTimeout(debounce);
+  }, [email, checkLockoutStatus]);
 
   // Handle breach check callback
   const handleBreachCheck = (isBreached: boolean | null) => {
@@ -63,18 +136,66 @@ const Auth = () => {
       return;
     }
 
+    // Check if locked out
+    if (isLockedOut) {
+      toast({
+        title: 'Conta bloqueada',
+        description: `Aguarde ${formatLockoutTime(lockoutSeconds)} para tentar novamente`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
     const { error } = await signInWithEmail(email, password);
     
     if (error) {
-      toast({
-        title: 'Erro ao entrar',
-        description: error.message === 'Invalid login credentials' 
-          ? 'Email ou senha incorretos' 
-          : error.message,
-        variant: 'destructive',
-      });
+      // Record failed attempt
+      try {
+        const { data } = await supabase.rpc('record_failed_login', {
+          _email: email.toLowerCase()
+        });
+        
+        if (data && data.length > 0) {
+          const result = data[0];
+          setFailedAttempts(result.total_attempts);
+          
+          if (result.is_now_locked) {
+            setIsLockedOut(true);
+            setLockoutSeconds(result.lockout_seconds);
+            toast({
+              title: 'Conta bloqueada temporariamente',
+              description: `Muitas tentativas falhadas. Aguarde ${formatLockoutTime(result.lockout_seconds)}.`,
+              variant: 'destructive',
+            });
+          } else {
+            const remainingAttempts = 5 - result.total_attempts;
+            toast({
+              title: 'Erro ao entrar',
+              description: remainingAttempts > 0 
+                ? `Email ou senha incorretos. ${remainingAttempts} tentativa(s) restante(s).`
+                : 'Email ou senha incorretos.',
+              variant: 'destructive',
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Error recording failed login:', err);
+        toast({
+          title: 'Erro ao entrar',
+          description: error.message === 'Invalid login credentials' 
+            ? 'Email ou senha incorretos' 
+            : error.message,
+          variant: 'destructive',
+        });
+      }
     } else {
+      // Reset lockout on successful login
+      try {
+        await supabase.rpc('reset_login_lockout', { _email: email.toLowerCase() });
+      } catch (err) {
+        console.warn('Error resetting lockout:', err);
+      }
       navigate('/');
     }
     setIsLoading(false);
@@ -234,9 +355,38 @@ const Auth = () => {
                       </Button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  {/* Lockout warning */}
+                  {isLockedOut && (
+                    <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                      <Lock className="w-4 h-4 flex-shrink-0" />
+                      <span>
+                        Conta bloqueada. Aguarde {formatLockoutTime(lockoutSeconds)} para tentar novamente.
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Failed attempts warning */}
+                  {!isLockedOut && failedAttempts > 0 && failedAttempts < 5 && (
+                    <div className="flex items-center gap-2 p-2 rounded-md bg-warning/10 border border-warning/20 text-warning text-xs">
+                      <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+                      <span>
+                        {5 - failedAttempts} tentativa(s) restante(s) antes do bloqueio
+                      </span>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading || isLockedOut}
+                  >
                     {isLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : isLockedOut ? (
+                      <>
+                        <Lock className="h-4 w-4 mr-2" />
+                        Bloqueado ({formatLockoutTime(lockoutSeconds)})
+                      </>
                     ) : (
                       <>
                         <Mail className="h-4 w-4 mr-2" />
