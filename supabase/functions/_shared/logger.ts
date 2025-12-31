@@ -126,11 +126,15 @@ export function createLogger(functionName: string, requestId?: string): Logger {
     
     error: (message: string, error?: unknown) => {
       if (shouldLog('error')) {
-        const errorData = error instanceof Error
-          ? { name: error.name, message: error.message, stack: error.stack }
-          : typeof error === 'string'
-          ? { message: error }
-          : undefined;
+        let errorData: { name: string; message: string; stack?: string } | undefined;
+        
+        if (error instanceof Error) {
+          errorData = { name: error.name, message: error.message, stack: error.stack };
+        } else if (typeof error === 'string') {
+          errorData = { name: 'Error', message: error };
+        } else if (error && typeof error === 'object' && 'message' in error) {
+          errorData = { name: 'Error', message: String((error as { message: unknown }).message) };
+        }
         
         console.error(formatEntry({
           level: 'error',

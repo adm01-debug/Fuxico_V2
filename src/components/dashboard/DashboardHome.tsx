@@ -603,7 +603,7 @@ export default function DashboardHome() {
       </div>
 
       {/* Métricas Principais */}
-      <main role="main" aria-label="Dashboard principal" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 xl:gap-6">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 xl:gap-6">
         <MetricCard
           title="Total de Emails"
           value={metrics.totalEmails.toLocaleString('pt-BR')}
@@ -635,10 +635,10 @@ export default function DashboardHome() {
           trend={metrics.bounceRate < 2 ? 'up' : metrics.bounceRate > 5 ? 'down' : 'neutral'}
           isLoading={isLoadingStats}
         />
-      </div>
+      </section>
 
       {/* Grid Principal */}
-      <main role="main" aria-label="Dashboard principal" className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8">
+      <section className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8">
         {/* Gráfico de Tendência */}
         <Card role="region" aria-label="Estatísticas" className="lg:col-span-2">
           <CardHeader>
@@ -673,7 +673,7 @@ export default function DashboardHome() {
             />
           </CardContent>
         </Card>
-      </div>
+      </section>
 
       {/* Alertas de Bounce */}
       <Card>
@@ -692,7 +692,7 @@ export default function DashboardHome() {
       </Card>
 
       {/* Quick Stats */}
-      <main role="main" aria-label="Dashboard principal" className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-3">
         <Card role="region" aria-label="Estatísticas" className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -742,7 +742,7 @@ export default function DashboardHome() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </section>
     </div>
   );
 }

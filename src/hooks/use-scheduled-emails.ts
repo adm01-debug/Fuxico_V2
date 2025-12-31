@@ -75,8 +75,6 @@ export function useCreateScheduledEmail() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-emails'] });
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
       toast.success('Email agendado com sucesso!');
     },
     onError: (error) => {
@@ -119,8 +117,6 @@ export function useUpdateScheduledEmail() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-emails'] });
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
       toast.success('Email atualizado!');
     },
     onError: (error) => {
@@ -144,8 +140,6 @@ export function useCancelScheduledEmail() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-emails'] });
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
       toast.success('Agendamento cancelado');
     },
     onError: (error) => {
@@ -169,8 +163,6 @@ export function useDeleteScheduledEmail() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scheduled-emails'] });
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
       toast.success('Email excluído');
     },
     onError: (error) => {
@@ -179,4 +171,3 @@ export function useDeleteScheduledEmail() {
     },
   });
 }
-

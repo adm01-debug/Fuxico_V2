@@ -237,7 +237,7 @@ export default function Permissions() {
                         </Badge>
                       </div>
                     </div>
-                  )))}
+                  ))}
                 </CardContent>
               </Card>
             ))}

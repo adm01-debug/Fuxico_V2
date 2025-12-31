@@ -3,6 +3,8 @@
 // Arquivo: src/lib/apm.ts
 // =============================================================================
 
+import React from 'react';
+
 interface PerformanceMetric {
   name: string;
   value: number;
@@ -403,6 +405,6 @@ export function withAPMTrace<P extends object>(
       const endTrace = apm.startTrace(`component:${traceName}`);
       setTimeout(endTrace, 0);
     }
-    return <WrappedComponent {...props} />;
+    return React.createElement(WrappedComponent, props);
   };
 }
