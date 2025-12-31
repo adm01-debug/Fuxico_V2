@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Shield, Smartphone, Key, AlertTriangle, Monitor, Clock, MapPin, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { Shield, Smartphone, Key, AlertTriangle, Monitor, Clock, MapPin, CheckCircle2, XCircle, RefreshCw, Globe } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +14,8 @@ import { ActiveSessionsList } from './ActiveSessionsList';
 import { MFASettingsPanel } from './MFASettingsPanel';
 import { SecurityAlertsList } from './SecurityAlertsList';
 import { SecurityEventsList } from './SecurityEventsList';
+import IPWhitelistPanel from './IPWhitelistPanel';
+import BlockedIPsPanel from './BlockedIPsPanel';
 
 export function SecurityDashboard() {
   const { user } = useAuth();
@@ -37,7 +39,7 @@ export function SecurityDashboard() {
       <SecurityOverviewCards />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Visão Geral
@@ -49,6 +51,10 @@ export function SecurityDashboard() {
           <TabsTrigger value="mfa" className="flex items-center gap-2">
             <Key className="h-4 w-4" />
             MFA
+          </TabsTrigger>
+          <TabsTrigger value="ip" className="flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            IPs
           </TabsTrigger>
           <TabsTrigger value="alerts" className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
@@ -124,6 +130,11 @@ export function SecurityDashboard() {
 
         <TabsContent value="mfa">
           <MFASettingsPanel />
+        </TabsContent>
+
+        <TabsContent value="ip" className="space-y-4">
+          <IPWhitelistPanel />
+          <BlockedIPsPanel />
         </TabsContent>
 
         <TabsContent value="alerts">
