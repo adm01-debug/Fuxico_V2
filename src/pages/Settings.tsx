@@ -35,7 +35,6 @@ export default function Settings() {
 
   const handleSoundTypeChange = (value: string) => {
     updatePreferences({ notification_sound_type: value });
-    // Play the selected sound as preview with warning volume
     playNotificationSound('warning', value as NotificationSoundType, warningVolume);
   };
 

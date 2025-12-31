@@ -29,14 +29,9 @@ class AnalyticsManager {
     }
 
     const gaId = import.meta.env.VITE_GA_TRACKING_ID;
-    const mixpanelToken = import.meta.env.VITE_MIXPANEL_TOKEN;
 
     if (gaId) {
       await this.initGA(gaId);
-    }
-
-    if (mixpanelToken) {
-      await this.initMixpanel(mixpanelToken);
     }
 
     this.initialized = true;
@@ -64,17 +59,6 @@ class AnalyticsManager {
     }
   }
 
-  private async initMixpanel(token: string): Promise<void> {
-    try {
-      const mixpanel = await import("mixpanel-browser");
-      mixpanel.default.init(token, { debug: import.meta.env.DEV });
-      (window as any).mixpanel = mixpanel.default;
-      log.debug("Mixpanel initialized");
-    } catch (e) {
-      log.warn("Failed to initialize Mixpanel", e);
-    }
-  }
-
   track(name: EventName, properties?: Record<string, unknown>): void {
     const event: AnalyticsEvent = {
       name,
@@ -97,11 +81,6 @@ class AnalyticsManager {
     if ((window as any).gtag) {
       (window as any).gtag("event", event.name, event.properties);
     }
-
-    // Mixpanel
-    if ((window as any).mixpanel) {
-      (window as any).mixpanel.track(event.name, event.properties);
-    }
   }
 
   private flushQueue(): void {
@@ -112,12 +91,7 @@ class AnalyticsManager {
   }
 
   identify(userId: string, traits?: Record<string, unknown>): void {
-    if ((window as any).mixpanel) {
-      (window as any).mixpanel.identify(userId);
-      if (traits) {
-        (window as any).mixpanel.people.set(traits);
-      }
-    }
+    log.debug("Identify user", { userId, traits });
   }
 
   pageView(path: string): void {
@@ -126,4 +100,3 @@ class AnalyticsManager {
 }
 
 export const analytics = new AnalyticsManager();
-
