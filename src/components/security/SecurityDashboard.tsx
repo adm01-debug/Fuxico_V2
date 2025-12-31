@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Shield, Smartphone, Key, AlertTriangle, Monitor, Clock, MapPin, CheckCircle2, XCircle, RefreshCw, Globe } from 'lucide-react';
+import { Shield, Smartphone, Key, AlertTriangle, Monitor, Clock, MapPin, CheckCircle2, XCircle, RefreshCw, Globe, Globe2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,6 +16,7 @@ import { SecurityAlertsList } from './SecurityAlertsList';
 import { SecurityEventsList } from './SecurityEventsList';
 import IPWhitelistPanel from './IPWhitelistPanel';
 import BlockedIPsPanel from './BlockedIPsPanel';
+import GeoWhitelistPanel from './GeoWhitelistPanel';
 
 export function SecurityDashboard() {
   const { user } = useAuth();
@@ -39,26 +40,30 @@ export function SecurityDashboard() {
       <SecurityOverviewCards />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Visão Geral
+            <span className="hidden sm:inline">Visão Geral</span>
           </TabsTrigger>
           <TabsTrigger value="sessions" className="flex items-center gap-2">
             <Monitor className="h-4 w-4" />
-            Sessões
+            <span className="hidden sm:inline">Sessões</span>
           </TabsTrigger>
           <TabsTrigger value="mfa" className="flex items-center gap-2">
             <Key className="h-4 w-4" />
-            MFA
+            <span className="hidden sm:inline">MFA</span>
           </TabsTrigger>
           <TabsTrigger value="ip" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
-            IPs
+            <span className="hidden sm:inline">IPs</span>
+          </TabsTrigger>
+          <TabsTrigger value="geo" className="flex items-center gap-2">
+            <Globe2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Geo</span>
           </TabsTrigger>
           <TabsTrigger value="alerts" className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
-            Alertas
+            <span className="hidden sm:inline">Alertas</span>
           </TabsTrigger>
         </TabsList>
 
@@ -135,6 +140,10 @@ export function SecurityDashboard() {
         <TabsContent value="ip" className="space-y-4">
           <IPWhitelistPanel />
           <BlockedIPsPanel />
+        </TabsContent>
+
+        <TabsContent value="geo">
+          <GeoWhitelistPanel />
         </TabsContent>
 
         <TabsContent value="alerts">
