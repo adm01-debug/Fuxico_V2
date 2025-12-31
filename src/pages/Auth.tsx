@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,13 +8,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail } from 'lucide-react';
+import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/ui/password-strength-indicator';
 import logoImg from '@/assets/logo.jpg';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  
+  const passwordStrength = usePasswordStrength(signupPassword);
   
   const { signInWithGoogle, signInWithEmail, signUpWithEmail, user } = useAuth();
   const { toast } = useToast();
@@ -71,7 +75,7 @@ const Auth = () => {
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!email || !signupPassword) {
       toast({
         title: 'Campos obrigatórios',
         description: 'Preencha email e senha',
@@ -80,17 +84,17 @@ const Auth = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (!passwordStrength.isValid) {
       toast({
-        title: 'Senha muito curta',
-        description: 'A senha deve ter pelo menos 6 caracteres',
+        title: 'Senha muito fraca',
+        description: 'A senha deve atender pelo menos 4 requisitos de segurança',
         variant: 'destructive',
       });
       return;
     }
 
     setIsLoading(true);
-    const { error } = await signUpWithEmail(email, password);
+    const { error } = await signUpWithEmail(email, signupPassword);
     
     if (error) {
       if (error.message.includes('already registered')) {
@@ -231,12 +235,17 @@ const Auth = () => {
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Mínimo 6 caracteres"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Crie uma senha forte"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
                     />
+                    <PasswordStrengthIndicator password={signupPassword} />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading || !passwordStrength.isValid}
+                  >
                     {isLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -247,8 +256,16 @@ const Auth = () => {
               </TabsContent>
             </Tabs>
           </CardContent>
-          <CardFooter className="text-center text-xs text-muted-foreground">
-            Ao continuar, você concorda com nossos termos de uso.
+          <CardFooter className="flex flex-col gap-2">
+            <Link 
+              to="/forgot-password" 
+              className="text-sm text-primary hover:underline"
+            >
+              Esqueceu sua senha?
+            </Link>
+            <p className="text-center text-xs text-muted-foreground">
+              Ao continuar, você concorda com nossos termos de uso.
+            </p>
           </CardFooter>
         </Card>
       </div>
