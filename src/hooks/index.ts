@@ -5,7 +5,6 @@
  */
 
 // Core hooks
-export { useTracking } from './use-tracking';
 export { useUserRoles } from './use-user-roles';
 export { useUserPreferences } from './use-user-preferences';
 
@@ -20,8 +19,6 @@ export { useVirtualList } from './use-virtual-list';
 export { useKeyboardNavigation, SHORTCUTS } from './use-keyboard-navigation';
 
 // Feature hooks
-export { useBitrix24 } from './use-bitrix24';
-export { useEmailAudit } from './use-email-audit';
 export { useRealtimeNotifications } from './use-realtime-notifications';
 export { useTrackedDocuments } from './use-tracked-documents';
 export { useTrackedLinks } from './use-tracked-links';
