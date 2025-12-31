@@ -77,6 +77,42 @@ export type Database = {
         }
         Relationships: []
       }
+      active_sessions: {
+        Row: {
+          created_at: string
+          device_info: Json | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          last_activity_at: string
+          session_token: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json | null
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          last_activity_at?: string
+          session_token: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          last_activity_at?: string
+          session_token?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       alert_thresholds: {
         Row: {
           bounce_rate_critical: number | null
@@ -188,6 +224,42 @@ export type Database = {
           updated_at?: string
           user_id?: string
           webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      blocked_ips: {
+        Row: {
+          blocked_at: string
+          blocked_by: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          ip_address: string
+          is_permanent: boolean | null
+          metadata: Json | null
+          reason: string
+        }
+        Insert: {
+          blocked_at?: string
+          blocked_by?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          ip_address: string
+          is_permanent?: boolean | null
+          metadata?: Json | null
+          reason: string
+        }
+        Update: {
+          blocked_at?: string
+          blocked_by?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          ip_address?: string
+          is_permanent?: boolean | null
+          metadata?: Json | null
+          reason?: string
         }
         Relationships: []
       }
@@ -562,6 +634,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_verification_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          token: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          token: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       follow_up_reminders: {
         Row: {
           created_at: string
@@ -663,6 +765,36 @@ export type Database = {
           },
         ]
       }
+      ip_whitelist: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          description: string | null
+          id: string
+          ip_address: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       link_click_events: {
         Row: {
           browser: string | null
@@ -705,6 +837,75 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      mfa_settings: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string
+          enrolled_at: string | null
+          id: string
+          is_enabled: boolean
+          last_verified_at: string | null
+          recovery_email: string | null
+          totp_secret: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string
+          enrolled_at?: string | null
+          id?: string
+          is_enabled?: boolean
+          last_verified_at?: string | null
+          recovery_email?: string | null
+          totp_secret?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string
+          enrolled_at?: string | null
+          id?: string
+          is_enabled?: boolean
+          last_verified_at?: string | null
+          recovery_email?: string | null
+          totp_secret?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_history: {
         Row: {
           created_at: string
@@ -740,6 +941,134 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      password_reset_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          token: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          token: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      permissions: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          permission_key: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          permission_key: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          permission_key?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission_id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission_id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduled_emails: {
         Row: {
@@ -831,6 +1160,42 @@ export type Database = {
           report_type?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1312,6 +1677,15 @@ export type Database = {
           threshold: number
         }[]
       }
+      check_login_attempts: {
+        Args: {
+          _email: string
+          _ip_address: string
+          _max_attempts?: number
+          _window_minutes?: number
+        }
+        Returns: boolean
+      }
       get_due_reminders: {
         Args: never
         Returns: {
@@ -1366,6 +1740,14 @@ export type Database = {
           open_count: number
         }[]
       }
+      get_user_permissions: {
+        Args: { _user_id: string }
+        Returns: {
+          category: string
+          permission_key: string
+          permission_name: string
+        }[]
+      }
       get_user_tracking_stats: {
         Args: { p_user_id: string }
         Returns: {
@@ -1378,12 +1760,30 @@ export type Database = {
           total_opens: number
         }[]
       }
+      has_permission: {
+        Args: { _permission_key: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
+      is_ip_whitelisted: { Args: { _ip_address: string }; Returns: boolean }
+      log_security_event: {
+        Args: {
+          _description: string
+          _event_type: string
+          _ip_address?: string
+          _metadata?: Json
+          _severity: string
+          _user_agent?: string
+          _user_id: string
+        }
+        Returns: string
       }
       recalculate_all_contact_scores: {
         Args: { p_user_id: string }
@@ -1397,6 +1797,21 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      permission_type:
+        | "read"
+        | "write"
+        | "delete"
+        | "admin"
+        | "manage_users"
+        | "manage_roles"
+        | "view_analytics"
+        | "export_data"
+        | "manage_webhooks"
+        | "manage_templates"
+        | "view_audit_logs"
+        | "manage_security"
+        | "manage_mfa"
+        | "manage_rate_limits"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1525,6 +1940,22 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      permission_type: [
+        "read",
+        "write",
+        "delete",
+        "admin",
+        "manage_users",
+        "manage_roles",
+        "view_analytics",
+        "export_data",
+        "manage_webhooks",
+        "manage_templates",
+        "view_audit_logs",
+        "manage_security",
+        "manage_mfa",
+        "manage_rate_limits",
+      ],
     },
   },
 } as const
