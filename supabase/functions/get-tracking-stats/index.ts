@@ -2,12 +2,12 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { validateIPAccess } from '../_shared/ip-whitelist.ts';
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-import { createLogger } from '../_shared/logger.ts'
+import { createLogger } from '../_shared/logger.ts';
 
-const log = createLogger('get-tracking-stats')
+const log = createLogger('get-tracking-stats');
+
 const StatsQuerySchema = z.object({
   limit: z.number().int().min(1).max(500).default(100),
   offset: z.number().int().min(0).default(0),
@@ -53,7 +53,9 @@ serve(async (req) => {
       return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
     }
 
-    const { limit, offset, cursor, startDate, endDate, status } = validation.data;
+    const { limit, offset, cursor } = validation.data;
+
+    log.info('Fetching tracking stats', { userId: user.id, limit, offset });
 
     const { data, error } = await supabase.rpc("get_emails_with_stats", {
       p_user_id: user.id,
@@ -62,7 +64,10 @@ serve(async (req) => {
       p_cursor_date: cursor || null
     });
 
-    if (error) return secureErrorResponse("Database error", 500, corsHeaders);
+    if (error) {
+      log.error('Database error', error);
+      return secureErrorResponse("Database error", 500, corsHeaders);
+    }
 
     const nextCursor = data && data.length === limit ? data[data.length - 1].created_at : null;
 
@@ -71,6 +76,7 @@ serve(async (req) => {
       pagination: { limit, offset, nextCursor, hasMore: !!nextCursor }
     }, corsHeaders);
   } catch (error) {
+    log.error('Internal error', error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 });

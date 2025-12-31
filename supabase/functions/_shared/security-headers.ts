@@ -68,7 +68,7 @@ export function addSecurityHeaders(
  */
 export function secureJsonResponse(
   data: unknown,
-  statusOrInit?: number | ResponseInit,
+  statusOrInit?: number | ResponseInit | Record<string, string>,
   legacyHeaders?: Record<string, string>
 ): Response {
   let status = 200;
@@ -78,17 +78,43 @@ export function secureJsonResponse(
     // API legada: secureJsonResponse(data, 200, corsHeaders)
     status = statusOrInit;
     additionalHeaders = legacyHeaders || {};
-  } else if (statusOrInit) {
-    // Nova API: secureJsonResponse(data, { status: 200, headers: {...} })
-    status = statusOrInit.status || 200;
-    if (statusOrInit.headers) {
-      additionalHeaders = Object.fromEntries(
-        new Headers(statusOrInit.headers).entries()
-      );
+  } else if (statusOrInit && typeof statusOrInit === 'object') {
+    // Check if it's ResponseInit or just headers
+    if ('status' in statusOrInit || 'headers' in statusOrInit) {
+      // Nova API: secureJsonResponse(data, { status: 200, headers: {...} })
+      const init = statusOrInit as ResponseInit;
+      status = init.status || 200;
+      if (init.headers) {
+        additionalHeaders = Object.fromEntries(
+          new Headers(init.headers).entries()
+        );
+      }
+    } else {
+      // Just headers passed: secureJsonResponse(data, corsHeaders)
+      additionalHeaders = statusOrInit as Record<string, string>;
     }
   }
   
   return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      ...getAPISecurityHeaders(),
+      ...additionalHeaders,
+    },
+  });
+}
+
+/**
+ * Cria Response de erro segura
+ */
+export function secureErrorResponse(
+  error: string | object,
+  status: number,
+  additionalHeaders?: Record<string, string>
+): Response {
+  const body = typeof error === 'string' ? { error } : error;
+  
+  return new Response(JSON.stringify(body), {
     status,
     headers: {
       ...getAPISecurityHeaders(),
