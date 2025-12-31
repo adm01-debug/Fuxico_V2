@@ -17,6 +17,7 @@ import { SecurityEventsList } from './SecurityEventsList';
 import IPWhitelistPanel from './IPWhitelistPanel';
 import BlockedIPsPanel from './BlockedIPsPanel';
 import GeoWhitelistPanel from './GeoWhitelistPanel';
+import PasswordResetRequestsPanel from './PasswordResetRequestsPanel';
 
 export function SecurityDashboard() {
   const { user } = useAuth();
@@ -146,7 +147,8 @@ export function SecurityDashboard() {
           <GeoWhitelistPanel />
         </TabsContent>
 
-        <TabsContent value="alerts">
+        <TabsContent value="alerts" className="space-y-4">
+          <PasswordResetRequestsPanel />
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

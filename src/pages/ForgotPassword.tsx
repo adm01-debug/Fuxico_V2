@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2, Clock, AlertCircle } from 'lucide-react';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Email inválido');
@@ -31,16 +31,32 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+      // Check if user exists by trying to get their data
+      // We create a reset request that requires admin approval
+      const { error: insertError } = await supabase
+        .from('password_reset_requests')
+        .insert({
+          user_id: '00000000-0000-0000-0000-000000000000', // Placeholder, will be updated by admin
+          email: email.toLowerCase().trim(),
+          status: 'pending',
+          ip_address: null, // Could be captured via edge function
+          user_agent: navigator.userAgent,
+        });
 
-      if (error) throw error;
+      if (insertError) {
+        // Check for unique constraint or other errors
+        if (insertError.message.includes('duplicate')) {
+          toast.info('Já existe uma solicitação pendente para este email');
+        } else {
+          throw insertError;
+        }
+      }
 
       setSent(true);
-      toast.success('Email de recuperação enviado!');
+      toast.success('Solicitação enviada! Aguarde aprovação.');
     } catch (err: any) {
-      toast.error(err.message || 'Erro ao enviar email de recuperação');
+      console.error('Reset request error:', err);
+      toast.error('Erro ao enviar solicitação. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -51,20 +67,34 @@ export default function ForgotPassword() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="w-6 h-6 text-primary" />
+            <div className="mx-auto w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center mb-4">
+              <Clock className="w-6 h-6 text-warning" />
             </div>
-            <CardTitle>Email Enviado!</CardTitle>
-            <CardDescription>
-              Enviamos um link de recuperação para <strong>{email}</strong>. 
-              Verifique sua caixa de entrada e spam.
+            <CardTitle>Solicitação Enviada!</CardTitle>
+            <CardDescription className="space-y-2">
+              <p>
+                Sua solicitação de redefinição de senha para <strong>{email}</strong> foi recebida.
+              </p>
+              <p className="text-warning">
+                Um administrador irá analisar e aprovar sua solicitação.
+              </p>
+              <p>
+                Após a aprovação, você receberá um email com o link para redefinir sua senha.
+              </p>
             </CardDescription>
           </CardHeader>
           <CardFooter className="flex flex-col gap-4">
+            <div className="flex items-start gap-2 p-3 bg-muted rounded-lg text-sm text-muted-foreground">
+              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span>
+                O processo de aprovação pode levar algumas horas. Se sua solicitação for rejeitada, 
+                entre em contato com o suporte.
+              </span>
+            </div>
             <Button variant="outline" className="w-full" onClick={() => setSent(false)}>
-              Tentar outro email
+              Enviar outra solicitação
             </Button>
-            <Link to="/login" className="text-sm text-muted-foreground hover:text-primary">
+            <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary">
               Voltar para login
             </Link>
           </CardFooter>
@@ -77,13 +107,14 @@ export default function ForgotPassword() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <Link to="/login" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4">
+          <Link to="/auth" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar para login
           </Link>
           <CardTitle>Esqueceu sua senha?</CardTitle>
           <CardDescription>
-            Digite seu email e enviaremos um link para redefinir sua senha.
+            Digite seu email e enviaremos uma solicitação de redefinição. 
+            Um administrador precisará aprovar antes do envio do link.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -114,7 +145,7 @@ export default function ForgotPassword() {
                   Enviando...
                 </>
               ) : (
-                'Enviar link de recuperação'
+                'Solicitar redefinição de senha'
               )}
             </Button>
           </CardFooter>
