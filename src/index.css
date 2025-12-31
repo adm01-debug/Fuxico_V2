@@ -1,3 +1,5 @@
+@import './styles/responsive-xl.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -130,5 +132,3 @@
   }
 }
 
-/* Breakpoint XL para telas grandes */
-@import './styles/responsive-xl.css';

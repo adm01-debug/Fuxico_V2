@@ -765,6 +765,36 @@ export type Database = {
           },
         ]
       }
+      geo_whitelist: {
+        Row: {
+          added_by: string | null
+          country_code: string
+          country_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          added_by?: string | null
+          country_code: string
+          country_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          added_by?: string | null
+          country_code?: string
+          country_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ip_whitelist: {
         Row: {
           added_by: string | null
@@ -1844,6 +1874,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_country_allowed: { Args: { _country_code: string }; Returns: boolean }
       is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
       is_ip_whitelisted: { Args: { _ip_address: string }; Returns: boolean }
       log_security_event: {
