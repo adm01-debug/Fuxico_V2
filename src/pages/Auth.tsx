@@ -24,6 +24,11 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Handle breach check callback
+  const handleBreachCheck = (isBreached: boolean | null) => {
+    passwordStrength.setIsBreached(isBreached);
+  };
+
   // Redirect if already logged in
   if (user) {
     navigate('/');
@@ -86,8 +91,10 @@ const Auth = () => {
 
     if (!passwordStrength.isValid) {
       toast({
-        title: 'Senha muito fraca',
-        description: 'A senha deve atender pelo menos 4 requisitos de segurança',
+        title: passwordStrength.isBreached ? 'Senha comprometida' : 'Senha muito fraca',
+        description: passwordStrength.isBreached 
+          ? 'Esta senha foi encontrada em vazamentos de dados. Escolha outra.'
+          : 'A senha deve atender pelo menos 4 requisitos de segurança',
         variant: 'destructive',
       });
       return;
@@ -239,7 +246,10 @@ const Auth = () => {
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
                     />
-                    <PasswordStrengthIndicator password={signupPassword} />
+                    <PasswordStrengthIndicator 
+                      password={signupPassword} 
+                      onBreachCheck={handleBreachCheck}
+                    />
                   </div>
                   <Button 
                     type="submit" 
