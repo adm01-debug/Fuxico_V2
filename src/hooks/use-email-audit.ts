@@ -47,6 +47,13 @@ export interface AuditStats {
 }
 
 // Check if current user is admin
+/**
+ * Hook para verificar se usuário é administrador
+ * @description Verifica se o usuário atual tem role de admin
+ * @returns {Object} { data: boolean, isLoading: boolean }
+ * @example
+ * const { data: isAdmin } = useIsAdmin();
+ */
 export function useIsAdmin() {
   return useQuery({
     staleTime: 5 * 60 * 1000,
@@ -74,6 +81,14 @@ export function useIsAdmin() {
 }
 
 // Fetch audit logs (admin sees all, user sees own)
+/**
+ * Hook para buscar logs de auditoria de emails
+ * @description Recupera logs de emails enviados/recebidos com filtros
+ * @param {Object} options - Opções de filtro (direction, dateRange)
+ * @returns {Object} { data: EmailAuditLog[], isLoading, error }
+ * @example
+ * const { data: logs } = useEmailAuditLogs({ direction: 'sent' });
+ */
 export function useEmailAuditLogs(filters?: {
   userId?: string;
   direction?: 'sent' | 'received';
@@ -117,6 +132,14 @@ export function useEmailAuditLogs(filters?: {
 }
 
 // Fetch fraud alerts (admin only)
+/**
+ * Hook para buscar alertas de fraude
+ * @description Recupera alertas de atividades suspeitas
+ * @param {boolean} includeResolved - Incluir alertas resolvidos
+ * @returns {Object} { data: FraudAlert[], isLoading }
+ * @example
+ * const { data: alerts } = useFraudAlerts(false);
+ */
 export function useFraudAlerts(showResolved = false) {
   return useQuery({
     staleTime: 5 * 60 * 1000,
@@ -141,6 +164,13 @@ export function useFraudAlerts(showResolved = false) {
 }
 
 // Resolve a fraud alert
+/**
+ * Hook para resolver alertas de fraude
+ * @description Marca um alerta como resolvido
+ * @returns {Object} Mutation para resolver alertas
+ * @example
+ * const { mutate: resolve } = useResolveAlert();
+ */
 export function useResolveAlert() {
   const queryClient = useQueryClient();
 
@@ -167,6 +197,13 @@ export function useResolveAlert() {
 }
 
 // Get audit statistics
+/**
+ * Hook para estatísticas de auditoria
+ * @description Retorna métricas agregadas de emails
+ * @returns {Object} { data: AuditStats, isLoading }
+ * @example
+ * const { data: stats } = useAuditStats();
+ */
 export function useAuditStats() {
   return useQuery({
     staleTime: 5 * 60 * 1000,
@@ -223,6 +260,13 @@ export function useAuditStats() {
 }
 
 // Get user activity summary
+/**
+ * Hook para resumo de atividade de usuários
+ * @description Retorna atividade por usuário no período
+ * @returns {Object} { data: UserActivity[], isLoading }
+ * @example
+ * const { data: activity } = useUserActivitySummary();
+ */
 export function useUserActivitySummary() {
   return useQuery({
     staleTime: 5 * 60 * 1000,
