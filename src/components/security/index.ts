@@ -15,3 +15,4 @@ export { ActiveSessionsList } from './ActiveSessionsList';
 export { MFASettingsPanel } from './MFASettingsPanel';
 export { SecurityAlertsList } from './SecurityAlertsList';
 export { SecurityEventsList } from './SecurityEventsList';
+export { LockedAccountsPanel } from './LockedAccountsPanel';
