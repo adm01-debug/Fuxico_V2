@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 // Simple TOTP implementation using HMAC-SHA1
 function base32ToBytes(base32: string): Uint8Array {
@@ -133,6 +134,31 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Rate limiting - TOTP is security-critical, limit to 5 attempts per minute
+  const clientIP = req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown";
+  const rateLimitResult = await checkRateLimit(clientIP, {
+    windowMs: 60000,
+    maxRequests: 5,
+    keyPrefix: "totp:"
+  });
+
+  if (!rateLimitResult.allowed) {
+    return new Response(
+      JSON.stringify({ 
+        error: "Too many attempts. Please try again later.",
+        retryAfter: rateLimitResult.retryAfter 
+      }),
+      { 
+        status: 429, 
+        headers: { 
+          ...corsHeaders, 
+          "Content-Type": "application/json",
+          "Retry-After": String(rateLimitResult.retryAfter || 60)
+        } 
+      }
+    );
+  }
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -160,11 +186,9 @@ serve(async (req) => {
 
     switch (action) {
       case "setup": {
-        // Generate new TOTP secret
         const secret = generateSecret();
         const backupCodes = generateBackupCodes();
         
-        // Store temporarily (not enabled yet)
         const { error: updateError } = await supabase
           .from("mfa_settings")
           .upsert({
@@ -180,7 +204,6 @@ serve(async (req) => {
           throw updateError;
         }
 
-        // Generate QR code URL (otpauth format)
         const issuer = "Fuxico";
         const accountName = user.email || user.id;
         const otpauthUrl = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
@@ -204,7 +227,6 @@ serve(async (req) => {
           );
         }
 
-        // Get current settings
         const { data: settings, error: fetchError } = await supabase
           .from("mfa_settings")
           .select("totp_secret, is_enabled")
@@ -227,7 +249,6 @@ serve(async (req) => {
           );
         }
 
-        // If verifying for setup, enable MFA
         if (!settings.is_enabled) {
           await supabase
             .from("mfa_settings")
@@ -239,7 +260,6 @@ serve(async (req) => {
             })
             .eq("user_id", user.id);
         } else {
-          // Just update last verified
           await supabase
             .from("mfa_settings")
             .update({
@@ -249,13 +269,12 @@ serve(async (req) => {
             .eq("user_id", user.id);
         }
 
-        // Log security event
         await supabase.from("security_events").insert({
           user_id: user.id,
           event_type: "mfa_verified",
           severity: "info",
           description: "MFA code verified successfully",
-          ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
+          ip_address: clientIP,
           user_agent: req.headers.get("user-agent"),
         });
 
@@ -298,7 +317,6 @@ serve(async (req) => {
           );
         }
 
-        // Remove used backup code
         const newBackupCodes = [...settings.backup_codes];
         newBackupCodes.splice(codeIndex, 1);
 
@@ -311,13 +329,12 @@ serve(async (req) => {
           })
           .eq("user_id", user.id);
 
-        // Log security event
         await supabase.from("security_events").insert({
           user_id: user.id,
           event_type: "mfa_backup_used",
           severity: "warning",
           description: `Backup code used. ${newBackupCodes.length} codes remaining.`,
-          ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
+          ip_address: clientIP,
           user_agent: req.headers.get("user-agent"),
         });
 
@@ -372,13 +389,12 @@ serve(async (req) => {
           })
           .eq("user_id", user.id);
 
-        // Log security event
         await supabase.from("security_events").insert({
           user_id: user.id,
           event_type: "mfa_disabled",
           severity: "warning",
           description: "MFA has been disabled",
-          ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
+          ip_address: clientIP,
           user_agent: req.headers.get("user-agent"),
         });
 
@@ -428,13 +444,12 @@ serve(async (req) => {
           })
           .eq("user_id", user.id);
 
-        // Log security event
         await supabase.from("security_events").insert({
           user_id: user.id,
           event_type: "mfa_backup_regenerated",
           severity: "info",
           description: "New backup codes generated",
-          ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
+          ip_address: clientIP,
           user_agent: req.headers.get("user-agent"),
         });
 
@@ -470,7 +485,6 @@ serve(async (req) => {
         );
     }
   } catch (error) {
-    console.error("TOTP error:", error);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
