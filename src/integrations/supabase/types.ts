@@ -1879,6 +1879,30 @@ export type Database = {
         Returns: boolean
       }
       cleanup_expired_challenges: { Args: never; Returns: undefined }
+      create_bounce_alert: {
+        Args: {
+          _alert_type?: string
+          _bounce_rate: number
+          _domain: string
+          _threshold: number
+          _user_id: string
+        }
+        Returns: string
+      }
+      create_password_reset_token: {
+        Args: { _expires_at: string; _token: string; _user_id: string }
+        Returns: string
+      }
+      create_webauthn_challenge: {
+        Args: {
+          _challenge: string
+          _email: string
+          _expires_at: string
+          _type: string
+          _user_id: string
+        }
+        Returns: string
+      }
       get_due_reminders: {
         Args: never
         Returns: {
@@ -1933,6 +1957,14 @@ export type Database = {
           open_count: number
         }[]
       }
+      get_lockout_status: {
+        Args: { _email: string }
+        Returns: {
+          failed_attempts: number
+          is_locked: boolean
+          lockout_until: string
+        }[]
+      }
       get_user_permissions: {
         Args: { _user_id: string }
         Returns: {
@@ -1979,6 +2011,15 @@ export type Database = {
         }
         Returns: string
       }
+      manage_email_verification_token: {
+        Args: {
+          _email: string
+          _expires_at: string
+          _token: string
+          _user_id: string
+        }
+        Returns: string
+      }
       recalculate_all_contact_scores: {
         Args: { p_user_id: string }
         Returns: number
@@ -1996,6 +2037,16 @@ export type Database = {
       update_contact_score: {
         Args: { p_email: string; p_user_id: string }
         Returns: undefined
+      }
+      use_password_reset_token: { Args: { _token: string }; Returns: string }
+      verify_email_token: { Args: { _token: string }; Returns: boolean }
+      verify_webauthn_challenge: {
+        Args: { _challenge: string }
+        Returns: {
+          email: string
+          type: string
+          user_id: string
+        }[]
       }
     }
     Enums: {
