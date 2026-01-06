@@ -18,6 +18,7 @@ import IPWhitelistPanel from './IPWhitelistPanel';
 import BlockedIPsPanel from './BlockedIPsPanel';
 import GeoWhitelistPanel from './GeoWhitelistPanel';
 import PasswordResetRequestsPanel from './PasswordResetRequestsPanel';
+import LockedAccountsPanel from './LockedAccountsPanel';
 
 export function SecurityDashboard() {
   const { user } = useAuth();
@@ -148,6 +149,7 @@ export function SecurityDashboard() {
         </TabsContent>
 
         <TabsContent value="alerts" className="space-y-4">
+          <LockedAccountsPanel />
           <PasswordResetRequestsPanel />
           <Card>
             <CardHeader>
