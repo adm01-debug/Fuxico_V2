@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Hook de onboarding para guiar novos usuários
+ * @description Gerencia o fluxo de onboarding com tour interativo
+ * e progresso persistido no banco de dados
+ */
+
 import { log } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,6 +70,21 @@ function setStoredState(state: Partial<OnboardingState>): void {
 // HOOK
 // ============================================
 
+/**
+ * Hook principal de onboarding
+ * @description Controla o tour interativo para novos usuários,
+ * incluindo navegação entre steps, skip e conclusão
+ * @returns {Object} Objeto contendo:
+ *   - currentStep: Número do passo atual
+ *   - totalSteps: Total de passos
+ *   - isActive: Se o onboarding está ativo
+ *   - nextStep: Função para avançar
+ *   - prevStep: Função para voltar
+ *   - skipOnboarding: Função para pular
+ *   - completeOnboarding: Função para concluir
+ * @example
+ * const { currentStep, nextStep, skipOnboarding } = useOnboarding();
+ */
 export function useOnboarding(): UseOnboardingReturn {
   const [state, setState] = useState<OnboardingState>(() => ({
     currentTour: null,
