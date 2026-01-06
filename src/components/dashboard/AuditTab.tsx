@@ -92,7 +92,7 @@ export function AuditTab() {
 
   if (!isAdmin) {
     return (
-      <Card>
+      <Card role="article">
         <CardContent className="py-12">
           <div className="flex flex-col items-center justify-center text-center space-y-4">
             <Shield className="h-16 w-16 text-muted-foreground" />
@@ -109,10 +109,10 @@ export function AuditTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" role="region" aria-label="Painel de Auditoria de Emails">
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-5">
-        <Card>
+        <Card role="article">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Emails Enviados</CardTitle>
             <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
@@ -122,7 +122,7 @@ export function AuditTab() {
             <p className="text-xs text-muted-foreground">Hoje</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card role="article">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Emails Recebidos</CardTitle>
             <ArrowDownLeft className="h-4 w-4 text-muted-foreground" />
@@ -132,7 +132,7 @@ export function AuditTab() {
             <p className="text-xs text-muted-foreground">Hoje</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card role="article">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Emails Externos</CardTitle>
             <ExternalLink className="h-4 w-4 text-muted-foreground" />
@@ -142,9 +142,9 @@ export function AuditTab() {
             <p className="text-xs text-muted-foreground">Hoje</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card role="article">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas Pendentes</CardTitle>
+            <CardTitle className="text-sm font-medium">Alertas Pendentes" aria-live="polite</CardTitle>
             <AlertTriangle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
@@ -152,7 +152,7 @@ export function AuditTab() {
             <p className="text-xs text-muted-foreground">Não resolvidos</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card role="article">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -194,7 +194,7 @@ export function AuditTab() {
         </TabsList>
 
         <TabsContent value="alerts" className="space-y-4">
-          <Card>
+          <Card role="article">
             <CardHeader>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
@@ -263,7 +263,7 @@ export function AuditTab() {
                 </div>
               ) : (
                 <ScrollArea className="h-[400px]">
-                  <Table>
+                  <Table aria-label="Tabela de logs de auditoria">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Tipo</TableHead>
@@ -293,7 +293,7 @@ export function AuditTab() {
         </TabsContent>
 
         <TabsContent value="logs" className="space-y-4">
-          <Card>
+          <Card role="article">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -326,7 +326,7 @@ export function AuditTab() {
                 </div>
               ) : (
                 <ScrollArea className="h-[400px]">
-                  <Table>
+                  <Table aria-label="Tabela de logs de auditoria">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Direção</TableHead>
@@ -350,7 +350,7 @@ export function AuditTab() {
         </TabsContent>
 
         <TabsContent value="users" className="space-y-4">
-          <Card>
+          <Card role="article">
             <CardHeader>
               <CardTitle>Atividade por Usuário</CardTitle>
               <CardDescription>
@@ -364,7 +364,7 @@ export function AuditTab() {
                   <p>Nenhuma atividade registrada hoje</p>
                 </div>
               ) : (
-                <Table>
+                <Table aria-label="Tabela de logs de auditoria">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Usuário</TableHead>
