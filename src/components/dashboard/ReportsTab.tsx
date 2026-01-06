@@ -149,8 +149,8 @@ export function ReportsTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Card>
+      <div className="space-y-6" role="region" aria-label="Relatórios e Estatísticas">
+        <Card role="article">
           <CardHeader>
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-72" />
@@ -170,7 +170,7 @@ export function ReportsTab() {
   return (
     <div className="space-y-6">
       {/* Export Section */}
-      <Card>
+      <Card role="article">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -209,7 +209,7 @@ export function ReportsTab() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card role="article">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -449,7 +449,7 @@ export function ReportsTab() {
       </Card>
 
       {/* Card de estatísticas rápidas */}
-      <Card>
+      <Card role="article">
         <CardHeader>
           <CardTitle className="text-base">Estatísticas Rápidas</CardTitle>
         </CardHeader>
