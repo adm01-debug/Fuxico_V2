@@ -96,11 +96,11 @@ export function CreateTrackingDialog() {
           Novo Rastreamento
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent role="dialog" aria-labelledby="dialog-title" className="sm:max-w-lg">
         {!result ? (
-          <form onSubmit={handleSubmit}>
+          <form role="form" aria-label="Formulário de novo rastreamento" onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Criar Novo Rastreamento</DialogTitle>
+              <DialogTitle id="dialog-title">Criar Novo Rastreamento</DialogTitle>
               <DialogDescription>
                 Gere um pixel de rastreamento para monitorar aberturas de email.
               </DialogDescription>
@@ -154,7 +154,7 @@ export function CreateTrackingDialog() {
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Rastreamento Criado!</DialogTitle>
+              <DialogTitle id="dialog-title">Rastreamento Criado!</DialogTitle>
               <DialogDescription>
                 Use o código HTML abaixo no corpo do seu email.
               </DialogDescription>
