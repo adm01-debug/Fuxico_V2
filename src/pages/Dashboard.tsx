@@ -31,6 +31,7 @@ import {
   Clock,
   HeartPulse,
 } from 'lucide-react'
+import { JoyrideTour, useOnboardingTour, TourTriggerButton } from '@/components/onboarding/JoyrideTour'
 
 // =============================================================================
 // LAZY LOADING
@@ -131,6 +132,7 @@ interface TabConfig {
   label: string
   icon: React.ReactNode
   component: React.LazyExoticComponent<React.ComponentType<any>>
+  tourTarget?: string
 }
 
 // =============================================================================
@@ -149,12 +151,14 @@ const TABS: TabConfig[] = [
     label: 'Emails',
     icon: <Mail className="h-4 w-4" />,
     component: EmailTable,
+    tourTarget: 'emails-tab',
   },
   {
     id: 'links',
     label: 'Links',
     icon: <LinkIcon className="h-4 w-4" />,
     component: LinksTab,
+    tourTarget: 'links-tab',
   },
   {
     id: 'documents',
@@ -173,6 +177,7 @@ const TABS: TabConfig[] = [
     label: 'Analytics',
     icon: <TrendingUp className="h-4 w-4" />,
     component: AdvancedAnalytics,
+    tourTarget: 'analytics-tab',
   },
   {
     id: 'geo',
@@ -209,6 +214,7 @@ const TABS: TabConfig[] = [
     label: 'Lead Scoring',
     icon: <Flame className="h-4 w-4" />,
     component: LeadScoringTab,
+    tourTarget: 'leads-tab',
   },
   {
     id: 'followup',
@@ -284,6 +290,7 @@ const TABS: TabConfig[] = [
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
+  const { tourState, setTourState, startTour, completeTour, hasCompletedTour } = useOnboardingTour()
   
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value as TabId)
@@ -291,15 +298,23 @@ export default function Dashboard() {
   
   return (
     <div className="container mx-auto p-6 xl:p-8 xl:max-w-screen-2xl">
-      <h1 className="text-3xl font-bold mb-6 xl:text-4xl xl:mb-8">Dashboard</h1>
+      {/* Header com botão de tour */}
+      <div className="flex items-center justify-between mb-6 xl:mb-8">
+        <h1 className="text-3xl font-bold xl:text-4xl">Dashboard</h1>
+        <TourTriggerButton 
+          onClick={() => startTour('dashboard')} 
+          hasCompleted={hasCompletedTour('dashboard')} 
+        />
+      </div>
       
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="mb-6 flex flex-wrap gap-1 xl:gap-2">
+        <TabsList className="mb-6 flex flex-wrap gap-1 xl:gap-2" data-tour="tabs">
           {TABS.map(tab => (
             <TabsTrigger 
               key={tab.id} 
               value={tab.id}
               className="flex items-center gap-2 xl:gap-3"
+              data-tour={tab.tourTarget}
             >
               {tab.icon}
               <span className="hidden sm:inline">{tab.label}</span>
@@ -315,6 +330,13 @@ export default function Dashboard() {
           </TabsContent>
         ))}
       </Tabs>
+      
+      {/* Componente do Tour */}
+      <JoyrideTour 
+        tourState={tourState} 
+        setTourState={setTourState}
+        onComplete={completeTour}
+      />
     </div>
   )
 }

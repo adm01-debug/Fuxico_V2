@@ -603,7 +603,10 @@ export default function DashboardHome() {
       </div>
 
       {/* Métricas Principais */}
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 xl:gap-6">
+      <section 
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 xl:gap-6"
+        data-tour="stats-cards"
+      >
         <MetricCard
           title="Total de Emails"
           value={metrics.totalEmails.toLocaleString('pt-BR')}
@@ -640,7 +643,7 @@ export default function DashboardHome() {
       {/* Grid Principal */}
       <section className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8">
         {/* Gráfico de Tendência */}
-        <Card role="region" aria-label="Estatísticas" className="lg:col-span-2">
+        <Card role="region" aria-label="Estatísticas" className="lg:col-span-2" data-tour="trend-chart">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -656,7 +659,7 @@ export default function DashboardHome() {
         </Card>
 
         {/* Eventos em Tempo Real */}
-        <Card>
+        <Card data-tour="realtime-events">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-yellow-500" />
