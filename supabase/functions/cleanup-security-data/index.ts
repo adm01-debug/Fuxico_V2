@@ -5,16 +5,40 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 serve(async (req: Request): Promise<Response> => {
+  const corsHeaders = getCorsHeaders(req.headers.get('origin'));
+  
   // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Rate limiting - this is an admin function, limit to 10/minute
+  const clientIP = req.headers.get('cf-connecting-ip') || 
+                   req.headers.get('x-forwarded-for')?.split(',')[0] || 
+                   'unknown';
+  
+  const rateLimitResult = await checkRateLimit(clientIP, {
+    windowMs: 60000,
+    maxRequests: 10,
+    keyPrefix: "cleanup-security:"
+  });
+
+  if (!rateLimitResult.allowed) {
+    return new Response(JSON.stringify({
+      error: "Too many cleanup requests",
+      retryAfter: rateLimitResult.retryAfter
+    }), {
+      status: 429,
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/json',
+        'Retry-After': String(rateLimitResult.retryAfter || 60)
+      },
+    });
   }
 
   try {
@@ -78,8 +102,6 @@ serve(async (req: Request): Promise<Response> => {
       .lt('expires_at', now);
     stats.expiredEmailTokens = expiredEmails || 0;
 
-    console.log('Security cleanup completed:', stats);
-
     return new Response(JSON.stringify({ 
       success: true, 
       stats,
@@ -90,7 +112,6 @@ serve(async (req: Request): Promise<Response> => {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Cleanup error:', errorMessage);
 
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
