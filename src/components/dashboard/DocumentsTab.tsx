@@ -59,7 +59,7 @@ export function DocumentsTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" role="region" aria-label="Documentos Rastreados">
         <div className="flex justify-between items-center">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-32" />
@@ -84,7 +84,7 @@ export function DocumentsTab() {
       </div>
 
       {!documents?.length ? (
-        <Card>
+        <Card role="article">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <FileText className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="font-medium mb-2">Nenhum documento rastreado</h3>
@@ -95,8 +95,8 @@ export function DocumentsTab() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <Table>
+        <Card role="article">
+          <Table aria-label="Lista de documentos rastreados">
             <TableHeader>
               <TableRow>
                 <TableHead>Documento</TableHead>
