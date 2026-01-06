@@ -97,6 +97,19 @@ async function callBitrix24API<T = SyncResult>(action: string, data: Record<stri
 // CONFIG HOOK - USING bitrix24_config TABLE
 // ============================================
 
+/**
+ * Hook para gerenciar configuração do Bitrix24
+ * @description Gerencia a configuração de integração com Bitrix24 CRM,
+ * incluindo webhook URL, sincronização automática e notificações
+ * @returns {Object} Objeto contendo:
+ *   - config: Configuração atual do Bitrix24
+ *   - isLoading: Estado de carregamento
+ *   - error: Erro se houver
+ *   - saveConfig: Função para salvar configuração
+ *   - isSaving: Estado de salvamento
+ * @example
+ * const { config, saveConfig, isLoading } = useBitrix24Config();
+ */
 export function useBitrix24Config() {
   const queryClient = useQueryClient();
 
@@ -209,6 +222,17 @@ export function useBitrix24Config() {
 // DATA HOOKS - REAL API ONLY (NO MOCK FALLBACK)
 // ============================================
 
+/**
+ * Hook para buscar contatos do Bitrix24
+ * @description Recupera lista de contatos sincronizados do Bitrix24
+ * @returns {Object} Objeto contendo:
+ *   - contacts: Array de contatos
+ *   - isLoading: Estado de carregamento
+ *   - error: Erro se houver
+ *   - refetch: Função para recarregar dados
+ * @example
+ * const { contacts, isLoading } = useBitrix24Contacts();
+ */
 export function useBitrix24Contacts() {
   const { config } = useBitrix24Config();
 
@@ -231,6 +255,13 @@ export function useBitrix24Contacts() {
   });
 }
 
+/**
+ * Hook para buscar atividades do Bitrix24
+ * @description Recupera histórico de atividades registradas no Bitrix24
+ * @returns {Object} Objeto contendo atividades e estado de carregamento
+ * @example
+ * const { activities, isLoading } = useBitrix24Activities();
+ */
 export function useBitrix24Activities() {
   const { config } = useBitrix24Config();
 
@@ -253,6 +284,13 @@ export function useBitrix24Activities() {
   });
 }
 
+/**
+ * Hook para buscar negócios do Bitrix24
+ * @description Recupera lista de deals/negócios do Bitrix24 CRM
+ * @returns {Object} Objeto contendo deals e estado de carregamento
+ * @example
+ * const { deals, isLoading } = useBitrix24Deals();
+ */
 export function useBitrix24Deals() {
   const { config } = useBitrix24Config();
 
@@ -279,6 +317,14 @@ export function useBitrix24Deals() {
 // MUTATION HOOKS
 // ============================================
 
+/**
+ * Hook para sincronizar contatos com Bitrix24
+ * @description Permite sincronizar contatos individuais ou em lote
+ * @returns {Object} Mutation para sincronização de contatos
+ * @example
+ * const { mutate: syncContact } = useSyncContact();
+ * syncContact({ email: 'contact@example.com' });
+ */
 export function useSyncContact() {
   const queryClient = useQueryClient();
   const { config } = useBitrix24Config();
@@ -308,6 +354,14 @@ export function useSyncContact() {
   });
 }
 
+/**
+ * Hook para registrar atividades no Bitrix24
+ * @description Registra aberturas de email, cliques em links e visualizações
+ * @returns {Object} Mutation para registro de atividades
+ * @example
+ * const { mutate: registerActivity } = useRegisterActivity();
+ * registerActivity({ type: 'email_open', contactId: '123' });
+ */
 export function useRegisterActivity() {
   const queryClient = useQueryClient();
   const { config } = useBitrix24Config();
@@ -347,6 +401,14 @@ export function useRegisterActivity() {
   });
 }
 
+/**
+ * Hook para criar negócios no Bitrix24
+ * @description Cria novos deals no pipeline do Bitrix24
+ * @returns {Object} Mutation para criação de deals
+ * @example
+ * const { mutate: createDeal } = useCreateDeal();
+ * createDeal({ title: 'Novo Negócio', contactId: '123' });
+ */
 export function useCreateDeal() {
   const queryClient = useQueryClient();
   const { config } = useBitrix24Config();
@@ -381,6 +443,13 @@ export function useCreateDeal() {
   });
 }
 
+/**
+ * Hook para enviar notificações via Bitrix24
+ * @description Envia notificações para usuários do Bitrix24
+ * @returns {Object} Mutation para envio de notificações
+ * @example
+ * const { mutate: sendNotification } = useSendNotification();
+ */
 export function useSendNotification() {
   const { config } = useBitrix24Config();
 
@@ -405,6 +474,13 @@ export function useSendNotification() {
 // UTILITY HOOK - Check if using real data
 // ============================================
 
+/**
+ * Hook para verificar status da integração Bitrix24
+ * @description Retorna informações sobre configuração e conectividade
+ * @returns {Object} Status da integração incluindo isConfigured e isEnabled
+ * @example
+ * const { isConfigured, isEnabled } = useBitrix24Status();
+ */
 export function useBitrix24Status() {
   const { config, isLoading } = useBitrix24Config();
   
@@ -419,6 +495,13 @@ export function useBitrix24Status() {
 // TEST CONNECTION HOOK
 // ============================================
 
+/**
+ * Hook para testar conexão com Bitrix24
+ * @description Testa se a conexão com o webhook do Bitrix24 está funcionando
+ * @returns {Object} Mutation para teste de conexão
+ * @example
+ * const { mutate: testConnection, isLoading } = useTestBitrix24Connection();
+ */
 export function useTestBitrix24Connection() {
   return useMutation({
     mutationFn: async () => {
