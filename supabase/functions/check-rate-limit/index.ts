@@ -5,11 +5,8 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 interface RateLimitRequest {
   endpoint: string;
@@ -29,9 +26,36 @@ interface RateLimitResult {
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 serve(async (req: Request): Promise<Response> => {
+  const corsHeaders = getCorsHeaders(req.headers.get('origin'));
+  
   // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Self rate limiting - prevent abuse of the rate limit checker itself
+  const selfIP = req.headers.get('cf-connecting-ip') || 
+                 req.headers.get('x-forwarded-for')?.split(',')[0] || 
+                 'unknown';
+  
+  const selfRateLimit = await checkRateLimit(selfIP, {
+    windowMs: 60000,
+    maxRequests: 100,
+    keyPrefix: "check-rate-limit:"
+  });
+
+  if (!selfRateLimit.allowed) {
+    return new Response(JSON.stringify({
+      error: "Too many requests to rate limit checker",
+      retryAfter: selfRateLimit.retryAfter
+    }), {
+      status: 429,
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/json',
+        'Retry-After': String(selfRateLimit.retryAfter || 60)
+      },
+    });
   }
 
   try {
@@ -156,7 +180,6 @@ serve(async (req: Request): Promise<Response> => {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Rate limit error:', errorMessage);
 
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
