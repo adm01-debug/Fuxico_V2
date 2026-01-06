@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -85,7 +86,7 @@ const Auth = () => {
         }
       }
     } catch (err) {
-      console.warn('Error checking lockout status:', err);
+      log.warn('Error checking lockout status', err);
     }
   }, []);
 
@@ -180,7 +181,7 @@ const Auth = () => {
           }
         }
       } catch (err) {
-        console.warn('Error recording failed login:', err);
+        log.warn('Error recording failed login', err);
         toast({
           title: 'Erro ao entrar',
           description: error.message === 'Invalid login credentials' 
@@ -194,7 +195,7 @@ const Auth = () => {
       try {
         await supabase.rpc('reset_login_lockout', { _email: email.toLowerCase() });
       } catch (err) {
-        console.warn('Error resetting lockout:', err);
+        log.warn('Error resetting lockout', err);
       }
       navigate('/');
     }
