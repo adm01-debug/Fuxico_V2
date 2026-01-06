@@ -275,8 +275,8 @@ function ConfigPanel() {
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-6" role="region" aria-label="Integração Bitrix24">
+      <Card role="article">
         <CardHeader>
           <CardTitle className="text-base">Status da Conexão</CardTitle>
         </CardHeader>
@@ -319,7 +319,7 @@ function ConfigPanel() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card role="article">
         <CardHeader>
           <CardTitle className="text-base">Automações</CardTitle>
           <CardDescription>
@@ -388,8 +388,8 @@ export function BitrixTab() {
   const { config } = useBitrix24Config();
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-6" role="region" aria-label="Integração Bitrix24">
+      <Card role="article">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
