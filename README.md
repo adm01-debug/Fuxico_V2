@@ -139,3 +139,68 @@ npm run build
 ## 📄 Licença
 
 MIT © FUXICO Team
+
+
+## 🚀 Getting Started
+
+### Pré-requisitos
+
+- Node.js 18+
+- npm ou bun
+- Conta no Supabase
+
+### Instalação Rápida
+
+```bash
+# Clone o repositório
+git clone https://github.com/adm01-debug/fuxico.git
+cd fuxico
+
+# Instale as dependências
+npm install
+
+# Configure as variáveis de ambiente
+cp .env.example .env.local
+
+# Inicie o servidor de desenvolvimento
+npm run dev
+```
+
+Acesse http://localhost:5173
+
+## 🤝 Como Contribuir
+
+### 1. Fork e Clone
+
+```bash
+git clone https://github.com/seu-usuario/fuxico.git
+git remote add upstream https://github.com/adm01-debug/fuxico.git
+```
+
+### 2. Crie uma Branch
+
+```bash
+git checkout -b feature/minha-feature
+# ou
+git checkout -b fix/meu-bugfix
+```
+
+### 3. Faça Commit (Conventional Commits)
+
+```bash
+git commit -m "feat: adiciona nova funcionalidade"
+git commit -m "fix: corrige bug no componente"
+git commit -m "docs: atualiza documentação"
+```
+
+### 4. Abra um Pull Request
+
+- Descreva as mudanças claramente
+- Inclua screenshots se aplicável
+- Referencie issues relacionadas
+
+### Padrões de Código
+
+- ESLint + Prettier configurados
+- TypeScript strict mode
+- Testes obrigatórios para features novas
