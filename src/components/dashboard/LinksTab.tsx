@@ -58,7 +58,7 @@ export function LinksTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" role="region" aria-label="Links Rastreados">
         <div className="flex justify-between items-center">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-32" />
@@ -83,7 +83,7 @@ export function LinksTab() {
       </div>
 
       {!links?.length ? (
-        <Card>
+        <Card role="article">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <Link2 className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="font-medium mb-2">Nenhum link rastreado</h3>
@@ -94,8 +94,8 @@ export function LinksTab() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <Table>
+        <Card role="article">
+          <Table aria-label="Lista de links rastreados">
             <TableHeader>
               <TableRow>
                 <TableHead>Link</TableHead>
