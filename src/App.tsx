@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,14 +8,28 @@ import { ThemeProvider } from "@/lib/theme";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationBadgeManager } from "@/components/NotificationBadgeManager";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import Auth from "./pages/Auth";
-import Settings from "./pages/Settings";
-import Security from "./pages/Security";
-import NotFound from "./pages/NotFound";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load pages for better performance
+const Index = lazy(() => import("./pages/Index"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Security = lazy(() => import("./pages/Security"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen p-4" role="status" aria-label="Carregando página">
+    <div className="w-full max-w-4xl space-y-4">
+      <Skeleton className="h-12 w-3/4" />
+      <Skeleton className="h-64 w-full" />
+      <Skeleton className="h-8 w-1/2" />
+    </div>
+  </div>
+);
 
 const App = () => (
   <ErrorBoundary>
@@ -28,14 +42,16 @@ const App = () => (
             <NotificationBadgeManager />
             <BrowserRouter>
               <main id="main-content">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/security" element={<Security />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/security" element={<Security />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
               </main>
             </BrowserRouter>
           </TooltipProvider>
