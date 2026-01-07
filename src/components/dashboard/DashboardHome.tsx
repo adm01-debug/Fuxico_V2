@@ -413,7 +413,12 @@ function WeeklyTrendChart({ data, isLoading }: WeeklyTrendChartProps) {
 // COMPONENTE PRINCIPAL
 // =============================================================================
 
-export default function DashboardHome() {
+interface DashboardHomeProps {
+  onNavigate?: (tabId: string) => void;
+  onCreateTracking?: () => void;
+}
+
+export default function DashboardHome({ onNavigate, onCreateTracking }: DashboardHomeProps) {
   const [realtimeEvents, setRealtimeEvents] = useState<RealtimeEvent[]>([]);
   const [bounceAlerts, setBounceAlerts] = useState<BounceAlert[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -606,8 +611,8 @@ export default function DashboardHome() {
 
       {/* Quick Actions */}
       <QuickActions 
-        onNavigate={() => {}} 
-        onCreateTracking={() => {}}
+        onNavigate={(tabId) => onNavigate?.(tabId)} 
+        onCreateTracking={onCreateTracking}
       />
 
       {/* Métricas Principais */}
