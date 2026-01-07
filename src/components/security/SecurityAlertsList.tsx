@@ -105,7 +105,7 @@ export function SecurityAlertsList({ limit, compact = false }: SecurityAlertsLis
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {alerts.map((alert) => {
         const config = getSeverityConfig(alert.severity);
         const Icon = config.icon;
@@ -114,52 +114,52 @@ export function SecurityAlertsList({ limit, compact = false }: SecurityAlertsLis
         return (
           <div
             key={alert.id}
-            className="flex items-start gap-3 p-3 rounded-lg border"
+            className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border"
           >
-            <div className={`p-2 rounded-full ${config.bgColor}`}>
-              <Icon className={`h-4 w-4 ${config.color}`} />
+            <div className={`p-1.5 sm:p-2 rounded-full shrink-0 ${config.bgColor}`}>
+              <Icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${config.color}`} />
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="font-medium text-sm">
+              <div className="flex items-start sm:items-center gap-1.5 sm:gap-2 flex-wrap">
+                <p className="font-medium text-xs sm:text-sm leading-tight">
                   {getEventTypeLabel(alert.event_type)}
                 </p>
-                <Badge variant={config.badge} className="text-xs">
+                <Badge variant={config.badge} className="text-[10px] sm:text-xs px-1.5 py-0.5">
                   {alert.severity === 'error' ? 'Crítico' : 'Atenção'}
                 </Badge>
               </div>
 
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
                 {alert.description}
               </p>
 
               {!compact && (
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
+                <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground mt-2 flex-wrap">
                   <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
+                    <Clock className="h-3 w-3 shrink-0" />
                     {formatDistanceToNow(new Date(alert.created_at), { 
                       addSuffix: true, 
                       locale: ptBR 
                     })}
                   </span>
                   {alert.ip_address && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {alert.ip_address}
+                    <span className="flex items-center gap-1 hidden xs:flex">
+                      <MapPin className="h-3 w-3 shrink-0" />
+                      <span className="truncate max-w-[100px]">{alert.ip_address}</span>
                     </span>
                   )}
                   {metadata?.device && (
-                    <span className="flex items-center gap-1">
-                      <Monitor className="h-3 w-3" />
-                      {metadata.device}
+                    <span className="flex items-center gap-1 hidden sm:flex">
+                      <Monitor className="h-3 w-3 shrink-0" />
+                      <span className="truncate max-w-[120px]">{metadata.device}</span>
                     </span>
                   )}
                 </div>
               )}
 
               {compact && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                   {formatDistanceToNow(new Date(alert.created_at), { 
                     addSuffix: true, 
                     locale: ptBR 
@@ -172,7 +172,7 @@ export function SecurityAlertsList({ limit, compact = false }: SecurityAlertsLis
       })}
 
       {compact && alerts.length > 0 && (
-        <Button variant="link" className="w-full" size="sm">
+        <Button variant="link" className="w-full h-10" size="sm">
           Ver todos os alertas →
         </Button>
       )}
