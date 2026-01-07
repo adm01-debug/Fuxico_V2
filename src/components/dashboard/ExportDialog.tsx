@@ -116,42 +116,42 @@ export function ExportDialog({ onExport, data = [], children }: ExportDialogProp
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Exportar Dados</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Exportar Dados</DialogTitle>
+          <DialogDescription className="text-sm">
             Configure as opções de exportação abaixo.
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6 py-4">
+        <div className="space-y-5 py-4">
           {/* Format Selection */}
           <div className="space-y-3">
-            <Label>Formato do Arquivo</Label>
+            <Label className="text-sm font-medium">Formato do Arquivo</Label>
             <RadioGroup
               value={options.format}
               onValueChange={(value) => setOptions(prev => ({ ...prev, format: value as ExportOptions['format'] }))}
               className="grid grid-cols-3 gap-2"
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="csv" id="csv" />
-                <Label htmlFor="csv" className="flex items-center gap-1 cursor-pointer">
-                  <FileSpreadsheet className="h-4 w-4" />
-                  CSV
+                <RadioGroupItem value="csv" id="csv" className="h-5 w-5" />
+                <Label htmlFor="csv" className="flex items-center gap-1.5 cursor-pointer text-sm">
+                  <FileSpreadsheet className="h-4 w-4 shrink-0" />
+                  <span>CSV</span>
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="xlsx" id="xlsx" />
-                <Label htmlFor="xlsx" className="flex items-center gap-1 cursor-pointer">
-                  <FileSpreadsheet className="h-4 w-4" />
-                  Excel
+                <RadioGroupItem value="xlsx" id="xlsx" className="h-5 w-5" />
+                <Label htmlFor="xlsx" className="flex items-center gap-1.5 cursor-pointer text-sm">
+                  <FileSpreadsheet className="h-4 w-4 shrink-0" />
+                  <span>Excel</span>
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="json" id="json" />
-                <Label htmlFor="json" className="flex items-center gap-1 cursor-pointer">
-                  <FileText className="h-4 w-4" />
-                  JSON
+                <RadioGroupItem value="json" id="json" className="h-5 w-5" />
+                <Label htmlFor="json" className="flex items-center gap-1.5 cursor-pointer text-sm">
+                  <FileText className="h-4 w-4 shrink-0" />
+                  <span>JSON</span>
                 </Label>
               </div>
             </RadioGroup>
@@ -159,27 +159,29 @@ export function ExportDialog({ onExport, data = [], children }: ExportDialogProp
 
           {/* Date Range */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2">
+            <Label className="flex items-center gap-2 text-sm font-medium">
               <Calendar className="h-4 w-4" />
               Período
             </Label>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label htmlFor="dateFrom" className="text-xs text-muted-foreground">De</Label>
                 <Input
                   id="dateFrom"
                   type="date"
                   value={options.dateFrom}
                   onChange={(e) => setOptions(prev => ({ ...prev, dateFrom: e.target.value }))}
+                  className="h-11"
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label htmlFor="dateTo" className="text-xs text-muted-foreground">Até</Label>
                 <Input
                   id="dateTo"
                   type="date"
                   value={options.dateTo}
                   onChange={(e) => setOptions(prev => ({ ...prev, dateTo: e.target.value }))}
+                  className="h-11"
                 />
               </div>
             </div>
@@ -187,29 +189,31 @@ export function ExportDialog({ onExport, data = [], children }: ExportDialogProp
 
           {/* Options */}
           <div className="space-y-3">
-            <Label>Opções</Label>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
+            <Label className="text-sm font-medium">Opções</Label>
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3">
                 <Checkbox
                   id="includeStats"
                   checked={options.includeStats}
                   onCheckedChange={(checked) => 
                     setOptions(prev => ({ ...prev, includeStats: checked === true }))
                   }
+                  className="h-5 w-5 mt-0.5"
                 />
-                <Label htmlFor="includeStats" className="cursor-pointer">
+                <Label htmlFor="includeStats" className="cursor-pointer text-sm leading-relaxed">
                   Incluir estatísticas (aberturas, cliques)
                 </Label>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-start space-x-3">
                 <Checkbox
                   id="includeEvents"
                   checked={options.includeEvents}
                   onCheckedChange={(checked) => 
                     setOptions(prev => ({ ...prev, includeEvents: checked === true }))
                   }
+                  className="h-5 w-5 mt-0.5"
                 />
-                <Label htmlFor="includeEvents" className="cursor-pointer">
+                <Label htmlFor="includeEvents" className="cursor-pointer text-sm leading-relaxed">
                   Incluir histórico de eventos
                 </Label>
               </div>
@@ -217,11 +221,11 @@ export function ExportDialog({ onExport, data = [], children }: ExportDialogProp
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto h-11">
             Cancelar
           </Button>
-          <Button onClick={handleExport} disabled={isExporting} className="gap-2">
+          <Button onClick={handleExport} disabled={isExporting} className="gap-2 w-full sm:w-auto h-11">
             {isExporting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />

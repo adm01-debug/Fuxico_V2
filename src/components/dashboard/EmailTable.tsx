@@ -209,24 +209,29 @@ const PaginationControls = ({
   totalPages: number; 
   onPageChange: (page: number) => void;
 }) => (
-  <div className="flex items-center justify-between px-4 py-3 border-t">
-    <div className="text-sm text-muted-foreground xl:text-base">
-      Página {currentPage} de {totalPages}
+  <div className="flex items-center justify-between px-3 sm:px-4 py-3 border-t gap-2">
+    <div className="text-xs sm:text-sm text-muted-foreground">
+      <span className="hidden sm:inline">Página </span>
+      <span>{currentPage}/{totalPages}</span>
     </div>
     <div className="flex gap-2">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        className="px-3 py-1 text-sm border rounded hover:bg-muted disabled:opacity-50"
+        className="px-3 py-2 text-xs sm:text-sm border rounded hover:bg-muted disabled:opacity-50 min-h-[44px] min-w-[44px] sm:min-w-0"
+        aria-label="Página anterior"
       >
-        Anterior
+        <span className="hidden sm:inline">Anterior</span>
+        <span className="sm:hidden">←</span>
       </button>
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        className="px-3 py-1 text-sm border rounded hover:bg-muted disabled:opacity-50"
+        className="px-3 py-2 text-xs sm:text-sm border rounded hover:bg-muted disabled:opacity-50 min-h-[44px] min-w-[44px] sm:min-w-0"
+        aria-label="Próxima página"
       >
-        Próximo
+        <span className="hidden sm:inline">Próximo</span>
+        <span className="sm:hidden">→</span>
       </button>
     </div>
   </div>
