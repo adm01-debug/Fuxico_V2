@@ -118,19 +118,19 @@ export function CreateTrackingDialog({
           {trigger || defaultTrigger}
         </DialogTrigger>
       )}
-      <DialogContent role="dialog" aria-labelledby="dialog-title" className="sm:max-w-lg">
+      <DialogContent role="dialog" aria-labelledby="dialog-title" className="sm:max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto">
         {!result ? (
           <form role="form" aria-label="Formulário de novo rastreamento" onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle id="dialog-title">Criar Novo Rastreamento</DialogTitle>
-              <DialogDescription>
+              <DialogTitle id="dialog-title" className="text-lg sm:text-xl">Criar Novo Rastreamento</DialogTitle>
+              <DialogDescription className="text-sm">
                 Gere um pixel de rastreamento para monitorar aberturas de email.
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email do Destinatário *</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email do Destinatário *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -138,36 +138,40 @@ export function CreateTrackingDialog({
                   value={recipientEmail}
                   onChange={(e) => setRecipientEmail(e.target.value)}
                   required
+                  className="h-11"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="subject">Assunto do Email</Label>
+                <Label htmlFor="subject" className="text-sm font-medium">Assunto do Email</Label>
                 <Input
                   id="subject"
                   placeholder="Assunto do email"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
+                  className="h-11"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="links">Links para Rastrear (um por linha)</Label>
+                <Label htmlFor="links" className="text-sm font-medium">Links para Rastrear</Label>
+                <p className="text-xs text-muted-foreground">Um link por linha</p>
                 <Textarea
                   id="links"
                   placeholder="https://exemplo.com/pagina1&#10;https://exemplo.com/pagina2"
                   value={links}
                   onChange={(e) => setLinks(e.target.value)}
                   rows={3}
+                  className="min-h-[80px]"
                 />
               </div>
             </div>
             
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose}>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button type="button" variant="outline" onClick={handleClose} className="w-full sm:w-auto h-11">
                 Cancelar
               </Button>
-              <Button type="submit" disabled={mutation.isPending}>
+              <Button type="submit" disabled={mutation.isPending} className="w-full sm:w-auto h-11">
                 {mutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Criar Rastreamento
               </Button>
@@ -176,22 +180,23 @@ export function CreateTrackingDialog({
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle id="dialog-title">Rastreamento Criado!</DialogTitle>
-              <DialogDescription>
+              <DialogTitle id="dialog-title" className="text-lg sm:text-xl">Rastreamento Criado!</DialogTitle>
+              <DialogDescription className="text-sm">
                 Use o código HTML abaixo no corpo do seu email.
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>Tracking ID</Label>
+                <Label className="text-sm font-medium">Tracking ID</Label>
                 <div className="flex gap-2">
-                  <Input value={result.trackingId} readOnly className="font-mono text-sm" />
+                  <Input value={result.trackingId} readOnly className="font-mono text-xs sm:text-sm h-11" />
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
                     onClick={() => handleCopy(result.trackingId, "id")}
+                    className="h-11 w-11 shrink-0"
                   >
                     {copied === "id" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
@@ -199,12 +204,13 @@ export function CreateTrackingDialog({
               </div>
               
               <div className="space-y-2">
-                <Label>Pixel HTML (cole no email)</Label>
+                <Label className="text-sm font-medium">Pixel HTML</Label>
+                <p className="text-xs text-muted-foreground">Cole no corpo do email</p>
                 <div className="flex gap-2">
                   <Textarea 
                     value={result.pixelHtml} 
                     readOnly 
-                    className="font-mono text-xs"
+                    className="font-mono text-xs min-h-[60px]"
                     rows={2}
                   />
                   <Button
@@ -212,6 +218,7 @@ export function CreateTrackingDialog({
                     variant="outline"
                     size="icon"
                     onClick={() => handleCopy(result.pixelHtml, "html")}
+                    className="h-11 w-11 shrink-0 self-start"
                   >
                     {copied === "html" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
@@ -220,20 +227,21 @@ export function CreateTrackingDialog({
               
               {result.wrappedLinks.length > 0 && (
                 <div className="space-y-2">
-                  <Label>Links Rastreados</Label>
+                  <Label className="text-sm font-medium">Links Rastreados</Label>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {result.wrappedLinks.map((link) => (
                       <div key={link.linkId} className="flex gap-2 items-center">
                         <Input 
                           value={link.wrapped} 
                           readOnly 
-                          className="font-mono text-xs flex-1"
+                          className="font-mono text-xs flex-1 h-10"
                         />
                         <Button
                           type="button"
                           variant="outline"
                           size="icon"
                           onClick={() => handleCopy(link.wrapped, link.linkId)}
+                          className="h-10 w-10 shrink-0"
                         >
                           {copied === link.linkId ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
@@ -245,7 +253,7 @@ export function CreateTrackingDialog({
             </div>
             
             <DialogFooter>
-              <Button onClick={handleClose}>Fechar</Button>
+              <Button onClick={handleClose} className="w-full sm:w-auto h-11">Fechar</Button>
             </DialogFooter>
           </>
         )}

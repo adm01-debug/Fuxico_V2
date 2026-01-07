@@ -216,17 +216,17 @@ export function EmailFiltersComponent({
   ];
 
   return (
-    <div role="search" aria-label="Filtros de email" className="space-y-4">
-      {/* Search and main filters row */}
-      <div role="search" aria-label="Filtros de email" className="flex flex-col sm:flex-row gap-3">
-        {/* Search input */}
-        <div role="search" aria-label="Filtros de email" className="relative flex-1">
+    <div role="search" aria-label="Filtros de email" className="space-y-3 sm:space-y-4">
+      {/* Search and main filters row - Stack on mobile, row on desktop */}
+      <div className="flex flex-col gap-3">
+        {/* Search input - Full width */}
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar por destinatário ou assunto..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="pl-9 pr-9"
+            className="pl-9 pr-9 h-11"
           />
           {searchValue && (
             <button
@@ -234,170 +234,195 @@ export function EmailFiltersComponent({
                 setSearchValue('');
                 onFiltersChange({ ...filters, search: '' });
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 min-h-[44px] min-w-[44px] flex items-center justify-center -mr-1"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        {/* Status filter */}
-        <Select
-          value={filters.status}
-          onValueChange={(value) => onFiltersChange({ ...filters, status: value as EmailFilters['status'] })}
-        >
-          <SelectTrigger className="w-full sm:w-[160px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            {statusOptions.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                <div role="search" aria-label="Filtros de email" className="flex items-center gap-2">
-                  {option.icon}
-                  <span>{option.label}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Period filter */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button aria-label="Aplicar filtros" variant="outline" className="w-full sm:w-[180px] justify-between">
-              <div role="search" aria-label="Filtros de email" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span>
-                  {filters.period === 'custom' && filters.dateRange.from
-                    ? `${format(filters.dateRange.from, 'dd/MM', { locale: ptBR })} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM', { locale: ptBR }) : '...'}`
-                    : periodOptions.find(o => o.value === filters.period)?.label
-                  }
-                </span>
-              </div>
-              <ChevronDown className="h-4 w-4 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <div role="search" aria-label="Filtros de email" className="p-2 space-y-1">
-              {periodOptions.map(option => (
-                <Button
-                  key={option.value}
-                  variant={filters.period === option.value ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => {
-                    if (option.value !== 'custom') {
-                      onFiltersChange({ 
-                        ...filters, 
-                        period: option.value as EmailFilters['period'],
-                        dateRange: { from: undefined, to: undefined }
-                      });
-                    } else {
-                      onFiltersChange({ ...filters, period: 'custom' });
-                    }
-                  }}
-                >
-                  {option.label}
-                </Button>
+        {/* Filter row - Horizontal scroll on mobile */}
+        <div className="flex gap-2 overflow-x-auto pb-1 -mb-1 scrollbar-thin">
+          {/* Status filter */}
+          <Select
+            value={filters.status}
+            onValueChange={(value) => onFiltersChange({ ...filters, status: value as EmailFilters['status'] })}
+          >
+            <SelectTrigger className="min-w-[130px] sm:w-[160px] h-10 shrink-0">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  <div className="flex items-center gap-2">
+                    {option.icon}
+                    <span>{option.label}</span>
+                  </div>
+                </SelectItem>
               ))}
-            </div>
-            {filters.period === 'custom' && (
-              <>
-                <div role="search" aria-label="Filtros de email" className="border-t" />
-                <CalendarComponent
-                  mode="range"
-                  selected={{ from: filters.dateRange.from, to: filters.dateRange.to }}
-                  onSelect={(range) => onFiltersChange({ 
-                    ...filters, 
-                    dateRange: { from: range?.from, to: range?.to }
-                  })}
-                  locale={ptBR}
-                  numberOfMonths={2}
-                  className="p-3"
-                />
-              </>
-            )}
-          </PopoverContent>
-        </Popover>
+            </SelectContent>
+          </Select>
 
-        {/* Sort dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-label="Aplicar filtros" variant="outline" className="w-full sm:w-auto">
-              <ArrowUpDown className="h-4 w-4 mr-2" />
-              Ordenar
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {sortOptions.map(option => (
-              <DropdownMenuItem
-                key={option.value}
-                onClick={() => onFiltersChange({ 
-                  ...filters, 
-                  sortBy: option.value as EmailFilters['sortBy'],
-                  sortOrder: filters.sortBy === option.value 
-                    ? (filters.sortOrder === 'desc' ? 'asc' : 'desc')
-                    : 'desc'
-                })}
+          {/* Period filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                aria-label="Selecionar período" 
+                variant="outline" 
+                className="min-w-[140px] sm:w-[180px] h-10 justify-between shrink-0"
               >
-                <span className="flex-1">{option.label}</span>
-                {filters.sortBy === option.value && (
-                  <span className="text-xs text-muted-foreground">
-                    {filters.sortOrder === 'desc' ? '↓' : '↑'}
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 shrink-0" />
+                  <span className="truncate text-sm">
+                    {filters.period === 'custom' && filters.dateRange.from
+                      ? `${format(filters.dateRange.from, 'dd/MM', { locale: ptBR })} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM', { locale: ptBR }) : '...'}`
+                      : periodOptions.find(o => o.value === filters.period)?.label
+                    }
                   </span>
-                )}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                </div>
+                <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <div className="p-2 space-y-1">
+                {periodOptions.map(option => (
+                  <Button
+                    key={option.value}
+                    variant={filters.period === option.value ? "secondary" : "ghost"}
+                    className="w-full justify-start min-h-[44px]"
+                    onClick={() => {
+                      if (option.value !== 'custom') {
+                        onFiltersChange({ 
+                          ...filters, 
+                          period: option.value as EmailFilters['period'],
+                          dateRange: { from: undefined, to: undefined }
+                        });
+                      } else {
+                        onFiltersChange({ ...filters, period: 'custom' });
+                      }
+                    }}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+              {filters.period === 'custom' && (
+                <>
+                  <div className="border-t" />
+                  <CalendarComponent
+                    mode="range"
+                    selected={{ from: filters.dateRange.from, to: filters.dateRange.to }}
+                    onSelect={(range) => onFiltersChange({ 
+                      ...filters, 
+                      dateRange: { from: range?.from, to: range?.to }
+                    })}
+                    locale={ptBR}
+                    numberOfMonths={1}
+                    className="p-3"
+                  />
+                </>
+              )}
+            </PopoverContent>
+          </Popover>
+
+          {/* Sort dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button aria-label="Ordenar resultados" variant="outline" className="h-10 shrink-0 px-3">
+                <ArrowUpDown className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Ordenar</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {sortOptions.map(option => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => onFiltersChange({ 
+                    ...filters, 
+                    sortBy: option.value as EmailFilters['sortBy'],
+                    sortOrder: filters.sortBy === option.value 
+                      ? (filters.sortOrder === 'desc' ? 'asc' : 'desc')
+                      : 'desc'
+                  })}
+                  className="min-h-[44px]"
+                >
+                  <span className="flex-1">{option.label}</span>
+                  {filters.sortBy === option.value && (
+                    <span className="text-xs text-muted-foreground">
+                      {filters.sortOrder === 'desc' ? '↓' : '↑'}
+                    </span>
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
-      {/* Active filters and results count */}
-      <div role="search" aria-label="Filtros de email" className="flex items-center justify-between">
-        <div role="search" aria-label="Filtros de email" className="flex items-center gap-2 flex-wrap">
+      {/* Active filters and results count - Stack on mobile */}
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2">
+        {/* Active filter badges */}
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
           {hasActiveFilters && (
             <>
-              <span className="text-sm text-muted-foreground">Filtros ativos:</span>
+              <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">Filtros:</span>
               
               {filters.search && (
-                <Badge variant="secondary" className="gap-1">
-                  Busca: "{filters.search}"
-                  <button onClick={() => {
-                    setSearchValue('');
-                    onFiltersChange({ ...filters, search: '' });
-                  }}>
+                <Badge variant="secondary" className="gap-1 text-xs max-w-[150px]">
+                  <span className="truncate">"{filters.search}"</span>
+                  <button 
+                    onClick={() => {
+                      setSearchValue('');
+                      onFiltersChange({ ...filters, search: '' });
+                    }}
+                    className="p-0.5 hover:bg-background/50 rounded"
+                    aria-label="Remover filtro de busca"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
               
               {filters.status !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   {statusOptions.find(o => o.value === filters.status)?.label}
-                  <button onClick={() => onFiltersChange({ ...filters, status: 'all' })}>
+                  <button 
+                    onClick={() => onFiltersChange({ ...filters, status: 'all' })}
+                    className="p-0.5 hover:bg-background/50 rounded"
+                    aria-label="Remover filtro de status"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
               
               {filters.period !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   {periodOptions.find(o => o.value === filters.period)?.label}
-                  <button onClick={() => onFiltersChange({ 
-                    ...filters, 
-                    period: 'all',
-                    dateRange: { from: undefined, to: undefined }
-                  })}>
+                  <button 
+                    onClick={() => onFiltersChange({ 
+                      ...filters, 
+                      period: 'all',
+                      dateRange: { from: undefined, to: undefined }
+                    })}
+                    className="p-0.5 hover:bg-background/50 rounded"
+                    aria-label="Remover filtro de período"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
               
               {filters.minOpens > 0 && (
-                <Badge variant="secondary" className="gap-1">
-                  Min. {filters.minOpens} aberturas
-                  <button onClick={() => onFiltersChange({ ...filters, minOpens: 0 })}>
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  Min. {filters.minOpens}
+                  <button 
+                    onClick={() => onFiltersChange({ ...filters, minOpens: 0 })}
+                    className="p-0.5 hover:bg-background/50 rounded"
+                    aria-label="Remover filtro de aberturas mínimas"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -407,22 +432,23 @@ export function EmailFiltersComponent({
                 variant="ghost"
                 size="sm"
                 onClick={clearAllFilters}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
               >
-                Limpar todos
+                Limpar
               </Button>
             </>
           )}
         </div>
 
-        <div role="search" aria-label="Filtros de email" className="text-sm text-muted-foreground">
+        {/* Results count */}
+        <div className="text-xs sm:text-sm text-muted-foreground shrink-0">
           {hasActiveFilters ? (
             <span>
-              Mostrando <strong>{filteredCount}</strong> de <strong>{totalCount}</strong> emails
+              <strong>{filteredCount}</strong>/<strong>{totalCount}</strong> emails
             </span>
           ) : (
             <span>
-              <strong>{totalCount}</strong> email{totalCount !== 1 ? 's' : ''} rastreado{totalCount !== 1 ? 's' : ''}
+              <strong>{totalCount}</strong> email{totalCount !== 1 ? 's' : ''}
             </span>
           )}
         </div>
