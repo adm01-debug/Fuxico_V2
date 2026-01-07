@@ -58,7 +58,7 @@ serve(async (req) => {
       status: allHealthy ? "healthy" : "degraded",
       timestamp: new Date().toISOString(),
       version: "1.0.0",
-      uptime: process.uptime?.() || 0,
+      uptime: Deno.osUptime?.() ?? 0,
       totalLatency: Date.now() - startTime,
       ...(detailed === "true" ? { checks } : {})
     };
