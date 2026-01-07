@@ -104,67 +104,87 @@ function WidgetItem({ widget, onToggle }: WidgetItemProps) {
 
 interface WidgetCustomizerProps {
   trigger?: React.ReactNode;
+  isEditing?: boolean;
+  onEditingChange?: (editing: boolean) => void;
 }
 
-export function WidgetCustomizer({ trigger }: WidgetCustomizerProps) {
+export function WidgetCustomizer({ 
+  trigger, 
+  isEditing = false, 
+  onEditingChange 
+}: WidgetCustomizerProps) {
   const [open, setOpen] = useState(false);
   const { widgets, toggleWidget, resetWidgets } = useDashboardWidgets();
 
   const enabledCount = widgets.filter(w => w.enabled).length;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" size="sm" className="gap-2">
-            <Settings2 className="h-4 w-4" />
-            Personalizar
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Settings2 className="h-5 w-5" />
-            Personalizar Dashboard
-          </DialogTitle>
-          <DialogDescription>
-            Escolha quais widgets exibir e organize a ordem de exibição.
-          </DialogDescription>
-        </DialogHeader>
+    <div className="flex items-center gap-2">
+      {onEditingChange && (
+        <Button
+          variant={isEditing ? "default" : "outline"}
+          size="sm"
+          onClick={() => onEditingChange(!isEditing)}
+          className="gap-2"
+        >
+          <GripVertical className="h-4 w-4" />
+          {isEditing ? 'Concluir' : 'Reorganizar'}
+        </Button>
+      )}
+      
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button variant="outline" size="sm" className="gap-2">
+              <Settings2 className="h-4 w-4" />
+              Personalizar
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings2 className="h-5 w-5" />
+              Personalizar Dashboard
+            </DialogTitle>
+            <DialogDescription>
+              Escolha quais widgets exibir e organize a ordem de exibição.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="flex items-center justify-between py-2">
-          <p className="text-sm text-muted-foreground">
-            {enabledCount} de {widgets.length} widgets ativos
-          </p>
-          <Button variant="ghost" size="sm" onClick={resetWidgets} className="gap-2">
-            <RotateCcw className="h-4 w-4" />
-            Restaurar Padrão
-          </Button>
-        </div>
-
-        <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-2">
-            {widgets
-              .sort((a, b) => {
-                if (a.enabled && !b.enabled) return -1;
-                if (!a.enabled && b.enabled) return 1;
-                return a.order - b.order;
-              })
-              .map((widget) => (
-                <WidgetItem
-                  key={widget.id}
-                  widget={widget}
-                  onToggle={toggleWidget}
-                />
-              ))}
+          <div className="flex items-center justify-between py-2">
+            <p className="text-sm text-muted-foreground">
+              {enabledCount} de {widgets.length} widgets ativos
+            </p>
+            <Button variant="ghost" size="sm" onClick={resetWidgets} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Restaurar Padrão
+            </Button>
           </div>
-        </ScrollArea>
 
-        <div className="flex justify-end pt-4">
-          <Button onClick={() => setOpen(false)}>Concluído</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-2">
+              {widgets
+                .sort((a, b) => {
+                  if (a.enabled && !b.enabled) return -1;
+                  if (!a.enabled && b.enabled) return 1;
+                  return a.order - b.order;
+                })
+                .map((widget) => (
+                  <WidgetItem
+                    key={widget.id}
+                    widget={widget}
+                    onToggle={toggleWidget}
+                  />
+                ))}
+            </div>
+          </ScrollArea>
+
+          <div className="flex justify-end pt-4">
+            <Button onClick={() => setOpen(false)}>Concluído</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
