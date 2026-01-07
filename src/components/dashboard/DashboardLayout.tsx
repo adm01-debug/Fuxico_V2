@@ -325,13 +325,16 @@ export default function DashboardLayout() {
               </div>
             </div>
             
-            {/* Breadcrumbs - hidden on mobile */}
-            <div className="hidden md:block px-4 lg:px-6 pb-2">
-              <DashboardBreadcrumbs 
-                activeTab={activeTab} 
-                onNavigate={handleTabChange}
-              />
-            </div>
+            {/* Breadcrumbs - responsive */}
+            {activeTab !== 'home' && (
+              <div className="px-3 sm:px-4 lg:px-6 pb-2">
+                <DashboardBreadcrumbs 
+                  activeTab={activeTab} 
+                  onNavigate={handleTabChange}
+                  className="text-xs sm:text-sm"
+                />
+              </div>
+            )}
           </header>
 
           {/* Main Content with Tab Transition */}
