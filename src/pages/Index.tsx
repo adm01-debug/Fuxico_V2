@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { 
   Mail, 
   Eye, 
@@ -19,288 +21,633 @@ import {
   BarChart3,
   Users,
   Clock,
-  Globe
+  Globe,
+  Sparkles,
+  Play,
+  Star
 } from "lucide-react";
 import logoImg from "@/assets/logo.jpg";
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { opacity: 1, scale: 1 }
+};
 
 const features = [
   {
     icon: Eye,
     title: "Rastreamento de Aberturas",
     description: "Saiba exatamente quando seu email foi aberto com precisão de segundos",
-    color: "text-blue-500"
+    gradient: "from-blue-500 to-cyan-400"
   },
   {
     icon: MousePointerClick,
     title: "Cliques em Links",
     description: "Monitore quais links foram clicados e quantas vezes",
-    color: "text-green-500"
+    gradient: "from-green-500 to-emerald-400"
   },
   {
     icon: FileText,
     title: "Documentos Rastreados",
     description: "Envie PDFs e documentos com rastreamento de visualização",
-    color: "text-purple-500"
+    gradient: "from-purple-500 to-violet-400"
   },
   {
     icon: Building2,
     title: "Integração Bitrix24",
     description: "Sincronize automaticamente com seu CRM favorito",
-    color: "text-orange-500"
+    gradient: "from-orange-500 to-amber-400"
   },
   {
     icon: Shield,
     title: "Auditoria Empresarial",
     description: "Controle total sobre emails enviados e recebidos pela equipe",
-    color: "text-red-500"
+    gradient: "from-red-500 to-rose-400"
   },
   {
     icon: Bell,
     title: "Notificações em Tempo Real",
     description: "Receba alertas instantâneos quando seus emails são lidos",
-    color: "text-yellow-500"
+    gradient: "from-yellow-500 to-orange-400"
   }
 ];
 
 const stats = [
-  { value: "99.9%", label: "Precisão de Rastreamento" },
-  { value: "<1s", label: "Tempo de Notificação" },
-  { value: "100%", label: "Compatível com Gmail" },
-  { value: "24/7", label: "Monitoramento Ativo" }
+  { value: "99.9", suffix: "%", label: "Precisão de Rastreamento" },
+  { value: "<1", suffix: "s", label: "Tempo de Notificação" },
+  { value: "100", suffix: "%", label: "Compatível com Gmail" },
+  { value: "24", suffix: "/7", label: "Monitoramento Ativo" }
 ];
 
 const steps = [
   {
     number: "1",
     title: "Instale a Extensão",
-    description: "Adicione o FUXICO ao seu Chrome em segundos"
+    description: "Adicione o FUXICO ao seu Chrome em segundos",
+    icon: Chrome
   },
   {
     number: "2",
     title: "Faça Login",
-    description: "Use sua conta para sincronizar seus dados"
+    description: "Use sua conta para sincronizar seus dados",
+    icon: Users
   },
   {
     number: "3",
     title: "Envie Emails",
-    description: "O rastreamento é automático e invisível"
+    description: "O rastreamento é automático e invisível",
+    icon: Mail
   },
   {
     number: "4",
     title: "Acompanhe",
-    description: "Veja quem abriu seus emails em tempo real"
+    description: "Veja quem abriu seus emails em tempo real",
+    icon: Eye
   }
 ];
+
+const testimonials = [
+  {
+    name: "Carlos Silva",
+    role: "Diretor Comercial",
+    company: "TechCorp",
+    content: "O FUXICO revolucionou nossa estratégia de follow-up. Agora sabemos exatamente quando ligar.",
+    avatar: "CS"
+  },
+  {
+    name: "Ana Santos",
+    role: "Gerente de Vendas",
+    company: "StartupX",
+    content: "Aumentamos nossa taxa de conversão em 40% usando os insights do FUXICO.",
+    avatar: "AS"
+  },
+  {
+    name: "Pedro Oliveira",
+    role: "CEO",
+    company: "AgênciaDigital",
+    content: "Ferramenta essencial para qualquer profissional que trabalha com emails.",
+    avatar: "PO"
+  }
+];
+
+// Animated counter component
+const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) => {
+  const [count, setCount] = useState(0);
+  const numericValue = parseFloat(value.replace('<', ''));
+  
+  useEffect(() => {
+    const duration = 2000;
+    const steps = 60;
+    const increment = numericValue / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= numericValue) {
+        setCount(numericValue);
+        clearInterval(timer);
+      } else {
+        setCount(current);
+      }
+    }, duration / steps);
+    
+    return () => clearInterval(timer);
+  }, [numericValue]);
+  
+  return (
+    <span className="font-mono">
+      {value.includes('<') ? '<' : ''}{Math.round(count)}{suffix}
+    </span>
+  );
+};
+
+// Floating particles background
+const FloatingParticles = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {[...Array(20)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute w-2 h-2 bg-primary/20 rounded-full"
+        initial={{
+          x: Math.random() * 100 + "%",
+          y: Math.random() * 100 + "%",
+          scale: Math.random() * 0.5 + 0.5
+        }}
+        animate={{
+          y: [null, "-20%", "120%"],
+          opacity: [0, 1, 0]
+        }}
+        transition={{
+          duration: Math.random() * 10 + 10,
+          repeat: Infinity,
+          delay: Math.random() * 5
+        }}
+      />
+    ))}
+  </div>
+);
 
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-
+  const { scrollYProgress } = useScroll();
+  const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
+  
   // Se já está logado, redireciona para o dashboard
   if (user) {
-    navigate("/", { replace: true });
+    navigate("/dashboard", { replace: true });
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-background overflow-hidden">
+      {/* Mesh gradient background */}
+      <div className="fixed inset-0 gradient-mesh opacity-50 pointer-events-none" />
+      
+      {/* Floating particles */}
+      <FloatingParticles />
+      
       {/* Header */}
-      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+      <motion.header 
+        style={{ opacity: headerOpacity }}
+        className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-50"
+      >
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src={logoImg} alt="FUXICO" className="h-10 w-10 rounded-lg object-cover" />
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">FUXICO</h1>
-                <p className="text-xs text-muted-foreground">Email Tracking</p>
+            <motion.div 
+              className="flex items-center gap-3"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="relative">
+                <img src={logoImg} alt="FUXICO" className="h-10 w-10 rounded-xl object-cover shadow-lg" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-30" />
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate("/auth")}>
+              <div>
+                <h1 className="text-2xl font-bold font-display tracking-tight">FUXICO</h1>
+                <p className="text-xs text-muted-foreground tracking-wide">Email Tracking Pro</p>
+              </div>
+            </motion.div>
+            <motion.div 
+              className="flex items-center gap-3"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <Button variant="ghost" onClick={() => navigate("/auth")} className="font-medium">
                 Entrar
               </Button>
-              <Button onClick={() => navigate("/auth")}>
+              <Button 
+                onClick={() => navigate("/auth")} 
+                className="gradient-primary text-white border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300 press-effect"
+              >
                 Começar Grátis
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20">
-        <div className="text-center max-w-4xl mx-auto">
-          <Badge variant="secondary" className="mb-6">
-            <Zap className="h-3 w-3 mr-1" />
-            Novo: Integração com Bitrix24
-          </Badge>
-          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+      <section className="container mx-auto px-6 py-20 md:py-32 relative">
+        <motion.div 
+          className="text-center max-w-5xl mx-auto"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
+          {/* Animated badge */}
+          <motion.div variants={fadeInUp}>
+            <Badge 
+              variant="secondary" 
+              className="mb-6 px-4 py-2 text-sm border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer group"
+            >
+              <Sparkles className="h-3.5 w-3.5 mr-2 text-primary group-hover:animate-wiggle" />
+              <span className="gradient-text font-medium">Novo: Integração com Bitrix24</span>
+              <ArrowRight className="h-3.5 w-3.5 ml-2 text-primary group-hover:translate-x-1 transition-transform" />
+            </Badge>
+          </motion.div>
+          
+          {/* Main heading with gradient */}
+          <motion.h1 
+            variants={fadeInUp}
+            className="text-5xl md:text-7xl font-bold font-display mb-6 leading-[1.1] tracking-tighter"
+          >
             Saiba quando seus
-            <span className="text-primary"> emails são lidos</span>
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <br />
+            <span className="gradient-text-animated">emails são lidos</span>
+          </motion.h1>
+          
+          {/* Subtitle */}
+          <motion.p 
+            variants={fadeInUp}
+            className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed text-balance"
+          >
             O FUXICO rastreia aberturas, cliques e visualizações dos seus emails de forma 
-            invisível e precisa. Perfeito para vendas, follow-ups e comunicação empresarial.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" onClick={() => navigate("/auth")} className="w-full sm:w-auto">
-              <Mail className="mr-2 h-5 w-5" />
+            <span className="text-foreground font-medium"> invisível </span> 
+            e 
+            <span className="text-foreground font-medium"> precisa</span>. 
+            Perfeito para vendas, follow-ups e comunicação empresarial.
+          </motion.p>
+          
+          {/* CTA Buttons */}
+          <motion.div 
+            variants={fadeInUp}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <Button 
+              size="lg" 
+              onClick={() => navigate("/auth")} 
+              className="w-full sm:w-auto h-14 px-8 text-lg gradient-primary text-white border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300 hover-lift press-effect group"
+            >
+              <Mail className="mr-2 h-5 w-5 group-hover:animate-wiggle" />
               Começar Agora - É Grátis
             </Button>
-            <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
-              <Chrome className="h-5 w-5" />
-              Instalar Extensão
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="w-full sm:w-auto h-14 px-8 text-lg gap-2 border-2 hover:bg-secondary/80 transition-all duration-300 hover-lift"
+            >
+              <Play className="h-5 w-5 fill-current" />
+              Ver Demo
             </Button>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-4xl mx-auto">
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="text-3xl font-bold text-primary">{stat.value}</div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
+          </motion.div>
+          
+          {/* Social proof */}
+          <motion.div 
+            variants={fadeInUp}
+            className="flex items-center justify-center gap-6 mt-10 text-sm text-muted-foreground"
+          >
+            <div className="flex -space-x-2">
+              {['CS', 'AS', 'PO', 'MR', 'JL'].map((initials, i) => (
+                <div 
+                  key={i}
+                  className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-white border-2 border-background"
+                >
+                  {initials}
+                </div>
+              ))}
             </div>
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              ))}
+            </div>
+            <span>Amado por <span className="text-foreground font-semibold">1.000+</span> profissionais</span>
+          </motion.div>
+        </motion.div>
+
+        {/* Animated Stats */}
+        <motion.div 
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20 max-w-4xl mx-auto"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+        >
+          {stats.map((stat, index) => (
+            <motion.div 
+              key={index} 
+              variants={scaleIn}
+              className="text-center p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover-lift cursor-default"
+            >
+              <div className="text-4xl md:text-5xl font-bold gradient-text font-display">
+                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+              </div>
+              <div className="text-sm text-muted-foreground mt-2">{stat.label}</div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
-      {/* Features Section */}
-      <section className="container mx-auto px-6 py-20 border-t">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            Tudo que você precisa para rastrear emails
+      {/* Features Section - Bento Grid */}
+      <section className="container mx-auto px-6 py-20 relative">
+        <motion.div 
+          className="text-center mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+        >
+          <Badge variant="outline" className="mb-4">Funcionalidades</Badge>
+          <h2 className="text-4xl md:text-5xl font-bold font-display mb-4 tracking-tight">
+            Tudo que você precisa
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Funcionalidades poderosas para você e sua equipe terem controle total sobre a comunicação por email
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            Funcionalidades poderosas para você e sua equipe terem controle total sobre a comunicação
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <motion.div 
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+        >
           {features.map((feature, index) => (
-            <Card key={index} className="border-2 hover:border-primary/50 transition-colors">
-              <CardContent className="p-6">
-                <feature.icon className={`h-10 w-10 ${feature.color} mb-4`} />
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-sm">{feature.description}</p>
-              </CardContent>
-            </Card>
+            <motion.div key={index} variants={fadeInUp}>
+              <Card className="group border-2 border-transparent hover:border-primary/30 transition-all duration-300 hover-lift overflow-hidden h-full bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-8 relative">
+                  {/* Gradient background on hover */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+                  
+                  {/* Icon with gradient background */}
+                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.gradient} mb-4 shadow-lg`}>
+                    <feature.icon className="h-6 w-6 text-white" />
+                  </div>
+                  
+                  <h3 className="text-xl font-semibold font-display mb-2 group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* How it Works */}
-      <section className="container mx-auto px-6 py-20 border-t bg-muted/30">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            Como Funciona
+      <section className="container mx-auto px-6 py-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/30 to-transparent" />
+        
+        <motion.div 
+          className="text-center mb-16 relative"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+        >
+          <Badge variant="outline" className="mb-4">Como Funciona</Badge>
+          <h2 className="text-4xl md:text-5xl font-bold font-display mb-4 tracking-tight">
+            4 passos simples
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Em 4 passos simples você já estará rastreando seus emails
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            Comece a rastrear seus emails em minutos
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+        <motion.div 
+          className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto relative"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+        >
+          {/* Connection line */}
+          <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/20 via-primary to-primary/20 -translate-y-1/2 z-0" />
+          
           {steps.map((step, index) => (
-            <div key={index} className="text-center">
-              <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold mx-auto mb-4">
-                {step.number}
+            <motion.div 
+              key={index} 
+              variants={scaleIn}
+              className="text-center relative z-10"
+            >
+              <div className="relative inline-block mb-6">
+                <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-2xl font-bold text-white shadow-glow">
+                  {step.number}
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-lg bg-card border-2 border-border flex items-center justify-center">
+                  <step.icon className="h-4 w-4 text-primary" />
+                </div>
               </div>
-              <h3 className="font-semibold mb-2">{step.title}</h3>
+              <h3 className="font-semibold font-display text-lg mb-2">{step.title}</h3>
               <p className="text-sm text-muted-foreground">{step.description}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* Benefits Section */}
-      <section className="container mx-auto px-6 py-20 border-t">
-        <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-          <div>
-            <h2 className="text-3xl font-bold text-foreground mb-6">
-              Por que escolher o FUXICO?
+      <section className="container mx-auto px-6 py-20">
+        <motion.div 
+          className="grid md:grid-cols-2 gap-16 items-center max-w-6xl mx-auto"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+        >
+          <motion.div variants={fadeInUp}>
+            <Badge variant="outline" className="mb-4">Benefícios</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold font-display mb-8 tracking-tight">
+              Por que escolher o <span className="gradient-text">FUXICO</span>?
             </h2>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-6 w-6 text-green-500 mt-0.5" />
-                <div>
-                  <h4 className="font-semibold">100% Invisível</h4>
-                  <p className="text-sm text-muted-foreground">O destinatário nunca sabe que está sendo rastreado</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-6 w-6 text-green-500 mt-0.5" />
-                <div>
-                  <h4 className="font-semibold">Detecção de Self-Opens</h4>
-                  <p className="text-sm text-muted-foreground">Ignora automaticamente quando você mesmo abre o email</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-6 w-6 text-green-500 mt-0.5" />
-                <div>
-                  <h4 className="font-semibold">Integração com CRM</h4>
-                  <p className="text-sm text-muted-foreground">Sincronize atividades automaticamente com Bitrix24</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-6 w-6 text-green-500 mt-0.5" />
-                <div>
-                  <h4 className="font-semibold">Auditoria Completa</h4>
-                  <p className="text-sm text-muted-foreground">Controle total sobre emails da sua equipe</p>
-                </div>
-              </div>
+            <div className="space-y-6">
+              {[
+                { title: "100% Invisível", desc: "O destinatário nunca sabe que está sendo rastreado" },
+                { title: "Detecção de Self-Opens", desc: "Ignora automaticamente quando você mesmo abre o email" },
+                { title: "Integração com CRM", desc: "Sincronize atividades automaticamente com Bitrix24" },
+                { title: "Auditoria Completa", desc: "Controle total sobre emails da sua equipe" }
+              ].map((item, index) => (
+                <motion.div 
+                  key={index}
+                  className="flex items-start gap-4 p-4 rounded-xl hover:bg-muted/50 transition-colors"
+                  whileHover={{ x: 4 }}
+                >
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg gradient-success flex items-center justify-center">
+                    <CheckCircle2 className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold font-display text-lg">{item.title}</h4>
+                    <p className="text-muted-foreground">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="p-6 text-center">
-              <BarChart3 className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold">+300%</div>
-              <div className="text-xs text-muted-foreground">Taxa de Follow-up</div>
-            </Card>
-            <Card className="p-6 text-center">
-              <Users className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold">1000+</div>
-              <div className="text-xs text-muted-foreground">Usuários Ativos</div>
-            </Card>
-            <Card className="p-6 text-center">
-              <Clock className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold">2h</div>
-              <div className="text-xs text-muted-foreground">Economia/Dia</div>
-            </Card>
-            <Card className="p-6 text-center">
-              <Globe className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold">Global</div>
-              <div className="text-xs text-muted-foreground">Rastreamento</div>
-            </Card>
-          </div>
-        </div>
+          </motion.div>
+          
+          <motion.div 
+            variants={fadeInUp}
+            className="grid grid-cols-2 gap-4"
+          >
+            {[
+              { icon: BarChart3, value: "+300%", label: "Taxa de Follow-up", gradient: "from-blue-500 to-cyan-400" },
+              { icon: Users, value: "1.000+", label: "Usuários Ativos", gradient: "from-purple-500 to-violet-400" },
+              { icon: Clock, value: "2h", label: "Economia/Dia", gradient: "from-green-500 to-emerald-400" },
+              { icon: Globe, value: "Global", label: "Rastreamento", gradient: "from-orange-500 to-amber-400" }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                whileHover={{ y: -4, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Card className="p-6 text-center bg-card/50 backdrop-blur-sm border-2 hover:border-primary/30 transition-all duration-300">
+                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${stat.gradient} mb-3`}>
+                    <stat.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="text-3xl font-bold font-display gradient-text">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="container mx-auto px-6 py-20">
+        <motion.div 
+          className="text-center mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+        >
+          <Badge variant="outline" className="mb-4">Depoimentos</Badge>
+          <h2 className="text-4xl md:text-5xl font-bold font-display mb-4 tracking-tight">
+            O que dizem nossos usuários
+          </h2>
+        </motion.div>
+        
+        <motion.div 
+          className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+        >
+          {testimonials.map((testimonial, index) => (
+            <motion.div key={index} variants={fadeInUp}>
+              <Card className="p-6 h-full bg-card/50 backdrop-blur-sm border-2 hover:border-primary/30 transition-all duration-300 hover-lift">
+                <div className="flex items-center gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-6 italic">"{testimonial.content}"</p>
+                <div className="flex items-center gap-3 mt-auto">
+                  <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-sm font-bold text-white">
+                    {testimonial.avatar}
+                  </div>
+                  <div>
+                    <div className="font-semibold">{testimonial.name}</div>
+                    <div className="text-sm text-muted-foreground">{testimonial.role} • {testimonial.company}</div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-6 py-20 border-t">
-        <div className="bg-primary rounded-2xl p-12 text-center max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-primary-foreground mb-4">
-            Pronto para saber quem lê seus emails?
-          </h2>
-          <p className="text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-            Comece gratuitamente agora mesmo. Sem cartão de crédito, sem compromisso.
-          </p>
-          <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
-            Criar Conta Grátis
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </div>
+      <section className="container mx-auto px-6 py-20">
+        <motion.div 
+          className="relative rounded-3xl overflow-hidden max-w-5xl mx-auto"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={scaleIn}
+        >
+          {/* Background gradient */}
+          <div className="absolute inset-0 gradient-primary" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzBoLTJ2LTJoMnYyem0tMi0yaC0ydi0yaDJ2MnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
+          
+          <div className="relative p-12 md:p-16 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              transition={{ type: "spring", delay: 0.2 }}
+              className="inline-flex p-4 rounded-2xl bg-white/10 backdrop-blur-sm mb-6"
+            >
+              <Mail className="h-10 w-10 text-white" />
+            </motion.div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold font-display text-white mb-4 tracking-tight">
+              Pronto para saber quem lê seus emails?
+            </h2>
+            <p className="text-white/80 mb-10 max-w-2xl mx-auto text-lg">
+              Comece gratuitamente agora mesmo. Sem cartão de crédito, sem compromisso.
+            </p>
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              onClick={() => navigate("/auth")}
+              className="h-14 px-8 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover-lift press-effect"
+            >
+              Criar Conta Grátis
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </div>
+        </motion.div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-12">
+      <footer className="border-t border-border/50 py-12 relative">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <img src={logoImg} alt="FUXICO" className="h-8 w-8 rounded-lg object-cover" />
-              <span className="font-semibold">FUXICO</span>
-              <span className="text-muted-foreground text-sm">by Promo Brindes</span>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <img src={logoImg} alt="FUXICO" className="h-10 w-10 rounded-xl object-cover" />
+              <div>
+                <span className="font-bold font-display text-lg">FUXICO</span>
+                <span className="text-muted-foreground text-sm ml-2">by Promo Brindes</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <a href="#" className="hover:text-foreground transition-colors">Termos</a>
+              <a href="#" className="hover:text-foreground transition-colors">Privacidade</a>
+              <a href="#" className="hover:text-foreground transition-colors">Contato</a>
             </div>
             <div className="text-sm text-muted-foreground">
               © 2025 FUXICO. Todos os direitos reservados.
