@@ -160,8 +160,8 @@ function EmailRow({ email, isSelected, onSelect, onDelete, onCopy }: EmailRowPro
       variants={itemVariants}
       layout
       className={cn(
-        "group relative flex items-center gap-4 p-4 border-b transition-all duration-200",
-        "hover:bg-muted/30 cursor-pointer",
+        "group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border-b transition-all duration-200",
+        "hover:bg-muted/30 cursor-pointer touch-target",
         isSelected && "bg-primary/5 border-l-2 border-l-primary",
         status === 'bounced' && "bg-email-bounced/5"
       )}
@@ -178,17 +178,17 @@ function EmailRow({ email, isSelected, onSelect, onDelete, onCopy }: EmailRowPro
         )}
       />
 
-      {/* Icon */}
-      <div className="flex-shrink-0">
+      {/* Icon - Hidden on very small screens */}
+      <div className="hidden xs:flex flex-shrink-0">
         <motion.div 
           whileHover={{ scale: 1.1 }}
           className={cn(
-            "relative w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200",
+            "relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all duration-200",
             config.bgColor,
             "group-hover:shadow-md"
           )}
         >
-          <StatusIcon className={cn("h-5 w-5", config.color)} />
+          <StatusIcon className={cn("h-4 w-4 sm:h-5 sm:w-5", config.color)} />
           
           {/* Engagement indicator */}
           {(email.opens ?? 0) > 3 && (
@@ -205,8 +205,8 @@ function EmailRow({ email, isSelected, onSelect, onDelete, onCopy }: EmailRowPro
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <p className="font-medium truncate text-foreground">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <p className="font-medium truncate text-foreground text-sm sm:text-base max-w-[200px] sm:max-w-none">
             {email.recipient_email}
           </p>
           <EmailStatusBadge 
@@ -217,22 +217,25 @@ function EmailRow({ email, isSelected, onSelect, onDelete, onCopy }: EmailRowPro
           />
         </div>
         
-        <p className="text-sm text-muted-foreground truncate mb-1">
+        <p className="text-xs sm:text-sm text-muted-foreground truncate mb-1">
           {email.subject || "Sem assunto"}
         </p>
         
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {formatDistanceToNow(new Date(email.created_at), { 
-              addSuffix: true,
-              locale: ptBR 
-            })}
+            <span className="truncate max-w-[100px] sm:max-w-none">
+              {formatDistanceToNow(new Date(email.created_at), { 
+                addSuffix: true,
+                locale: ptBR 
+              })}
+            </span>
           </span>
           
+          {/* Full date - hidden on mobile */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-xs text-muted-foreground/70">
+              <span className="text-xs text-muted-foreground/70 hidden sm:inline">
                 {format(new Date(email.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
               </span>
             </TooltipTrigger>
@@ -241,24 +244,25 @@ function EmailRow({ email, isSelected, onSelect, onDelete, onCopy }: EmailRowPro
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="flex items-center gap-4 flex-shrink-0">
-        {/* Opens */}
+      {/* Stats - Responsive */}
+      <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+        {/* Opens - Always visible but compact on mobile */}
         <Tooltip>
           <TooltipTrigger asChild>
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/50"
+              className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 rounded-lg bg-muted/50"
             >
-              <Eye className="h-4 w-4 text-muted-foreground" />
+              <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
               <span className={cn(
-                "font-semibold tabular-nums text-sm",
+                "font-semibold tabular-nums text-xs sm:text-sm",
                 (email.opens ?? 0) > 0 ? "text-email-opened" : "text-muted-foreground"
               )}>
                 {email.opens ?? 0}
               </span>
+              {/* Self opens - Hidden on mobile */}
               {(email.selfOpens ?? 0) > 0 && (
-                <span className="text-xs text-muted-foreground/70">
+                <span className="text-xs text-muted-foreground/70 hidden sm:inline">
                   (+{email.selfOpens})
                 </span>
               )}
@@ -274,12 +278,12 @@ function EmailRow({ email, isSelected, onSelect, onDelete, onCopy }: EmailRowPro
           </TooltipContent>
         </Tooltip>
 
-        {/* Clicks */}
+        {/* Clicks - Hidden on mobile */}
         <Tooltip>
           <TooltipTrigger asChild>
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/50"
+              className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/50"
             >
               <MousePointerClick className="h-4 w-4 text-muted-foreground" />
               <span className={cn(
@@ -295,13 +299,13 @@ function EmailRow({ email, isSelected, onSelect, onDelete, onCopy }: EmailRowPro
           </TooltipContent>
         </Tooltip>
 
-        {/* Actions Menu */}
+        {/* Actions Menu - Improved touch target */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="h-9 w-9 sm:h-8 sm:w-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-target"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -336,9 +340,9 @@ function EmailRow({ email, isSelected, onSelect, onDelete, onCopy }: EmailRowPro
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Arrow */}
+        {/* Arrow - Hidden on small mobile */}
         <ChevronRight className={cn(
-          "h-5 w-5 text-muted-foreground transition-transform duration-200",
+          "h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground transition-transform duration-200 hidden xs:block",
           "group-hover:translate-x-1",
           isSelected && "text-primary"
         )} />
