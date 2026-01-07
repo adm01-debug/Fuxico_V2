@@ -113,29 +113,29 @@ export function SecurityOverviewCards() {
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
       {cards.map((card, index) => (
         <Card key={index}>
-          <CardContent className="pt-6">
+          <CardContent className="p-3 sm:p-4 lg:pt-6">
             {card.loading ? (
               <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-3 w-32" />
+                <Skeleton className="h-3 sm:h-4 w-16 sm:w-24" />
+                <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
+                <Skeleton className="h-2.5 sm:h-3 w-20 sm:w-32" />
               </div>
             ) : (
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-0.5 sm:space-y-1 min-w-0">
+                  <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">
                     {card.title}
                   </p>
-                  <p className="text-2xl font-bold">{card.value}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold truncate">{card.value}</p>
+                  <p className="text-[9px] sm:text-[10px] lg:text-xs text-muted-foreground line-clamp-2">
                     {card.description}
                   </p>
                 </div>
-                <div className={`p-2 rounded-lg ${card.bgColor}`}>
-                  <card.icon className={`h-5 w-5 ${card.color}`} />
+                <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${card.bgColor}`}>
+                  <card.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 lg:h-5 lg:w-5 ${card.color}`} />
                 </div>
               </div>
             )}

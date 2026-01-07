@@ -159,73 +159,74 @@ export function MFASettingsPanel() {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Key className="h-5 w-5" />
-            Autenticação em Duas Etapas
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Key className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+            <span className="truncate">Autenticação em Duas Etapas</span>
           </CardTitle>
-          <CardDescription>
-            Adicione uma camada extra de segurança à sua conta
+          <CardDescription className="text-xs sm:text-sm">
+            Adicione uma camada extra de segurança
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-lg border">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full ${mfaSettings?.is_enabled ? 'bg-green-500/10' : 'bg-muted'}`}>
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4">
+          <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-lg border">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className={`p-1.5 sm:p-2 rounded-full shrink-0 ${mfaSettings?.is_enabled ? 'bg-green-500/10' : 'bg-muted'}`}>
                 {mfaSettings?.is_enabled ? (
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                 ) : (
-                  <XCircle className="h-5 w-5 text-muted-foreground" />
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                 )}
               </div>
-              <div>
-                <p className="font-medium">Status do MFA</p>
-                <p className="text-sm text-muted-foreground">
+              <div className="min-w-0">
+                <p className="font-medium text-sm sm:text-base">Status do MFA</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
                   {mfaSettings?.is_enabled ? 'Proteção ativa' : 'Não configurado'}
                 </p>
               </div>
             </div>
-            <Badge variant={mfaSettings?.is_enabled ? 'default' : 'secondary'}>
+            <Badge variant={mfaSettings?.is_enabled ? 'default' : 'secondary'} className="shrink-0 text-xs">
               {mfaSettings?.is_enabled ? 'Ativo' : 'Inativo'}
             </Badge>
           </div>
 
           {mfaSettings?.is_enabled ? (
             <div className="space-y-3">
-              <div className="text-sm text-muted-foreground">
-                <p>Ativado em: {mfaSettings.enrolled_at && format(new Date(mfaSettings.enrolled_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
+              <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+                <p className="truncate">Ativado em: {mfaSettings.enrolled_at && format(new Date(mfaSettings.enrolled_at), "dd/MM/yyyy", { locale: ptBR })}</p>
                 {mfaSettings.last_verified_at && (
-                  <p>Última verificação: {format(new Date(mfaSettings.last_verified_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                  <p className="truncate">Última verificação: {format(new Date(mfaSettings.last_verified_at), "dd/MM 'às' HH:mm", { locale: ptBR })}</p>
                 )}
               </div>
 
               <Dialog open={showDisableDialog} onOpenChange={setShowDisableDialog}>
                 <DialogTrigger asChild>
-                  <Button variant="destructive" className="w-full">
+                  <Button variant="destructive" className="w-full h-11">
                     <XCircle className="h-4 w-4 mr-2" />
                     Desativar MFA
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
                   <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-destructive" />
+                    <DialogTitle className="flex items-center gap-2 text-lg">
+                      <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
                       Desativar MFA?
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-sm">
                       Isso irá remover a proteção de autenticação em duas etapas da sua conta. Sua conta ficará menos segura.
                     </DialogDescription>
                   </DialogHeader>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowDisableDialog(false)}>
+                  <DialogFooter className="flex-col sm:flex-row gap-2">
+                    <Button variant="outline" onClick={() => setShowDisableDialog(false)} className="w-full sm:w-auto h-11">
                       Cancelar
                     </Button>
                     <Button 
                       variant="destructive" 
                       onClick={() => disableMFA.mutate()}
                       disabled={disableMFA.isPending}
+                      className="w-full sm:w-auto h-11"
                     >
                       Desativar
                     </Button>
@@ -235,7 +236,7 @@ export function MFASettingsPanel() {
             </div>
           ) : (
             <Button 
-              className="w-full" 
+              className="w-full h-11" 
               onClick={() => enableMFA.mutate()}
               disabled={enableMFA.isPending}
             >
@@ -247,33 +248,33 @@ export function MFASettingsPanel() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5" />
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Mail className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
             Códigos de Backup
           </CardTitle>
-          <CardDescription>
-            Use estes códigos se perder acesso ao seu dispositivo
+          <CardDescription className="text-xs sm:text-sm">
+            Use se perder acesso ao dispositivo
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4">
           {mfaSettings?.is_enabled && mfaSettings?.backup_codes ? (
             <>
-              <div className="p-4 rounded-lg border bg-muted/50">
+              <div className="p-3 sm:p-4 rounded-lg border bg-muted/50">
                 {showBackupCodes ? (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                     {mfaSettings.backup_codes.map((code: string, index: number) => (
-                      <code key={index} className="text-sm font-mono bg-background p-1 rounded text-center">
+                      <code key={index} className="text-[10px] sm:text-sm font-mono bg-background p-1 sm:p-1.5 rounded text-center truncate">
                         {code}
                       </code>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-muted-foreground mb-2">
+                  <div className="text-center py-3 sm:py-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                       {mfaSettings.backup_codes.length} códigos disponíveis
                     </p>
-                    <Button variant="outline" size="sm" onClick={() => setShowBackupCodes(true)}>
+                    <Button variant="outline" size="sm" onClick={() => setShowBackupCodes(true)} className="h-10">
                       Mostrar códigos
                     </Button>
                   </div>
@@ -281,72 +282,72 @@ export function MFASettingsPanel() {
               </div>
 
               {showBackupCodes && (
-                <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={copyBackupCodes}>
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copiar
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button variant="outline" className="flex-1 h-10" onClick={copyBackupCodes}>
+                    <Copy className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Copiar</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="flex-1"
+                    className="flex-1 h-10"
                     onClick={() => regenerateBackupCodes.mutate()}
                     disabled={regenerateBackupCodes.isPending}
                   >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Regenerar
+                    <RefreshCw className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Regenerar</span>
                   </Button>
                 </div>
               )}
 
-              <p className="text-xs text-muted-foreground">
-                ⚠️ Guarde estes códigos em um local seguro. Cada código só pode ser usado uma vez.
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                ⚠️ Guarde estes códigos em local seguro. Cada código só pode ser usado uma vez.
               </p>
             </>
           ) : (
-            <div className="text-center py-6 text-muted-foreground">
-              <Key className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Ative o MFA para gerar códigos de backup</p>
+            <div className="text-center py-4 sm:py-6 text-muted-foreground">
+              <Key className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-xs sm:text-sm">Ative o MFA para gerar códigos</p>
             </div>
           )}
         </CardContent>
       </Card>
 
       <Card className="md:col-span-2">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Smartphone className="h-5 w-5" />
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Smartphone className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
             Métodos de Verificação
           </CardTitle>
-          <CardDescription>
-            Configure como você deseja receber os códigos de verificação
+          <CardDescription className="text-xs sm:text-sm">
+            Configure como receber códigos de verificação
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-lg border">
-              <div className="flex items-center gap-3">
-                <Smartphone className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">App Autenticador (TOTP)</p>
-                  <p className="text-sm text-muted-foreground">
-                    Use Google Authenticator, Authy ou similar
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <div className="space-y-2 sm:space-y-4">
+            <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-lg border">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <Smartphone className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-medium text-sm sm:text-base">App Autenticador</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                    Google Authenticator, Authy
                   </p>
                 </div>
               </div>
-              <Badge variant="outline">Recomendado</Badge>
+              <Badge variant="outline" className="text-[10px] sm:text-xs shrink-0">Recomendado</Badge>
             </div>
 
-            <div className="flex items-center justify-between p-4 rounded-lg border">
-              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Email de Recuperação</p>
-                  <p className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-lg border">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-medium text-sm sm:text-base">Email de Recuperação</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">
                     {mfaSettings?.recovery_email || user?.email || 'Não configurado'}
                   </p>
                 </div>
               </div>
-              <Badge variant="secondary">Configurado</Badge>
+              <Badge variant="secondary" className="text-[10px] sm:text-xs shrink-0">Configurado</Badge>
             </div>
           </div>
         </CardContent>

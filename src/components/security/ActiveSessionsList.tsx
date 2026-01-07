@@ -132,26 +132,27 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {!compact && sessions.length > 1 && (
         <div className="flex justify-end">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Encerrar outras sessões
+              <Button variant="outline" size="sm" className="h-10 text-xs sm:text-sm">
+                <Trash2 className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Encerrar outras sessões</span>
+                <span className="sm:hidden">Encerrar outras</span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
               <AlertDialogHeader>
-                <AlertDialogTitle>Encerrar outras sessões?</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle className="text-lg">Encerrar outras sessões?</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm">
                   Isso irá desconectar todos os outros dispositivos da sua conta. Apenas esta sessão atual permanecerá ativa.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={() => terminateAllOtherSessions.mutate()}>
+              <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                <AlertDialogCancel className="h-11 w-full sm:w-auto">Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={() => terminateAllOtherSessions.mutate()} className="h-11 w-full sm:w-auto">
                   Encerrar todas
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -160,7 +161,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {sessions.map((s) => {
           const deviceInfo = s.device_info as any;
           const DeviceIcon = getDeviceIcon(deviceInfo);
@@ -169,41 +170,41 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
           return (
             <div
               key={s.id}
-              className={`flex items-center gap-3 p-3 rounded-lg border ${
+              className={`flex items-start sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border ${
                 isCurrentSession ? 'border-primary bg-primary/5' : ''
               }`}
             >
-              <div className={`p-2 rounded-full ${isCurrentSession ? 'bg-primary/10' : 'bg-muted'}`}>
-                <DeviceIcon className={`h-5 w-5 ${isCurrentSession ? 'text-primary' : 'text-muted-foreground'}`} />
+              <div className={`p-2 rounded-full shrink-0 ${isCurrentSession ? 'bg-primary/10' : 'bg-muted'}`}>
+                <DeviceIcon className={`h-4 w-4 sm:h-5 sm:w-5 ${isCurrentSession ? 'text-primary' : 'text-muted-foreground'}`} />
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium truncate">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  <p className="font-medium truncate text-sm sm:text-base">
                     {getDeviceName(deviceInfo, s.user_agent)}
                   </p>
                   {isCurrentSession && (
-                    <Badge variant="default" className="text-xs">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                    <Badge variant="default" className="text-[10px] sm:text-xs px-1.5 py-0.5">
+                      <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                       Atual
                     </Badge>
                   )}
                 </div>
                 
                 {!compact && (
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                  <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground mt-1 flex-wrap">
                     <span className="flex items-center gap-1">
-                      <Globe className="h-3 w-3" />
-                      {getBrowserName(s.user_agent)}
+                      <Globe className="h-3 w-3 shrink-0" />
+                      <span className="truncate max-w-[80px] sm:max-w-none">{getBrowserName(s.user_agent)}</span>
                     </span>
                     {s.ip_address && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {s.ip_address}
+                      <span className="flex items-center gap-1 hidden xs:flex">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        <span className="truncate max-w-[100px]">{s.ip_address}</span>
                       </span>
                     )}
                     <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
+                      <Clock className="h-3 w-3 shrink-0" />
                       {formatDistanceToNow(new Date(s.last_activity_at), { 
                         addSuffix: true, 
                         locale: ptBR 
@@ -213,7 +214,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
                 )}
 
                 {compact && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(s.last_activity_at), { 
                       addSuffix: true, 
                       locale: ptBR 
@@ -225,9 +226,11 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
               {!isCurrentSession && !compact && (
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={() => terminateSession.mutate(s.id)}
                   disabled={terminateSession.isPending}
+                  className="h-10 w-10 shrink-0"
+                  aria-label="Encerrar sessão"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -238,7 +241,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
       </div>
 
       {compact && sessions.length > 0 && (
-        <Button variant="link" className="w-full" size="sm">
+        <Button variant="link" className="w-full h-10" size="sm">
           Ver todas as sessões →
         </Button>
       )}
