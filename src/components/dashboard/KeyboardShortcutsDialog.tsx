@@ -1,4 +1,9 @@
 // =============================================================================
+// FUXICO - Component: KeyboardShortcutsDialog
+// Shows all keyboard shortcuts available in the dashboard
+// =============================================================================
+
+
 // FUXICO - Keyboard Shortcuts Dialog
 // Painel de atalhos de teclado disponíveis
 // =============================================================================
@@ -80,9 +85,10 @@ const SHORTCUT_CATEGORIES: ShortcutCategory[] = [
     title: 'Ações',
     icon: <MousePointerClick className="h-4 w-4" />,
     shortcuts: [
+      { key: 'Alt+F', description: 'Busca global' },
+      { key: 'Ctrl+K', description: 'Busca global (alternativo)' },
       { key: 'Alt+N', description: 'Novo rastreamento' },
       { key: 'Alt+R', description: 'Atualizar dados' },
-      { key: 'Alt+F', description: 'Focar na busca' },
       { key: 'Esc', description: 'Fechar modal/dialog' },
       { key: '?', description: 'Mostrar atalhos' },
     ],
