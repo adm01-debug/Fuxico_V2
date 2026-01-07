@@ -94,23 +94,29 @@ export function DashboardBreadcrumbs({
     })
   }
 
+  // For mobile, show simplified breadcrumb (just category > current)
+  const mobileItems = items.length > 2 
+    ? [items[0], items[items.length - 1]] 
+    : items
+
   return (
     <nav aria-label="Breadcrumb" className={cn('flex items-center', className)}>
-      <ol className="flex items-center gap-1 text-sm">
+      {/* Desktop: Full breadcrumb */}
+      <ol className="hidden sm:flex items-center gap-1.5">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
           const isClickable = item.tabId && !isLast && onNavigate
 
           return (
-            <li key={index} className="flex items-center gap-1">
+            <li key={index} className="flex items-center gap-1.5">
               {index === 0 && (
-                <Home className="h-3.5 w-3.5 text-muted-foreground mr-1" />
+                <Home className="h-3.5 w-3.5 text-muted-foreground mr-0.5" />
               )}
               
               {isClickable ? (
                 <button
                   onClick={() => onNavigate(item.tabId!)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors touch-target-inline"
                 >
                   {item.label}
                 </button>
@@ -125,7 +131,40 @@ export function DashboardBreadcrumbs({
               )}
 
               {!isLast && (
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              )}
+            </li>
+          )
+        })}
+      </ol>
+
+      {/* Mobile: Simplified breadcrumb */}
+      <ol className="flex sm:hidden items-center gap-1">
+        {mobileItems.map((item, index) => {
+          const isLast = index === mobileItems.length - 1
+          const isClickable = item.tabId && !isLast && onNavigate
+
+          return (
+            <li key={index} className="flex items-center gap-1">
+              {index === 0 && (
+                <Home className="h-3 w-3 text-muted-foreground" />
+              )}
+              
+              {isClickable ? (
+                <button
+                  onClick={() => onNavigate(item.tabId!)}
+                  className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center -my-2"
+                >
+                  <span className="sr-only">{item.label}</span>
+                </button>
+              ) : (
+                <span className="text-foreground font-medium truncate max-w-[200px]">
+                  {item.label}
+                </span>
+              )}
+
+              {!isLast && (
+                <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
               )}
             </li>
           )
