@@ -40,12 +40,13 @@ function EmailRow({
     <button
       onClick={onSelect}
       className={cn(
-        "w-full flex items-center gap-4 p-4 text-left transition-all duration-200 hover:bg-muted/50 hover-lift",
+        "w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left transition-all duration-200 hover:bg-muted/50 hover-lift touch-target",
         isSelected && "bg-primary/5 border-l-2 border-l-primary",
         status === 'bounced' && "bg-email-bounced/5"
       )}
     >
-      <div className="flex-shrink-0">
+      {/* Avatar - Hidden on very small screens */}
+      <div className="hidden xs:flex flex-shrink-0">
         <div className={cn(
           "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
           status === 'bounced' && "bg-email-bounced/10 text-email-bounced",
@@ -58,9 +59,10 @@ function EmailRow({
         </div>
       </div>
       
+      {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="font-medium truncate">{email.recipient_email}</p>
+          <p className="font-medium truncate text-sm sm:text-base">{email.recipient_email}</p>
           <EmailStatusBadge 
             status={status}
             bounceType={email.bounce_type}
@@ -68,10 +70,10 @@ function EmailRow({
             showIcon
           />
         </div>
-        <p className="text-sm text-muted-foreground xl:text-base truncate">
+        <p className="text-xs sm:text-sm text-muted-foreground truncate">
           {email.subject || "Sem assunto"}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
           {formatDistanceToNow(new Date(email.created_at), { 
             addSuffix: true,
             locale: ptBR 
@@ -79,7 +81,9 @@ function EmailRow({
         </p>
       </div>
       
-      <div className="flex items-center gap-4 flex-shrink-0">
+      {/* Stats - Responsive layout */}
+      <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+        {/* Opens - Always visible */}
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex items-center gap-1 text-sm">
@@ -90,8 +94,9 @@ function EmailRow({
               )}>
                 {email.opens ?? 0}
               </span>
+              {/* Self opens - Hidden on mobile */}
               {(email.selfOpens ?? 0) > 0 && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground hidden sm:inline">
                   (+{email.selfOpens})
                 </span>
               )}
@@ -105,7 +110,8 @@ function EmailRow({
           </TooltipContent>
         </Tooltip>
         
-        <div className="flex items-center gap-1 text-sm">
+        {/* Clicks - Visible on sm+ */}
+        <div className="hidden sm:flex items-center gap-1 text-sm">
           <MousePointerClick className="h-4 w-4 text-muted-foreground" />
           <span className={cn(
             "font-medium tabular-nums",
@@ -114,6 +120,8 @@ function EmailRow({
             {email.clicks ?? 0}
           </span>
         </div>
+        
+        {/* Chevron */}
         <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
       </div>
     </button>
