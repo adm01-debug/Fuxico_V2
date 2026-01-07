@@ -221,10 +221,10 @@ function MetricCard({
                 )}
               </p>
               <div className="mt-2">
-                <AnimatedNumber 
-                  value={value} 
-                  className="text-3xl font-bold tracking-tight" 
-                />
+              <AnimatedNumber 
+                value={value} 
+                className="text-2xl sm:text-3xl font-bold tracking-tight" 
+              />
               </div>
               {change !== undefined && (
                 <motion.div 
@@ -244,7 +244,7 @@ function MetricCard({
               )}
             </div>
             
-            {/* Icon container with gradient */}
+            {/* Icon container with gradient - Responsive size */}
             <motion.div 
               animate={{ 
                 rotate: isHovered ? [0, -5, 5, 0] : 0,
@@ -252,7 +252,7 @@ function MetricCard({
               }}
               transition={{ duration: 0.3 }}
               className={cn(
-                "h-12 w-12 rounded-xl flex items-center justify-center shadow-lg",
+                "h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0",
                 gradient ? `bg-gradient-to-br ${gradient} text-white` : 'bg-primary/10'
               )}
             >
@@ -889,41 +889,45 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
         )}
       </AnimatePresence>
 
-      {/* Métricas Principais */}
+      {/* Métricas Principais - Responsive grid */}
       <section 
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 xl:gap-6"
+        className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 xl:gap-6"
         data-tour="stats-cards"
       >
         <MetricCard
           title="Total de Emails"
           value={metrics.totalEmails.toLocaleString('pt-BR')}
-          icon={<Mail className="h-6 w-6 text-primary" />}
+          icon={<Mail className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />}
           isLoading={isLoadingStats}
+          className="col-span-1"
         />
         <MetricCard
           title="Aberturas"
           value={metrics.totalOpens.toLocaleString('pt-BR')}
           change={metrics.openRate}
           changeLabel="taxa"
-          icon={<Eye className="h-6 w-6 text-blue-500" />}
+          icon={<Eye className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />}
           trend={metrics.openRate > 20 ? 'up' : metrics.openRate < 10 ? 'down' : 'neutral'}
           isLoading={isLoadingStats}
+          className="col-span-1"
         />
         <MetricCard
           title="Cliques"
           value={metrics.totalClicks.toLocaleString('pt-BR')}
           change={metrics.clickRate}
           changeLabel="taxa"
-          icon={<MousePointerClick className="h-6 w-6 text-green-500" />}
+          icon={<MousePointerClick className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />}
           trend={metrics.clickRate > 5 ? 'up' : metrics.clickRate < 2 ? 'down' : 'neutral'}
           isLoading={isLoadingStats}
+          className="col-span-1"
         />
         <MetricCard
           title="Taxa de Bounce"
           value={`${metrics.bounceRate.toFixed(1)}%`}
-          icon={<AlertTriangle className="h-6 w-6 text-orange-500" />}
+          icon={<AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />}
           trend={metrics.bounceRate < 2 ? 'up' : metrics.bounceRate > 5 ? 'down' : 'neutral'}
           isLoading={isLoadingStats}
+          className="col-span-1"
         />
       </section>
 
