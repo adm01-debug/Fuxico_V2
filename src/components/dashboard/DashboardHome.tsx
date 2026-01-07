@@ -29,6 +29,7 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 import { RealtimeMetrics } from './RealtimeMetrics';
+import { QuickActions } from './QuickActions';
 import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/hooks/use-tracking';
 import { useTrackingTrends } from '@/hooks/use-tracking-trends';
 import { supabase } from '@/integrations/supabase/client';
@@ -602,6 +603,12 @@ export default function DashboardHome() {
           Atualizar
         </Button>
       </div>
+
+      {/* Quick Actions */}
+      <QuickActions 
+        onNavigate={() => {}} 
+        onCreateTracking={() => {}}
+      />
 
       {/* Métricas Principais */}
       <section 

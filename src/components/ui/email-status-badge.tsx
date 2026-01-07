@@ -17,6 +17,7 @@ const emailStatusBadgeVariants = cva(
     variants: {
       status: {
         sent: 'bg-email-sent/10 text-email-sent border border-email-sent/20',
+        delivered: 'bg-email-delivered/10 text-email-delivered border border-email-delivered/20',
         opened: 'bg-email-opened/10 text-email-opened border border-email-opened/20',
         clicked: 'bg-email-clicked/10 text-email-clicked border border-email-clicked/20',
         bounced: 'bg-email-bounced/10 text-email-bounced border border-email-bounced/20',
@@ -36,8 +37,11 @@ const emailStatusBadgeVariants = cva(
   }
 )
 
+import { CheckCircle } from 'lucide-react'
+
 const statusIcons: Record<string, LucideIcon> = {
   sent: Mail,
+  delivered: CheckCircle,
   opened: MailOpen,
   clicked: MousePointerClick,
   bounced: AlertTriangle,
@@ -47,6 +51,7 @@ const statusIcons: Record<string, LucideIcon> = {
 
 const statusLabels: Record<string, string> = {
   sent: 'Enviado',
+  delivered: 'Entregue',
   opened: 'Aberto',
   clicked: 'Clicado',
   bounced: 'Bounce',
@@ -54,14 +59,21 @@ const statusLabels: Record<string, string> = {
   replied: 'Respondido',
 }
 
+export type EmailStatus = 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' | 'pending' | 'replied';
+
 export interface EmailStatusBadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof emailStatusBadgeVariants> {
+  status?: EmailStatus;
   showIcon?: boolean
   showLabel?: boolean
   customLabel?: string
   pulse?: boolean
+  bounceType?: string
+  bounceReason?: string
 }
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function EmailStatusBadge({
   className,
@@ -71,12 +83,14 @@ export function EmailStatusBadge({
   showLabel = true,
   customLabel,
   pulse = false,
+  bounceType,
+  bounceReason,
   ...props
 }: EmailStatusBadgeProps) {
   const Icon = status ? statusIcons[status] : Mail
   const label = customLabel || (status ? statusLabels[status] : 'Enviado')
 
-  return (
+  const badge = (
     <span
       className={cn(
         emailStatusBadgeVariants({ status, size }),
@@ -89,6 +103,24 @@ export function EmailStatusBadge({
       {showLabel && <span>{label}</span>}
     </span>
   )
+
+  // Show tooltip for bounced emails with reason
+  if (status === 'bounced' && (bounceType || bounceReason)) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>{badge}</TooltipTrigger>
+          <TooltipContent>
+            <p className="font-medium">Email não entregue</p>
+            {bounceType && <p className="text-xs">Tipo: {bounceType}</p>}
+            {bounceReason && <p className="text-xs max-w-48">{bounceReason}</p>}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  return badge
 }
 
 // Engagement Score Badge

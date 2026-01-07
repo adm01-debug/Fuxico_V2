@@ -2,12 +2,12 @@ import { useState, useMemo } from "react";
 import { TrackedEmail } from "@/lib/tracking-api";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Mail, Eye, MousePointerClick, ChevronRight, AlertTriangle, CheckCircle } from "lucide-react";
+import { Mail, Eye, MousePointerClick, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 import { EmailFiltersComponent, useEmailFilters, filterEmails, type EmailFilters } from "./EmailFilters";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { EmailStatusBadge } from "@/components/ui/email-status-badge";
 
 interface EmailTableProps {
   emails: TrackedEmail[];
@@ -16,46 +16,13 @@ interface EmailTableProps {
   showFilters?: boolean;
 }
 
-function DeliveryStatusBadge({ status, bounceType, bounceReason }: { 
-  status?: string; 
-  bounceType?: string; 
-  bounceReason?: string;
-}) {
-  if (status === 'bounced') {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge variant="destructive" className="gap-1 text-xs">
-            <AlertTriangle className="h-3 w-3" />
-            Bounce
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="font-medium">Email não entregue</p>
-          {bounceType && <p className="text-xs">Tipo: {bounceType}</p>}
-          {bounceReason && <p className="text-xs max-w-48">{bounceReason}</p>}
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-  
-  if (status === 'delivered') {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge variant="outline" className="gap-1 text-xs text-success border-success/50">
-            <CheckCircle className="h-3 w-3" />
-            Entregue
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Email entregue com sucesso</p>
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-  
-  return null;
+// Helper to determine email status from tracking data
+function getEmailStatus(email: TrackedEmail): 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' {
+  if (email.delivery_status === 'bounced') return 'bounced';
+  if ((email.clicks ?? 0) > 0) return 'clicked';
+  if ((email.opens ?? 0) > 0) return 'opened';
+  if (email.delivery_status === 'delivered') return 'delivered';
+  return 'sent';
 }
 
 function EmailRow({ 
@@ -67,39 +34,38 @@ function EmailRow({
   isSelected: boolean; 
   onSelect: () => void;
 }) {
+  const status = getEmailStatus(email);
+  
   return (
     <button
       onClick={onSelect}
       className={cn(
-        "w-full flex items-center gap-4 p-4 text-left transition-all duration-200 hover:bg-muted/50",
+        "w-full flex items-center gap-4 p-4 text-left transition-all duration-200 hover:bg-muted/50 hover-lift",
         isSelected && "bg-primary/5 border-l-2 border-l-primary",
-        email.delivery_status === 'bounced' && "bg-destructive/5"
+        status === 'bounced' && "bg-email-bounced/5"
       )}
     >
       <div className="flex-shrink-0">
         <div className={cn(
-          "w-10 h-10 rounded-full flex items-center justify-center",
-          email.delivery_status === 'bounced' 
-            ? "bg-destructive/10 text-destructive"
-            : (email.opens ?? 0) > 0 
-              ? "bg-success/10 text-success" 
-              : "bg-muted text-muted-foreground"
+          "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
+          status === 'bounced' && "bg-email-bounced/10 text-email-bounced",
+          status === 'clicked' && "bg-email-clicked/10 text-email-clicked",
+          status === 'opened' && "bg-email-opened/10 text-email-opened",
+          status === 'delivered' && "bg-email-delivered/10 text-email-delivered",
+          status === 'sent' && "bg-email-sent/10 text-email-sent"
         )}>
-          {email.delivery_status === 'bounced' ? (
-            <AlertTriangle className="h-5 w-5" />
-          ) : (
-            <Mail className="h-5 w-5" />
-          )}
+          <Mail className="h-5 w-5" />
         </div>
       </div>
       
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <p className="font-medium truncate">{email.recipient_email}</p>
-          <DeliveryStatusBadge 
-            status={email.delivery_status} 
+          <EmailStatusBadge 
+            status={status}
             bounceType={email.bounce_type}
             bounceReason={email.bounce_reason}
+            showIcon
           />
         </div>
         <p className="text-sm text-muted-foreground xl:text-base truncate">
@@ -119,8 +85,8 @@ function EmailRow({
             <div className="flex items-center gap-1 text-sm">
               <Eye className="h-4 w-4 text-muted-foreground" />
               <span className={cn(
-                "font-medium",
-                (email.opens ?? 0) > 0 ? "text-success" : "text-muted-foreground"
+                "font-medium tabular-nums",
+                (email.opens ?? 0) > 0 ? "text-email-opened" : "text-muted-foreground"
               )}>
                 {email.opens ?? 0}
               </span>
@@ -142,13 +108,13 @@ function EmailRow({
         <div className="flex items-center gap-1 text-sm">
           <MousePointerClick className="h-4 w-4 text-muted-foreground" />
           <span className={cn(
-            "font-medium",
-            (email.clicks ?? 0) > 0 ? "text-primary" : "text-muted-foreground"
+            "font-medium tabular-nums",
+            (email.clicks ?? 0) > 0 ? "text-email-clicked" : "text-muted-foreground"
           )}>
             {email.clicks ?? 0}
           </span>
         </div>
-        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+        <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
       </div>
     </button>
   );
