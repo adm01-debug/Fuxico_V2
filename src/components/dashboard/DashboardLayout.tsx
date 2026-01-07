@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useState, useCallback, useMemo, useEffect } from 'react'
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { DashboardSidebar, type TabId } from './DashboardSidebar'
 import { MobileBottomNav } from './MobileBottomNav'
@@ -8,13 +7,15 @@ import { DashboardBreadcrumbs } from './DashboardBreadcrumbs'
 import { JoyrideTour, useOnboardingTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
+import { GlobalSearchDialog, useGlobalSearch } from './GlobalSearchDialog'
 import { CreateTrackingDialog } from './CreateTrackingDialog'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
-import { Keyboard, Plus } from 'lucide-react'
+import { Keyboard, Plus, Search } from 'lucide-react'
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper'
 import TabSkeleton from './TabSkeleton'
+import { cn } from '@/lib/utils'
 
 // =============================================================================
 // LAZY LOADING
@@ -130,9 +131,12 @@ const TAB_SKELETON_VARIANTS: Partial<Record<TabId, 'table' | 'metrics' | 'chart'
 
 export default function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
+  const [prevTab, setPrevTab] = useState<TabId>('home')
+  const [isTransitioning, setIsTransitioning] = useState(false)
   const [showCreateTracking, setShowCreateTracking] = useState(false)
   const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()
   const { open: shortcutsOpen, setOpen: setShortcutsOpen } = useKeyboardShortcutsDialog()
+  const { open: searchOpen, setOpen: setSearchOpen } = useGlobalSearch()
   const isMobile = useIsMobile()
   const [hasSeenWizard, setHasSeenWizard] = useLocalStorage('fuxico-wizard-completed', false)
   const [showWizard, setShowWizard] = useState(false)
@@ -166,9 +170,20 @@ export default function DashboardLayout() {
     geo: 'geo',
   }
 
+  // Handle tab change with transition animation
   const handleTabChange = useCallback((value: TabId) => {
-    setActiveTab(value)
-  }, [])
+    if (value === activeTab) return
+    
+    setPrevTab(activeTab)
+    setIsTransitioning(true)
+    
+    // Small delay for exit animation
+    setTimeout(() => {
+      setActiveTab(value)
+      // Allow enter animation to complete
+      setTimeout(() => setIsTransitioning(false), 150)
+    }, 100)
+  }, [activeTab])
 
   // Keyboard shortcuts for navigation
   const keyboardBindings = useMemo(() => ({
@@ -222,6 +237,32 @@ export default function DashboardLayout() {
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Global Search Button */}
+                <TooltipWrapper content="Busca global" shortcut="Alt+F">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="gap-2 text-muted-foreground hover:text-foreground w-[180px] justify-start hidden md:flex"
+                    onClick={() => setSearchOpen(true)}
+                  >
+                    <Search className="h-4 w-4" />
+                    <span className="text-sm">Buscar...</span>
+                    <kbd className="ml-auto text-[10px] bg-muted px-1.5 py-0.5 rounded">Alt+F</kbd>
+                  </Button>
+                </TooltipWrapper>
+                
+                {/* Mobile Search Button */}
+                <TooltipWrapper content="Busca global" shortcut="Alt+F">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-9 w-9 md:hidden"
+                    onClick={() => setSearchOpen(true)}
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </TooltipWrapper>
+
                 {/* Create Tracking Button */}
                 <TooltipWrapper content="Novo rastreamento" shortcut="Alt+N">
                   <Button 
@@ -268,18 +309,27 @@ export default function DashboardLayout() {
             </div>
           </header>
 
-          {/* Main Content */}
+          {/* Main Content with Tab Transition */}
           <main className="flex-1 p-4 lg:p-6 xl:p-8 pb-20 md:pb-8">
-            <Suspense fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}>
-              {activeTab === 'home' ? (
-                <ActiveComponent 
-                  onNavigate={handleTabChange} 
-                  onCreateTracking={handleCreateTracking}
-                />
-              ) : (
-                <ActiveComponent />
+            <div 
+              className={cn(
+                "transition-all duration-200 ease-out",
+                isTransitioning 
+                  ? "opacity-0 translate-y-2" 
+                  : "opacity-100 translate-y-0"
               )}
-            </Suspense>
+            >
+              <Suspense fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}>
+                {activeTab === 'home' ? (
+                  <ActiveComponent 
+                    onNavigate={handleTabChange} 
+                    onCreateTracking={handleCreateTracking}
+                  />
+                ) : (
+                  <ActiveComponent />
+                )}
+              </Suspense>
+            </div>
           </main>
         </SidebarInset>
 
@@ -306,6 +356,15 @@ export default function DashboardLayout() {
       <KeyboardShortcutsDialog 
         open={shortcutsOpen} 
         onOpenChange={setShortcutsOpen} 
+      />
+
+      {/* Global Search Dialog */}
+      <GlobalSearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        onNavigate={handleTabChange}
+        onCreateTracking={handleCreateTracking}
+        onOpenShortcuts={() => setShortcutsOpen(true)}
       />
 
       {/* Create Tracking Dialog - Controlled mode */}
