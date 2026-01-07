@@ -1,5 +1,8 @@
 project_id = "npjfwzzapbtcguoupozd"
 
+[functions.suggest-subject]
+verify_jwt = false
+
 [functions.track-pixel]
 verify_jwt = false
 
