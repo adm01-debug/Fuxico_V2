@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useCallback, useMemo } from 'react'
+import React, { Suspense, lazy, useState, useCallback, useMemo, useEffect } from 'react'
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -6,8 +6,10 @@ import { DashboardSidebar, type TabId } from './DashboardSidebar'
 import { MobileBottomNav } from './MobileBottomNav'
 import { DashboardBreadcrumbs } from './DashboardBreadcrumbs'
 import { JoyrideTour, useOnboardingTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
+import { useLocalStorage } from '@/hooks/use-local-storage'
 
 // =============================================================================
 // LAZY LOADING
@@ -141,6 +143,27 @@ export default function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
   const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()
   const isMobile = useIsMobile()
+  const [hasSeenWizard, setHasSeenWizard] = useLocalStorage('fuxico-wizard-completed', false)
+  const [showWizard, setShowWizard] = useState(false)
+
+  // Show wizard for first-time users
+  useEffect(() => {
+    if (!hasSeenWizard) {
+      // Delay to let UI settle
+      const timer = setTimeout(() => setShowWizard(true), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [hasSeenWizard])
+
+  const handleWizardComplete = useCallback(() => {
+    setHasSeenWizard(true)
+    setShowWizard(false)
+  }, [setHasSeenWizard])
+
+  const handleWizardSkip = useCallback(() => {
+    setHasSeenWizard(true)
+    setShowWizard(false)
+  }, [setHasSeenWizard])
 
   // Mapa de tab para tour correspondente
   const tabToTourMap: Partial<Record<TabId, string>> = {
@@ -242,6 +265,14 @@ export default function DashboardLayout() {
         setTourState={setTourState}
         onComplete={completeTour}
       />
+
+      {/* Onboarding Wizard for first-time users */}
+      {showWizard && (
+        <OnboardingWizard 
+          onComplete={handleWizardComplete}
+          onSkip={handleWizardSkip}
+        />
+      )}
     </SidebarProvider>
   )
 }
