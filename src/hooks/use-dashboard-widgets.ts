@@ -124,7 +124,15 @@ export function useDashboardWidgets() {
     if (newWidgets.length > 0) {
       setWidgets([...widgets, ...newWidgets]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Reordenar widgets diretamente (para framer-motion Reorder)
+  const setWidgetOrder = useCallback((orderedWidgets: DashboardWidget[]) => {
+    const updatedWidgets = orderedWidgets.map((w, i) => ({ ...w, order: i }));
+    const disabled = widgets.filter(w => !w.enabled);
+    setWidgets([...updatedWidgets, ...disabled]);
+  }, [widgets, setWidgets]);
 
   const enabledWidgets = widgets
     .filter(w => w.enabled)
@@ -171,6 +179,7 @@ export function useDashboardWidgets() {
     setIsEditing,
     toggleWidget,
     reorderWidgets,
+    setWidgetOrder,
     resetWidgets,
     updateWidgetSize,
   };

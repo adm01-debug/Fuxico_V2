@@ -5,7 +5,8 @@ import { log } from '@/lib/logger';
 // Descrição: Página inicial com métricas, eventos em tempo real e alertas
 // =============================================================================
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,7 +32,9 @@ import {
 import { RealtimeMetrics } from './RealtimeMetrics';
 import { QuickActions } from './QuickActions';
 import { PerformanceGauge } from './PerformanceGauge';
-import { useDashboardWidgets } from '@/hooks/use-dashboard-widgets';
+import { WidgetCustomizer } from './WidgetCustomizer';
+import { DraggableWidgetGrid, AnimatedWidgetCard } from './DraggableWidgetGrid';
+import { useDashboardWidgets, DashboardWidget } from '@/hooks/use-dashboard-widgets';
 import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/hooks/use-tracking';
 import { useTrackingTrends } from '@/hooks/use-tracking-trends';
 import { supabase } from '@/integrations/supabase/client';
@@ -429,6 +432,13 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
   const { data: emails, isLoading: isLoadingEmails } = useTrackedEmails({ limit: 50 });
   const { data: trends, isLoading: isLoadingTrends } = useTrackingTrends(7);
   const { refresh } = useRefreshStats();
+  const { 
+    enabledWidgets, 
+    isEditing, 
+    setIsEditing, 
+    setWidgetOrder, 
+    updateWidgetSize 
+  } = useDashboardWidgets();
 
   // Calcular métricas derivadas
   const metrics = useMemo(() => {
@@ -589,33 +599,168 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
     }
   };
 
+  // Renderizar widget baseado no tipo
+  const renderWidget = useCallback((widget: DashboardWidget) => {
+    switch (widget.type) {
+      case 'realtime-metrics':
+        return (
+          <AnimatedWidgetCard
+            title="Métricas em Tempo Real"
+            icon={<Zap className="h-4 w-4 text-yellow-500" />}
+            description="Acompanhe aberturas e cliques ao vivo"
+          >
+            <RealtimeMetrics />
+          </AnimatedWidgetCard>
+        );
+      case 'weekly-trends':
+        return (
+          <AnimatedWidgetCard
+            title="Tendência Semanal"
+            icon={<TrendingUp className="h-4 w-4" />}
+            description="Aberturas e cliques nos últimos 7 dias"
+          >
+            <WeeklyTrendChart data={chartData} isLoading={isLoadingTrends} />
+          </AnimatedWidgetCard>
+        );
+      case 'quick-actions':
+        return (
+          <AnimatedWidgetCard
+            title="Ações Rápidas"
+            icon={<Zap className="h-4 w-4 text-primary" />}
+            description="Acesso rápido às principais funções"
+          >
+            <QuickActions 
+              onNavigate={(tabId) => onNavigate?.(tabId)} 
+              onCreateTracking={onCreateTracking}
+            />
+          </AnimatedWidgetCard>
+        );
+      case 'performance-gauge':
+        return (
+          <PerformanceGauge
+            openRate={metrics.openRate}
+            clickRate={metrics.clickRate}
+            bounceRate={metrics.bounceRate}
+          />
+        );
+      case 'bounce-alerts':
+        return (
+          <AnimatedWidgetCard
+            title="Alertas de Bounce"
+            icon={<AlertTriangle className="h-4 w-4 text-destructive" />}
+            description="Emails que falharam na entrega"
+          >
+            <BounceAlerts alerts={bounceAlerts} isLoading={isLoadingEmails} />
+          </AnimatedWidgetCard>
+        );
+      case 'recent-events':
+        return (
+          <AnimatedWidgetCard
+            title="Atividade em Tempo Real"
+            icon={<Zap className="h-4 w-4 text-yellow-500" />}
+            description="Últimos eventos de tracking"
+          >
+            <RealtimeEvents events={realtimeEvents} isLoading={isLoadingEmails} />
+          </AnimatedWidgetCard>
+        );
+      case 'top-recipients':
+        return (
+          <AnimatedWidgetCard
+            title="Destinatários Únicos"
+            icon={<Users className="h-4 w-4 text-primary" />}
+            description="Contatos mais engajados"
+          >
+            <div className="flex items-center gap-4 py-4">
+              <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  {emails 
+                    ? new Set(emails.map(e => e.recipient_email)).size.toLocaleString('pt-BR')
+                    : '-'}
+                </p>
+                <p className="text-xs text-muted-foreground">contatos únicos</p>
+              </div>
+            </div>
+          </AnimatedWidgetCard>
+        );
+      case 'delivery-stats':
+        return (
+          <AnimatedWidgetCard
+            title="Estatísticas de Entrega"
+            icon={<Mail className="h-4 w-4 text-blue-500" />}
+            description="Resumo de deliverability"
+          >
+            <div className="grid grid-cols-2 gap-4 py-2">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-500">
+                  {trendsSummary?.totalOpens?.toLocaleString('pt-BR') || '-'}
+                </p>
+                <p className="text-xs text-muted-foreground">Aberturas (7d)</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-500">
+                  {trendsSummary?.totalClicks?.toLocaleString('pt-BR') || '-'}
+                </p>
+                <p className="text-xs text-muted-foreground">Cliques (7d)</p>
+              </div>
+            </div>
+          </AnimatedWidgetCard>
+        );
+      default:
+        return null;
+    }
+  }, [chartData, isLoadingTrends, metrics, bounceAlerts, isLoadingEmails, realtimeEvents, emails, trendsSummary, onNavigate, onCreateTracking]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold">Visão Geral</h2>
           <p className="text-muted-foreground">
             Acompanhe suas métricas e eventos em tempo real
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="gap-2"
-        >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Atualizar
-        </Button>
+        <div className="flex items-center gap-2">
+          <WidgetCustomizer 
+            isEditing={isEditing}
+            onEditingChange={setIsEditing}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Atualizar</span>
+          </Button>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <QuickActions 
-        onNavigate={(tabId) => onNavigate?.(tabId)} 
-        onCreateTracking={onCreateTracking}
-      />
+      {/* Editing Mode Banner */}
+      <AnimatePresence>
+        {isEditing && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-center justify-between">
+              <p className="text-sm text-primary">
+                <strong>Modo de edição:</strong> Arraste os widgets para reorganizar. Clique nos botões para redimensionar.
+              </p>
+              <Button size="sm" onClick={() => setIsEditing(false)}>
+                Concluir
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Métricas Principais */}
       <section 
@@ -655,124 +800,17 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
         />
       </section>
 
-      {/* Métricas em Tempo Real */}
-      <section data-tour="realtime-metrics">
-        <RealtimeMetrics />
-      </section>
-
-      {/* Grid Principal com Performance Gauge */}
-      <section className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8">
-        {/* Gráfico de Tendência */}
-        <Card role="region" aria-label="Estatísticas" className="lg:col-span-2" data-tour="trend-chart">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Tendência Semanal
-            </CardTitle>
-            <CardDescription>
-              Aberturas e cliques nos últimos 7 dias
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <WeeklyTrendChart data={chartData} isLoading={isLoadingTrends} />
-          </CardContent>
-        </Card>
-
-        {/* Performance Gauge */}
-        <PerformanceGauge
-          openRate={metrics.openRate}
-          clickRate={metrics.clickRate}
-          bounceRate={metrics.bounceRate}
+      {/* Widgets Customizáveis com Drag-and-Drop */}
+      <section data-tour="dashboard-widgets">
+        <DraggableWidgetGrid
+          widgets={enabledWidgets}
+          renderWidget={renderWidget}
+          isEditing={isEditing}
+          onReorder={setWidgetOrder}
+          onSizeChange={updateWidgetSize}
         />
-
-        {/* Eventos em Tempo Real */}
-        <Card data-tour="realtime-events">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-yellow-500" />
-              Atividade em Tempo Real
-            </CardTitle>
-            <CardDescription>
-              Últimos eventos de tracking
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RealtimeEvents 
-              events={realtimeEvents} 
-              isLoading={isLoadingEmails} 
-            />
-          </CardContent>
-        </Card>
       </section>
 
-      {/* Alertas de Bounce */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            Alertas de Bounce
-          </CardTitle>
-          <CardDescription>
-            Emails que não foram entregues recentemente
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <BounceAlerts alerts={bounceAlerts} isLoading={isLoadingEmails} />
-        </CardContent>
-      </Card>
-
-      {/* Quick Stats */}
-      <section className="grid gap-4 md:grid-cols-3">
-        <Card role="region" aria-label="Estatísticas" className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Destinatários Únicos</p>
-                <p className="text-2xl font-bold">
-                  {emails 
-                    ? new Set(emails.map(e => e.recipient_email)).size.toLocaleString('pt-BR')
-                    : '-'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card role="region" aria-label="Estatísticas" className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                <LinkIcon className="h-6 w-6 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Aberturas (7 dias)</p>
-                <p className="text-2xl font-bold">
-                  {trendsSummary?.totalOpens?.toLocaleString('pt-BR') || '-'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card role="region" aria-label="Estatísticas" className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <MousePointerClick className="h-6 w-6 text-green-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Cliques (7 dias)</p>
-                <p className="text-2xl font-bold">
-                  {trendsSummary?.totalClicks?.toLocaleString('pt-BR') || '-'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
     </div>
   );
 }
