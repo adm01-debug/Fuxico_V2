@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -14,16 +13,24 @@ import {
   useDeleteReminder 
 } from '@/hooks/use-follow-up-reminders';
 import { useTrackedEmails } from '@/hooks/use-tracking';
-import { Bell, BellRing, Clock, Mail, Plus, Trash2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
+import { Bell, BellRing, Clock, Mail, Plus, Trash2, CheckCircle, XCircle, AlertTriangle, Sparkles, Wand2 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { AIFollowUpDialog } from './AIFollowUpDialog';
 
 export function FollowUpTab() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState('');
   const [reminderDays, setReminderDays] = useState('3');
   const [filter, setFilter] = useState<'all' | 'pending' | 'sent' | 'cancelled'>('all');
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [selectedEmailForAI, setSelectedEmailForAI] = useState<{
+    recipient_email: string;
+    subject: string;
+    days_since_sent: number;
+    tracking_id: string;
+  } | null>(null);
 
   const { data: reminders = [], isLoading } = useFollowUpReminders();
   const { data: dueReminders = [] } = useDueReminders();
@@ -167,9 +174,30 @@ export function FollowUpTab() {
                     <p className="text-sm font-medium">{reminder.recipient_email}</p>
                     <p className="text-xs text-muted-foreground">{reminder.subject || 'Sem assunto'}</p>
                   </div>
-                  <Button size="sm" onClick={() => handleMarkAsSent(reminder.id)}>
-                    Marcar Enviado
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="gap-1"
+                      onClick={() => {
+                        setSelectedEmailForAI({
+                          recipient_email: reminder.recipient_email,
+                          subject: reminder.subject || 'Sem assunto',
+                          days_since_sent: Math.floor(
+                            (Date.now() - new Date(reminder.created_at).getTime()) / (1000 * 60 * 60 * 24)
+                          ),
+                          tracking_id: reminder.tracking_id
+                        });
+                        setAiDialogOpen(true);
+                      }}
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      IA
+                    </Button>
+                    <Button size="sm" onClick={() => handleMarkAsSent(reminder.id)}>
+                      Marcar Enviado
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -298,6 +326,23 @@ export function FollowUpTab() {
                             <Button
                               size="sm"
                               variant="outline"
+                              onClick={() => {
+                                setSelectedEmailForAI({
+                                  recipient_email: reminder.recipient_email,
+                                  subject: reminder.subject || 'Sem assunto',
+                                  days_since_sent: reminder.days_since_sent,
+                                  tracking_id: reminder.tracking_id
+                                });
+                                setAiDialogOpen(true);
+                              }}
+                              title="Sugestão de IA"
+                              className="gap-1"
+                            >
+                              <Wand2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               onClick={() => handleMarkAsSent(reminder.id)}
                               title="Marcar como enviado"
                             >
@@ -330,6 +375,23 @@ export function FollowUpTab() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* AI Follow-up Dialog */}
+      <AIFollowUpDialog
+        open={aiDialogOpen}
+        onOpenChange={setAiDialogOpen}
+        email={selectedEmailForAI}
+        onCreateReminder={async (trackingId) => {
+          try {
+            await createReminder.mutateAsync({
+              trackingId,
+              reminderDays: 3,
+            });
+          } catch (error) {
+            toast.error('Erro ao criar lembrete');
+          }
+        }}
+      />
     </div>
   );
 }

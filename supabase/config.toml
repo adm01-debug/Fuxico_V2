@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.check-deliverability]
 verify_jwt = false
+
+[functions.generate-followup]
+verify_jwt = false
