@@ -33,12 +33,13 @@ serve(async (req: Request): Promise<Response> => {
   });
 
   if (!rateLimitResult.allowed) {
+    const retryAfter = Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000);
     return new Response(JSON.stringify({
       error: "Too many requests",
-      retryAfter: rateLimitResult.retryAfter
+      retryAfter
     }), {
       status: 429,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) },
     });
   }
 
