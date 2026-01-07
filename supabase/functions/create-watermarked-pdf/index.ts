@@ -7,8 +7,9 @@ import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts'
 
-const WatermarkSchema = z.object({
 const log = createLogger('create-watermarked-pdf')
+
+const WatermarkSchema = z.object({
   documentId: z.string().uuid(),
   watermarkText: z.string().min(1).max(200),
   position: z.enum(["center", "diagonal", "footer"]).default("diagonal"),
