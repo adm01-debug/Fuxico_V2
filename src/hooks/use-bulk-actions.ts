@@ -34,9 +34,9 @@ export function useBulkActions({ table, queryKey, onSuccess }: UseBulkActionsOpt
 
   const deleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from(table)
-        .update({ deleted_at: new Date().toISOString() })
+        .delete()
         .in('id', ids);
       if (error) throw error;
     },
@@ -53,9 +53,9 @@ export function useBulkActions({ table, queryKey, onSuccess }: UseBulkActionsOpt
 
   const restoreMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from(table)
-        .update({ deleted_at: null })
+        .update({ status: 'active' })
         .in('id', ids);
       if (error) throw error;
     },

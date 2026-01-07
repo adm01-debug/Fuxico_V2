@@ -1,5 +1,5 @@
 // FUXICO - Component: VersionHistoryPanel
-import { History, RotateCcw, ChevronRight } from 'lucide-react';
+import { History, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +21,7 @@ interface VersionHistoryPanelProps {
 }
 
 export function VersionHistoryPanel({ entityType, entityId }: VersionHistoryPanelProps) {
-  const { versions, isLoading, restore, isRestoring } = useVersionHistory(entityType, entityId);
+  const { versions, isLoading, restoreVersion, isRestoring } = useVersionHistory(entityType, entityId);
 
   return (
     <Sheet>
@@ -74,7 +74,7 @@ export function VersionHistoryPanel({ entityType, entityId }: VersionHistoryPane
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => restore(version.id)}
+                          onClick={() => restoreVersion(version.id)}
                           disabled={isRestoring || index === 0}
                         >
                           <RotateCcw className="h-3 w-3 mr-1" />

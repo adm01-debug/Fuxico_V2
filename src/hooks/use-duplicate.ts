@@ -3,25 +3,25 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface UseDuplicateOptions<T> {
+interface UseDuplicateOptions {
   table: string;
   queryKey: string[];
   excludeFields?: string[];
-  transformData?: (data: T) => Partial<T>;
+  transformData?: (data: Record<string, unknown>) => Record<string, unknown>;
 }
 
-export function useDuplicate<T extends Record<string, unknown>>({
+export function useDuplicate({
   table,
   queryKey,
-  excludeFields = ['id', 'created_at', 'updated_at', 'deleted_at'],
+  excludeFields = ['id', 'created_at', 'updated_at'],
   transformData,
-}: UseDuplicateOptions<T>) {
+}: UseDuplicateOptions) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (sourceId: string) => {
       // Buscar registro original
-      const { data: original, error: fetchError } = await supabase
+      const { data: original, error: fetchError } = await (supabase as any)
         .from(table)
         .select('*')
         .eq('id', sourceId)
@@ -40,7 +40,7 @@ export function useDuplicate<T extends Record<string, unknown>>({
 
       // Aplicar transformacao customizada
       if (transformData) {
-        newData = { ...newData, ...transformData(original as T) };
+        newData = { ...newData, ...transformData(original) };
       }
 
       // Adicionar sufixo ao nome/titulo se existir
@@ -49,7 +49,7 @@ export function useDuplicate<T extends Record<string, unknown>>({
       if (newData.subject) newData.subject = `${newData.subject} (copia)`;
 
       // Inserir novo registro
-      const { data: duplicated, error: insertError } = await supabase
+      const { data: duplicated, error: insertError } = await (supabase as any)
         .from(table)
         .insert(newData)
         .select()
@@ -58,10 +58,9 @@ export function useDuplicate<T extends Record<string, unknown>>({
       if (insertError) throw insertError;
       return duplicated;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success('Registro duplicado com sucesso');
-      return data;
     },
     onError: (error: Error) => {
       toast.error(`Erro ao duplicar: ${error.message}`);

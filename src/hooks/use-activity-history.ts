@@ -35,10 +35,10 @@ export function useActivityHistory({
         .limit(limit);
 
       if (entityType) {
-        query = query.eq('action', entityType);
+        query = query.eq('direction', entityType);
       }
       if (entityId) {
-        query = query.eq('email_id', entityId);
+        query = query.eq('id', entityId);
       }
       if (userId) {
         query = query.eq('user_id', userId);
@@ -47,13 +47,13 @@ export function useActivityHistory({
       const { data, error } = await query;
       if (error) throw error;
       
-      return data.map(item => ({
+      return (data || []).map(item => ({
         id: item.id,
-        action: item.action,
+        action: item.direction,
         entity_type: 'email',
-        entity_id: item.email_id,
+        entity_id: item.id,
         user_id: item.user_id,
-        metadata: item.metadata || {},
+        metadata: (item.metadata as Record<string, unknown>) || {},
         created_at: item.timestamp,
       })) as Activity[];
     },

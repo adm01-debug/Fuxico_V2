@@ -12,7 +12,7 @@ interface UseInfiniteScrollOptions {
   filters?: Record<string, unknown>;
 }
 
-export function useInfiniteScroll<T>({
+export function useInfiniteScroll<T = Record<string, unknown>>({
   table,
   columns = '*',
   pageSize = 20,
@@ -26,7 +26,7 @@ export function useInfiniteScroll<T>({
   const query = useInfiniteQuery({
     queryKey: ['infinite', table, filters, orderBy],
     queryFn: async ({ pageParam = 0 }) => {
-      let queryBuilder = supabase
+      let queryBuilder = (supabase as any)
         .from(table)
         .select(columns)
         .order(orderBy, { ascending: orderDirection === 'asc' })

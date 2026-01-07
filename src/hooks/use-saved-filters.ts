@@ -1,10 +1,9 @@
 // =============================================================================
 // FUXICO - Hook: useSavedFilters
-// Gerencia filtros salvos pelo usuário
+// Gerencia filtros salvos pelo usuário (usa localStorage como fallback)
 // =============================================================================
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 export interface SavedFilter {
@@ -24,139 +23,74 @@ export interface SaveFilterInput {
 }
 
 export function useSavedFilters(entityType: string) {
-  const queryClient = useQueryClient();
-  const queryKey = ['saved-filters', entityType];
+  const storageKey = `fuxico_filters_${entityType}`;
+  const [filters, setFilters] = useState<SavedFilter[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Buscar filtros salvos
-  const { data: filters, isLoading, error } = useQuery({
-    queryKey,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('saved_filters')
-        .select('*')
-        .eq('entity_type', entityType)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as SavedFilter[];
-    },
-  });
+  // Load from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        setFilters(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error('Error loading saved filters:', e);
+    }
+    setIsLoading(false);
+  }, [storageKey]);
+
+  // Save to localStorage
+  const persist = useCallback((newFilters: SavedFilter[]) => {
+    setFilters(newFilters);
+    localStorage.setItem(storageKey, JSON.stringify(newFilters));
+  }, [storageKey]);
 
   // Buscar filtro padrão
-  const defaultFilter = filters?.find(f => f.is_default);
+  const defaultFilter = filters.find(f => f.is_default);
 
   // Salvar novo filtro
-  const saveMutation = useMutation({
-    mutationFn: async (input: SaveFilterInput) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Usuário não autenticado');
-      
-      const { data, error } = await supabase
-        .from('saved_filters')
-        .insert({
-          user_id: user.id,
-          entity_type: entityType,
-          name: input.name,
-          filters: input.filters,
-          is_default: input.is_default || false,
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data as SavedFilter;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-      toast.success('Filtro salvo com sucesso!');
-    },
-    onError: (error: Error) => {
-      toast.error(`Erro ao salvar filtro: ${error.message}`);
-    },
-  });
-
-  // Atualizar filtro
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, ...input }: Partial<SaveFilterInput> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('saved_filters')
-        .update(input)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data as SavedFilter;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-      toast.success('Filtro atualizado!');
-    },
-    onError: (error: Error) => {
-      toast.error(`Erro ao atualizar: ${error.message}`);
-    },
-  });
+  const saveFilter = useCallback((input: SaveFilterInput) => {
+    const newFilter: SavedFilter = {
+      id: crypto.randomUUID(),
+      name: input.name,
+      entity_type: entityType,
+      filters: input.filters,
+      is_default: input.is_default || false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    persist([...filters, newFilter]);
+    toast.success('Filtro salvo com sucesso!');
+  }, [filters, persist, entityType]);
 
   // Deletar filtro
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('saved_filters')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-      toast.success('Filtro removido');
-    },
-    onError: (error: Error) => {
-      toast.error(`Erro ao remover: ${error.message}`);
-    },
-  });
+  const deleteFilter = useCallback((id: string) => {
+    persist(filters.filter(f => f.id !== id));
+    toast.success('Filtro removido');
+  }, [filters, persist]);
 
   // Definir como padrão
-  const setDefaultMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Usuário não autenticado');
-
-      // Remove default de todos os filtros do usuário
-      await supabase
-        .from('saved_filters')
-        .update({ is_default: false })
-        .eq('entity_type', entityType)
-        .eq('user_id', user.id);
-      
-      // Define novo default
-      const { error } = await supabase
-        .from('saved_filters')
-        .update({ is_default: true })
-        .eq('id', id);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-      toast.success('Filtro padrão definido');
-    },
-    onError: (error: Error) => {
-      toast.error(`Erro: ${error.message}`);
-    },
-  });
+  const setDefault = useCallback((id: string) => {
+    const updated = filters.map(f => ({
+      ...f,
+      is_default: f.id === id,
+    }));
+    persist(updated);
+    toast.success('Filtro padrão definido');
+  }, [filters, persist]);
 
   return {
-    filters: filters ?? [],
+    filters,
     defaultFilter,
     isLoading,
-    error,
-    saveFilter: saveMutation.mutate,
-    updateFilter: updateMutation.mutate,
-    deleteFilter: deleteMutation.mutate,
-    setDefault: setDefaultMutation.mutate,
-    isSaving: saveMutation.isPending,
-    isDeleting: deleteMutation.isPending,
+    error: null,
+    saveFilter,
+    updateFilter: () => {},
+    deleteFilter,
+    setDefault,
+    isSaving: false,
+    isDeleting: false,
   };
 }
 
