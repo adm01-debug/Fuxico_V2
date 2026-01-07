@@ -59,15 +59,17 @@ export function FilterToolbar<T extends Record<string, unknown>>({
   const hasActiveFilters = searchTerm || activeFilterCount > 0;
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-card rounded-lg border">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-md">
+    <div className="flex flex-col gap-3 sm:gap-4 p-3 sm:p-4 bg-card rounded-lg border">
+      {/* Main toolbar row */}
+      <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
+        {/* Search input - full width on mobile */}
+        <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={placeholder}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-9 sm:h-10"
           />
           {searchTerm && (
             <Button
@@ -81,14 +83,15 @@ export function FilterToolbar<T extends Record<string, unknown>>({
           )}
         </div>
 
-        {showDateFilter && (
-          <DateRangeFilter
-            value={dateRange}
-            onChange={handleDateChange}
-          />
-        )}
+        {/* Action buttons row */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {showDateFilter && (
+            <DateRangeFilter
+              value={dateRange}
+              onChange={handleDateChange}
+            />
+          )}
 
-        <div className="flex gap-2 ml-auto">
           {showSavedFilters && (
             <SavedFiltersDropdown
               entityType={entityType}
@@ -105,6 +108,7 @@ export function FilterToolbar<T extends Record<string, unknown>>({
             <Button
               variant="outline"
               size="icon"
+              className="h-9 w-9 flex-shrink-0"
               onClick={onRefresh}
               disabled={isLoading}
             >
@@ -114,23 +118,41 @@ export function FilterToolbar<T extends Record<string, unknown>>({
         </div>
       </div>
 
+      {/* Active filters chips */}
       {hasActiveFilters && (
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Filtros ativos:</span>
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <span className="text-xs sm:text-sm text-muted-foreground mr-1">Filtros:</span>
           {searchTerm && (
-            <Badge variant="secondary" className="gap-1">
-              Busca: {searchTerm}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => onSearchChange('')} />
+            <Badge 
+              variant="secondary" 
+              className="gap-1 text-xs sm:text-sm px-2 py-0.5 animate-scale-in"
+            >
+              <span className="hidden sm:inline">Busca:</span> {searchTerm.length > 15 ? searchTerm.slice(0, 15) + '...' : searchTerm}
+              <X 
+                className="h-3 w-3 cursor-pointer hover:text-destructive transition-colors" 
+                onClick={() => onSearchChange('')} 
+              />
             </Badge>
           )}
           {dateRange.from && (
-            <Badge variant="secondary" className="gap-1">
-              Periodo
-              <X className="h-3 w-3 cursor-pointer" onClick={() => handleDateChange({})} />
+            <Badge 
+              variant="secondary" 
+              className="gap-1 text-xs sm:text-sm px-2 py-0.5 animate-scale-in"
+            >
+              Período
+              <X 
+                className="h-3 w-3 cursor-pointer hover:text-destructive transition-colors" 
+                onClick={() => handleDateChange({})} 
+              />
             </Badge>
           )}
-          <Button variant="ghost" size="sm" onClick={handleClearAll}>
-            Limpar todos
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleClearAll}
+            className="h-6 sm:h-7 text-xs text-muted-foreground hover:text-destructive"
+          >
+            Limpar
           </Button>
         </div>
       )}

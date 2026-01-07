@@ -9,6 +9,7 @@ import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
 import { GlobalSearchDialog, useGlobalSearch } from './GlobalSearchDialog'
 import { CreateTrackingDialog } from './CreateTrackingDialog'
+import { ModeToggle } from '@/components/ui/mode-toggle'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
@@ -227,27 +228,27 @@ export default function DashboardLayout() {
         <SidebarInset className="flex-1">
           {/* Header */}
           <header className="sticky top-0 z-10 flex flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-14 items-center gap-4 px-4 lg:px-6">
-              <SidebarTrigger className="md:hidden" />
+            <div className="flex h-12 sm:h-14 items-center gap-2 sm:gap-4 px-2 sm:px-4 lg:px-6">
+              <SidebarTrigger className="md:hidden h-8 w-8" />
               
-              <div className="flex-1">
-                <h1 className="text-lg font-semibold lg:text-xl">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-base sm:text-lg font-semibold lg:text-xl truncate">
                   {TAB_LABELS[activeTab]}
                 </h1>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* Global Search Button */}
+              <div className="flex items-center gap-1 sm:gap-2">
+                {/* Global Search Button - Desktop */}
                 <TooltipWrapper content="Busca global" shortcut="Alt+F">
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="gap-2 text-muted-foreground hover:text-foreground w-[180px] justify-start hidden md:flex"
+                    className="gap-2 text-muted-foreground hover:text-foreground w-[140px] lg:w-[180px] justify-start hidden md:flex"
                     onClick={() => setSearchOpen(true)}
                   >
-                    <Search className="h-4 w-4" />
-                    <span className="text-sm">Buscar...</span>
-                    <kbd className="ml-auto text-[10px] bg-muted px-1.5 py-0.5 rounded">Alt+F</kbd>
+                    <Search className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm truncate">Buscar...</span>
+                    <kbd className="ml-auto text-[10px] bg-muted px-1.5 py-0.5 rounded hidden lg:inline">Alt+F</kbd>
                   </Button>
                 </TooltipWrapper>
                 
@@ -256,7 +257,7 @@ export default function DashboardLayout() {
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    className="h-9 w-9 md:hidden"
+                    className="h-8 w-8 sm:h-9 sm:w-9 md:hidden"
                     onClick={() => setSearchOpen(true)}
                   >
                     <Search className="h-4 w-4" />
@@ -267,7 +268,7 @@ export default function DashboardLayout() {
                 <TooltipWrapper content="Novo rastreamento" shortcut="Alt+N">
                   <Button 
                     size="sm" 
-                    className="gap-1.5"
+                    className="gap-1.5 h-8 sm:h-9 px-2 sm:px-3"
                     onClick={() => setShowCreateTracking(true)}
                   >
                     <Plus className="h-4 w-4" />
@@ -275,28 +276,34 @@ export default function DashboardLayout() {
                   </Button>
                 </TooltipWrapper>
 
-                {/* Keyboard Shortcuts Button */}
+                {/* Dark Mode Toggle */}
+                <ModeToggle size="sm" className="h-8 w-8 sm:h-9 sm:w-9" />
+
+                {/* Keyboard Shortcuts Button - Hidden on small mobile */}
                 <TooltipWrapper content="Atalhos de teclado" shortcut="?">
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-9 w-9"
+                    className="h-8 w-8 sm:h-9 sm:w-9 hidden xs:flex"
                     onClick={() => setShortcutsOpen(true)}
                   >
                     <Keyboard className="h-4 w-4" />
                   </Button>
                 </TooltipWrapper>
 
-                {currentTabHasTour && (
-                  <TourTriggerButton
-                    onClick={handleStartModuleTour}
-                    hasCompleted={hasCompletedTour(currentTourId)}
+                {/* Tour buttons - Hidden on mobile */}
+                <div className="hidden sm:flex items-center gap-1">
+                  {currentTabHasTour && (
+                    <TourTriggerButton
+                      onClick={handleStartModuleTour}
+                      hasCompleted={hasCompletedTour(currentTourId)}
+                    />
+                  )}
+                  <TourSelector
+                    onStartTour={startTour}
+                    completedTours={completedTours}
                   />
-                )}
-                <TourSelector
-                  onStartTour={startTour}
-                  completedTours={completedTours}
-                />
+                </div>
               </div>
             </div>
             
