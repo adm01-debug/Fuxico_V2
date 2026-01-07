@@ -6,8 +6,9 @@ import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts'
 
+const log = createLogger('geo-lookup');
+
 const GeoSchema = z.object({
-const log = createLogger('geo-lookup')
   ip: z.string().ip().optional()
 });
 

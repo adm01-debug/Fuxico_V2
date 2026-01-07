@@ -103,6 +103,8 @@ export default {
         email: {
           sent: "hsl(var(--email-sent))",
           "sent-foreground": "hsl(var(--email-sent-foreground))",
+          delivered: "hsl(var(--email-delivered))",
+          "delivered-foreground": "hsl(var(--email-delivered-foreground))",
           opened: "hsl(var(--email-opened))",
           "opened-foreground": "hsl(var(--email-opened-foreground))",
           clicked: "hsl(var(--email-clicked))",
