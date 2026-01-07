@@ -20,8 +20,8 @@ import {
 import { cn } from '@/lib/utils';
 
 interface DateRange {
-  from: Date | undefined;
-  to: Date | undefined;
+  from?: Date;
+  to?: Date;
 }
 
 interface DateRangeFilterProps {

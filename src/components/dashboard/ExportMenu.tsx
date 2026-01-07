@@ -1,5 +1,5 @@
 // FUXICO - Component: ExportMenu
-import { Download, FileText, FileSpreadsheet, FileJson } from 'lucide-react';
+import { Download, FileText, FileJson } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 
-type ExportFormat = 'csv' | 'excel' | 'pdf' | 'json';
+type ExportFormat = 'csv' | 'json';
 
 interface ExportMenuProps<T> {
   data: T[];
@@ -47,9 +47,6 @@ export function ExportMenu<T extends Record<string, unknown>>({
         case 'json':
           exportJSON(data, filename);
           break;
-        case 'excel':
-          await exportExcel(data, cols, columnLabels, filename);
-          break;
         default:
           toast.info('Formato em desenvolvimento');
       }
@@ -78,10 +75,6 @@ export function ExportMenu<T extends Record<string, unknown>>({
           <FileText className="h-4 w-4 mr-2" />
           CSV
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleExport('excel')}>
-          <FileSpreadsheet className="h-4 w-4 mr-2" />
-          Excel (XLSX)
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => handleExport('json')}>
           <FileJson className="h-4 w-4 mr-2" />
@@ -107,24 +100,6 @@ function exportCSV<T extends Record<string, unknown>>(
 function exportJSON<T>(data: T[], filename?: string) {
   const json = JSON.stringify(data, null, 2);
   downloadFile(json, `${filename}.json`, 'application/json');
-}
-
-async function exportExcel<T extends Record<string, unknown>>(
-  data: T[],
-  cols: string[],
-  labels?: Record<string, string>,
-  filename?: string
-) {
-  const XLSX = await import('xlsx');
-  const preparedData = data.map(row => {
-    const newRow: Record<string, unknown> = {};
-    cols.forEach(c => { newRow[labels?.[c] || c] = row[c]; });
-    return newRow;
-  });
-  const ws = XLSX.utils.json_to_sheet(preparedData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Dados');
-  XLSX.writeFile(wb, `${filename}.xlsx`);
 }
 
 function downloadFile(content: string, filename: string, type: string) {

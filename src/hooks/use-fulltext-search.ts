@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface UseFulltextSearchOptions<T> {
+interface UseFulltextSearchOptions {
   table: string;
   columns: string[];
   searchColumns: string[];
@@ -16,14 +16,14 @@ interface UseFulltextSearchOptions<T> {
   minChars?: number;
 }
 
-export function useFulltextSearch<T>({
+export function useFulltextSearch<T = Record<string, unknown>>({
   table,
   columns,
   searchColumns,
   enabled = true,
   debounceMs = 300,
   minChars = 2,
-}: UseFulltextSearchOptions<T>) {
+}: UseFulltextSearchOptions) {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
 
@@ -49,7 +49,7 @@ export function useFulltextSearch<T>({
         .map(col => `${col}.ilike.%${debouncedTerm}%`)
         .join(',');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from(table)
         .select(columns.join(','))
         .or(orFilter)
@@ -86,12 +86,7 @@ export function useFulltextSearch<T>({
 
 // Hook simplificado para emails
 export function useEmailSearch() {
-  return useFulltextSearch<{
-    id: string;
-    subject: string;
-    recipient_email: string;
-    sender_email: string;
-  }>({
+  return useFulltextSearch({
     table: 'tracked_emails',
     columns: ['id', 'subject', 'recipient_email', 'sender_email', 'created_at', 'tracking_id'],
     searchColumns: ['subject', 'recipient_email', 'sender_email'],
@@ -100,14 +95,10 @@ export function useEmailSearch() {
 
 // Hook simplificado para documentos
 export function useDocumentSearch() {
-  return useFulltextSearch<{
-    id: string;
-    filename: string;
-    title: string;
-  }>({
+  return useFulltextSearch({
     table: 'tracked_documents',
-    columns: ['id', 'filename', 'title', 'created_at', 'tracking_id'],
-    searchColumns: ['filename', 'title'],
+    columns: ['id', 'file_name', 'description', 'created_at', 'document_id'],
+    searchColumns: ['file_name', 'description'],
   });
 }
 
