@@ -1,12 +1,13 @@
-import React, { Suspense, lazy, useState, useCallback } from 'react'
+import React, { Suspense, lazy, useState, useCallback, useMemo } from 'react'
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { DashboardSidebar, type TabId } from './DashboardSidebar'
+import { MobileBottomNav } from './MobileBottomNav'
+import { DashboardBreadcrumbs } from './DashboardBreadcrumbs'
 import { JoyrideTour, useOnboardingTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { Menu } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 
 // =============================================================================
 // LAZY LOADING
@@ -155,6 +156,17 @@ export default function DashboardLayout() {
     setActiveTab(value)
   }, [])
 
+  // Keyboard shortcuts for navigation
+  const keyboardBindings = useMemo(() => ({
+    'alt+h': () => setActiveTab('home'),
+    'alt+e': () => setActiveTab('emails'),
+    'alt+a': () => setActiveTab('analytics'),
+    'alt+l': () => setActiveTab('leads'),
+    'alt+s': () => setActiveTab('config'),
+  }), [])
+
+  useKeyboardNavigation(keyboardBindings)
+
   // Função para iniciar tour específico da tab atual
   const handleStartModuleTour = useCallback(() => {
     const tourId = tabToTourMap[activeTab]
@@ -179,36 +191,49 @@ export default function DashboardLayout() {
         
         <SidebarInset className="flex-1">
           {/* Header */}
-          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-6">
-            <SidebarTrigger className="md:hidden" />
-            
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold lg:text-xl">
-                {TAB_LABELS[activeTab]}
-              </h1>
-            </div>
+          <header className="sticky top-0 z-10 flex flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex h-14 items-center gap-4 px-4 lg:px-6">
+              <SidebarTrigger className="md:hidden" />
+              
+              <div className="flex-1">
+                <h1 className="text-lg font-semibold lg:text-xl">
+                  {TAB_LABELS[activeTab]}
+                </h1>
+              </div>
 
-            <div className="flex items-center gap-2">
-              {currentTabHasTour && (
-                <TourTriggerButton
-                  onClick={handleStartModuleTour}
-                  hasCompleted={hasCompletedTour(currentTourId)}
+              <div className="flex items-center gap-2">
+                {currentTabHasTour && (
+                  <TourTriggerButton
+                    onClick={handleStartModuleTour}
+                    hasCompleted={hasCompletedTour(currentTourId)}
+                  />
+                )}
+                <TourSelector
+                  onStartTour={startTour}
+                  completedTours={completedTours}
                 />
-              )}
-              <TourSelector
-                onStartTour={startTour}
-                completedTours={completedTours}
+              </div>
+            </div>
+            
+            {/* Breadcrumbs - hidden on mobile */}
+            <div className="hidden md:block px-4 lg:px-6 pb-2">
+              <DashboardBreadcrumbs 
+                activeTab={activeTab} 
+                onNavigate={handleTabChange}
               />
             </div>
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-4 lg:p-6 xl:p-8">
+          <main className="flex-1 p-4 lg:p-6 xl:p-8 pb-20 md:pb-8">
             <Suspense fallback={<TabSkeleton />}>
               <ActiveComponent />
             </Suspense>
           </main>
         </SidebarInset>
+
+        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
 
       {/* Componente do Tour */}

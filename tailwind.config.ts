@@ -65,6 +65,27 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Email Status Semantic Colors
+        email: {
+          sent: "hsl(var(--email-sent))",
+          "sent-foreground": "hsl(var(--email-sent-foreground))",
+          opened: "hsl(var(--email-opened))",
+          "opened-foreground": "hsl(var(--email-opened-foreground))",
+          clicked: "hsl(var(--email-clicked))",
+          "clicked-foreground": "hsl(var(--email-clicked-foreground))",
+          bounced: "hsl(var(--email-bounced))",
+          "bounced-foreground": "hsl(var(--email-bounced-foreground))",
+          pending: "hsl(var(--email-pending))",
+          "pending-foreground": "hsl(var(--email-pending-foreground))",
+          replied: "hsl(var(--email-replied))",
+          "replied-foreground": "hsl(var(--email-replied-foreground))",
+        },
+        // Engagement Levels
+        engagement: {
+          hot: "hsl(var(--engagement-hot))",
+          warm: "hsl(var(--engagement-warm))",
+          cold: "hsl(var(--engagement-cold))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

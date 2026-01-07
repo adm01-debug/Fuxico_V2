@@ -13,6 +13,12 @@ export function useKeyboardNavigation(bindings: KeyBindings, enabled = true) {
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (!enabled) return;
     
+    // Ignore if typing in an input
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+      return;
+    }
+    
     const key = [
       event.ctrlKey && 'ctrl',
       event.shiftKey && 'shift',
@@ -46,3 +52,17 @@ export const SHORTCUTS = {
   PREV: 'arrowup',
   SELECT: 'enter',
 } as const;
+
+/**
+ * Dashboard navigation shortcuts help
+ */
+export function getKeyboardShortcutsHelp(): { key: string; description: string }[] {
+  return [
+    { key: '⌘B', description: 'Colapsar/expandir sidebar' },
+    { key: 'Alt+H', description: 'Ir para Início' },
+    { key: 'Alt+E', description: 'Ir para Emails' },
+    { key: 'Alt+A', description: 'Ir para Analytics' },
+    { key: 'Alt+L', description: 'Ir para Leads' },
+    { key: 'Alt+S', description: 'Ir para Configurações' },
+  ];
+}
