@@ -9,11 +9,13 @@ import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
 import { GlobalSearchDialog, useGlobalSearch } from './GlobalSearchDialog'
 import { CreateTrackingDialog } from './CreateTrackingDialog'
+import { NotificationCenter } from './NotificationCenter'
+import { WidgetCustomizer } from './WidgetCustomizer'
 import { ModeToggle } from '@/components/ui/mode-toggle'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
-import { Keyboard, Plus, Search } from 'lucide-react'
+import { Keyboard, Plus, Search, Settings2 } from 'lucide-react'
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper'
 import TabSkeleton from './TabSkeleton'
 import { cn } from '@/lib/utils'
@@ -275,6 +277,22 @@ export default function DashboardLayout() {
                     <span className="hidden sm:inline">Novo</span>
                   </Button>
                 </TooltipWrapper>
+
+                {/* Notification Center */}
+                <NotificationCenter />
+
+                {/* Widget Customizer - Only on Home */}
+                {activeTab === 'home' && (
+                  <WidgetCustomizer 
+                    trigger={
+                      <TooltipWrapper content="Personalizar widgets">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+                          <Settings2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipWrapper>
+                    }
+                  />
+                )}
 
                 {/* Dark Mode Toggle */}
                 <ModeToggle size="sm" className="h-8 w-8 sm:h-9 sm:w-9" />

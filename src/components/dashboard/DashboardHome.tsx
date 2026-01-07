@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import { RealtimeMetrics } from './RealtimeMetrics';
 import { QuickActions } from './QuickActions';
+import { PerformanceGauge } from './PerformanceGauge';
+import { useDashboardWidgets } from '@/hooks/use-dashboard-widgets';
 import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/hooks/use-tracking';
 import { useTrackingTrends } from '@/hooks/use-tracking-trends';
 import { supabase } from '@/integrations/supabase/client';
@@ -658,7 +660,7 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
         <RealtimeMetrics />
       </section>
 
-      {/* Grid Principal */}
+      {/* Grid Principal com Performance Gauge */}
       <section className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8">
         {/* Gráfico de Tendência */}
         <Card role="region" aria-label="Estatísticas" className="lg:col-span-2" data-tour="trend-chart">
@@ -675,6 +677,13 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
             <WeeklyTrendChart data={chartData} isLoading={isLoadingTrends} />
           </CardContent>
         </Card>
+
+        {/* Performance Gauge */}
+        <PerformanceGauge
+          openRate={metrics.openRate}
+          clickRate={metrics.clickRate}
+          bounceRate={metrics.bounceRate}
+        />
 
         {/* Eventos em Tempo Real */}
         <Card data-tour="realtime-events">
