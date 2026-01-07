@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useState, useCallback, useMemo, useEffect } from 'react'
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { DashboardSidebar, type TabId } from './DashboardSidebar'
 import { MobileBottomNav } from './MobileBottomNav'
@@ -10,6 +9,7 @@ import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
+import TabSkeleton from './TabSkeleton'
 
 // =============================================================================
 // LAZY LOADING
@@ -99,40 +99,24 @@ const TAB_LABELS: Record<TabId, string> = {
 }
 
 // =============================================================================
-// LOADING COMPONENTS
+// SKELETON VARIANTS PER TAB
 // =============================================================================
 
-function TableSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <Skeleton className="h-8 w-48" />
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center space-x-4">
-          <Skeleton className="h-10 w-[200px]" />
-          <Skeleton className="h-10 w-[150px]" />
-        </div>
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full" />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function TabSkeleton() {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-32" />
-      </div>
-      <TableSkeleton />
-    </div>
-  )
+const TAB_SKELETON_VARIANTS: Partial<Record<TabId, 'table' | 'metrics' | 'chart' | 'form' | 'activity' | 'dashboard'>> = {
+  home: 'dashboard',
+  emails: 'table',
+  links: 'table',
+  documents: 'table',
+  reports: 'table',
+  analytics: 'chart',
+  geo: 'chart',
+  leads: 'table',
+  campaigns: 'table',
+  templates: 'table',
+  audit: 'table',
+  users: 'table',
+  config: 'form',
+  webhooks: 'form',
 }
 
 // =============================================================================
@@ -141,6 +125,7 @@ function TabSkeleton() {
 
 export default function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
+  const [showCreateTracking, setShowCreateTracking] = useState(false)
   const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()
   const isMobile = useIsMobile()
   const [hasSeenWizard, setHasSeenWizard] = useLocalStorage('fuxico-wizard-completed', false)
@@ -186,9 +171,15 @@ export default function DashboardLayout() {
     'alt+a': () => setActiveTab('analytics'),
     'alt+l': () => setActiveTab('leads'),
     'alt+s': () => setActiveTab('config'),
+    'alt+n': () => setShowCreateTracking(true),
   }), [])
 
   useKeyboardNavigation(keyboardBindings)
+
+  // Handle create tracking modal
+  const handleCreateTracking = useCallback(() => {
+    setShowCreateTracking(true)
+  }, [])
 
   // Função para iniciar tour específico da tab atual
   const handleStartModuleTour = useCallback(() => {
@@ -249,8 +240,15 @@ export default function DashboardLayout() {
 
           {/* Main Content */}
           <main className="flex-1 p-4 lg:p-6 xl:p-8 pb-20 md:pb-8">
-            <Suspense fallback={<TabSkeleton />}>
-              <ActiveComponent />
+            <Suspense fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}>
+              {activeTab === 'home' ? (
+                <ActiveComponent 
+                  onNavigate={handleTabChange} 
+                  onCreateTracking={handleCreateTracking}
+                />
+              ) : (
+                <ActiveComponent />
+              )}
             </Suspense>
           </main>
         </SidebarInset>
