@@ -230,8 +230,8 @@ export default function DashboardLayout() {
         <SidebarInset className="flex-1">
           {/* Header */}
           <header className="sticky top-0 z-10 flex flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-12 sm:h-14 items-center gap-2 sm:gap-4 px-2 sm:px-4 lg:px-6">
-              <SidebarTrigger className="md:hidden h-8 w-8" />
+            <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6">
+              <SidebarTrigger className="md:hidden h-10 w-10 shrink-0" />
               
               <div className="flex-1 min-w-0">
                 <h1 className="text-base sm:text-lg font-semibold lg:text-xl truncate">
@@ -259,10 +259,10 @@ export default function DashboardLayout() {
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    className="h-8 w-8 sm:h-9 sm:w-9 md:hidden"
+                    className="h-10 w-10 md:hidden"
                     onClick={() => setSearchOpen(true)}
                   >
-                    <Search className="h-4 w-4" />
+                    <Search className="h-5 w-5" />
                   </Button>
                 </TooltipWrapper>
 
@@ -270,10 +270,10 @@ export default function DashboardLayout() {
                 <TooltipWrapper content="Novo rastreamento" shortcut="Alt+N">
                   <Button 
                     size="sm" 
-                    className="gap-1.5 h-8 sm:h-9 px-2 sm:px-3"
+                    className="gap-1.5 h-10 w-10 sm:w-auto sm:h-10 px-0 sm:px-3"
                     onClick={() => setShowCreateTracking(true)}
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-5 w-5" />
                     <span className="hidden sm:inline">Novo</span>
                   </Button>
                 </TooltipWrapper>
@@ -286,8 +286,8 @@ export default function DashboardLayout() {
                   <WidgetCustomizer 
                     trigger={
                       <TooltipWrapper content="Personalizar widgets">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-                          <Settings2 className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="h-10 w-10">
+                          <Settings2 className="h-5 w-5" />
                         </Button>
                       </TooltipWrapper>
                     }
@@ -295,17 +295,17 @@ export default function DashboardLayout() {
                 )}
 
                 {/* Dark Mode Toggle */}
-                <ModeToggle size="sm" className="h-8 w-8 sm:h-9 sm:w-9" />
+                <ModeToggle size="sm" className="h-10 w-10" />
 
                 {/* Keyboard Shortcuts Button - Hidden on small mobile */}
                 <TooltipWrapper content="Atalhos de teclado" shortcut="?">
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 sm:h-9 sm:w-9 hidden xs:flex"
+                    className="h-10 w-10 hidden sm:flex"
                     onClick={() => setShortcutsOpen(true)}
                   >
-                    <Keyboard className="h-4 w-4" />
+                    <Keyboard className="h-5 w-5" />
                   </Button>
                 </TooltipWrapper>
 

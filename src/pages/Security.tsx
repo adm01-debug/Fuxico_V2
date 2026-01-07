@@ -7,7 +7,7 @@ export default function Security() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
@@ -19,7 +19,7 @@ export default function Security() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container max-w-6xl py-8">
+      <div className="container max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <SecurityDashboard />
       </div>
     </div>

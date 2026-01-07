@@ -60,8 +60,8 @@ export default function Settings() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-2xl mx-auto space-y-6">
+      <div className="min-h-screen bg-background p-4 sm:p-6">
+        <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-64 w-full" />
@@ -72,36 +72,37 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto p-6 space-y-6">
+      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="h-10 w-10 shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Configurações</h1>
-            <p className="text-muted-foreground text-sm">{user?.email}</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold truncate">Configurações</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm truncate">{user?.email}</p>
           </div>
         </div>
 
         {/* Notification Channels */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Bell className="h-5 w-5 shrink-0" />
               Canais de Notificação
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Escolha como você quer receber notificações de tracking
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Volume2 className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <Label htmlFor="sound" className="text-base">Som</Label>
-                  <p className="text-sm text-muted-foreground">Tocar som ao receber notificações</p>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
+            {/* Sound Toggle */}
+            <div className="flex items-start sm:items-center justify-between gap-3">
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
+                <Volume2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 sm:mt-0" />
+                <div className="min-w-0">
+                  <Label htmlFor="sound" className="text-sm sm:text-base">Som</Label>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Tocar som ao receber notificações</p>
                 </div>
               </div>
               <Switch
@@ -109,19 +110,21 @@ export default function Settings() {
                 checked={preferences?.sound_enabled ?? true}
                 onCheckedChange={(checked) => handleToggle('sound_enabled', checked)}
                 disabled={isUpdating}
+                className="shrink-0"
               />
             </div>
 
             {preferences?.sound_enabled && (
-              <div className="ml-8 space-y-3">
-                <div className="flex items-center gap-4">
-                  <Label htmlFor="soundType" className="text-sm min-w-20">Tipo de som:</Label>
+              <div className="space-y-4 pl-0 sm:pl-8">
+                {/* Sound Type */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <Label htmlFor="soundType" className="text-sm min-w-[80px]">Tipo de som:</Label>
                   <Select
                     value={currentSoundType}
                     onValueChange={handleSoundTypeChange}
                     disabled={isUpdating}
                   >
-                    <SelectTrigger id="soundType" className="w-40">
+                    <SelectTrigger id="soundType" className="w-full sm:w-40">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -135,15 +138,15 @@ export default function Settings() {
                 </div>
                 
                 {/* Warning Volume */}
-                <div className="flex items-center gap-4">
-                  <Label className="text-sm min-w-28">Volume Aviso:</Label>
-                  <div className="flex items-center gap-2 flex-1">
+                <div className="space-y-2">
+                  <Label className="text-sm">Volume Aviso:</Label>
+                  <div className="flex items-center gap-2">
                     {warningVolume === 0 ? (
-                      <VolumeX className="h-4 w-4 text-muted-foreground" />
+                      <VolumeX className="h-4 w-4 text-muted-foreground shrink-0" />
                     ) : warningVolume < 0.5 ? (
-                      <Volume1 className="h-4 w-4 text-muted-foreground" />
+                      <Volume1 className="h-4 w-4 text-muted-foreground shrink-0" />
                     ) : (
-                      <Volume2 className="h-4 w-4 text-muted-foreground" />
+                      <Volume2 className="h-4 w-4 text-muted-foreground shrink-0" />
                     )}
                     <Slider
                       value={[warningVolume]}
@@ -152,31 +155,32 @@ export default function Settings() {
                       min={0}
                       max={1}
                       step={0.1}
-                      className="w-32"
+                      className="flex-1"
                       disabled={isUpdating}
                     />
-                    <span className="text-sm text-muted-foreground w-10">{Math.round(warningVolume * 100)}%</span>
+                    <span className="text-sm text-muted-foreground w-10 text-right">{Math.round(warningVolume * 100)}%</span>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="icon"
                       onClick={() => playNotificationSound('warning', currentSoundType, warningVolume)}
                       title="Testar som de aviso"
+                      className="h-9 w-9 shrink-0"
                     >
-                      <Play className="h-3 w-3" />
+                      <Play className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 </div>
                 
                 {/* Critical Volume */}
-                <div className="flex items-center gap-4">
-                  <Label className="text-sm min-w-28">Volume Crítico:</Label>
-                  <div className="flex items-center gap-2 flex-1">
+                <div className="space-y-2">
+                  <Label className="text-sm">Volume Crítico:</Label>
+                  <div className="flex items-center gap-2">
                     {criticalVolume === 0 ? (
-                      <VolumeX className="h-4 w-4 text-destructive" />
+                      <VolumeX className="h-4 w-4 text-destructive shrink-0" />
                     ) : criticalVolume < 0.5 ? (
-                      <Volume1 className="h-4 w-4 text-destructive" />
+                      <Volume1 className="h-4 w-4 text-destructive shrink-0" />
                     ) : (
-                      <Volume2 className="h-4 w-4 text-destructive" />
+                      <Volume2 className="h-4 w-4 text-destructive shrink-0" />
                     )}
                     <Slider
                       value={[criticalVolume]}
@@ -185,17 +189,18 @@ export default function Settings() {
                       min={0}
                       max={1}
                       step={0.1}
-                      className="w-32"
+                      className="flex-1"
                       disabled={isUpdating}
                     />
-                    <span className="text-sm text-muted-foreground w-10">{Math.round(criticalVolume * 100)}%</span>
+                    <span className="text-sm text-muted-foreground w-10 text-right">{Math.round(criticalVolume * 100)}%</span>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="icon"
                       onClick={() => playNotificationSound('critical', currentSoundType, criticalVolume)}
                       title="Testar som crítico"
+                      className="h-9 w-9 shrink-0"
                     >
-                      <Play className="h-3 w-3" />
+                      <Play className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 </div>
@@ -204,29 +209,31 @@ export default function Settings() {
 
             <Separator />
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Monitor className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <Label htmlFor="desktop" className="text-base">Desktop</Label>
-                  <p className="text-sm text-muted-foreground">Mostrar notificações do navegador</p>
+            {/* Desktop Notifications */}
+            <div className="flex items-start sm:items-center justify-between gap-3">
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
+                <Monitor className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 sm:mt-0" />
+                <div className="min-w-0">
+                  <Label htmlFor="desktop" className="text-sm sm:text-base">Desktop</Label>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Mostrar notificações do navegador</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 {typeof Notification !== 'undefined' && Notification.permission === 'denied' && (
-                  <span className="text-xs text-destructive">Bloqueado</span>
+                  <span className="text-xs text-destructive hidden xs:inline">Bloqueado</span>
                 )}
                 {typeof Notification !== 'undefined' && Notification.permission === 'default' && (
                   <Button 
                     size="sm" 
                     variant="outline"
                     onClick={() => Notification.requestPermission()}
+                    className="h-8 text-xs"
                   >
                     Ativar
                   </Button>
                 )}
                 {typeof Notification !== 'undefined' && Notification.permission === 'granted' && (
-                  <span className="text-xs text-green-600">Ativo</span>
+                  <span className="text-xs text-green-600 hidden xs:inline">Ativo</span>
                 )}
                 <Switch
                   id="desktop"
@@ -239,12 +246,13 @@ export default function Settings() {
 
             <Separator />
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <Label htmlFor="email" className="text-base">Email</Label>
-                  <p className="text-sm text-muted-foreground">Receber resumo por email</p>
+            {/* Email Notifications */}
+            <div className="flex items-start sm:items-center justify-between gap-3">
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
+                <Mail className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 sm:mt-0" />
+                <div className="min-w-0">
+                  <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Receber resumo por email</p>
                 </div>
               </div>
               <Switch
@@ -252,18 +260,19 @@ export default function Settings() {
                 checked={preferences?.email_enabled ?? false}
                 onCheckedChange={(checked) => handleToggle('email_enabled', checked)}
                 disabled={isUpdating}
+                className="shrink-0"
               />
             </div>
 
             {preferences?.email_enabled && (
-              <div className="ml-8 flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pl-0 sm:pl-8">
                 <Label htmlFor="frequency" className="text-sm">Frequência:</Label>
                 <Select
                   value={preferences?.email_digest_frequency ?? 'daily'}
                   onValueChange={handleDigestChange}
                   disabled={isUpdating}
                 >
-                  <SelectTrigger id="frequency" className="w-40">
+                  <SelectTrigger id="frequency" className="w-full sm:w-40">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -280,108 +289,76 @@ export default function Settings() {
 
         {/* Event Types */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <FileText className="h-5 w-5 shrink-0" />
               Tipos de Evento
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Selecione quais eventos devem gerar notificações
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="notify_open" className="text-base">Abertura de Email</Label>
-                <p className="text-sm text-muted-foreground">Quando alguém abre seu email</p>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
+            {/* Event toggles */}
+            {[
+              { id: 'notify_on_open', label: 'Abertura de Email', description: 'Quando alguém abre seu email', key: 'notify_on_open' },
+              { id: 'notify_on_click', label: 'Clique em Link', description: 'Quando alguém clica em um link', key: 'notify_on_click' },
+              { id: 'notify_on_document_view', label: 'Visualização de Documento', description: 'Quando alguém visualiza um documento', key: 'notify_on_document_view' },
+              { id: 'notify_on_document_download', label: 'Download de Documento', description: 'Quando alguém baixa um documento', key: 'notify_on_document_download' },
+            ].map((event, index, arr) => (
+              <div key={event.id}>
+                <div className="flex items-start sm:items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <Label htmlFor={event.id} className="text-sm sm:text-base">{event.label}</Label>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{event.description}</p>
+                  </div>
+                  <Switch
+                    id={event.id}
+                    checked={preferences?.[event.key as keyof typeof preferences] as boolean ?? true}
+                    onCheckedChange={(checked) => handleToggle(event.key, checked)}
+                    disabled={isUpdating}
+                    className="shrink-0"
+                  />
+                </div>
+                {index < arr.length - 1 && <Separator className="mt-4 sm:mt-6" />}
               </div>
-              <Switch
-                id="notify_open"
-                checked={preferences?.notify_on_open ?? true}
-                onCheckedChange={(checked) => handleToggle('notify_on_open', checked)}
-                disabled={isUpdating}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="notify_click" className="text-base">Clique em Link</Label>
-                <p className="text-sm text-muted-foreground">Quando alguém clica em um link</p>
-              </div>
-              <Switch
-                id="notify_click"
-                checked={preferences?.notify_on_click ?? true}
-                onCheckedChange={(checked) => handleToggle('notify_on_click', checked)}
-                disabled={isUpdating}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="notify_doc_view" className="text-base">Visualização de Documento</Label>
-                <p className="text-sm text-muted-foreground">Quando alguém visualiza um documento</p>
-              </div>
-              <Switch
-                id="notify_doc_view"
-                checked={preferences?.notify_on_document_view ?? true}
-                onCheckedChange={(checked) => handleToggle('notify_on_document_view', checked)}
-                disabled={isUpdating}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="notify_doc_download" className="text-base">Download de Documento</Label>
-                <p className="text-sm text-muted-foreground">Quando alguém baixa um documento</p>
-              </div>
-              <Switch
-                id="notify_doc_download"
-                checked={preferences?.notify_on_document_download ?? true}
-                onCheckedChange={(checked) => handleToggle('notify_on_document_download', checked)}
-                disabled={isUpdating}
-              />
-            </div>
+            ))}
           </CardContent>
         </Card>
 
         {/* Auto Reminder Settings */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Clock className="h-5 w-5 shrink-0" />
               Lembretes Automáticos
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Configure lembretes automáticos para follow-up de emails não abertos
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="auto_reminder" className="text-base">Criar Lembretes Automaticamente</Label>
-                <p className="text-sm text-muted-foreground">Ao enviar emails rastreados, criar lembrete de follow-up</p>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
+            <div className="flex items-start sm:items-center justify-between gap-3">
+              <div className="min-w-0">
+                <Label htmlFor="auto_reminder" className="text-sm sm:text-base">Criar Lembretes Automaticamente</Label>
+                <p className="text-xs sm:text-sm text-muted-foreground">Ao enviar emails rastreados, criar lembrete de follow-up</p>
               </div>
               <Switch
                 id="auto_reminder"
                 checked={preferences?.auto_reminder_enabled ?? false}
                 onCheckedChange={(checked) => handleToggle('auto_reminder_enabled', checked)}
                 disabled={isUpdating}
+                className="shrink-0"
               />
             </div>
 
             {preferences?.auto_reminder_enabled && (
               <>
                 <Separator />
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="reminder_days" className="text-base">Dias para Lembrete</Label>
-                    <p className="text-sm text-muted-foreground">Após quantos dias sem abertura criar alerta</p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <Label htmlFor="reminder_days" className="text-sm sm:text-base">Dias para Lembrete</Label>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Após quantos dias sem abertura criar alerta</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Input
@@ -392,7 +369,7 @@ export default function Settings() {
                       value={preferences?.auto_reminder_days ?? 3}
                       onChange={(e) => handleReminderDaysChange(e.target.value)}
                       disabled={isUpdating}
-                      className="w-20"
+                      className="w-20 h-10"
                     />
                     <span className="text-sm text-muted-foreground">dias</span>
                   </div>
@@ -404,20 +381,21 @@ export default function Settings() {
 
         {/* Account Section */}
         <Card>
-          <CardHeader>
-            <CardTitle>Conta</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">Conta</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Button variant="destructive" onClick={signOut}>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+            <Button variant="destructive" onClick={signOut} className="w-full sm:w-auto">
               Sair da Conta
             </Button>
           </CardContent>
         </Card>
 
+        {/* Saving indicator */}
         {isUpdating && (
-          <div className="fixed bottom-4 right-4 bg-primary text-primary-foreground px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg">
+          <div className="fixed bottom-4 right-4 left-4 sm:left-auto bg-primary text-primary-foreground px-4 py-2.5 rounded-lg flex items-center justify-center sm:justify-start gap-2 shadow-lg">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Salvando...
+            <span className="text-sm">Salvando...</span>
           </div>
         )}
       </div>
