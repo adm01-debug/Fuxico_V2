@@ -80,7 +80,9 @@ export function DocumentsTab() {
             Acompanhe visualizações dos seus PDFs
           </p>
         </div>
-        <DocumentUploadDialog />
+        <div data-tour="docs-upload-btn">
+          <DocumentUploadDialog />
+        </div>
       </div>
 
       {!documents?.length ? (
@@ -95,7 +97,7 @@ export function DocumentsTab() {
           </CardContent>
         </Card>
       ) : (
-        <Card role="article">
+        <Card role="article" data-tour="docs-table">
           <Table aria-label="Lista de documentos rastreados">
             <TableHeader>
               <TableRow>
@@ -136,7 +138,7 @@ export function DocumentsTab() {
                     )}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={doc.views > 0 ? "default" : "secondary"}>
+                    <Badge variant={doc.views > 0 ? "default" : "secondary"} data-tour="docs-views-badge">
                       <Eye className="h-3 w-3 mr-1" />
                       {doc.views}
                     </Badge>
@@ -165,6 +167,7 @@ export function DocumentsTab() {
                         variant="outline"
                         size="sm"
                         onClick={() => copyLink(doc.document_id)}
+                        data-tour="docs-copy-btn"
                       >
                         {copiedId === doc.document_id ? (
                           <Check className="h-4 w-4" />
@@ -176,6 +179,7 @@ export function DocumentsTab() {
                         variant="outline"
                         size="sm"
                         onClick={() => setSelectedDocId(doc.document_id)}
+                        data-tour="docs-events-btn"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>

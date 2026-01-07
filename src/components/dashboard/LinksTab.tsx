@@ -79,7 +79,9 @@ export function LinksTab() {
             Crie links curtos e rastreie cliques
           </p>
         </div>
-        <LinkCreateDialog />
+        <div data-tour="links-create-btn">
+          <LinkCreateDialog />
+        </div>
       </div>
 
       {!links?.length ? (
@@ -94,7 +96,7 @@ export function LinksTab() {
           </CardContent>
         </Card>
       ) : (
-        <Card role="article">
+        <Card role="article" data-tour="links-table">
           <Table aria-label="Lista de links rastreados">
             <TableHeader>
               <TableRow>
@@ -153,6 +155,7 @@ export function LinksTab() {
                         variant="outline"
                         size="sm"
                         onClick={() => copyLink(link.link_id)}
+                        data-tour="links-copy-btn"
                       >
                         {copiedId === link.link_id ? (
                           <Check className="h-4 w-4" />
@@ -164,6 +167,7 @@ export function LinksTab() {
                         variant="outline"
                         size="sm"
                         onClick={() => setSelectedLinkId(link.link_id)}
+                        data-tour="links-events-btn"
                       >
                         <MousePointerClick className="h-4 w-4" />
                       </Button>

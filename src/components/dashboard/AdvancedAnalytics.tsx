@@ -313,7 +313,7 @@ export function AdvancedAnalytics() {
   return (
     <div className="space-y-6">
       {/* Date Filter and Export */}
-      <Card>
+      <Card data-tour="analytics-date-filter">
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-4">
@@ -393,7 +393,7 @@ export function AdvancedAnalytics() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" data-tour="analytics-export">
               <Badge variant="secondary">
                 {totalFiltered} emails no período
               </Badge>
@@ -410,7 +410,7 @@ export function AdvancedAnalytics() {
       </Card>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-tour="analytics-stats">
         <StatCard
           title="Total de Emails"
           value={totalFiltered}
@@ -436,7 +436,7 @@ export function AdvancedAnalytics() {
       </div>
 
       {/* Period Comparison Chart */}
-      <Card>
+      <Card data-tour="analytics-chart">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <GitCompareArrows className="h-5 w-5" />
