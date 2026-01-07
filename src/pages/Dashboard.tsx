@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Home,
   Webhook,
+  Plug,
   Flame,
   Bell,
   BellRing,
@@ -60,6 +61,7 @@ const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedu
 const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab').then(m => ({ default: m.DeliverabilityTab })))
 const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab').then(m => ({ default: m.BounceAlertsTab })))
 const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'))
+const IntegrationsTab = lazy(() => import('@/components/dashboard/IntegrationsTab').then(m => ({ default: m.IntegrationsTab })))
 
 // =============================================================================
 // LOADING COMPONENTS
@@ -126,6 +128,7 @@ type TabId =
   | 'config'
   | 'bitrix'
   | 'webhooks'
+  | 'integrations'
 
 interface TabConfig {
   id: TabId
@@ -281,6 +284,12 @@ const TABS: TabConfig[] = [
     label: 'Webhooks',
     icon: <Webhook className="h-4 w-4" />,
     component: WebhookTab,
+  },
+  {
+    id: 'integrations',
+    label: 'Integrações',
+    icon: <Plug className="h-4 w-4" />,
+    component: IntegrationsTab,
   },
 ]
 
