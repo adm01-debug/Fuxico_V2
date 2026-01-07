@@ -2,7 +2,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { createLogger } from '../_shared/logger.ts';
 
+const log = createLogger('totp');
 // Simple TOTP implementation using HMAC-SHA1
 function base32ToBytes(base32: string): Uint8Array {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -130,30 +132,29 @@ function generateBackupCodes(count = 10): string[] {
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   // Rate limiting - TOTP is security-critical, limit to 5 attempts per minute
   const clientIP = req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown";
-  const rateLimitResult = await checkRateLimit(clientIP, {
-    windowMs: 60000,
-    maxRequests: 5,
-    keyPrefix: "totp:"
-  });
+  const rateLimitResult = await checkRateLimit(clientIP, "totp", 5, 60);
 
   if (!rateLimitResult.allowed) {
+    const retryAfter = Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000);
     return new Response(
       JSON.stringify({ 
         error: "Too many attempts. Please try again later.",
-        retryAfter: rateLimitResult.retryAfter 
+        retryAfter
       }),
       { 
         status: 429, 
         headers: { 
           ...corsHeaders, 
           "Content-Type": "application/json",
-          "Retry-After": String(rateLimitResult.retryAfter || 60)
+          "Retry-After": String(retryAfter)
         } 
       }
     );
