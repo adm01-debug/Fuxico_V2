@@ -31,7 +31,7 @@ import {
   Clock,
   HeartPulse,
 } from 'lucide-react'
-import { JoyrideTour, useOnboardingTour, TourTriggerButton } from '@/components/onboarding/JoyrideTour'
+import { JoyrideTour, useOnboardingTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
 
 // =============================================================================
 // LAZY LOADING
@@ -290,21 +290,55 @@ const TABS: TabConfig[] = [
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
-  const { tourState, setTourState, startTour, completeTour, hasCompletedTour } = useOnboardingTour()
+  const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()
+  
+  // Mapa de tab para tour correspondente
+  const tabToTourMap: Partial<Record<TabId, string>> = {
+    links: 'links',
+    documents: 'documents',
+    analytics: 'analytics',
+    leads: 'leads',
+    emails: 'emails',
+    geo: 'geo',
+  }
   
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value as TabId)
   }, [])
   
+  // Função para iniciar tour específico da tab atual
+  const handleStartModuleTour = useCallback(() => {
+    const tourId = tabToTourMap[activeTab]
+    if (tourId) {
+      startTour(tourId)
+    } else {
+      startTour('dashboard')
+    }
+  }, [activeTab, startTour])
+  
+  // Verificar se a tab atual tem um tour
+  const currentTabHasTour = !!tabToTourMap[activeTab]
+  const currentTourId = tabToTourMap[activeTab] || 'dashboard'
+  
   return (
     <div className="container mx-auto p-6 xl:p-8 xl:max-w-screen-2xl">
       {/* Header com botão de tour */}
-      <div className="flex items-center justify-between mb-6 xl:mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 xl:mb-8">
         <h1 className="text-3xl font-bold xl:text-4xl">Dashboard</h1>
-        <TourTriggerButton 
-          onClick={() => startTour('dashboard')} 
-          hasCompleted={hasCompletedTour('dashboard')} 
-        />
+        <div className="flex items-center gap-4 flex-wrap">
+          {/* Botão de tour do módulo atual */}
+          {currentTabHasTour && (
+            <TourTriggerButton 
+              onClick={handleStartModuleTour} 
+              hasCompleted={hasCompletedTour(currentTourId)} 
+            />
+          )}
+          {/* Seletor de todos os tours */}
+          <TourSelector 
+            onStartTour={startTour} 
+            completedTours={completedTours} 
+          />
+        </div>
       </div>
       
       <Tabs value={activeTab} onValueChange={handleTabChange}>

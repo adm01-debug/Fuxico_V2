@@ -14,10 +14,12 @@ import Joyride, {
 } from 'react-joyride';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { X, ChevronLeft, ChevronRight, SkipForward, Sparkles } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { X, ChevronLeft, ChevronRight, SkipForward, Sparkles, HelpCircle } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { supabase } from '@/integrations/supabase/client';
 import { log } from '@/lib/logger';
+import { tourStepsMap, tourLabels } from './tour-steps';
 
 // =============================================================================
 // TIPOS
@@ -28,85 +30,6 @@ interface TourState {
   stepIndex: number;
   tourId: string;
 }
-
-// =============================================================================
-// PASSOS DO TOUR
-// =============================================================================
-
-const dashboardSteps: Step[] = [
-  {
-    target: 'body',
-    placement: 'center',
-    title: '🎉 Bem-vindo ao FUXICO!',
-    content: 'O sistema completo de rastreamento de emails. Vamos fazer um tour rápido pelas principais funcionalidades!',
-    disableBeacon: true,
-    locale: { skip: 'Pular', next: 'Começar!', back: 'Voltar', close: 'Fechar' },
-  },
-  {
-    target: '[data-tour="stats-cards"]',
-    placement: 'bottom',
-    title: '📊 Métricas em Tempo Real',
-    content: 'Aqui você vê um resumo completo: total de emails, aberturas, cliques e taxa de bounce. Todas as métricas são atualizadas em tempo real.',
-    disableBeacon: true,
-  },
-  {
-    target: '[data-tour="trend-chart"]',
-    placement: 'top',
-    title: '📈 Gráfico de Tendências',
-    content: 'Visualize a evolução das aberturas e cliques ao longo da semana. Identifique padrões e melhore suas campanhas.',
-    disableBeacon: true,
-  },
-  {
-    target: '[data-tour="realtime-events"]',
-    placement: 'left',
-    title: '⚡ Atividade em Tempo Real',
-    content: 'Acompanhe cada abertura e clique no momento em que acontece. Perfeito para acompanhar campanhas importantes!',
-    disableBeacon: true,
-  },
-  {
-    target: '[data-tour="tabs"]',
-    placement: 'bottom',
-    title: '📑 Navegação por Abas',
-    content: 'Explore todas as funcionalidades: Emails, Links, Documentos, Relatórios, Analytics, Lead Scoring, e muito mais!',
-    disableBeacon: true,
-  },
-  {
-    target: '[data-tour="emails-tab"]',
-    placement: 'bottom',
-    title: '📧 Emails Rastreados',
-    content: 'Clique aqui para ver todos os emails que você está rastreando. Cada email mostra status, aberturas e cliques.',
-    disableBeacon: true,
-  },
-  {
-    target: '[data-tour="links-tab"]',
-    placement: 'bottom',
-    title: '🔗 Links Rastreáveis',
-    content: 'Crie links com tracking para usar em qualquer lugar - redes sociais, WhatsApp, ou emails externos.',
-    disableBeacon: true,
-  },
-  {
-    target: '[data-tour="analytics-tab"]',
-    placement: 'bottom',
-    title: '📊 Analytics Avançado',
-    content: 'Análises detalhadas com gráficos interativos, segmentação por domínio, e insights de engajamento.',
-    disableBeacon: true,
-  },
-  {
-    target: '[data-tour="leads-tab"]',
-    placement: 'bottom',
-    title: '🔥 Lead Scoring',
-    content: 'Identifique seus contatos mais engajados automaticamente. O sistema calcula um score baseado em aberturas e cliques.',
-    disableBeacon: true,
-  },
-  {
-    target: 'body',
-    placement: 'center',
-    title: '🚀 Pronto para Começar!',
-    content: 'Agora você conhece as principais funcionalidades do FUXICO. Dica: instale nossa extensão do Chrome para rastrear emails do Gmail automaticamente!',
-    disableBeacon: true,
-    locale: { skip: 'Pular', next: 'Concluir', back: 'Voltar', close: 'Fechar' },
-  },
-];
 
 // =============================================================================
 // TOOLTIP CUSTOMIZADO
@@ -126,7 +49,6 @@ function CustomTooltip({
 }: TooltipRenderProps) {
   const progress = ((index + 1) / size) * 100;
   const isFirst = index === 0;
-  const isCenter = step.placement === 'center';
 
   return (
     <div
@@ -270,6 +192,7 @@ export function useOnboardingTour() {
     resetAllTours,
     hasCompletedTour,
     setTourState,
+    completedTours,
   };
 }
 
@@ -299,7 +222,7 @@ export function JoyrideTour({ tourState, setTourState, onComplete }: JoyrideTour
     }
   }, [tourState.tourId, onComplete, setTourState]);
 
-  const steps = tourState.tourId === 'dashboard' ? dashboardSteps : dashboardSteps;
+  const steps = tourStepsMap[tourState.tourId] || tourStepsMap.dashboard;
 
   return (
     <Joyride
@@ -366,5 +289,57 @@ export function TourTriggerButton({ onClick, hasCompleted, className }: TourTrig
       <Sparkles className="h-4 w-4" />
       {hasCompleted ? 'Rever Tour' : 'Iniciar Tour'}
     </Button>
+  );
+}
+
+// =============================================================================
+// SELETOR DE TOUR
+// =============================================================================
+
+interface TourSelectorProps {
+  onStartTour: (tourId: string) => void;
+  completedTours: string[];
+  className?: string;
+}
+
+export function TourSelector({ onStartTour, completedTours, className }: TourSelectorProps) {
+  const [selectedTour, setSelectedTour] = useState<string>('');
+
+  const handleStart = () => {
+    if (selectedTour) {
+      onStartTour(selectedTour);
+      setSelectedTour('');
+    }
+  };
+
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <Select value={selectedTour} onValueChange={setSelectedTour}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Escolher tour..." />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(tourLabels).map(([id, label]) => (
+            <SelectItem key={id} value={id}>
+              <div className="flex items-center gap-2">
+                <span>{label}</span>
+                {completedTours.includes(id) && (
+                  <span className="text-xs text-green-500">✓</span>
+                )}
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Button
+        size="sm"
+        onClick={handleStart}
+        disabled={!selectedTour}
+        className="gap-2"
+      >
+        <HelpCircle className="h-4 w-4" />
+        Iniciar
+      </Button>
+    </div>
   );
 }
