@@ -8,8 +8,10 @@ import {
   AlertTriangle, 
   Clock, 
   Reply,
+  CheckCircle,
   type LucideIcon 
 } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const emailStatusBadgeVariants = cva(
   'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-all duration-200',
@@ -36,8 +38,6 @@ const emailStatusBadgeVariants = cva(
     },
   }
 )
-
-import { CheckCircle } from 'lucide-react'
 
 const statusIcons: Record<string, LucideIcon> = {
   sent: Mail,
@@ -72,8 +72,6 @@ export interface EmailStatusBadgeProps
   bounceType?: string
   bounceReason?: string
 }
-
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function EmailStatusBadge({
   className,

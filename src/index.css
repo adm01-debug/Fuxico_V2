@@ -1,4 +1,5 @@
 @import './styles/responsive-xl.css';
+@import './styles/accessibility.css';
 @import "@fontsource/space-grotesk/300.css";
 @import "@fontsource/space-grotesk/400.css";
 @import "@fontsource/space-grotesk/500.css";
@@ -104,6 +105,8 @@
     /* Email Status Semantic Colors */
     --email-sent: 220 14% 46%;
     --email-sent-foreground: 0 0% 100%;
+    --email-delivered: 160 84% 39%;
+    --email-delivered-foreground: 0 0% 100%;
     --email-opened: 142 71% 45%;
     --email-opened-foreground: 0 0% 100%;
     --email-clicked: 220 90% 56%;
@@ -193,6 +196,8 @@
     /* Email Status Semantic Colors (Dark) */
     --email-sent: 220 14% 64%;
     --email-sent-foreground: 224 71% 4%;
+    --email-delivered: 160 84% 45%;
+    --email-delivered-foreground: 0 0% 100%;
     --email-opened: 142 71% 45%;
     --email-opened-foreground: 0 0% 100%;
     --email-clicked: 220 90% 56%;
@@ -873,12 +878,14 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.scrollbar-hide {
+.scrollbar-hide,
+.no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
+.scrollbar-hide::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
