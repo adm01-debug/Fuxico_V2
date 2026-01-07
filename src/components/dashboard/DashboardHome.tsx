@@ -28,6 +28,7 @@ import {
   FileText,
   Link as LinkIcon,
 } from 'lucide-react';
+import { RealtimeMetrics } from './RealtimeMetrics';
 import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/hooks/use-tracking';
 import { useTrackingTrends } from '@/hooks/use-tracking-trends';
 import { supabase } from '@/integrations/supabase/client';
@@ -638,6 +639,11 @@ export default function DashboardHome() {
           trend={metrics.bounceRate < 2 ? 'up' : metrics.bounceRate > 5 ? 'down' : 'neutral'}
           isLoading={isLoadingStats}
         />
+      </section>
+
+      {/* Métricas em Tempo Real */}
+      <section data-tour="realtime-metrics">
+        <RealtimeMetrics />
       </section>
 
       {/* Grid Principal */}
