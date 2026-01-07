@@ -19,8 +19,24 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { useCreateReminder } from "@/hooks/use-follow-up-reminders";
 
-export function CreateTrackingDialog() {
-  const [open, setOpen] = useState(false);
+interface CreateTrackingDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
+}
+
+export function CreateTrackingDialog({ 
+  open: controlledOpen, 
+  onOpenChange: controlledOnOpenChange,
+  trigger
+}: CreateTrackingDialogProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // Support both controlled and uncontrolled modes
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? controlledOnOpenChange! : setInternalOpen;
+  
   const [recipientEmail, setRecipientEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [links, setLinks] = useState("");
@@ -88,14 +104,20 @@ export function CreateTrackingDialog() {
     setResult(null);
   };
 
+  const defaultTrigger = (
+    <Button className="gap-2">
+      <Plus className="h-4 w-4" />
+      Novo Rastreamento
+    </Button>
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Novo Rastreamento
-        </Button>
-      </DialogTrigger>
+      {trigger !== null && (
+        <DialogTrigger asChild>
+          {trigger || defaultTrigger}
+        </DialogTrigger>
+      )}
       <DialogContent role="dialog" aria-labelledby="dialog-title" className="sm:max-w-lg">
         {!result ? (
           <form role="form" aria-label="Formulário de novo rastreamento" onSubmit={handleSubmit}>

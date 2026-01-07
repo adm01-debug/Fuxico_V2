@@ -1,14 +1,19 @@
 import React, { Suspense, lazy, useState, useCallback, useMemo, useEffect } from 'react'
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { DashboardSidebar, type TabId } from './DashboardSidebar'
 import { MobileBottomNav } from './MobileBottomNav'
 import { DashboardBreadcrumbs } from './DashboardBreadcrumbs'
 import { JoyrideTour, useOnboardingTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
+import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
+import { CreateTrackingDialog } from './CreateTrackingDialog'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
+import { Keyboard, Plus } from 'lucide-react'
+import { TooltipWrapper } from '@/components/ui/tooltip-wrapper'
 import TabSkeleton from './TabSkeleton'
 
 // =============================================================================
@@ -127,6 +132,7 @@ export default function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
   const [showCreateTracking, setShowCreateTracking] = useState(false)
   const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()
+  const { open: shortcutsOpen, setOpen: setShortcutsOpen } = useKeyboardShortcutsDialog()
   const isMobile = useIsMobile()
   const [hasSeenWizard, setHasSeenWizard] = useLocalStorage('fuxico-wizard-completed', false)
   const [showWizard, setShowWizard] = useState(false)
@@ -216,6 +222,30 @@ export default function DashboardLayout() {
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Create Tracking Button */}
+                <TooltipWrapper content="Novo rastreamento" shortcut="Alt+N">
+                  <Button 
+                    size="sm" 
+                    className="gap-1.5"
+                    onClick={() => setShowCreateTracking(true)}
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">Novo</span>
+                  </Button>
+                </TooltipWrapper>
+
+                {/* Keyboard Shortcuts Button */}
+                <TooltipWrapper content="Atalhos de teclado" shortcut="?">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-9 w-9"
+                    onClick={() => setShortcutsOpen(true)}
+                  >
+                    <Keyboard className="h-4 w-4" />
+                  </Button>
+                </TooltipWrapper>
+
                 {currentTabHasTour && (
                   <TourTriggerButton
                     onClick={handleStartModuleTour}
@@ -271,6 +301,19 @@ export default function DashboardLayout() {
           onSkip={handleWizardSkip}
         />
       )}
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog 
+        open={shortcutsOpen} 
+        onOpenChange={setShortcutsOpen} 
+      />
+
+      {/* Create Tracking Dialog - Controlled mode */}
+      <CreateTrackingDialog 
+        open={showCreateTracking}
+        onOpenChange={setShowCreateTracking}
+        trigger={null}
+      />
     </SidebarProvider>
   )
 }
