@@ -38,11 +38,7 @@ serve(async (req: Request): Promise<Response> => {
                  req.headers.get('x-forwarded-for')?.split(',')[0] || 
                  'unknown';
   
-  const selfRateLimit = await checkRateLimit(selfIP, {
-    windowMs: 60000,
-    maxRequests: 100,
-    keyPrefix: "check-rate-limit:"
-  });
+  const selfRateLimit = await checkRateLimit(selfIP, 'check-rate-limit', 100, 60);
 
   if (!selfRateLimit.allowed) {
     const retryAfter = Math.ceil((selfRateLimit.resetAt - Date.now()) / 1000);
