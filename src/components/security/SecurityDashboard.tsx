@@ -2,13 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Shield, Smartphone, Key, AlertTriangle, Monitor, Clock, MapPin, CheckCircle2, XCircle, RefreshCw, Globe, Globe2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { format, formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { Shield, Key, AlertTriangle, Monitor, Clock, Globe, Globe2 } from 'lucide-react';
 import { SecurityOverviewCards } from './SecurityOverviewCards';
 import { ActiveSessionsList } from './ActiveSessionsList';
 import { MFASettingsPanel } from './MFASettingsPanel';
@@ -21,7 +15,6 @@ import PasswordResetRequestsPanel from './PasswordResetRequestsPanel';
 import LockedAccountsPanel from './LockedAccountsPanel';
 
 export function SecurityDashboard() {
-  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
