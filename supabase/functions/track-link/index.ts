@@ -33,7 +33,18 @@ serve(async (req) => {
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
-    const { data: link } = await supabase.from("tracked_links").select("*").eq("id", linkId).single();
+    // Try to find by link_id first (UUID format from create-tracking), fallback to id
+    let link = null;
+    const { data: linkByLinkId } = await supabase.from("tracked_links").select("*").eq("link_id", linkId).single();
+    
+    if (linkByLinkId) {
+      link = linkByLinkId;
+    } else {
+      // Fallback: try finding by id
+      const { data: linkById } = await supabase.from("tracked_links").select("*").eq("id", linkId).single();
+      link = linkById;
+    }
+    
     if (!link) return secureErrorResponse("Link not found", 404, corsHeaders);
 
     await supabase.from("tracking_events").insert({
