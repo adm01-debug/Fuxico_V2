@@ -7,8 +7,9 @@ import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts'
 
-const SignedDocSchema = z.object({
 const log = createLogger('generate-signed-document')
+
+const SignedDocSchema = z.object({
   documentId: z.string().uuid(),
   signatureType: z.enum(["draw", "type", "upload"]).default("type"),
   signatureData: z.string().min(1),
