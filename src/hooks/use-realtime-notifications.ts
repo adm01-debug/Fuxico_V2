@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
+import { log } from '@/lib/logger';
 
 // Play a pleasant notification chime using Web Audio API
 function playNotificationSound() {
@@ -34,7 +35,7 @@ function playNotificationSound() {
     oscillator.start(now);
     oscillator.stop(now + 0.5);
   } catch (error) {
-    
+    log.warn('Failed to play notification sound', { error });
   }
 }
 
@@ -196,7 +197,7 @@ export function useRealtimeNotifications() {
         }
       )
       .subscribe((status) => {
-        
+        log.debug('Tracking channel subscription status', { status });
       });
 
     // Subscribe to fraud alerts (for admins)
@@ -222,7 +223,7 @@ export function useRealtimeNotifications() {
         }
       )
       .subscribe((status) => {
-        
+        log.debug('Fraud alerts channel subscription status', { status });
       });
 
     return () => {
