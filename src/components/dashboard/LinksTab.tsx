@@ -45,7 +45,7 @@ export function LinksTab() {
   const { toast } = useToast();
 
   const getTrackingUrl = (linkId: string) => {
-    return `${SUPABASE_URL}/functions/v1/track-standalone-link?id=${linkId}`;
+    return `${SUPABASE_URL}/functions/v1/track-standalone-link/${linkId}`;
   };
 
   const copyLink = async (linkId: string) => {

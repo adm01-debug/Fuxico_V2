@@ -31,18 +31,20 @@ serve(async (req) => {
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
-    const { data: link } = await supabase.from("standalone_links").select("*").eq("short_code", shortCode).single();
+    // Use the correct table name: standalone_tracked_links
+    const { data: link } = await supabase.from("standalone_tracked_links").select("*").eq("link_id", shortCode).single();
     if (!link) return secureErrorResponse("Link not found", 404, corsHeaders);
-    if (link.expires_at && new Date(link.expires_at) < new Date()) return secureErrorResponse("Link expired", 410, corsHeaders);
 
-    await supabase.from("standalone_link_clicks").insert({
-      link_id: link.id,
+    // Log click event to link_click_events table
+    await supabase.from("link_click_events").insert({
+      link_id: link.link_id,
       ip_address: clientIP,
       user_agent: userAgent,
       referer: req.headers.get("referer")
     });
 
-    await supabase.from("standalone_links").update({ click_count: (link.click_count || 0) + 1 }).eq("id", link.id);
+    // Update click count on the link
+    await supabase.from("standalone_tracked_links").update({ click_count: (link.click_count || 0) + 1 }).eq("id", link.id);
 
     return Response.redirect(link.destination_url, 302);
   } catch (error) {
