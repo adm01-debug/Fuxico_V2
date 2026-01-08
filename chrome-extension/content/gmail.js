@@ -336,8 +336,9 @@
   }
 
   function createPixelHTML(trackingId) {
-    const pixelUrl = `${CONFIG.API_URL}${CONFIG.ENDPOINTS.TRACK_PIXEL}?id=${trackingId}`;
-    return `<img src="${pixelUrl}" width="1" height="1" style="display:none;opacity:0;width:1px;height:1px;" alt="" data-fuxico-pixel="true">`;
+    // IMPORTANTE: O parâmetro correto é "t" (não "id") conforme track-pixel/index.ts
+    const pixelUrl = `${CONFIG.API_URL}${CONFIG.ENDPOINTS.TRACK_PIXEL}?t=${trackingId}`;
+    return `<img src="${pixelUrl}" width="1" height="1" style="display:none;opacity:0;width:1px;height:1px;" alt="" data-fuxico-pixel="true">`; 
   }
 
   function extractRecipients(composeWindow) {
