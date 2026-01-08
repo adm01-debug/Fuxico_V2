@@ -1,4 +1,3 @@
-import { log } from '@/lib/logger';
 // =============================================================================
 // FUXICO - Dashboard Home Consolidado
 // Componente: src/components/dashboard/DashboardHome.tsx
@@ -6,6 +5,7 @@ import { log } from '@/lib/logger';
 // =============================================================================
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { log } from '@/lib/logger';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
