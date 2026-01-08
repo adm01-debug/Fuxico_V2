@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { log } from "@/lib/logger";
 
 export interface EmailAuditLog {
   id: string;
@@ -71,7 +72,7 @@ export function useIsAdmin() {
         .maybeSingle();
 
       if (error) {
-        
+        log.warn('Failed to check admin role', { error: error.message });
         return false;
       }
 
