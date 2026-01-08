@@ -57,11 +57,6 @@ export function useDeliverability() {
 
   const checkDNSMutation = useMutation({
     mutationFn: async (domain: string): Promise<DNSCheckResult> => {
-      const { data, error } = await supabase.functions.invoke('check-deliverability', {
-        body: null,
-      });
-
-      // We need to call with query params, so we'll use a different approach
       const { data: session } = await supabase.auth.getSession();
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-deliverability?action=check-dns&domain=${encodeURIComponent(domain)}`,
