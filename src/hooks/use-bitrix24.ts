@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { log } from '@/lib/logger';
 
 // ============================================
 // TIPOS
@@ -126,7 +127,7 @@ export function useBitrix24Config() {
         .maybeSingle();
 
       if (error) {
-        
+        log.warn('Failed to fetch Bitrix24 config', { error: error.message });
         throw error;
       }
 
@@ -396,7 +397,7 @@ export function useRegisterActivity() {
       queryClient.invalidateQueries({ queryKey: ['bitrix24', 'activities'] });
     },
     onError: (error) => {
-      
+      log.warn('Failed to register Bitrix24 activity', { error: error.message });
     },
   });
 }
