@@ -1,28 +1,66 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { createLogger } from '../_shared/logger.ts';
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const log = createLogger('generate-followup');
 
-interface FollowUpRequest {
-  originalSubject: string;
-  recipientEmail: string;
-  daysSinceOriginal: number;
-  originalContext?: string;
-  tone?: 'formal' | 'friendly' | 'urgent';
-  language?: 'pt-BR' | 'en' | 'es';
-}
+const FollowUpSchema = z.object({
+  originalSubject: z.string().min(1).max(200),
+  recipientEmail: z.string().email(),
+  daysSinceOriginal: z.number().int().min(0).max(365),
+  originalContext: z.string().max(1000).optional(),
+  tone: z.enum(['formal', 'friendly', 'urgent']).default('friendly'),
+  language: z.enum(['pt-BR', 'en', 'es']).default('pt-BR')
+});
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const rateLimit = await checkRateLimit(clientIP, "generate-followup", 20, 60);
+    if (!rateLimit.allowed) {
+      return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return secureErrorResponse("Unauthorized", 401, corsHeaders);
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return secureErrorResponse("Unauthorized", 401, corsHeaders);
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      log.error("LOVABLE_API_KEY is not configured");
+      return secureErrorResponse("AI service not configured", 503, corsHeaders);
+    }
+
+    const body = await req.json();
+    const validation = FollowUpSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return secureErrorResponse({ 
+        error: "Validation failed", 
+        details: validation.error.flatten() 
+      }, 400, corsHeaders);
     }
 
     const { 
@@ -30,9 +68,9 @@ serve(async (req) => {
       recipientEmail, 
       daysSinceOriginal,
       originalContext = '',
-      tone = 'friendly',
-      language = 'pt-BR'
-    }: FollowUpRequest = await req.json();
+      tone,
+      language
+    } = validation.data;
 
     const toneDescriptions: Record<string, string> = {
       formal: 'profissional e formal',
@@ -78,7 +116,7 @@ Retorne APENAS um JSON válido no formato:
   "tips": ["Dica 1", "Dica 2"]
 }`;
 
-    console.log("Generating follow-up suggestions for:", recipientEmail);
+    log.info("Generating follow-up suggestions", { recipientEmail, daysSinceOriginal, userId: user.id });
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -98,20 +136,16 @@ Retorne APENAS um JSON válido no formato:
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        log.warn("AI rate limit exceeded");
+        return secureErrorResponse("Rate limit exceeded. Please try again later.", 429, corsHeaders);
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required. Please add credits." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        log.warn("AI payment required");
+        return secureErrorResponse("Payment required. Please add credits.", 402, corsHeaders);
       }
       const errorText = await response.text();
-      console.error("AI Gateway error:", response.status, errorText);
-      throw new Error(`AI Gateway error: ${response.status}`);
+      log.error("AI Gateway error", { status: response.status, error: errorText });
+      return secureErrorResponse("AI Gateway error", 500, corsHeaders);
     }
 
     const data = await response.json();
@@ -120,25 +154,21 @@ Retorne APENAS um JSON válido no formato:
     // Parse the JSON response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error("Failed to parse AI response:", content);
-      throw new Error("Invalid AI response format");
+      log.error("Failed to parse AI response", { content: content.substring(0, 200) });
+      return secureErrorResponse("Invalid AI response format", 500, corsHeaders);
     }
 
     const result = JSON.parse(jsonMatch[0]);
 
-    console.log("Generated suggestions successfully");
+    log.info("Generated suggestions successfully", { count: result.suggestions?.length || 0 });
 
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return secureJsonResponse(result, corsHeaders);
   } catch (error) {
-    console.error("Error generating follow-up:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+    log.error("Error generating follow-up", error);
+    return secureErrorResponse(
+      error instanceof Error ? error.message : "Unknown error",
+      500,
+      corsHeaders
     );
   }
 });
