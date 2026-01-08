@@ -153,7 +153,7 @@ export function validateIPAccess(req: Request): Response | null {
   const clientIP = getClientIP(req);
   
   if (!isIPWhitelisted(clientIP)) {
-    console.warn(`[SECURITY] Blocked request from unauthorized IP: ${clientIP}`);
+    // Log blocked request (structured logging handled by caller)
     
     return new Response(
       JSON.stringify({
