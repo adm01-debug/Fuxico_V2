@@ -1,11 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { createLogger } from '../_shared/logger.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const log = createLogger('send-slack-notification');
 
 const NotificationSchema = z.object({
   webhookUrl: z.string().url(),
@@ -167,17 +168,22 @@ const formatTeamsMessage = (eventType: string, data: any) => {
 };
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const rateLimit = await checkRateLimit(clientIP, "slack-notification", 30, 60);
+    if (!rateLimit.allowed) {
+      return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
+    }
+
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return secureErrorResponse("Unauthorized", 401, corsHeaders);
     }
 
     const supabase = createClient(
@@ -188,28 +194,22 @@ serve(async (req) => {
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return secureErrorResponse("Unauthorized", 401, corsHeaders);
     }
 
     const body = await req.json();
     const validation = NotificationSchema.safeParse(body);
     
     if (!validation.success) {
-      return new Response(JSON.stringify({ 
+      return secureErrorResponse({ 
         error: 'Validation failed', 
         details: validation.error.flatten() 
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      }, 400, corsHeaders);
     }
 
     const { webhookUrl, platform, eventType, data } = validation.data;
 
-    console.log(`Sending ${platform} notification for ${eventType} event`);
+    log.info(`Sending ${platform} notification`, { eventType });
 
     const payload = platform === 'slack' 
       ? formatSlackMessage(eventType, data)
@@ -223,32 +223,24 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`${platform} webhook error:`, errorText);
-      return new Response(JSON.stringify({ 
+      log.error(`${platform} webhook error`, { error: errorText });
+      return secureErrorResponse({ 
         error: `Failed to send ${platform} notification`,
         details: errorText 
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      }, 500, corsHeaders);
     }
 
-    console.log(`${platform} notification sent successfully`);
+    log.info(`${platform} notification sent successfully`);
 
-    return new Response(JSON.stringify({ 
+    return secureJsonResponse({ 
       success: true, 
       platform,
       eventType 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    }, corsHeaders);
 
   } catch (error) {
-    console.error('Error sending notification:', error);
+    log.error('Error sending notification', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return secureErrorResponse({ error: errorMessage }, 500, corsHeaders);
   }
 });
