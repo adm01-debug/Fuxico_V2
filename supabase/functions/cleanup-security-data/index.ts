@@ -21,22 +21,19 @@ serve(async (req: Request): Promise<Response> => {
                    req.headers.get('x-forwarded-for')?.split(',')[0] || 
                    'unknown';
   
-  const rateLimitResult = await checkRateLimit(clientIP, {
-    windowMs: 60000,
-    maxRequests: 10,
-    keyPrefix: "cleanup-security:"
-  });
+  const rateLimitResult = await checkRateLimit(clientIP, 'cleanup-security', 10, 60);
 
   if (!rateLimitResult.allowed) {
+    const retryAfter = Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000);
     return new Response(JSON.stringify({
       error: "Too many cleanup requests",
-      retryAfter: rateLimitResult.retryAfter
+      retryAfter
     }), {
       status: 429,
       headers: { 
         ...corsHeaders, 
         'Content-Type': 'application/json',
-        'Retry-After': String(rateLimitResult.retryAfter || 60)
+        'Retry-After': String(retryAfter)
       },
     });
   }
