@@ -1,10 +1,10 @@
-import { log } from '@/lib/logger';
 // =============================================================================
 // FUXICO - Hook de Tracking Otimizado com RPC
 // =============================================================================
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
+import { log } from '@/lib/logger'
 
 // =============================================================================
 // TIPOS
