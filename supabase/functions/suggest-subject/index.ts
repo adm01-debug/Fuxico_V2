@@ -1,21 +1,66 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { createLogger } from '../_shared/logger.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const log = createLogger('suggest-subject');
+
+const SuggestSubjectSchema = z.object({
+  context: z.string().max(1000).optional(),
+  recipientType: z.string().max(100).optional(),
+  tone: z.string().max(50).optional(),
+  language: z.enum(['pt-BR', 'en', 'es']).default('pt-BR')
+});
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { context, recipientType, tone, language = 'pt-BR' } = await req.json();
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const rateLimit = await checkRateLimit(clientIP, "suggest-subject", 20, 60);
+    if (!rateLimit.allowed) {
+      return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return secureErrorResponse("Unauthorized", 401, corsHeaders);
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return secureErrorResponse("Unauthorized", 401, corsHeaders);
+    }
+
+    const body = await req.json();
+    const validation = SuggestSubjectSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return secureErrorResponse({ 
+        error: "Validation failed", 
+        details: validation.error.flatten() 
+      }, 400, corsHeaders);
+    }
+
+    const { context, recipientType, tone, language } = validation.data;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+      log.error("LOVABLE_API_KEY is not configured");
+      return secureErrorResponse("AI service not configured", 503, corsHeaders);
     }
 
     const systemPrompt = `Você é um especialista em email marketing e copywriting. Sua tarefa é sugerir linhas de assunto de email altamente eficazes que maximizem taxas de abertura.
@@ -33,6 +78,8 @@ Tipo de destinatário: ${recipientType || 'profissional'}
 Tom desejado: ${tone || 'profissional'}
 
 Sugira 5 linhas de assunto otimizadas para alta taxa de abertura.`;
+
+    log.info("Generating subject suggestions", { userId: user.id, language });
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -79,50 +126,41 @@ Sugira 5 linhas de assunto otimizadas para alta taxa de abertura.`;
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        log.warn("AI rate limit exceeded");
+        return secureErrorResponse("Rate limit exceeded. Please try again later.", 429, corsHeaders);
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Payment required. Please add credits.' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        log.warn("AI payment required");
+        return secureErrorResponse("Payment required. Please add credits.", 402, corsHeaders);
       }
       const errorText = await response.text();
-      console.error('AI Gateway error:', response.status, errorText);
-      throw new Error('AI Gateway error');
+      log.error("AI Gateway error", { status: response.status, error: errorText });
+      return secureErrorResponse("AI Gateway error", 500, corsHeaders);
     }
 
     const data = await response.json();
-    console.log('AI response:', JSON.stringify(data, null, 2));
+    log.debug("AI response received");
 
     // Extract tool call response
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (toolCall?.function?.arguments) {
       const suggestions = JSON.parse(toolCall.function.arguments);
-      return new Response(JSON.stringify(suggestions), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      log.info("Generated suggestions successfully", { count: suggestions.suggestions?.length || 0 });
+      return secureJsonResponse(suggestions, corsHeaders);
     }
 
     // Fallback: parse from content if no tool call
     const content = data.choices?.[0]?.message?.content || '';
-    return new Response(JSON.stringify({ 
+    log.warn("No tool call response, using fallback");
+    return secureJsonResponse({ 
       suggestions: [
         { subject: 'Não foi possível gerar sugestões', reason: content, estimatedOpenRate: 'N/A' }
       ]
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    }, corsHeaders);
 
   } catch (error) {
-    console.error('Error in suggest-subject:', error);
+    log.error("Error in suggest-subject", error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return secureErrorResponse({ error: errorMessage }, 500, corsHeaders);
   }
 });
