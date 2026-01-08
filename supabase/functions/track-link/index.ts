@@ -47,10 +47,17 @@ serve(async (req) => {
     
     if (!link) return secureErrorResponse("Link not found", 404, corsHeaders);
 
+    // Update click count on tracked_links
+    await supabase
+      .from("tracked_links")
+      .update({ click_count: (link.click_count || 0) + 1 })
+      .eq("link_id", link.link_id);
+
+    // Insert tracking event with correct column name (link_url, not link_id)
     await supabase.from("tracking_events").insert({
       tracking_id: trackingId || link.tracking_id,
       event_type: "click",
-      link_id: linkId,
+      link_url: link.original_url,
       ip_address: clientIP,
       user_agent: userAgent,
       is_self_open: false
