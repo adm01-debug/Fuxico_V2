@@ -61,8 +61,8 @@ export function ABTestingTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Card>
+      <div role="region" aria-label="ABTestingTab" className="space-y-6">
+        <Card role="article">
           <CardHeader>
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-72" />
@@ -81,7 +81,7 @@ export function ABTestingTab() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card role="article">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -336,7 +336,7 @@ export function ABTestingTab() {
       </Card>
 
       {/* How it works */}
-      <Card>
+      <Card role="article">
         <CardHeader>
           <CardTitle className="text-base">Como funciona o Teste A/B</CardTitle>
         </CardHeader>
