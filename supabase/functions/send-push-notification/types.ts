@@ -1,0 +1,1 @@
+/** Push Notification Types */ export interface PushRequest { userId: string; title: string; body: string; data?: Record<string, string>; icon?: string; url?: string; } export interface PushResponse { success: boolean; data?: { sent: boolean; messageId: string }; error?: string; }
