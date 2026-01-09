@@ -166,7 +166,7 @@ function MetricCard({
       <Card role="region" aria-label="Estatísticas" className={className}>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
-            <div className="space-y-2">
+            <div role="region" aria-label="DashboardHome" className="space-y-2">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-8 w-16" />
               <Skeleton className="h-3 w-20" />
@@ -334,7 +334,7 @@ function RealtimeEvents({ events, isLoading }: RealtimeEventsProps) {
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+      <div role="region" aria-label="DashboardHome" className="flex flex-col items-center justify-center py-8 text-muted-foreground">
         <Zap className="h-8 w-8 mb-2 opacity-50" />
         <p className="text-sm">Nenhum evento recente</p>
         <p className="text-xs">Eventos aparecerão aqui em tempo real</p>
@@ -819,7 +819,7 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
             icon={<Mail className="h-4 w-4 text-blue-500" />}
             description="Resumo de deliverability"
           >
-            <div className="grid grid-cols-2 gap-4 py-2">
+            <div role="region" aria-label="DashboardHome" className="grid grid-cols-2 gap-4 py-2">
               <div className="text-center">
                 <p className="text-2xl font-bold text-blue-500">
                   {trendsSummary?.totalOpens?.toLocaleString('pt-BR') || '-'}
