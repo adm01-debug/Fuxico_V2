@@ -92,9 +92,9 @@ export default function WebhookTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div role="region" aria-label="WebhookTab" className="space-y-6">
       {/* Configuration Card */}
-      <Card>
+      <Card role="article">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Webhook className="h-5 w-5 text-primary" />
@@ -140,7 +140,7 @@ export default function WebhookTab() {
           {/* Events Selection */}
           <div className="space-y-4">
             <Label>Eventos para notificar</Label>
-            <div className="grid gap-3">
+            <div role="region" aria-label="WebhookTab" className="grid gap-3">
               {AVAILABLE_EVENTS.map((event) => (
                 <div key={event.id} className="flex items-start space-x-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                   <Checkbox
@@ -197,7 +197,7 @@ export default function WebhookTab() {
       </Card>
 
       {/* Logs Card */}
-      <Card>
+      <Card role="article">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -218,7 +218,7 @@ export default function WebhookTab() {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : !logs || logs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+            <div role="region" aria-label="WebhookTab" className="flex flex-col items-center justify-center h-32 text-muted-foreground">
               <AlertTriangle className="h-8 w-8 mb-2 opacity-50" />
               <p>Nenhum webhook enviado ainda</p>
             </div>
