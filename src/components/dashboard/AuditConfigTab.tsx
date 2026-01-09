@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ const hours = Array.from({ length: 24 }, (_, i) => ({
   label: `${i.toString().padStart(2, "0")}:00`,
 }));
 
-export function AuditConfigTab() {
+function AuditConfigTabBase() {
   const { data: config, isLoading } = useAuditConfig();
   const updateConfig = useUpdateAuditConfig();
 
@@ -262,3 +263,6 @@ export function AuditConfigTab() {
 
 // Default export for lazy loading
 export default AuditConfigTab;
+
+
+export const AuditConfigTab = memo(AuditConfigTabBase);
