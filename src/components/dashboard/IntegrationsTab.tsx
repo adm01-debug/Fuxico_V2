@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,7 @@ const EVENT_OPTIONS = [
   { id: 'document_view', label: 'Documento Visualizado' },
 ];
 
-export function IntegrationsTab() {
+function IntegrationsTabBase() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -395,3 +396,6 @@ export function IntegrationsTab() {
     </div>
   );
 }
+
+
+export const IntegrationsTab = memo(IntegrationsTabBase);
