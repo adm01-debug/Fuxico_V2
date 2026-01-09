@@ -86,7 +86,7 @@ function ContactHistoryDialogBase({ email, open, onOpenChange }: ContactHistoryD
         </DialogHeader>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-8">
+          <div role="region" aria-label="Histórico de Contatos" className="flex items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
