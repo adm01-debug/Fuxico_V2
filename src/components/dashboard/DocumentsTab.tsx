@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from "react";
 import { useTrackedDocuments, useDocumentEvents } from "@/hooks/use-tracked-documents";
 import { DocumentUploadDialog } from "./DocumentUploadDialog";
@@ -39,7 +40,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
-export function DocumentsTab() {
+function DocumentsTabBase() {
   const { data: documents, isLoading } = useTrackedDocuments();
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -305,3 +306,6 @@ function DocumentEventsDialog({
 
 // Default export for lazy loading
 export default DocumentsTab;
+
+
+export const DocumentsTab = memo(DocumentsTabBase);
