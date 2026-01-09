@@ -1,3 +1,16 @@
+/**
+ * Hook para gerenciamento de testes A/B em campanhas de email
+ * 
+ * @description Este hook fornece funcionalidades para hook para gerenciamento de testes a/b em campanhas de email.
+ * Inclui gerenciamento de estado, cache e tratamento de erros.
+ * 
+ * @example
+ * ```tsx
+ * const { data, isLoading, error } = useabtests();
+ * ```
+ * 
+ * @returns Object contendo data, isLoading, error e funções auxiliares
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
