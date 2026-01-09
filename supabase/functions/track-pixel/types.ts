@@ -1,0 +1,1 @@
+/** Track Pixel Types */ export interface PixelRequest { trackingId: string; } export interface PixelResponse { success: boolean; data?: { eventId: string; recorded: boolean; isFirstOpen: boolean }; error?: string; }
