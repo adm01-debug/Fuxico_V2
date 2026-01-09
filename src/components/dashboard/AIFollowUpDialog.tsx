@@ -114,7 +114,7 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div role="region" aria-label="Dialog de Follow-up com IA" className="space-y-4">
           {/* Email Info */}
           <Card className="bg-muted/50">
             <CardContent className="pt-4">
