@@ -1,0 +1,1 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const beaconSchema = z.object({ trackingId: z.string(), eventType: z.string().min(1), timestamp: z.string().datetime().optional(), metadata: z.record(z.unknown()).optional() });
