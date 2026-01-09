@@ -1,0 +1,1 @@
+/** Health Check Types */ export interface HealthRequest { services?: string[]; } export interface ServiceHealth { name: string; status: "healthy" | "degraded" | "down"; latency: number; } export interface HealthResponse { success: boolean; data?: { status: string; services: ServiceHealth[]; timestamp: string }; error?: string; }
