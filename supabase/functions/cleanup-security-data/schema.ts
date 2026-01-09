@@ -1,0 +1,1 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const cleanupSchema = z.object({ olderThan: z.string().datetime(), types: z.array(z.string()).optional(), dryRun: z.boolean().default(false) });
