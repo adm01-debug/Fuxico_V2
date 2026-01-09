@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export function UnsubscribeTab() {
+function UnsubscribeTabBase() {
   const { unsubscribedEmails, isLoading, addUnsubscribe, removeUnsubscribe, bulkAddUnsubscribe } = useUnsubscribedEmails();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isBulkOpen, setIsBulkOpen] = useState(false);
@@ -313,3 +314,6 @@ export function UnsubscribeTab() {
 }
 
 export default UnsubscribeTab;
+
+
+export const UnsubscribeTab = memo(UnsubscribeTabBase);
