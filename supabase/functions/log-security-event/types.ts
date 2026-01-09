@@ -1,0 +1,1 @@
+/** Log Security Event Types */ export interface SecurityEventRequest { eventType: string; severity: "low" | "medium" | "high" | "critical"; details: Record<string, unknown>; userId?: string; ip?: string; } export interface SecurityEventResponse { success: boolean; data?: { eventId: string; logged: boolean }; error?: string; }
