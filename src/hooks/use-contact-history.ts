@@ -1,3 +1,8 @@
+/**
+ * Hook para histórico de contatos e interações
+ * @description Hook para histórico de contatos e interações. Inclui gerenciamento de estado e cache.
+ * @returns Object com data, isLoading, error
+ */
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
