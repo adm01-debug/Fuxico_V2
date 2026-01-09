@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { toast } from 'sonner';
 import { useEmailTemplates } from '@/hooks/use-email-templates';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function TemplatesTab() {
+function TemplatesTabBase() {
   const { templates, isLoading, createTemplate, deleteTemplate, incrementUsage } = useEmailTemplates();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -254,3 +255,6 @@ export function TemplatesTab() {
 }
 
 export default TemplatesTab;
+
+
+export const TemplatesTab = memo(TemplatesTabBase);
