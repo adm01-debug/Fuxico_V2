@@ -40,7 +40,7 @@ export function InsightsTab() {
     return (
       <Card className="border-destructive">
         <CardContent className="pt-6">
-          <div className="flex flex-col items-center justify-center text-center space-y-4">
+          <div role="region" aria-label="InsightsTab" className="flex flex-col items-center justify-center text-center space-y-4">
             <AlertTriangle className="h-12 w-12 text-destructive" />
             <p className="text-muted-foreground">Erro ao carregar insights: {error.message}</p>
             <Button onClick={() => refetch()} variant="outline">
@@ -60,7 +60,7 @@ export function InsightsTab() {
   const sections = parseInsights(insights);
 
   return (
-    <div className="space-y-6">
+    <div role="region" aria-label="InsightsTab" className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -83,7 +83,7 @@ export function InsightsTab() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div role="region" aria-label="InsightsTab" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard 
           title="Total de Emails"
           value={stats?.totalEmails || 0}
@@ -112,7 +112,7 @@ export function InsightsTab() {
 
       {/* Best Times */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
+        <Card role="article">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -144,7 +144,7 @@ export function InsightsTab() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card role="article">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
@@ -226,7 +226,7 @@ function StatsCard({
   };
 
   return (
-    <Card>
+    <Card role="article">
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>
