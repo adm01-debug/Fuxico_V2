@@ -1,3 +1,4 @@
+/** Hook para busca full-text */
 // =============================================================================
 // FUXICO - Hook: useFulltextSearch
 // Busca fulltext em múltiplas colunas com debounce
