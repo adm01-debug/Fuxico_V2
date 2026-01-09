@@ -1,3 +1,4 @@
+/** Hook para notificações desktop */
 import { useState, useEffect, useCallback } from 'react';
 import { log } from '@/lib/logger';
 
