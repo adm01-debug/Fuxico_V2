@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } , memo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +35,7 @@ interface AIResponse {
   tips: string[];
 }
 
-export function AIFollowUpDialog({ open, onOpenChange, email, onCreateReminder }: AIFollowUpDialogProps) {
+function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: AIFollowUpDialogProps) {
   const [tone, setTone] = useState<'formal' | 'friendly' | 'urgent'>('friendly');
   const [context, setContext] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -326,3 +326,6 @@ export function AIFollowUpDialog({ open, onOpenChange, email, onCreateReminder }
     </Dialog>
   );
 }
+
+
+export const AIFollowUpDialog = memo(AIFollowUpDialogBase);
