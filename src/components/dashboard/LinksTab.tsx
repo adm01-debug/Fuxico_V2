@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from "react";
 import { useTrackedLinks, useLinkClickEvents } from "@/hooks/use-tracked-links";
 import { LinkCreateDialog } from "./LinkCreateDialog";
@@ -38,7 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
-export function LinksTab() {
+function LinksTabBase() {
   const { data: links, isLoading } = useTrackedLinks();
   const [selectedLinkId, setSelectedLinkId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -282,3 +283,6 @@ function LinkEventsDialog({
 
 // Default export for lazy loading
 export default LinksTab;
+
+
+export const LinksTab = memo(LinksTabBase);
