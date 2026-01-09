@@ -376,7 +376,7 @@ export function NotificationCenter() {
 
               <ScrollArea className="h-[340px]">
                 {notifications.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                  <div role="region" aria-label="Central de Notificações" className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                     <div className="relative">
                       <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full" />
                       <div className="relative bg-muted/50 rounded-full p-5">
