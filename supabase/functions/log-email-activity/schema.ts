@@ -1,0 +1,1 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const activitySchema = z.object({ trackingId: z.string(), eventType: z.enum(['send', 'open', 'click', 'bounce', 'unsubscribe']), metadata: z.record(z.unknown()).optional(), timestamp: z.string().datetime().optional() });
