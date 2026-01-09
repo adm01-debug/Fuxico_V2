@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } , memo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,7 +22,7 @@ interface CampaignStats {
   bounceRate: number;
 }
 
-export function CampaignComparisonTab() {
+function CampaignComparisonTabBase() {
   const { user } = useAuth();
   const [campaign1Id, setCampaign1Id] = useState<string>('');
   const [campaign2Id, setCampaign2Id] = useState<string>('');
@@ -346,3 +346,6 @@ export function CampaignComparisonTab() {
     </div>
   );
 }
+
+
+export const CampaignComparisonTab = memo(CampaignComparisonTabBase);
