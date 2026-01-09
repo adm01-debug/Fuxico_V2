@@ -1,3 +1,4 @@
+import { memo } from 'react';
 // =============================================================================
 // FUXICO - Component: GlobalSearchDialog
 // Command palette style global search with Alt+F shortcut
@@ -88,7 +89,7 @@ const QUICK_ACTIONS = [
   { id: 'shortcuts', label: 'Ver atalhos de teclado', icon: Keyboard, shortcut: '?' },
 ];
 
-export function GlobalSearchDialog({
+function GlobalSearchDialogBase({
   open,
   onOpenChange,
   onNavigate,
@@ -293,3 +294,6 @@ export function useGlobalSearch() {
 }
 
 export default GlobalSearchDialog;
+
+
+export const GlobalSearchDialog = memo(GlobalSearchDialogBase);
