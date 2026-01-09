@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { log } from '@/lib/logger';
 import { useState } from "react";
 import { format } from "date-fns";
@@ -61,7 +62,7 @@ function convertToCSV(data: Record<string, unknown>[]): string {
   return [headers.join(','), ...rows].join('\n');
 }
 
-export function ExportDialog({ onExport, data = [], children }: ExportDialogProps) {
+function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) {
   const [open, setOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [options, setOptions] = useState<ExportOptions>({
@@ -245,3 +246,6 @@ export function ExportDialog({ onExport, data = [], children }: ExportDialogProp
 }
 
 export default ExportDialog;
+
+
+export const ExportDialog = memo(ExportDialogBase);
