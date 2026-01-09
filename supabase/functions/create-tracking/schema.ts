@@ -1,0 +1,1 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const trackingSchema = z.object({ userId: z.string().uuid(), recipientEmail: z.string().email(), subject: z.string().min(1).max(500), senderEmail: z.string().email().optional(), trackOpens: z.boolean().default(true), trackClicks: z.boolean().default(true) });
