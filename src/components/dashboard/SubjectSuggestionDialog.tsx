@@ -90,7 +90,7 @@ export function SubjectSuggestionDialog({ onSelectSubject, trigger }: SubjectSug
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div role="region" aria-label="Sugestão de Assunto" className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="context">Contexto do Email</Label>
             <Textarea
