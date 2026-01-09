@@ -54,7 +54,7 @@ export function BounceAlertsTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div role="region" aria-label="BounceAlertsTab" className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -89,7 +89,7 @@ export function BounceAlertsTab() {
 
       {/* Settings Panel */}
       {showSettings && (
-        <Card>
+        <Card role="article">
           <CardHeader>
             <CardTitle className="text-lg">Configuração de Limites</CardTitle>
             <CardDescription>
@@ -97,7 +97,7 @@ export function BounceAlertsTab() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div role="region" aria-label="BounceAlertsTab" className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="warning">Limite de Aviso (%)</Label>
                 <Input
@@ -138,7 +138,7 @@ export function BounceAlertsTab() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card role="article">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-full bg-destructive/10">
@@ -151,7 +151,7 @@ export function BounceAlertsTab() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card role="article">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-full bg-yellow-500/10">
