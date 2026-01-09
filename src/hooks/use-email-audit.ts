@@ -1,3 +1,4 @@
+/** Hook para auditoria de emails */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { log } from "@/lib/logger";
