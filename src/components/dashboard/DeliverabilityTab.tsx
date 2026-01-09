@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,7 @@ import {
 import { useDeliverability, DomainStats } from '@/hooks/use-deliverability';
 import { toast } from 'sonner';
 
-export function DeliverabilityTab() {
+function DeliverabilityTabBase() {
   const { 
     data, 
     isLoading, 
@@ -288,3 +289,6 @@ export function DeliverabilityTab() {
     </div>
   );
 }
+
+
+export const DeliverabilityTab = memo(DeliverabilityTabBase);
