@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ const metricOptions = [
   { value: 'geo_distribution', label: 'Distribuição Geográfica' },
 ];
 
-export function ReportsTab() {
+function ReportsTabBase() {
   const { reports, isLoading, createReport, toggleEnabled, addRecipient, removeRecipient, deleteReport } = useScheduledReports();
   const [newRecipient, setNewRecipient] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -485,3 +486,6 @@ export function ReportsTab() {
 }
 
 export default ReportsTab;
+
+
+export const ReportsTab = memo(ReportsTabBase);
