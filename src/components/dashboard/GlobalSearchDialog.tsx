@@ -176,7 +176,7 @@ export function GlobalSearchDialog({
       />
       <CommandList>
         <CommandEmpty>
-          <div className="flex flex-col items-center gap-2 py-6">
+          <div role="region" aria-label="GlobalSearchDialog" className="flex flex-col items-center gap-2 py-6">
             <Search className="h-10 w-10 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">Nenhum resultado encontrado</p>
             <p className="text-xs text-muted-foreground">Tente buscar por outro termo</p>
