@@ -121,7 +121,7 @@ function CreateEmailDialog({
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} role="region" aria-label="EmailSchedulingTab" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="recipient">Destinatário *</Label>
@@ -227,7 +227,7 @@ export function EmailSchedulingTab() {
 
   if (error) {
     return (
-      <Card>
+      <Card role="article">
         <CardContent className="p-8 text-center text-muted-foreground">
           <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>Erro ao carregar emails agendados</p>
@@ -243,7 +243,7 @@ export function EmailSchedulingTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div role="region" aria-label="EmailSchedulingTab" className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Clock className="h-6 w-6" />
@@ -261,7 +261,7 @@ export function EmailSchedulingTab() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card role="article">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -275,7 +275,7 @@ export function EmailSchedulingTab() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card role="article">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
