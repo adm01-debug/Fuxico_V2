@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createTracking, CreateTrackingRequest, CreateTrackingResponse } from "@/lib/tracking-api";
@@ -25,7 +26,7 @@ interface CreateTrackingDialogProps {
   trigger?: React.ReactNode;
 }
 
-export function CreateTrackingDialog({ 
+function CreateTrackingDialogBase({ 
   open: controlledOpen, 
   onOpenChange: controlledOnOpenChange,
   trigger
@@ -261,3 +262,6 @@ export function CreateTrackingDialog({
     </Dialog>
   );
 }
+
+
+export const CreateTrackingDialog = memo(CreateTrackingDialogBase);
