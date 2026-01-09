@@ -1,3 +1,8 @@
+/**
+ * Hook para widgets personalizáveis do dashboard
+ * @description Hook para widgets personalizáveis do dashboard. Inclui gerenciamento de estado e cache.
+ * @returns Object com data, isLoading, error
+ */
 // =============================================================================
 // Hook para gerenciar widgets customizáveis do dashboard
 // =============================================================================
