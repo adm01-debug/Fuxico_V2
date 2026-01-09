@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from 'react';
 import { Globe, MapPin, TrendingUp, ChevronDown, ChevronRight, Eye, MousePointerClick, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -138,7 +139,7 @@ function CountryRow({ country, maxTotal }: { country: CountryStats; maxTotal: nu
   );
 }
 
-export function GeoAnalyticsTab() {
+function GeoAnalyticsTabBase() {
   const { data: geoStats, isLoading, error } = useGeoStats();
 
   if (isLoading) {
@@ -360,3 +361,6 @@ export function GeoAnalyticsTab() {
     </div>
   );
 }
+
+
+export const GeoAnalyticsTab = memo(GeoAnalyticsTabBase);
