@@ -143,7 +143,7 @@ export function GeoAnalyticsTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div role="region" aria-label="GeoAnalyticsTab" className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-32" />
@@ -156,7 +156,7 @@ export function GeoAnalyticsTab() {
 
   if (error) {
     return (
-      <Card>
+      <Card role="article">
         <CardContent className="p-8 text-center text-muted-foreground">
           <Globe className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>Erro ao carregar dados geográficos</p>
@@ -190,7 +190,7 @@ export function GeoAnalyticsTab() {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card role="article">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -204,7 +204,7 @@ export function GeoAnalyticsTab() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card role="article">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
