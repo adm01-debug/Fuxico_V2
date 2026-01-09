@@ -1,0 +1,1 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const insightRequestSchema = z.object({ userId: z.string().uuid(), trackingId: z.string().optional(), dateRange: z.object({ start: z.string().datetime(), end: z.string().datetime() }).optional(), type: z.enum(['engagement', 'delivery', 'behavior', 'all']) });
