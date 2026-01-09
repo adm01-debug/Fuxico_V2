@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } , memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { useABTests } from '@/hooks/use-ab-tests';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function ABTestingTab() {
+function ABTestingTabBase() {
   const { tests, isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newTest, setNewTest] = useState({
@@ -370,3 +370,6 @@ export function ABTestingTab() {
 }
 
 export default ABTestingTab;
+
+
+export const ABTestingTab = memo(ABTestingTabBase);
