@@ -1,3 +1,8 @@
+/**
+ * Hook para métricas de entregabilidade
+ * @description Hook para métricas de entregabilidade. Inclui gerenciamento de estado e cache.
+ * @returns Object com data, isLoading, error
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
