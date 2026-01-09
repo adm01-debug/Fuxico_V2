@@ -1,3 +1,16 @@
+/**
+ * Hook para insights gerados por IA
+ * 
+ * @description Este hook fornece funcionalidades para hook para insights gerados por ia.
+ * Inclui gerenciamento de estado, cache e tratamento de erros.
+ * 
+ * @example
+ * ```tsx
+ * const { data, isLoading, error } = useaiinsights();
+ * ```
+ * 
+ * @returns Object contendo data, isLoading, error e funções auxiliares
+ */
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
