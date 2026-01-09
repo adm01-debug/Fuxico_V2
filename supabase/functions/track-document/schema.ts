@@ -1,0 +1,1 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const docTrackSchema = z.object({ documentId: z.string().uuid(), eventType: z.enum(['view', 'download', 'print', 'share']), page: z.number().optional(), duration: z.number().optional() });
