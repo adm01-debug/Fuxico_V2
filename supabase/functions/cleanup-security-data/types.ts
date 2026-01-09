@@ -1,0 +1,1 @@
+/** Cleanup Security Data Types */ export interface CleanupRequest { olderThan: string; types?: string[]; dryRun?: boolean; } export interface CleanupResult { deleted: number; types: Record<string, number>; } export interface CleanupResponse { success: boolean; data?: CleanupResult; error?: string; }
