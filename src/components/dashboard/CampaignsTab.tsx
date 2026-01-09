@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } , memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,7 +53,7 @@ import {
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export function CampaignsTab() {
+function CampaignsTabBase() {
   const { data: campaigns, isLoading } = useCampaigns();
   const createCampaign = useCreateCampaign();
   const updateCampaign = useUpdateCampaign();
@@ -423,3 +423,6 @@ function CampaignsSkeleton() {
 }
 
 export default CampaignsTab;
+
+
+export const CampaignsTab = memo(CampaignsTabBase);
