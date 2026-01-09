@@ -62,8 +62,8 @@ export function UnsubscribeTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Card>
+      <div role="region" aria-label="UnsubscribeTab" className="space-y-6">
+        <Card role="article">
           <CardHeader>
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-72" />
@@ -83,15 +83,15 @@ export function UnsubscribeTab() {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+      <div role="region" aria-label="UnsubscribeTab" className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card role="article">
           <CardContent className="p-4 text-center">
             <UserX className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
             <p className="text-2xl font-bold">{unsubscribedEmails.length}</p>
             <p className="text-xs text-muted-foreground">Total descadastrados</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card role="article">
           <CardContent className="p-4 text-center">
             <Mail className="h-8 w-8 mx-auto mb-2 text-blue-500" />
             <p className="text-2xl font-bold">
