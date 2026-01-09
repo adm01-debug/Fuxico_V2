@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,7 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { AIFollowUpDialog } from './AIFollowUpDialog';
 
-export function FollowUpTab() {
+function FollowUpTabBase() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState('');
   const [reminderDays, setReminderDays] = useState('3');
@@ -395,3 +396,6 @@ export function FollowUpTab() {
     </div>
   );
 }
+
+
+export const FollowUpTab = memo(FollowUpTabBase);
