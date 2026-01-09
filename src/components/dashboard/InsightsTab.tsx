@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function InsightsTab() {
+function InsightsTabBase() {
   const { data, isLoading, error, refetch } = useAIInsights();
   const refreshMutation = useRefreshInsights();
 
@@ -331,3 +332,6 @@ function parseInsights(text: string): Array<{ title: string; content: string }> 
 }
 
 export default InsightsTab;
+
+
+export const InsightsTab = memo(InsightsTabBase);
