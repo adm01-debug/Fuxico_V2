@@ -1,0 +1,1 @@
+/** Zapier Webhook Types */ export interface ZapierRequest { event: string; data: Record<string, unknown>; zapId?: string; } export interface ZapierResponse { success: boolean; data?: { received: boolean; processedAt: string }; error?: string; }
