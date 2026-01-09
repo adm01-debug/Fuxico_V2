@@ -1,0 +1,1 @@
+/** Verify Custom Domain Types */ export interface DomainRequest { domain: string; verificationType: "dns" | "file" | "meta"; } export interface DomainVerification { domain: string; verified: boolean; records: Array<{ type: string; name: string; value: string; valid: boolean }>; } export interface DomainResponse { success: boolean; data?: DomainVerification; error?: string; }
