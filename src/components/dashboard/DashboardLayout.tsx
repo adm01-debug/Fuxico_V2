@@ -227,7 +227,7 @@ export default function DashboardLayout() {
       <div className="flex min-h-screen w-full">
         <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
         
-        <SidebarInset className="flex-1">
+        <SidebarInset role="main" aria-label="Conteúdo Principal" className="flex-1">
           {/* Header */}
           <header className="sticky top-0 z-10 flex flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6">
