@@ -308,7 +308,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+    <div className="min-h-screen px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-background p-4 relative overflow-hidden">
       {/* Background effects */}
       <GridPattern />
       <FloatingOrbs />
@@ -316,7 +316,7 @@ const Auth = () => {
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none" />
       
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full px-4 sm:px-0 max-w-md relative z-10">
         {/* Logo with animation */}
         <motion.div 
           className="flex flex-col items-center mb-8"
