@@ -1,3 +1,4 @@
+import { memo } from 'react';
 // =============================================================================
 // FUXICO - Premium Notification Center
 // =============================================================================
@@ -103,7 +104,7 @@ const notificationTypeConfig = {
   },
 };
 
-export function NotificationCenter() {
+function NotificationCenterBase() {
   const [notifications, setNotifications] = useLocalStorage<Notification[]>('notifications', []);
   const [settings, setSettings] = useLocalStorage<NotificationSettings>('notification-settings', DEFAULT_SETTINGS);
   const [showSettings, setShowSettings] = useState(false);
@@ -470,3 +471,6 @@ export function NotificationCenter() {
     </Popover>
   );
 }
+
+
+export const NotificationCenter = memo(NotificationCenterBase);
