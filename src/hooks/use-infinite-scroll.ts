@@ -1,3 +1,4 @@
+/** Hook para scroll infinito */
 // FUXICO - Hook: useInfiniteScroll
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useCallback } from 'react';
