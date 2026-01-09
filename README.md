@@ -204,3 +204,46 @@ git commit -m "docs: atualiza documentação"
 - ESLint + Prettier configurados
 - TypeScript strict mode
 - Testes obrigatórios para features novas
+
+
+## 🚀 Deploy
+
+### Vercel (Recomendado)
+
+1. **Conecte seu repositório GitHub ao Vercel**
+2. **Configure as variáveis de ambiente:**
+   ```
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
+3. **Deploy automático** a cada push na branch main
+
+### Edge Functions (Supabase)
+
+```bash
+# Instalar Supabase CLI
+npm install -g supabase
+
+# Login e link
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
+
+# Deploy todas as funções
+supabase functions deploy
+```
+
+### Docker
+
+```bash
+docker build -t fuxico .
+docker run -p 80:80 fuxico
+```
+
+### Checklist Pós-Deploy
+
+- [ ] Testar autenticação (login/registro)
+- [ ] Verificar conexão com Supabase
+- [ ] Testar tracking de email
+- [ ] Validar Edge Functions
+- [ ] Checar CORS e headers de segurança
+
