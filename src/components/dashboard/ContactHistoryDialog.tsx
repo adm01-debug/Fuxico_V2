@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -64,7 +65,7 @@ function getEventBadgeVariant(type: ContactHistoryItem['type']): "default" | "se
   }
 }
 
-export function ContactHistoryDialog({ email, open, onOpenChange }: ContactHistoryDialogProps) {
+function ContactHistoryDialogBase({ email, open, onOpenChange }: ContactHistoryDialogProps) {
   const { data, isLoading } = useContactHistory(email);
 
   const stats = {
@@ -174,3 +175,6 @@ export function ContactHistoryDialog({ email, open, onOpenChange }: ContactHisto
     </Dialog>
   );
 }
+
+
+export const ContactHistoryDialog = memo(ContactHistoryDialogBase);
