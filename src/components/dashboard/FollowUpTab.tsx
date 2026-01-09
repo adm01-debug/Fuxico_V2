@@ -120,10 +120,10 @@ export function FollowUpTab() {
   );
 
   return (
-    <div className="space-y-6">
+    <div role="region" aria-label="FollowUpTab" className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card role="article">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
@@ -145,7 +145,7 @@ export function FollowUpTab() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card role="article">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Enviados</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
@@ -275,7 +275,7 @@ export function FollowUpTab() {
       </div>
 
       {/* Reminders Table */}
-      <Card>
+      <Card role="article">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
