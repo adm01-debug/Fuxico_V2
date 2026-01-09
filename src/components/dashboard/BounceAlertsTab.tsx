@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } , memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,7 @@ import { useBounceAlerts } from '@/hooks/use-bounce-alerts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export function BounceAlertsTab() {
+function BounceAlertsTabBase() {
   const {
     alerts,
     thresholds,
@@ -298,3 +298,6 @@ export function BounceAlertsTab() {
     </div>
   );
 }
+
+
+export const BounceAlertsTab = memo(BounceAlertsTabBase);
