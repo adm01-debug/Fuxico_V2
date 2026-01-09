@@ -59,7 +59,8 @@ export function ExportMenu<T extends Record<string, unknown>>({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      {/* Accessibility: export menu */}
+      <DropdownMenuTrigger aria-label="Menu de Exportação" asChild>
         <Button variant="outline" size="sm" disabled={disabled || data.length === 0}>
           <Download className="h-4 w-4 mr-2" />
           Exportar
