@@ -184,7 +184,7 @@ export function IntegrationsTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div role="region" aria-label="IntegrationsTab" className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Integrações</h2>
         <p className="text-muted-foreground">
@@ -194,7 +194,7 @@ export function IntegrationsTab() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Slack Integration */}
-        <Card>
+        <Card role="article">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -279,7 +279,7 @@ export function IntegrationsTab() {
         </Card>
 
         {/* Teams Integration */}
-        <Card>
+        <Card role="article">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -365,7 +365,7 @@ export function IntegrationsTab() {
       </div>
 
       {/* Documentation */}
-      <Card>
+      <Card role="article">
         <CardHeader>
           <CardTitle>Como configurar</CardTitle>
         </CardHeader>
