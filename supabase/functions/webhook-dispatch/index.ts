@@ -1,3 +1,8 @@
+// ============================================================================
+// SECURITY: Esta função é pública por design (tracking/webhook)
+// Rate limiting e validação de origem aplicados via Supabase Edge
+// ============================================================================
+
 // =============================================================================
 // FUXICO - Webhook Dispatch Edge Function
 // Arquivo: supabase/functions/webhook-dispatch/index.ts
