@@ -1,3 +1,16 @@
+/**
+ * Hook para alertas de bounce de emails
+ * 
+ * @description Este hook fornece funcionalidades para hook para alertas de bounce de emails.
+ * Inclui gerenciamento de estado, cache e tratamento de erros.
+ * 
+ * @example
+ * ```tsx
+ * const { data, isLoading, error } = usebouncealerts();
+ * ```
+ * 
+ * @returns Object contendo data, isLoading, error e funções auxiliares
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
