@@ -262,7 +262,7 @@ function LiveEventItem({ event, isNew, index }: LiveEventItemProps) {
       </div>
 
       {/* Meta info */}
-      <div className="flex flex-col items-end gap-1">
+      <div role="region" aria-label="RealtimeMetrics" className="flex flex-col items-end gap-1">
         <Badge 
           variant="outline" 
           className={cn('text-xs px-2', config.borderColor, config.textColor)}
@@ -445,7 +445,7 @@ export function RealtimeMetrics() {
           </div>
 
           <ScrollArea className="h-[300px]">
-            <div className="space-y-2 pr-4">
+            <div role="region" aria-label="RealtimeMetrics" className="space-y-2 pr-4">
               <AnimatePresence mode="popLayout">
                 {liveEvents.length === 0 ? (
                   <motion.div
