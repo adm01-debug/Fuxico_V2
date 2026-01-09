@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, X, Calendar, Eye, MousePointerClick, ArrowUpDown, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -163,7 +164,7 @@ export function filterEmails<T extends {
   return result;
 }
 
-export function EmailFiltersComponent({ 
+function EmailFiltersBaseComponent({ 
   filters, 
   onFiltersChange, 
   totalCount, 
@@ -456,3 +457,6 @@ export function EmailFiltersComponent({
     </div>
   );
 }
+
+
+export const EmailFilters = memo(EmailFiltersBase);
