@@ -1,3 +1,4 @@
+/** Hook para estatísticas geográficas */
 import { log } from '@/lib/logger';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
