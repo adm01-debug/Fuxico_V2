@@ -1,0 +1,1 @@
+/** Rate Limit Types */ export interface RateLimitRequest { key: string; limit: number; window: number; } export interface RateLimitResult { allowed: boolean; remaining: number; resetAt: string; } export interface RateLimitResponse { success: boolean; data?: RateLimitResult; error?: string; }
