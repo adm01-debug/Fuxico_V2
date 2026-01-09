@@ -1,0 +1,1 @@
+/** Mail Merge Types */ export interface MergeRequest { userId: string; templateId: string; dataSource: Array<Record<string, string>>; subject: string; trackOpens?: boolean; } export interface MergeResult { total: number; processed: number; errors: Array<{ row: number; error: string }>; } export interface MergeResponse { success: boolean; data?: MergeResult; error?: string; }
