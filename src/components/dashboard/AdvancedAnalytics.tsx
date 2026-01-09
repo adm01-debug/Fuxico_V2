@@ -78,7 +78,7 @@ function StatCard({
   trend?: 'up' | 'down' | 'neutral';
 }) {
   return (
-    <Card>
+    <Card role="article">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -283,7 +283,7 @@ export function AdvancedAnalytics() {
 
   if (emailsLoading || statsLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" role="region" aria-label="Analytics Avançado">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-32" />
@@ -519,7 +519,7 @@ export function AdvancedAnalytics() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Trend Chart */}
-        <Card>
+        <Card role="article">
           <CardHeader>
             <CardTitle className="text-lg">Tendência de Envios</CardTitle>
             <CardDescription>
@@ -569,7 +569,7 @@ export function AdvancedAnalytics() {
         </Card>
 
         {/* Status Distribution */}
-        <Card>
+        <Card role="article">
           <CardHeader>
             <CardTitle className="text-lg">Distribuição por Status</CardTitle>
             <CardDescription>Status de entrega dos emails</CardDescription>
@@ -605,7 +605,7 @@ export function AdvancedAnalytics() {
       </div>
 
       {/* Hourly Distribution */}
-      <Card>
+      <Card role="article">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -689,7 +689,7 @@ function EngagementMetricsSection() {
 
       {/* Engagement Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card role="article">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-500/10 rounded-lg">
