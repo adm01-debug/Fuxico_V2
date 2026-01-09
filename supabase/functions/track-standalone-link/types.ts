@@ -1,0 +1,1 @@
+/** Track Standalone Link Types */ export interface StandaloneLinkRequest { linkId: string; destinationUrl: string; } export interface StandaloneLinkResponse { success: boolean; data?: { eventId: string; redirectUrl: string }; error?: string; }
