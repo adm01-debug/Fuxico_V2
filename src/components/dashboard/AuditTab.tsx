@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +52,7 @@ const severityColors: Record<string, string> = {
   high: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 };
 
-export function AuditTab() {
+function AuditTabBase() {
   const { data: isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
   const [directionFilter, setDirectionFilter] = useState<string>("all");
   const [showResolved, setShowResolved] = useState(false);
@@ -513,3 +514,6 @@ function LogRow({ log }: { log: EmailAuditLog }) {
 
 // Default export for lazy loading
 export default AuditTab;
+
+
+export const AuditTab = memo(AuditTabBase);
