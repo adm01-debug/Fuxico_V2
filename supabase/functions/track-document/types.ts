@@ -1,0 +1,1 @@
+/** Track Document Types */ export interface DocTrackRequest { documentId: string; eventType: "view" | "download" | "print" | "share"; page?: number; duration?: number; } export interface DocTrackResponse { success: boolean; data?: { eventId: string; recorded: boolean }; error?: string; }
