@@ -1,3 +1,16 @@
+/**
+ * Hook para configurações de auditoria
+ * 
+ * @description Este hook fornece funcionalidades para hook para configurações de auditoria.
+ * Inclui gerenciamento de estado, cache e tratamento de erros.
+ * 
+ * @example
+ * ```tsx
+ * const { data, isLoading, error } = useauditconfig();
+ * ```
+ * 
+ * @returns Object contendo data, isLoading, error e funções auxiliares
+ */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
