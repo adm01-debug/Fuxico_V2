@@ -1,0 +1,1 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const statsSchema = z.object({ userId: z.string().uuid(), limit: z.number().min(1).max(100).default(20), offset: z.number().min(0).default(0), dateRange: z.object({ start: z.string().datetime(), end: z.string().datetime() }).optional() });
