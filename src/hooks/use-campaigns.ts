@@ -1,3 +1,8 @@
+/**
+ * Hook para gerenciamento de campanhas de email marketing
+ * @description Hook para gerenciamento de campanhas de email marketing. Inclui gerenciamento de estado e cache.
+ * @returns Object com data, isLoading, error
+ */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
