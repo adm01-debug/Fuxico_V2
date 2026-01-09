@@ -409,7 +409,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
           </motion.div>
           {!isCollapsed && (
             <motion.div 
-              className="flex flex-col"
+              role="navigation" aria-label="Menu Principal" className="flex flex-col"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
