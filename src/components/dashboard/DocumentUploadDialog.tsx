@@ -118,7 +118,7 @@ export function DocumentUploadDialog() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div role="region" aria-label="Upload de Documentos" className="space-y-2">
             <Label htmlFor="file">Arquivo PDF</Label>
             <div className="flex items-center gap-2">
               <Input
