@@ -111,7 +111,7 @@ export function CampaignsTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div role="region" aria-label="CampaignsTab" className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -171,7 +171,7 @@ export function CampaignsTab() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card role="article">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -184,7 +184,7 @@ export function CampaignsTab() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card role="article">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -197,7 +197,7 @@ export function CampaignsTab() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card role="article">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -321,7 +321,7 @@ export function CampaignsTab() {
               </TableBody>
             </Table>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div role="region" aria-label="CampaignsTab" className="flex flex-col items-center justify-center py-12 text-center">
               <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="font-medium text-lg">Nenhuma campanha criada</h3>
               <p className="text-muted-foreground mb-4">
