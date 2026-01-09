@@ -43,8 +43,8 @@ export function DeliverabilityTab() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div role="region" aria-label="DeliverabilityTab" className="space-y-6">
+        <div role="region" aria-label="DeliverabilityTab" className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-32" />
           ))}
@@ -75,7 +75,7 @@ export function DeliverabilityTab() {
 
       {/* Métricas Gerais */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card role="article">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
@@ -94,7 +94,7 @@ export function DeliverabilityTab() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card role="article">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
@@ -112,7 +112,7 @@ export function DeliverabilityTab() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card role="article">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
