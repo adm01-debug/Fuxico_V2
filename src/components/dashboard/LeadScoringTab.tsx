@@ -104,9 +104,9 @@ export default function LeadScoringTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div role="region" aria-label="LeadScoringTab" className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
+      <div role="region" aria-label="LeadScoringTab" className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <TrendingUp className="h-6 w-6 text-primary" />
@@ -133,7 +133,7 @@ export default function LeadScoringTab() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div role="region" aria-label="LeadScoringTab" className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard icon={Flame} label="Quentes" value={stats.hot} color="bg-red-500/10 text-red-500" />
         <StatCard icon={ThermometerSun} label="Mornos" value={stats.warm} color="bg-orange-500/10 text-orange-500" />
         <StatCard icon={ThermometerSun} label="Frios" value={stats.cool} color="bg-blue-400/10 text-blue-400" />
@@ -152,7 +152,7 @@ export default function LeadScoringTab() {
       </div>
 
       {/* Contacts Table */}
-      <Card>
+      <Card role="article">
         <CardHeader>
           <CardTitle>Contatos ({filteredContacts.length})</CardTitle>
           <CardDescription>
