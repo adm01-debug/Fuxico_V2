@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useState } from 'react';
 import { format, formatDistanceToNow, isPast } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -207,7 +208,7 @@ function CreateEmailDialog({
   );
 }
 
-export function EmailSchedulingTab() {
+function EmailSchedulingTabBase() {
   const { data: emails, isLoading, error } = useScheduledEmails();
   const cancelEmail = useCancelScheduledEmail();
   const deleteEmail = useDeleteScheduledEmail();
@@ -436,3 +437,6 @@ export function EmailSchedulingTab() {
     </div>
   );
 }
+
+
+export const EmailSchedulingTab = memo(EmailSchedulingTabBase);
