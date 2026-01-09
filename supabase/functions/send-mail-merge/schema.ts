@@ -1,0 +1,1 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const mailMergeSchema = z.object({ userId: z.string().uuid(), templateId: z.string(), dataSource: z.array(z.record(z.string())).min(1), subject: z.string().min(1), trackOpens: z.boolean().default(true) });
