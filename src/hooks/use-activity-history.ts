@@ -1,3 +1,16 @@
+/**
+ * Hook para histórico de atividades do usuário
+ * 
+ * @description Este hook fornece funcionalidades para hook para histórico de atividades do usuário.
+ * Inclui gerenciamento de estado, cache e tratamento de erros.
+ * 
+ * @example
+ * ```tsx
+ * const { data, isLoading, error } = useactivityhistory();
+ * ```
+ * 
+ * @returns Object contendo data, isLoading, error e funções auxiliares
+ */
 // FUXICO - Hook: useActivityHistory
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
