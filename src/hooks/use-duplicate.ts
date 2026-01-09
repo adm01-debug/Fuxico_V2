@@ -1,3 +1,4 @@
+/** Hook para duplicação de entidades */
 // FUXICO - Hook: useDuplicate
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
