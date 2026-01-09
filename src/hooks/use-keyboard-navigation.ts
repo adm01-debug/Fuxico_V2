@@ -1,3 +1,4 @@
+/** Hook para navegação por teclado */
 import { useCallback, useEffect } from 'react';
 
 type KeyHandler = (event: KeyboardEvent) => void;
