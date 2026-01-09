@@ -59,7 +59,7 @@ export function FilterToolbar<T extends Record<string, unknown>>({
   const hasActiveFilters = searchTerm || activeFilterCount > 0;
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4 p-3 sm:p-4 bg-card rounded-lg border">
+    <div role="region" aria-label="FilterToolbar" className="flex flex-col gap-3 sm:gap-4 p-3 sm:p-4 bg-card rounded-lg border">
       {/* Main toolbar row */}
       <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
         {/* Search input - full width on mobile */}
