@@ -105,7 +105,7 @@ export function LinkCreateDialog() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div role="region" aria-label="Criação de Links" className="space-y-2">
             <Label htmlFor="url">URL de Destino *</Label>
             <Input
               id="url"
