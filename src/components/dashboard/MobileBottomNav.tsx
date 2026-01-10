@@ -20,6 +20,7 @@ import {
   TrendingUp,
   MessageSquare,
   Clock,
+  GitBranch,
   X,
   type LucideIcon 
 } from 'lucide-react'
@@ -44,6 +45,7 @@ const MAIN_NAV_ITEMS: MobileNavItem[] = [
 const MORE_NAV_ITEMS: MobileNavItem[] = [
   { id: 'links', label: 'Links', icon: Link2 },
   { id: 'documents', label: 'Documentos', icon: FileText },
+  { id: 'sequences', label: 'Sequências', icon: GitBranch },
   { id: 'campaigns', label: 'Campanhas', icon: Target },
   { id: 'templates', label: 'Templates', icon: FileText },
   { id: 'scheduling', label: 'Agendamento', icon: Calendar },

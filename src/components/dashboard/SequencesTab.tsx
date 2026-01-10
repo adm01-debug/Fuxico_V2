@@ -164,7 +164,7 @@ function SequencesTabBase() {
         onOpenChange={(open) => !open && setDeleteId(null)}
         title="Excluir Sequência"
         description="Tem certeza que deseja excluir esta sequência? Todos os dados de inscrições e histórico serão perdidos."
-        confirmText="Excluir"
+        confirmLabel="Excluir"
         onConfirm={handleDelete}
       />
     </div>
