@@ -33,6 +33,7 @@ import {
   Zap,
   PieChart,
   Sparkles,
+  GitBranch,
   type LucideIcon,
 } from 'lucide-react'
 import {
@@ -83,6 +84,7 @@ export type TabId =
   | 'campaigns'
   | 'abtesting'
   | 'unsubscribe'
+  | 'sequences'
   | 'templates'
   | 'audit'
   | 'users'
@@ -186,6 +188,7 @@ function useMenuCategories(): MenuCategory[] {
       items: [
         { id: 'leads', label: 'Lead Scoring', icon: Flame },
         { id: 'followup', label: 'Follow-up', icon: Bell },
+        { id: 'sequences', label: 'Sequências', icon: GitBranch, badge: 'new' as const },
         { id: 'campaigns', label: 'Campanhas', icon: Target },
         { id: 'abtesting', label: 'Teste A/B', icon: FlaskConical },
         { id: 'unsubscribe', label: 'Exclusão', icon: UserX },

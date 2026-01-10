@@ -42,6 +42,7 @@ const InsightsTab = lazy(() => import('@/components/dashboard/InsightsTab'))
 const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'))
 const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'))
 const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'))
+const SequencesTab = lazy(() => import('@/components/dashboard/SequencesTab').then(m => ({ default: m.SequencesTab })))
 const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTab').then(m => ({ default: m.GeoAnalyticsTab })))
 const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab').then(m => ({ default: m.EmailSchedulingTab })))
 const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab').then(m => ({ default: m.DeliverabilityTab })))
@@ -71,6 +72,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   campaigns: CampaignsTab,
   abtesting: ABTestingTab,
   unsubscribe: UnsubscribeTab,
+  sequences: SequencesTab,
   templates: TemplatesTab,
   audit: AuditTab,
   users: UserRolesTab,
@@ -98,6 +100,7 @@ const TAB_LABELS: Record<TabId, string> = {
   campaigns: 'Campanhas',
   abtesting: 'Teste A/B',
   unsubscribe: 'Exclusão',
+  sequences: 'Sequências',
   templates: 'Templates',
   audit: 'Auditoria',
   users: 'Usuários',
