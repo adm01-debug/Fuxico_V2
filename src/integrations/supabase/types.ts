@@ -2207,6 +2207,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_sequence_completed: {
+        Args: { seq_id: string }
+        Returns: undefined
+      }
       is_country_allowed: { Args: { _country_code: string }; Returns: boolean }
       is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
       is_ip_whitelisted: { Args: { _ip_address: string }; Returns: boolean }
