@@ -1,4 +1,4 @@
-import React, { useState } , memo } from 'react';
+import React, { useState, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -422,7 +422,5 @@ function CampaignsSkeleton() {
   );
 }
 
-export default CampaignsTab;
-
-
 export const CampaignsTab = memo(CampaignsTabBase);
+export default CampaignsTab;

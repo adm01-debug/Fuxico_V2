@@ -3,7 +3,7 @@
 // Visual filter chips with quick actions and animations
 // =============================================================================
 
-import { useState } , memo } from 'react';
+import { useState, memo } from 'react';
 import { X, Plus, Star, Save, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -265,7 +265,5 @@ function AdvancedFilterChipsBase({
   );
 }
 
-export default AdvancedFilterChips;
-
-
 export const AdvancedFilterChips = memo(AdvancedFilterChipsBase);
+export default AdvancedFilterChips;

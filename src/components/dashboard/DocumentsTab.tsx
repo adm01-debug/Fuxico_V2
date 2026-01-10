@@ -304,8 +304,5 @@ function DocumentEventsDialog({
   );
 }
 
-// Default export for lazy loading
-export default DocumentsTab;
-
-
 export const DocumentsTab = memo(DocumentsTabBase);
+export default DocumentsTab;

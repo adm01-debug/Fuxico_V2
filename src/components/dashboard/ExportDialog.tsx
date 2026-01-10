@@ -245,7 +245,5 @@ function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) 
   );
 }
 
-export default ExportDialog;
-
-
 export const ExportDialog = memo(ExportDialogBase);
+export default ExportDialog;

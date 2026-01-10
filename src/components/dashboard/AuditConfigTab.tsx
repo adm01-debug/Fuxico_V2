@@ -261,8 +261,5 @@ function AuditConfigTabBase() {
   );
 }
 
-// Default export for lazy loading
-export default AuditConfigTab;
-
-
 export const AuditConfigTab = memo(AuditConfigTabBase);
+export default AuditConfigTab;

@@ -331,7 +331,5 @@ function parseInsights(text: string): Array<{ title: string; content: string }> 
   return sections;
 }
 
-export default InsightsTab;
-
-
 export const InsightsTab = memo(InsightsTabBase);
+export default InsightsTab;

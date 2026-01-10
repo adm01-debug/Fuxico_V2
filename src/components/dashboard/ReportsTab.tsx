@@ -485,7 +485,5 @@ function ReportsTabBase() {
   );
 }
 
-export default ReportsTab;
-
-
 export const ReportsTab = memo(ReportsTabBase);
+export default ReportsTab;

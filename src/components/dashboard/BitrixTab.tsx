@@ -1,4 +1,4 @@
-import { useState } , memo } from 'react';
+import { useState, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -447,8 +447,5 @@ function BitrixTabBase() {
   );
 }
 
-// Default export for lazy loading
-export default BitrixTab;
-
-
 export const BitrixTab = memo(BitrixTabBase);
+export default BitrixTab;
