@@ -361,6 +361,5 @@ function GeoAnalyticsTabBase() {
     </div>
   );
 }
-
-
 export const GeoAnalyticsTab = memo(GeoAnalyticsTabBase);
+export default GeoAnalyticsTab;

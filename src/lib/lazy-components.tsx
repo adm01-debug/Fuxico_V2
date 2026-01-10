@@ -2,8 +2,8 @@
  * Lazy Loading Configuration
  * @description Componentes com lazy loading
  */
-import { lazy, Suspense, ComponentType } from 'react';
-import { TabSkeleton } from '@/components/dashboard/TabSkeleton';
+import React, { lazy, Suspense, ComponentType } from 'react';
+import TabSkeleton from '@/components/dashboard/TabSkeleton';
 
 // Lazy load heavy components
 export const LazyAdvancedAnalytics = lazy(() => import('@/components/dashboard/AdvancedAnalytics'));
@@ -18,8 +18,8 @@ export const LazyReportsTab = lazy(() => import('@/components/dashboard/ReportsT
 // Helper para wrap com Suspense
 export function withSuspense<P extends object>(
   Component: ComponentType<P>,
-  fallback = <TabSkeleton />
-) {
+  fallback: React.ReactNode = null
+): React.FC<P> {
   return function SuspenseWrapper(props: P) {
     return (
       <Suspense fallback={fallback}>

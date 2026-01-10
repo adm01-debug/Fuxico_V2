@@ -512,8 +512,5 @@ function LogRow({ log }: { log: EmailAuditLog }) {
   );
 }
 
-// Default export for lazy loading
-export default AuditTab;
-
-
 export const AuditTab = memo(AuditTabBase);
+export default AuditTab;

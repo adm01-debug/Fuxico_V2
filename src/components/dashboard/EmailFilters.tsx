@@ -457,6 +457,6 @@ function EmailFiltersBaseComponent({
     </div>
   );
 }
-
-
-export const EmailFilters = memo(EmailFiltersBase);
+export const EmailFilters = memo(EmailFiltersBaseComponent);
+export const EmailFiltersComponent = EmailFilters;
+export default EmailFilters;

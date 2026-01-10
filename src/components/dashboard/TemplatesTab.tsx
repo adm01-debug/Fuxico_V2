@@ -254,7 +254,5 @@ function TemplatesTabBase() {
   );
 }
 
-export default TemplatesTab;
-
-
 export const TemplatesTab = memo(TemplatesTabBase);
+export default TemplatesTab;

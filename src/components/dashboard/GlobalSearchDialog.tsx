@@ -293,7 +293,5 @@ export function useGlobalSearch() {
   return { open, setOpen };
 }
 
-export default GlobalSearchDialog;
-
-
 export const GlobalSearchDialog = memo(GlobalSearchDialogBase);
+export default GlobalSearchDialog;

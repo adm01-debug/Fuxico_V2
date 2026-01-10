@@ -396,6 +396,5 @@ function IntegrationsTabBase() {
     </div>
   );
 }
-
-
 export const IntegrationsTab = memo(IntegrationsTabBase);
+export default IntegrationsTab;

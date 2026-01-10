@@ -281,8 +281,5 @@ function LinkEventsDialog({
   );
 }
 
-// Default export for lazy loading
-export default LinksTab;
-
-
 export const LinksTab = memo(LinksTabBase);
+export default LinksTab;

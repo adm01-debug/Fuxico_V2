@@ -313,7 +313,5 @@ function UnsubscribeTabBase() {
   );
 }
 
-export default UnsubscribeTab;
-
-
 export const UnsubscribeTab = memo(UnsubscribeTabBase);
+export default UnsubscribeTab;
