@@ -7,8 +7,6 @@
 /// <reference types="vitest/globals" />
 import '@testing-library/jest-dom';
 
-import '@testing-library/jest-dom';
-
 // Mock do ResizeObserver (não disponível no jsdom)
 global.ResizeObserver = class ResizeObserver {
   observe() {}
