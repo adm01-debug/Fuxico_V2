@@ -8,7 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Mail, Loader2 } from 'lucide-react';
+import { Plus, Search, Mail, Loader2, Play } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { useEmailSequences, useUpdateSequence, useDeleteSequence, useCreateSequence, EmailSequence } from '@/hooks/useEmailSequences';
 import { SequenceCard } from './sequences/SequenceCard';
 import { SequenceDetail } from './sequences/SequenceDetail';
@@ -22,8 +24,9 @@ function SequencesTabBase() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const { data: sequences, isLoading } = useEmailSequences();
+  const { data: sequences, isLoading, refetch } = useEmailSequences();
   const updateSequence = useUpdateSequence();
   const deleteSequence = useDeleteSequence();
   const createSequence = useCreateSequence();
@@ -49,6 +52,23 @@ function SequencesTabBase() {
   const handleSequenceCreated = useCallback((sequence: EmailSequence) => {
     setSelectedSequenceId(sequence.id);
   }, []);
+
+  const handleProcessSequences = useCallback(async () => {
+    setIsProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('process-sequences');
+      
+      if (error) throw error;
+      
+      toast.success(`Processamento concluído: ${data?.processed || 0} emails enviados`);
+      refetch();
+    } catch (error) {
+      console.error('Erro ao processar sequências:', error);
+      toast.error('Erro ao processar sequências');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [refetch]);
 
   // Filter sequences
   const filteredSequences = sequences?.filter(seq => {
@@ -78,10 +98,24 @@ function SequencesTabBase() {
             Crie fluxos de follow-up automatizados baseados em comportamento
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Sequência
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleProcessSequences}
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Play className="h-4 w-4 mr-2" />
+            )}
+            Processar Agora
+          </Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Sequência
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
