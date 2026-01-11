@@ -16,6 +16,7 @@ import { useEmailSequences, useUpdateSequence, useDeleteSequence, useCreateSeque
 import { SequenceCard } from './sequences/SequenceCard';
 import { SequenceDetail } from './sequences/SequenceDetail';
 import { CreateSequenceDialog } from './sequences/CreateSequenceDialog';
+import { SequenceStatsChart } from './sequences/SequenceStatsChart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from './ConfirmDialog';
 
@@ -175,6 +176,9 @@ function SequencesTabBase() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Stats Chart */}
+      <SequenceStatsChart />
 
       {/* Filters */}
       <div className="flex items-center gap-4">
