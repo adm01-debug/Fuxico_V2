@@ -439,3 +439,4 @@ function EmailSchedulingTabBase() {
 
 
 export const EmailSchedulingTab = memo(EmailSchedulingTabBase);
+export default EmailSchedulingTab;

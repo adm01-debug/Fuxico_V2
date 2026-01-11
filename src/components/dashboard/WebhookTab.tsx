@@ -1,9 +1,8 @@
-import { memo } from 'react';
 // =============================================================================
 // FUXICO - Webhook Configuration Tab
 // =============================================================================
 
-import { useState, useEffect } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { useWebhookConfig, useWebhookLogs, useSaveWebhookConfig, useTestWebhook } from '@/hooks/use-webhook';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
