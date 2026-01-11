@@ -1,1 +1,0 @@
-/** Track Link Types */ export interface LinkTrackRequest { linkId: string; trackingId: string; url: string; } export interface LinkTrackResponse { success: boolean; data?: { redirectUrl: string; eventId: string }; error?: string; }

@@ -1,1 +1,0 @@
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const webhookSchema = z.object({ event: z.string().min(1), payload: z.record(z.unknown()), targetUrl: z.string().url(), headers: z.record(z.string()).optional() });

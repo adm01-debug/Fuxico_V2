@@ -1,1 +1,0 @@
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const bounceSchema = z.object({ trackingId: z.string(), bounceType: z.enum(['hard', 'soft', 'complaint']), reason: z.string().min(1), diagnosticCode: z.string().optional() });
