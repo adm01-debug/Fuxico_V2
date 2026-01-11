@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.send-slack-notification]
 verify_jwt = false
+
+[functions.webhook-sequences]
+verify_jwt = false
