@@ -17,6 +17,7 @@ import { SequenceCard } from './sequences/SequenceCard';
 import { SequenceDetail } from './sequences/SequenceDetail';
 import { CreateSequenceDialog } from './sequences/CreateSequenceDialog';
 import { SequenceStatsChart } from './sequences/SequenceStatsChart';
+import { SequenceWebhookLogs } from './sequences/SequenceWebhookLogs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from './ConfirmDialog';
 
@@ -179,6 +180,9 @@ function SequencesTabBase() {
 
       {/* Stats Chart */}
       <SequenceStatsChart />
+
+      {/* Webhook Execution Logs */}
+      <SequenceWebhookLogs />
 
       {/* Filters */}
       <div className="flex items-center gap-4">
