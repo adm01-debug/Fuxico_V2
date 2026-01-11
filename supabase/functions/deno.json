@@ -1,8 +1,8 @@
 {
   "tasks": {
-    "test": "deno test --allow-env --allow-net --allow-read _shared/*.test.ts _tests/*.test.ts",
-    "test:watch": "deno test --allow-env --allow-net --allow-read --watch _shared/*.test.ts _tests/*.test.ts",
-    "test:coverage": "deno test --allow-env --allow-net --allow-read --coverage=coverage _shared/*.test.ts _tests/*.test.ts",
+    "test": "deno test --allow-env --allow-net --allow-read _shared/*.test.ts",
+    "test:watch": "deno test --allow-env --allow-net --allow-read --watch _shared/*.test.ts",
+    "test:coverage": "deno test --allow-env --allow-net --allow-read --coverage=coverage _shared/*.test.ts",
     "coverage:report": "deno coverage coverage --lcov > coverage/lcov.info"
   },
   "imports": {

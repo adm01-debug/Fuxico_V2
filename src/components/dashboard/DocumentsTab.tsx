@@ -1,5 +1,4 @@
-import { memo } from 'react';
-import { useState } from "react";
+import { memo, useState } from 'react';
 import { useTrackedDocuments, useDocumentEvents } from "@/hooks/use-tracked-documents";
 import { DocumentUploadDialog } from "./DocumentUploadDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

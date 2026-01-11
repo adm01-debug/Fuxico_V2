@@ -1,5 +1,4 @@
-import { memo } from 'react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { format, formatDistanceToNow, isPast } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 

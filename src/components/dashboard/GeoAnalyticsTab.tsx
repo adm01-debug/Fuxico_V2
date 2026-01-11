@@ -1,5 +1,4 @@
-import { memo } from 'react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Globe, MapPin, TrendingUp, ChevronDown, ChevronRight, Eye, MousePointerClick, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
