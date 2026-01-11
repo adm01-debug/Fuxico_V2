@@ -225,3 +225,5 @@ export function MobileBottomNav({ activeTab, onTabChange }: MobileBottomNavProps
     </>
   )
 }
+
+export default MobileBottomNav

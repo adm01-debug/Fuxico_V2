@@ -2,15 +2,15 @@ import React, { Suspense, lazy, useState, useCallback, useMemo, useEffect } from
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { DashboardSidebar, type TabId } from './DashboardSidebar'
-import { MobileBottomNav } from './MobileBottomNav'
-import { DashboardBreadcrumbs } from './DashboardBreadcrumbs'
+const MobileBottomNav = lazy(() => import('./MobileBottomNav'))
+const DashboardBreadcrumbs = lazy(() => import('./DashboardBreadcrumbs'))
 import { JoyrideTour, useOnboardingTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
 import { GlobalSearchDialog, useGlobalSearch } from './GlobalSearchDialog'
 import { CreateTrackingDialog } from './CreateTrackingDialog'
 import { NotificationCenter } from './NotificationCenter'
-import { WidgetCustomizer } from './WidgetCustomizer'
+// WidgetCustomizer removed - simplified dashboard
 import { ModeToggle } from '@/components/ui/mode-toggle'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
@@ -34,7 +34,7 @@ const AuditTab = lazy(() => import('@/components/dashboard/AuditTab'))
 const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'))
 const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'))
 const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
-const AdvancedAnalytics = lazy(() => import('@/components/dashboard/AdvancedAnalytics'))
+const AdvancedAnalytics = lazy(() => import('@/components/dashboard/ReportsTab'))
 const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
 const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'))
 const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab').then(m => ({ default: m.FollowUpTab })))
@@ -284,17 +284,13 @@ export default function DashboardLayout() {
                 {/* Notification Center */}
                 <NotificationCenter />
 
-                {/* Widget Customizer - Only on Home */}
+                {/* Settings button - Only on Home */}
                 {activeTab === 'home' && (
-                  <WidgetCustomizer 
-                    trigger={
-                      <TooltipWrapper content="Personalizar widgets">
-                        <Button variant="ghost" size="icon" className="h-10 w-10">
-                          <Settings2 className="h-5 w-5" />
-                        </Button>
-                      </TooltipWrapper>
-                    }
-                  />
+                  <TooltipWrapper content="Configurações do dashboard">
+                    <Button variant="ghost" size="icon" className="h-10 w-10">
+                      <Settings2 className="h-5 w-5" />
+                    </Button>
+                  </TooltipWrapper>
                 )}
 
                 {/* Dark Mode Toggle */}

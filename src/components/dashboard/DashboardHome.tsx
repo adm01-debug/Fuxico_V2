@@ -30,11 +30,7 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { RealtimeMetrics } from './RealtimeMetrics';
 import { QuickActions } from './QuickActions';
-import { PerformanceGauge } from './PerformanceGauge';
-import { WidgetCustomizer } from './WidgetCustomizer';
-import { DraggableWidgetGrid, AnimatedWidgetCard } from './DraggableWidgetGrid';
 import { useDashboardWidgets, DashboardWidget } from '@/hooks/use-dashboard-widgets';
 import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/hooks/use-tracking';
 import { useTrackingTrends } from '@/hooks/use-tracking-trends';
@@ -726,120 +722,6 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
     }
   };
 
-  // Renderizar widget baseado no tipo
-  const renderWidget = useCallback((widget: DashboardWidget) => {
-    switch (widget.type) {
-      case 'realtime-metrics':
-        return (
-          <AnimatedWidgetCard
-            title="Métricas em Tempo Real"
-            icon={<Zap className="h-4 w-4 text-yellow-500" />}
-            description="Acompanhe aberturas e cliques ao vivo"
-          >
-            <RealtimeMetrics />
-          </AnimatedWidgetCard>
-        );
-      case 'weekly-trends':
-        return (
-          <AnimatedWidgetCard
-            title="Tendência Semanal"
-            icon={<TrendingUp className="h-4 w-4" />}
-            description="Aberturas e cliques nos últimos 7 dias"
-          >
-            <WeeklyTrendChart data={chartData} isLoading={isLoadingTrends} />
-          </AnimatedWidgetCard>
-        );
-      case 'quick-actions':
-        return (
-          <AnimatedWidgetCard
-            title="Ações Rápidas"
-            icon={<Zap className="h-4 w-4 text-primary" />}
-            description="Acesso rápido às principais funções"
-          >
-            <QuickActions 
-              onNavigate={(tabId) => onNavigate?.(tabId)} 
-              onCreateTracking={onCreateTracking}
-            />
-          </AnimatedWidgetCard>
-        );
-      case 'performance-gauge':
-        return (
-          <PerformanceGauge
-            openRate={metrics.openRate}
-            clickRate={metrics.clickRate}
-            bounceRate={metrics.bounceRate}
-          />
-        );
-      case 'bounce-alerts':
-        return (
-          <AnimatedWidgetCard
-            title="Alertas de Bounce"
-            icon={<AlertTriangle className="h-4 w-4 text-destructive" />}
-            description="Emails que falharam na entrega"
-          >
-            <BounceAlerts alerts={bounceAlerts} isLoading={isLoadingEmails} />
-          </AnimatedWidgetCard>
-        );
-      case 'recent-events':
-        return (
-          <AnimatedWidgetCard
-            title="Atividade em Tempo Real"
-            icon={<Zap className="h-4 w-4 text-yellow-500" />}
-            description="Últimos eventos de tracking"
-          >
-            <RealtimeEvents events={realtimeEvents} isLoading={isLoadingEmails} />
-          </AnimatedWidgetCard>
-        );
-      case 'top-recipients':
-        return (
-          <AnimatedWidgetCard
-            title="Destinatários Únicos"
-            icon={<Users className="h-4 w-4 text-primary" />}
-            description="Contatos mais engajados"
-          >
-            <div className="flex items-center gap-4 py-4">
-              <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {emails 
-                    ? new Set(emails.map(e => e.recipient_email)).size.toLocaleString('pt-BR')
-                    : '-'}
-                </p>
-                <p className="text-xs text-muted-foreground">contatos únicos</p>
-              </div>
-            </div>
-          </AnimatedWidgetCard>
-        );
-      case 'delivery-stats':
-        return (
-          <AnimatedWidgetCard
-            title="Estatísticas de Entrega"
-            icon={<Mail className="h-4 w-4 text-blue-500" />}
-            description="Resumo de deliverability"
-          >
-            <div role="region" aria-label="DashboardHome" className="grid grid-cols-2 gap-4 py-2">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-500">
-                  {trendsSummary?.totalOpens?.toLocaleString('pt-BR') || '-'}
-                </p>
-                <p className="text-xs text-muted-foreground">Aberturas (7d)</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-500">
-                  {trendsSummary?.totalClicks?.toLocaleString('pt-BR') || '-'}
-                </p>
-                <p className="text-xs text-muted-foreground">Cliques (7d)</p>
-              </div>
-            </div>
-          </AnimatedWidgetCard>
-        );
-      default:
-        return null;
-    }
-  }, [chartData, isLoadingTrends, metrics, bounceAlerts, isLoadingEmails, realtimeEvents, emails, trendsSummary, onNavigate, onCreateTracking]);
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -851,10 +733,6 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <WidgetCustomizer 
-            isEditing={isEditing}
-            onEditingChange={setIsEditing}
-          />
           <Button
             variant="outline"
             size="sm"
@@ -867,27 +745,6 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
           </Button>
         </div>
       </div>
-
-      {/* Editing Mode Banner */}
-      <AnimatePresence>
-        {isEditing && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-center justify-between">
-              <p className="text-sm text-primary">
-                <strong>Modo de edição:</strong> Arraste os widgets para reorganizar. Clique nos botões para redimensionar.
-              </p>
-              <Button size="sm" onClick={() => setIsEditing(false)}>
-                Concluir
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Métricas Principais - Responsive grid */}
       <section 
@@ -931,17 +788,94 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
         />
       </section>
 
-      {/* Widgets Customizáveis com Drag-and-Drop */}
-      <section data-tour="dashboard-widgets">
-        <DraggableWidgetGrid
-          widgets={enabledWidgets}
-          renderWidget={renderWidget}
-          isEditing={isEditing}
-          onReorder={setWidgetOrder}
-          onSizeChange={updateWidgetSize}
-        />
-      </section>
+      {/* Widgets Grid */}
+      <section className="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3" data-tour="dashboard-widgets">
+        {/* Tendência Semanal */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Tendência Semanal
+            </CardTitle>
+            <CardDescription>Aberturas e cliques nos últimos 7 dias</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WeeklyTrendChart data={chartData} isLoading={isLoadingTrends} />
+          </CardContent>
+        </Card>
 
+        {/* Ações Rápidas */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              Ações Rápidas
+            </CardTitle>
+            <CardDescription>Acesso rápido às principais funções</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <QuickActions 
+              onNavigate={(tabId) => onNavigate?.(tabId)} 
+              onCreateTracking={onCreateTracking}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Atividade em Tempo Real */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-yellow-500" />
+              Atividade em Tempo Real
+            </CardTitle>
+            <CardDescription>Últimos eventos de tracking</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RealtimeEvents events={realtimeEvents} isLoading={isLoadingEmails} />
+          </CardContent>
+        </Card>
+
+        {/* Alertas de Bounce */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              Alertas de Bounce
+            </CardTitle>
+            <CardDescription>Emails que falharam na entrega</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BounceAlerts alerts={bounceAlerts} isLoading={isLoadingEmails} />
+          </CardContent>
+        </Card>
+
+        {/* Estatísticas de Entrega */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-blue-500" />
+              Estatísticas de Entrega
+            </CardTitle>
+            <CardDescription>Resumo de deliverability</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 py-2">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-500">
+                  {trendsSummary?.totalOpens?.toLocaleString('pt-BR') || '-'}
+                </p>
+                <p className="text-xs text-muted-foreground">Aberturas (7d)</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-500">
+                  {trendsSummary?.totalClicks?.toLocaleString('pt-BR') || '-'}
+                </p>
+                <p className="text-xs text-muted-foreground">Cliques (7d)</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import React, { lazy, Suspense, ComponentType } from 'react';
 import TabSkeleton from '@/components/dashboard/TabSkeleton';
 
 // Lazy load heavy components
-export const LazyAdvancedAnalytics = lazy(() => import('@/components/dashboard/AdvancedAnalytics'));
+export const LazyAdvancedAnalytics = lazy(() => import('@/components/dashboard/ReportsTab'));
 export const LazyAuditTab = lazy(() => import('@/components/dashboard/AuditTab'));
 export const LazyBitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'));
 export const LazyCampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'));
