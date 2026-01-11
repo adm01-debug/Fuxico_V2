@@ -301,3 +301,4 @@ function BounceAlertsTabBase() {
 
 
 export const BounceAlertsTab = memo(BounceAlertsTabBase);
+export default BounceAlertsTab;

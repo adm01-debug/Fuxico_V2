@@ -291,3 +291,4 @@ function DeliverabilityTabBase() {
 
 
 export const DeliverabilityTab = memo(DeliverabilityTabBase);
+export default DeliverabilityTab;

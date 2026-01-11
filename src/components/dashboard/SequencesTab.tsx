@@ -272,3 +272,4 @@ function SequencesTabBase() {
 }
 
 export const SequencesTab = React.memo(SequencesTabBase);
+export default SequencesTab;

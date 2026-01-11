@@ -398,3 +398,4 @@ function FollowUpTabBase() {
 
 
 export const FollowUpTab = memo(FollowUpTabBase);
+export default FollowUpTab;

@@ -1,10 +1,9 @@
-import { memo } from 'react';
 // =============================================================================
 // FUXICO - Component: GlobalSearchDialog
 // Command palette style global search with Alt+F shortcut
 // =============================================================================
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   CommandDialog,
   CommandEmpty,

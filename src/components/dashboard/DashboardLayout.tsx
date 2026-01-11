@@ -34,21 +34,21 @@ const AuditTab = lazy(() => import('@/components/dashboard/AuditTab'))
 const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'))
 const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'))
 const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
-const AdvancedAnalytics = lazy(() => import('@/components/dashboard/ReportsTab'))
+// Nota: analytics usa ReportsTab (mesmo componente, evitando duplicação)
 const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
 const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'))
-const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab').then(m => ({ default: m.FollowUpTab })))
+const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab'))
 const InsightsTab = lazy(() => import('@/components/dashboard/InsightsTab'))
 const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'))
 const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'))
 const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'))
-const SequencesTab = lazy(() => import('@/components/dashboard/SequencesTab').then(m => ({ default: m.SequencesTab })))
-const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTab').then(m => ({ default: m.GeoAnalyticsTab })))
-const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab').then(m => ({ default: m.EmailSchedulingTab })))
-const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab').then(m => ({ default: m.DeliverabilityTab })))
-const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab').then(m => ({ default: m.BounceAlertsTab })))
+const SequencesTab = lazy(() => import('@/components/dashboard/SequencesTab'))
+const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTab'))
+const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab'))
+const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab'))
+const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab'))
 const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'))
-const IntegrationsTab = lazy(() => import('@/components/dashboard/IntegrationsTab').then(m => ({ default: m.IntegrationsTab })))
+const IntegrationsTab = lazy(() => import('@/components/dashboard/IntegrationsTab'))
 
 // =============================================================================
 // MAPEAMENTO DE COMPONENTES
@@ -60,7 +60,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   links: LinksTab,
   documents: DocumentsTab,
   reports: ReportsTab,
-  analytics: AdvancedAnalytics,
+  analytics: ReportsTab, // Usa o mesmo componente de reports
   geo: GeoAnalyticsTab,
   scheduling: EmailSchedulingTab,
   deliverability: DeliverabilityTab,

@@ -1,9 +1,8 @@
-import { memo } from 'react';
 // =============================================================================
 // FUXICO - Premium Notification Center
 // =============================================================================
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import {
   Popover,
   PopoverContent,
