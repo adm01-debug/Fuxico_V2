@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -8,7 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Search, Mail, Loader2, Play } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Plus, Search, Mail, Loader2, Play, Users, Send, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useEmailSequences, useUpdateSequence, useDeleteSequence, useCreateSequence, EmailSequence } from '@/hooks/useEmailSequences';
@@ -70,6 +71,20 @@ function SequencesTabBase() {
     }
   }, [refetch]);
 
+  // Calculate aggregate stats
+  const stats = useMemo(() => {
+    if (!sequences || sequences.length === 0) {
+      return { totalEnrolled: 0, totalCompleted: 0, totalReplied: 0, replyRate: 0 };
+    }
+    
+    const totalEnrolled = sequences.reduce((sum, seq) => sum + (seq.total_enrolled || 0), 0);
+    const totalCompleted = sequences.reduce((sum, seq) => sum + (seq.total_completed || 0), 0);
+    const totalReplied = sequences.reduce((sum, seq) => sum + (seq.total_replied || 0), 0);
+    const replyRate = totalEnrolled > 0 ? (totalReplied / totalEnrolled) * 100 : 0;
+    
+    return { totalEnrolled, totalCompleted, totalReplied, replyRate };
+  }, [sequences]);
+
   // Filter sequences
   const filteredSequences = sequences?.filter(seq => {
     const matchesSearch = seq.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -116,6 +131,49 @@ function SequencesTabBase() {
             Nova Sequência
           </Button>
         </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Inscritos</p>
+                <p className="text-2xl font-bold">{stats.totalEnrolled}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-500/10">
+                <Send className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Emails Completos</p>
+                <p className="text-2xl font-bold">{stats.totalCompleted}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <MessageSquare className="h-5 w-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Taxa de Resposta</p>
+                <p className="text-2xl font-bold">{stats.replyRate.toFixed(1)}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filters */}
