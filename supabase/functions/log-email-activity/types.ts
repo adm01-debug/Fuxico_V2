@@ -1,1 +1,0 @@
-/** Log Email Activity Types */ export interface ActivityRequest { trackingId: string; eventType: "send" | "open" | "click" | "bounce" | "unsubscribe"; metadata?: Record<string, unknown>; timestamp?: string; } export interface ActivityResponse { success: boolean; data?: { eventId: string; logged: boolean }; error?: string; }

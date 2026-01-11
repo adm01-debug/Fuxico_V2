@@ -1,1 +1,0 @@
-/** Report Bounce Types */ export interface BounceRequest { trackingId: string; bounceType: "hard" | "soft" | "complaint"; reason: string; diagnosticCode?: string; } export interface BounceResponse { success: boolean; data?: { recorded: boolean; bounceId: string }; error?: string; }

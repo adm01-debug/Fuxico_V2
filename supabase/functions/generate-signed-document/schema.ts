@@ -1,1 +1,0 @@
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const signedDocSchema = z.object({ documentId: z.string().uuid(), userId: z.string().uuid(), signatureType: z.enum(['digital', 'electronic', 'timestamp']), signerInfo: z.object({ name: z.string(), email: z.string().email(), role: z.string().optional() }) });
