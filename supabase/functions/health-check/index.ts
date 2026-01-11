@@ -63,7 +63,7 @@ serve(async (req) => {
       ...(detailed === "true" ? { checks } : {})
     };
 
-    return secureJsonResponse(response, corsHeaders, allHealthy ? 200 : 503);
+    return secureJsonResponse(response, allHealthy ? 200 : 503, corsHeaders);
   } catch (error) {
     return secureErrorResponse({ status: "unhealthy", error: "Health check failed" }, 503, corsHeaders);
   }
