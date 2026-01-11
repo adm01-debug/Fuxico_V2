@@ -175,3 +175,5 @@ export function DashboardBreadcrumbs({
     </nav>
   )
 }
+
+export default DashboardBreadcrumbs
