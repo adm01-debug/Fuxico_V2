@@ -1,4 +1,5 @@
 // FUXICO - Component: ConfirmDialog
+import { useState, useCallback } from 'react';
 import { AlertTriangle, Trash2, Info } from 'lucide-react';
 import {
   AlertDialog,
@@ -10,7 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 
 type DialogVariant = 'danger' | 'warning' | 'info';
 
@@ -85,7 +85,6 @@ export function ConfirmDialog({
 }
 
 // Hook para facilitar uso
-import { useState, useCallback } from 'react';
 
 export function useConfirmDialog() {
   const [state, setState] = useState<{
