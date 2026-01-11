@@ -1,1 +1,0 @@
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const totpSchema = z.object({ action: z.enum(['setup', 'verify', 'disable']), userId: z.string().uuid(), code: z.string().length(6).optional(), secret: z.string().optional() });

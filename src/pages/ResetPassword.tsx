@@ -76,9 +76,9 @@ export default function ResetPassword() {
       setSuccess(true);
       toast.success('Senha alterada com sucesso!');
       
-      // Redirect to login after 3 seconds
+      // Redirect to auth after 3 seconds
       setTimeout(() => {
-        navigate('/login');
+        navigate('/auth');
       }, 3000);
     } catch (err: any) {
       toast.error(err.message || 'Erro ao alterar senha');

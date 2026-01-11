@@ -1,1 +1,0 @@
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const pushSchema = z.object({ userId: z.string().uuid(), title: z.string().min(1).max(100), body: z.string().min(1).max(500), data: z.record(z.string()).optional(), icon: z.string().url().optional(), url: z.string().url().optional() });

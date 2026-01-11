@@ -32,7 +32,7 @@ export default function TwoFactorAuth() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate('/auth');
       return;
     }
     loadMFASettings();

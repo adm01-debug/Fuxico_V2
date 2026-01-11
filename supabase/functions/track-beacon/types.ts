@@ -1,1 +1,0 @@
-/** Track Beacon Types */ export interface BeaconRequest { trackingId: string; eventType: string; timestamp?: string; metadata?: Record<string, unknown>; } export interface BeaconResponse { success: boolean; data?: { recorded: boolean; eventId: string }; error?: string; }

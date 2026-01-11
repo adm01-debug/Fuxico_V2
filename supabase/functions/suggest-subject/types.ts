@@ -1,1 +1,0 @@
-/** Subject Suggestion Types */ export interface SubjectRequest { context: string; tone?: string; keywords?: string[]; industry?: string; } export interface SubjectSuggestion { subject: string; score: number; reasoning: string; } export interface SubjectResponse { success: boolean; data?: { suggestions: SubjectSuggestion[] }; error?: string; }
