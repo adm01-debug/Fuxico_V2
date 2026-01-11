@@ -163,7 +163,7 @@ export default function VerifyEmail() {
               )}
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={() => navigate('/login')}>
+              <Button className="w-full" onClick={() => navigate('/auth')}>
                 Voltar para Login
               </Button>
             </CardFooter>
@@ -186,7 +186,7 @@ export default function VerifyEmail() {
               <Button variant="outline" className="w-full" onClick={handleResendVerification} disabled={resending}>
                 {resending ? 'Reenviando...' : 'Reenviar novamente'}
               </Button>
-              <Button variant="ghost" className="w-full" onClick={() => navigate('/login')}>
+              <Button variant="ghost" className="w-full" onClick={() => navigate('/auth')}>
                 Voltar para Login
               </Button>
             </CardFooter>

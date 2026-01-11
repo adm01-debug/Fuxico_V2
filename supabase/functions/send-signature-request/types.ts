@@ -1,1 +1,0 @@
-/** Signature Request Types */ export interface SignatureRequest { documentId: string; signers: Array<{ email: string; name: string; order?: number }>; message?: string; expiresAt?: string; } export interface SignatureResponse { success: boolean; data?: { requestId: string; status: string; signingUrls: Array<{ email: string; url: string }> }; error?: string; }

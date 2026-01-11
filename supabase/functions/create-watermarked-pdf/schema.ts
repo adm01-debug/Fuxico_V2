@@ -1,1 +1,0 @@
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const watermarkSchema = z.object({ documentId: z.string().uuid(), userId: z.string().uuid(), watermarkText: z.string().max(200).optional(), position: z.enum(['center', 'diagonal', 'footer', 'header']), opacity: z.number().min(0.1).max(1) });

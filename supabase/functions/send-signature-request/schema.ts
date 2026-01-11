@@ -1,1 +1,0 @@
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'; export const signatureRequestSchema = z.object({ documentId: z.string().uuid(), signers: z.array(z.object({ email: z.string().email(), name: z.string(), order: z.number().optional() })).min(1), message: z.string().optional(), expiresAt: z.string().datetime().optional() });

@@ -32,7 +32,7 @@ export default function MFAVerify() {
       
       if (!totpFactor) {
         toast.error('MFA não configurado');
-        navigate('/login');
+        navigate('/auth');
         return;
       }
 

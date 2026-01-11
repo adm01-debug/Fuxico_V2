@@ -17,6 +17,13 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Security = lazy(() => import("./pages/Security"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const MFAVerify = lazy(() => import("./pages/MFAVerify"));
+const Permissions = lazy(() => import("./pages/Permissions"));
+const Roles = lazy(() => import("./pages/Roles"));
+const TwoFactorAuth = lazy(() => import("./pages/TwoFactorAuth"));
 
 const queryClient = new QueryClient();
 
@@ -49,6 +56,13 @@ const App = () => (
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/security" element={<Security />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
+                    <Route path="/mfa-verify" element={<MFAVerify />} />
+                    <Route path="/permissions" element={<Permissions />} />
+                    <Route path="/roles" element={<Roles />} />
+                    <Route path="/two-factor-auth" element={<TwoFactorAuth />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
