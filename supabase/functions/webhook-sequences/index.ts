@@ -86,6 +86,22 @@ Deno.serve(async (req) => {
 
     console.log('Webhook triggered: Processing email sequences...');
 
+    // Helper function to log webhook execution
+    async function logWebhookExecution(userId: string, success: boolean, payload: object, error?: string) {
+      try {
+        await supabase.from('webhook_logs').insert({
+          user_id: userId,
+          event_type: 'sequence_processing',
+          success,
+          payload,
+          error,
+          response_status: success ? 200 : 500,
+        });
+      } catch (err) {
+        console.error('Failed to log webhook execution:', err);
+      }
+    }
+
     // Get all enrollments that are due for next step
     const now = new Date().toISOString();
     const { data: dueEnrollments, error: enrollmentError } = await supabase
@@ -101,7 +117,26 @@ Deno.serve(async (req) => {
 
     console.log(`Found ${dueEnrollments?.length || 0} enrollments due for processing`);
 
+    // Get unique user IDs from enrollments for logging
+    const userIds = [...new Set(dueEnrollments?.map(e => e.user_id) || [])];
+
     if (!dueEnrollments || dueEnrollments.length === 0) {
+      // Log for all users who have active sequences
+      const { data: activeSequences } = await supabase
+        .from('email_sequences')
+        .select('user_id')
+        .eq('status', 'active');
+      
+      const activeUserIds = [...new Set(activeSequences?.map(s => s.user_id) || [])];
+      for (const userId of activeUserIds) {
+        await logWebhookExecution(userId, true, {
+          processed: 0,
+          errors: 0,
+          enrollments_due: 0,
+          message: 'Nenhum envio pendente'
+        });
+      }
+
       return new Response(JSON.stringify({ 
         success: true, 
         processed: 0,
@@ -114,8 +149,12 @@ Deno.serve(async (req) => {
 
     let processedCount = 0;
     let errorCount = 0;
+    const processedByUser: Record<string, { processed: number; errors: number }> = {};
 
     for (const enrollment of dueEnrollments as SequenceEnrollment[]) {
+      if (!processedByUser[enrollment.user_id]) {
+        processedByUser[enrollment.user_id] = { processed: 0, errors: 0 };
+      }
       try {
         // Get the sequence
         const { data: sequence, error: seqError } = await supabase
@@ -229,11 +268,23 @@ Deno.serve(async (req) => {
 
         console.log(`Processed step ${stepData.step_order} for enrollment ${enrollment.id}`);
         processedCount++;
+        processedByUser[enrollment.user_id].processed++;
 
       } catch (err) {
         console.error(`Error processing enrollment ${enrollment.id}:`, err);
         errorCount++;
+        processedByUser[enrollment.user_id].errors++;
       }
+    }
+
+    // Log execution for each user
+    for (const [userId, stats] of Object.entries(processedByUser)) {
+      await logWebhookExecution(userId, stats.errors === 0, {
+        processed: stats.processed,
+        errors: stats.errors,
+        enrollments_due: dueEnrollments.filter(e => e.user_id === userId).length,
+        message: `Processados ${stats.processed} envios${stats.errors > 0 ? ` com ${stats.errors} erros` : ''}`
+      });
     }
 
     return new Response(JSON.stringify({ 
