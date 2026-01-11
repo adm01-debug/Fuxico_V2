@@ -12,7 +12,7 @@ import { CreateTrackingDialog } from './CreateTrackingDialog'
 import { NotificationCenter } from './NotificationCenter'
 // WidgetCustomizer removed - simplified dashboard
 import { ModeToggle } from '@/components/ui/mode-toggle'
-import { useIsMobile } from '@/hooks/use-mobile'
+import { useIsMobile } from '@/hooks/use-media-query'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { Keyboard, Plus, Search, Settings2 } from 'lucide-react'
