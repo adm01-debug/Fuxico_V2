@@ -23,7 +23,7 @@ export { useRealtimeNotifications } from './use-realtime-notifications';
 export { useTrackedDocuments } from './use-tracked-documents';
 export { useTrackedLinks } from './use-tracked-links';
 export { useTrackingTrends } from './use-tracking-trends';
-export { useOnboarding } from './use-onboarding';
+
 export { useAuditConfig } from './use-audit-config';
 export { useExportWorker } from './use-export-worker';
 
