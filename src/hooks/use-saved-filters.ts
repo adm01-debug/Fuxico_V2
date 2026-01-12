@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { log } from '@/lib/logger';
 
 export interface SavedFilter {
   id: string;
@@ -35,7 +36,7 @@ export function useSavedFilters(entityType: string) {
         setFilters(JSON.parse(stored));
       }
     } catch (e) {
-      console.error('Error loading saved filters:', e);
+      log.error('Error loading saved filters:', e);
     }
     setIsLoading(false);
   }, [storageKey]);

@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, Copy, Clock, Lightbulb, CheckCircle, Loader2, Mail, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { log } from '@/lib/logger';
 
 interface AIFollowUpDialogProps {
   open: boolean;
@@ -65,7 +66,7 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
 
       setResult(data);
     } catch (error) {
-      console.error('Error generating follow-up:', error);
+      log.error('Error generating follow-up:', error);
       toast.error('Erro ao gerar sugestões de follow-up');
     } finally {
       setIsLoading(false);

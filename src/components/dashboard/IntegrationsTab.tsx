@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { log } from '@/lib/logger';
 import { Slack, MessageSquare, Save, TestTube, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 
 interface IntegrationConfig {
@@ -84,7 +85,7 @@ function IntegrationsTabBase() {
         }
       });
     } catch (error) {
-      console.error('Error loading integrations:', error);
+      log.error('Error loading integrations:', error);
     } finally {
       setLoading(false);
     }
@@ -125,7 +126,7 @@ function IntegrationsTabBase() {
 
       toast.success(`Integração ${config.platform === 'slack' ? 'Slack' : 'Teams'} salva com sucesso!`);
     } catch (error) {
-      console.error('Error saving integration:', error);
+      log.error('Error saving integration:', error);
       toast.error('Erro ao salvar integração');
     } finally {
       setSaving(false);
@@ -159,7 +160,7 @@ function IntegrationsTabBase() {
 
       toast.success(`Notificação de teste enviada para ${config.platform === 'slack' ? 'Slack' : 'Teams'}!`);
     } catch (error) {
-      console.error('Error testing integration:', error);
+      log.error('Error testing integration:', error);
       toast.error('Erro ao enviar notificação de teste');
     } finally {
       setTesting(null);

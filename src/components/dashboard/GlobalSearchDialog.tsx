@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import { useEmailSearch, useDocumentSearch } from '@/hooks/use-fulltext-search';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { log } from '@/lib/logger';
 import type { TabId } from './DashboardSidebar';
 
 interface GlobalSearchDialogProps {
@@ -107,7 +108,7 @@ function GlobalSearchDialogBase({
         setRecentSearches(JSON.parse(stored));
       }
     } catch (e) {
-      console.error('Error loading recent searches:', e);
+      log.error('Error loading recent searches:', e);
     }
   }, []);
 
