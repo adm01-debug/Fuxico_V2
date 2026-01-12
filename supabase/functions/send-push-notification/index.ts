@@ -2,12 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { validateIPAccess } from '../_shared/ip-whitelist.ts';
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-import { createLogger } from '../_shared/logger.ts'
-
-const log = createLogger('send-push-notification')
 const PushSchema = z.object({
   userId: z.string().uuid(),
   title: z.string().min(1).max(100),

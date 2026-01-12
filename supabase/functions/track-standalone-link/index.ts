@@ -8,10 +8,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
-import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-import { createLogger } from '../_shared/logger.ts'
-
-const log = createLogger('track-standalone-link')
+import { secureErrorResponse } from "../_shared/security-headers.ts";
 const StandaloneLinkSchema = z.object({
   shortCode: z.string().min(1).max(50)
 });
