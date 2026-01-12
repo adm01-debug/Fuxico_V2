@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { StreakIndicator, LevelProgress, QuickStat, AchievementBadge } from '@/components/ui/gamification';
+import { Confetti, SuccessCheck } from '@/components/ui/confetti';
 import {
   Mail,
   MousePointerClick,
@@ -28,14 +30,19 @@ import {
   Users,
   FileText,
   Link as LinkIcon,
+  Flame,
+  Trophy,
+  Target,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { QuickActions } from './QuickActions';
 import { useDashboardWidgets, DashboardWidget } from '@/hooks/use-dashboard-widgets';
 import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/hooks/use-tracking';
 import { useTrackingTrends } from '@/hooks/use-tracking-trends';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 import { supabase } from '@/integrations/supabase/client';
-import { format, formatDistanceToNow, subDays, startOfDay, endOfDay } from 'date-fns';
+import { format, formatDistanceToNow, subDays, startOfDay, endOfDay, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
   ResponsiveContainer,
@@ -722,17 +729,72 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
     }
   };
 
+  // Gamification state
+  const [lastVisit, setLastVisit] = useLocalStorage<string>('fuxico-last-visit', '');
+  const [streak, setStreak] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // Calculate streak
+  useEffect(() => {
+    const today = new Date().toDateString();
+    if (lastVisit) {
+      const lastDate = new Date(lastVisit);
+      const daysDiff = differenceInDays(new Date(), lastDate);
+      if (daysDiff === 1) {
+        setStreak(prev => prev + 1);
+        if ((streak + 1) % 7 === 0) {
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 3000);
+        }
+      } else if (daysDiff > 1) {
+        setStreak(1);
+      }
+    } else {
+      setStreak(1);
+    }
+    setLastVisit(today);
+  }, []);
+
+  // Calculate XP based on activity
+  const userXP = useMemo(() => {
+    const emailXP = metrics.totalEmails * 10;
+    const openXP = metrics.totalOpens * 5;
+    const clickXP = metrics.totalClicks * 15;
+    return emailXP + openXP + clickXP;
+  }, [metrics]);
+
+  const currentLevel = Math.floor(userXP / 1000) + 1;
+  const xpForNextLevel = (currentLevel * 1000) - ((currentLevel - 1) * 1000);
+  const currentLevelXP = userXP - ((currentLevel - 1) * 1000);
+
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Confetti celebration */}
+      {showConfetti && <Confetti trigger={showConfetti} />}
+
+      {/* Header with Streak */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Visão Geral</h2>
-          <p className="text-muted-foreground">
-            Acompanhe suas métricas e eventos em tempo real
-          </p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              Visão Geral
+              {streak >= 3 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="text-orange-500"
+                >
+                  <Flame className="h-5 w-5" />
+                </motion.span>
+              )}
+            </h2>
+            <p className="text-muted-foreground">
+              Acompanhe suas métricas e eventos em tempo real
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <StreakIndicator count={streak} />
           <Button
             variant="outline"
             size="sm"
@@ -745,6 +807,20 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
           </Button>
         </div>
       </div>
+
+      {/* Level Progress */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <LevelProgress
+          level={currentLevel}
+          currentXP={currentLevelXP}
+          requiredXP={xpForNextLevel}
+          title="Seu Nível"
+        />
+      </motion.div>
 
       {/* Métricas Principais - Responsive grid */}
       <section 
