@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useGeoStats, CountryStats } from '@/hooks/use-geo-stats';
+import { EmptyState } from '@/components/ui/empty-state';
 import {
   BarChart,
   Bar,
@@ -234,15 +235,11 @@ function GeoAnalyticsTabBase() {
       </div>
 
       {!hasData ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Globe className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum dado geográfico disponível</h3>
-            <p className="text-muted-foreground">
-              Os dados de localização serão exibidos quando houver eventos de tracking com informações geográficas.
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          type="geo"
+          title="Nenhum dado geográfico disponível"
+          description="Os dados de localização serão exibidos quando houver eventos de tracking com informações geográficas."
+        />
       ) : (
         <>
           {/* Charts */}
