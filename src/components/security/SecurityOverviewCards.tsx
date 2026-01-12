@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Shield, Monitor, Key, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
+import { Shield, Monitor, Key, AlertTriangle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';

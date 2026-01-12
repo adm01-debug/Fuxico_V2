@@ -14,7 +14,6 @@ import {
   Search,
   Globe,
   Clock,
-  AlertTriangle,
   Loader2
 } from 'lucide-react';
 import {
