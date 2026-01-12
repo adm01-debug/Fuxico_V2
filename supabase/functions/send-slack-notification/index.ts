@@ -19,11 +19,36 @@ const NotificationSchema = z.object({
     linkUrl: z.string().optional(),
     documentName: z.string().optional(),
     timestamp: z.string().optional(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string()).optional(),
   }),
 });
 
-const formatSlackMessage = (eventType: string, data: any) => {
+// Types for notification data
+interface NotificationEventData {
+  recipientEmail: string;
+  subject?: string;
+  trackingId?: string;
+  linkUrl?: string;
+  documentName?: string;
+  timestamp?: string;
+  metadata?: Record<string, string>;
+}
+
+// Slack Block Kit types
+interface SlackTextElement {
+  type: 'plain_text' | 'mrkdwn';
+  text: string;
+  emoji?: boolean;
+}
+
+interface SlackBlock {
+  type: 'header' | 'section' | 'context';
+  text?: SlackTextElement;
+  fields?: SlackTextElement[];
+  elements?: SlackTextElement[];
+}
+
+const formatSlackMessage = (eventType: string, data: NotificationEventData): { blocks: SlackBlock[] } => {
   const timestamp = data.timestamp || new Date().toISOString();
   const eventEmojis: Record<string, string> = {
     open: '📬',
@@ -44,7 +69,7 @@ const formatSlackMessage = (eventType: string, data: any) => {
   const emoji = eventEmojis[eventType] || '📧';
   const label = eventLabels[eventType] || 'Email Event';
 
-  const blocks: any[] = [
+  const blocks: SlackBlock[] = [
     {
       type: 'header',
       text: {
@@ -111,7 +136,26 @@ const formatSlackMessage = (eventType: string, data: any) => {
   return { blocks };
 };
 
-const formatTeamsMessage = (eventType: string, data: any) => {
+// Teams Adaptive Card types
+interface TeamsFact {
+  name: string;
+  value: string;
+}
+
+interface TeamsMessageCard {
+  '@type': string;
+  '@context': string;
+  themeColor: string;
+  summary: string;
+  sections: Array<{
+    activityTitle: string;
+    activitySubtitle: string;
+    facts: TeamsFact[];
+    markdown: boolean;
+  }>;
+}
+
+const formatTeamsMessage = (eventType: string, data: NotificationEventData): TeamsMessageCard => {
   const timestamp = data.timestamp || new Date().toISOString();
   const eventLabels: Record<string, string> = {
     open: 'Email Opened',
@@ -132,7 +176,7 @@ const formatTeamsMessage = (eventType: string, data: any) => {
   const label = eventLabels[eventType] || 'Email Event';
   const color = eventColors[eventType] || '0078D4';
 
-  const facts: any[] = [
+  const facts: TeamsFact[] = [
     { name: 'Recipient', value: data.recipientEmail },
     { name: 'Time', value: new Date(timestamp).toLocaleString('pt-BR') },
   ];

@@ -14,8 +14,40 @@ const Bitrix24SyncSchema = z.object({
   email: z.string().email().optional(),
   trackingId: z.string().uuid().optional(),
   eventType: z.string().optional(),
-  data: z.record(z.any()).optional().default({})
+  data: z.record(z.unknown()).optional().default({})
 })
+
+// Types for Bitrix24 operations
+interface BitrixContactData {
+  NAME?: string;
+  LAST_NAME?: string;
+  PHONE?: Array<{ VALUE: string; VALUE_TYPE: string }>;
+  [key: string]: unknown;
+}
+
+interface BitrixDealData {
+  TITLE?: string;
+  CATEGORY_ID?: string;
+  STAGE_ID?: string;
+  [key: string]: unknown;
+}
+
+interface BitrixActivityData {
+  SUBJECT?: string;
+  DESCRIPTION?: string;
+  TYPE_ID?: number;
+  DIRECTION?: number;
+  COMPLETED?: string;
+  [key: string]: unknown;
+}
+
+interface BitrixSyncResult {
+  success: boolean;
+  action?: string;
+  contactId?: string;
+  dealId?: string;
+  activityId?: string;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
@@ -60,23 +92,23 @@ serve(async (req) => {
       return secureJsonResponse({ error: 'Bitrix24 not configured' }, 400, corsHeaders)
     }
 
-    let result: any = { success: false }
+    let result: BitrixSyncResult = { success: false }
 
     switch (action) {
       case 'sync_contact':
         if (email) {
-          result = await syncContact(prefs.bitrix24_webhook_url, email, data)
+          result = await syncContact(prefs.bitrix24_webhook_url, email, data as BitrixContactData)
         }
         break
       case 'create_deal':
-        result = await createDeal(prefs.bitrix24_webhook_url, data)
+        result = await createDeal(prefs.bitrix24_webhook_url, data as BitrixDealData)
         break
       case 'register_activity':
-        result = await registerActivity(prefs.bitrix24_webhook_url, data)
+        result = await registerActivity(prefs.bitrix24_webhook_url, data as BitrixActivityData)
         break
       case 'sync_email_event':
         if (trackingId && eventType) {
-          result = await syncEmailEvent(prefs.bitrix24_webhook_url, trackingId, eventType, data)
+          result = await syncEmailEvent(prefs.bitrix24_webhook_url, trackingId, eventType, data as Record<string, string>)
         }
         break
     }
@@ -96,9 +128,9 @@ serve(async (req) => {
   }
 })
 
-async function syncContact(webhookUrl: string, email: string, data: any) {
+async function syncContact(webhookUrl: string, email: string, data: BitrixContactData): Promise<BitrixSyncResult> {
   const response = await fetch(`${webhookUrl}/crm.contact.list?filter[EMAIL]=${encodeURIComponent(email)}`)
-  const existing = await response.json()
+  const existing = await response.json() as { result?: Array<{ ID: string }> }
   
   if (existing.result && existing.result.length > 0) {
     return { success: true, action: 'found', contactId: existing.result[0].ID }
@@ -109,32 +141,32 @@ async function syncContact(webhookUrl: string, email: string, data: any) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fields: { EMAIL: [{ VALUE: email, VALUE_TYPE: 'WORK' }], ...data } })
   })
-  const created = await createResponse.json()
+  const created = await createResponse.json() as { result?: string }
   return { success: !!created.result, action: 'created', contactId: created.result }
 }
 
-async function createDeal(webhookUrl: string, data: any) {
+async function createDeal(webhookUrl: string, data: BitrixDealData): Promise<BitrixSyncResult> {
   const response = await fetch(`${webhookUrl}/crm.deal.add`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fields: data })
   })
-  const result = await response.json()
+  const result = await response.json() as { result?: string }
   return { success: !!result.result, dealId: result.result }
 }
 
-async function registerActivity(webhookUrl: string, data: any) {
+async function registerActivity(webhookUrl: string, data: BitrixActivityData): Promise<BitrixSyncResult> {
   const response = await fetch(`${webhookUrl}/crm.activity.add`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fields: { ...data, COMPLETED: 'Y' } })
   })
-  const result = await response.json()
+  const result = await response.json() as { result?: string }
   return { success: !!result.result, activityId: result.result }
 }
 
-async function syncEmailEvent(webhookUrl: string, trackingId: string, eventType: string, data: any) {
-  const activityData = {
+async function syncEmailEvent(webhookUrl: string, trackingId: string, eventType: string, data: Record<string, string>): Promise<BitrixSyncResult> {
+  const activityData: BitrixActivityData = {
     SUBJECT: `Email ${eventType}: ${data.subject || 'Sem assunto'}`,
     DESCRIPTION: `Email foi ${eventType} em ${new Date().toISOString()}`,
     TYPE_ID: 4, // Email

@@ -41,6 +41,25 @@ interface EmailSequence {
   };
 }
 
+// Type for step execution record
+interface StepExecution {
+  id: string;
+  enrollment_id: string;
+  step_id: string;
+  tracking_id: string | null;
+  status: string;
+  sent_at: string | null;
+  opened_at: string | null;
+  clicked_at: string | null;
+  replied_at: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Type for Supabase client
+import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -213,11 +232,12 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in process-sequences:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ 
       success: false, 
-      error: error.message 
+      error: errorMessage 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -225,7 +245,7 @@ Deno.serve(async (req) => {
   }
 });
 
-function evaluateTriggerCondition(condition: string, prevExecution: any): boolean {
+function evaluateTriggerCondition(condition: string, prevExecution: StepExecution): boolean {
   switch (condition) {
     case 'if_not_opened':
       return !!prevExecution.opened_at; // Skip if opened
@@ -248,7 +268,12 @@ function replaceVariables(text: string, enrollment: SequenceEnrollment): string 
     .replace(/\{\{first_name\}\}/g, enrollment.contact_name?.split(' ')[0] || '');
 }
 
-async function moveToNextStep(supabase: any, enrollment: SequenceEnrollment, currentStep: SequenceStep, sequenceId: string) {
+async function moveToNextStep(
+  supabase: SupabaseClient, 
+  enrollment: SequenceEnrollment, 
+  currentStep: SequenceStep, 
+  sequenceId: string
+): Promise<void> {
   // Get next step to calculate delay
   const { data: nextStep } = await supabase
     .from('sequence_steps')
@@ -257,7 +282,7 @@ async function moveToNextStep(supabase: any, enrollment: SequenceEnrollment, cur
     .eq('step_order', currentStep.step_order + 1)
     .single();
 
-  let nextStepAt = null;
+  let nextStepAt: string | null = null;
   if (nextStep) {
     const next = new Date();
     next.setDate(next.getDate() + (nextStep.delay_days || 0));

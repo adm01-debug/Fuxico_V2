@@ -84,7 +84,26 @@ serve(async (req) => {
   }
 })
 
-function generateInsights(stats: any[], includeRecommendations: boolean) {
+// Type for email stats from materialized view
+interface EmailStatsRecord {
+  tracking_id: string;
+  user_id: string;
+  recipient_email: string;
+  subject: string | null;
+  created_at: string;
+  opens: number;
+  clicks: number;
+}
+
+// Type for insights
+interface Insight {
+  type: 'info' | 'success' | 'warning';
+  title: string;
+  description: string;
+  metric?: number;
+}
+
+function generateInsights(stats: EmailStatsRecord[], includeRecommendations: boolean): Insight[] {
   if (!stats.length) {
     return [{ 
       type: 'info', 
@@ -93,7 +112,7 @@ function generateInsights(stats: any[], includeRecommendations: boolean) {
     }]
   }
   
-  const insights = []
+  const insights: Insight[] = []
   const totalEmails = stats.length
   const totalOpens = stats.reduce((sum, s) => sum + (s.opens || 0), 0)
   const totalClicks = stats.reduce((sum, s) => sum + (s.clicks || 0), 0)
