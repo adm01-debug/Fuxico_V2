@@ -210,8 +210,14 @@ const Index = () => {
   const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
   
   // Se já está logado, redireciona para o dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
+  
+  // Retorna null enquanto redireciona
   if (user) {
-    navigate("/dashboard", { replace: true });
     return null;
   }
 
