@@ -27,6 +27,8 @@ import {
   Star
 } from "lucide-react";
 import logoImg from "@/assets/logo.jpg";
+import { ThemeToggleButton } from "@/components/landing/ThemeToggleButton";
+import { DemoModal } from "@/components/landing/DemoModal";
 
 // Animation variants
 const fadeInUp = {
@@ -208,6 +210,7 @@ const Index = () => {
   const { user } = useAuth();
   const { scrollYProgress } = useScroll();
   const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
+  const [demoOpen, setDemoOpen] = useState(false);
   
   // Se já está logado, redireciona para o dashboard
   useEffect(() => {
@@ -257,6 +260,7 @@ const Index = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
+            <ThemeToggleButton />
             <Button variant="ghost" onClick={() => navigate("/auth")} className="font-medium h-10 px-3 sm:px-4 text-sm sm:text-base touch-target">
               Entrar
             </Button>
@@ -332,6 +336,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
+              onClick={() => setDemoOpen(true)}
               className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gap-2 border-2 hover:bg-secondary/80 transition-all duration-300 hover-lift touch-target"
             >
               <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-current" />
@@ -665,6 +670,9 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Demo Modal */}
+      <DemoModal open={demoOpen} onOpenChange={setDemoOpen} />
     </div>
   );
 };
