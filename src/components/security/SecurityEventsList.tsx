@@ -31,8 +31,10 @@ export function SecurityEventsList({ limit = 10 }: SecurityEventsListProps) {
     enabled: !!user?.id,
   });
 
-  const getEventConfig = (eventType: string, severity: string) => {
-    const configs: Record<string, { icon: any; color: string; label: string }> = {
+  type EventConfigIcon = typeof LogIn | typeof LogOut | typeof AlertTriangle | typeof Shield | typeof Key | typeof Settings | typeof Monitor;
+
+  const getEventConfig = (eventType: string, severity: string): { icon: EventConfigIcon; color: string; label: string } => {
+    const configs: Record<string, { icon: EventConfigIcon; color: string; label: string }> = {
       'login': { icon: LogIn, color: 'text-green-500', label: 'Login realizado' },
       'logout': { icon: LogOut, color: 'text-blue-500', label: 'Logout realizado' },
       'failed_login': { icon: AlertTriangle, color: 'text-orange-500', label: 'Login falhou' },
@@ -99,10 +101,10 @@ export function SecurityEventsList({ limit = 10 }: SecurityEventsListProps) {
       <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
 
       <div className="space-y-4">
-        {events.map((event, index) => {
+        {events.map((event) => {
           const config = getEventConfig(event.event_type, event.severity);
           const Icon = config.icon;
-          const metadata = event.metadata as any;
+          const metadata = event.metadata as Record<string, string | undefined> | null;
 
           return (
             <div key={event.id} className="relative flex items-start gap-4 pl-10">

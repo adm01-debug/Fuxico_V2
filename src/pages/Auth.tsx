@@ -178,10 +178,11 @@ const Auth = () => {
     setIsGoogleLoading(true);
     try {
       await signInWithGoogle();
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Tente novamente mais tarde';
       toast({
         title: 'Erro ao entrar com Google',
-        description: error.message || 'Tente novamente mais tarde',
+        description: message,
         variant: 'destructive',
       });
     } finally {

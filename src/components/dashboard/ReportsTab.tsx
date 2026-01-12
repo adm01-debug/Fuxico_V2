@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Calendar, Clock, Mail, FileText, TrendingUp, Download, Plus, Trash2, Loader2, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ExportDialog } from './ExportDialog';
-import { useTrackedEmails, useTrackingStats } from '@/hooks/use-tracking';
+import { useTrackedEmails, useTrackingStats, type TrackedEmailWithStats } from '@/hooks/use-tracking';
 import { useScheduledReports } from '@/hooks/use-scheduled-reports';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -137,17 +137,20 @@ function ReportsTabBase() {
   const { data: emails } = useTrackedEmails();
   const { data: stats } = useTrackingStats();
   
-  const exportData = (emails || []).map(email => ({
-    id: email.id,
-    tracking_id: email.tracking_id,
-    destinatario: email.recipient_email,
-    assunto: email.subject || '',
-    remetente: email.sender_email || '',
-    status: email.delivery_status || 'sent',
-    data_envio: email.created_at,
-    aberturas: (email as any).open_count || 0,
-    cliques: (email as any).click_count || 0,
-  }));
+  const exportData = (emails || []).map(email => {
+    const emailWithStats = email as TrackedEmailWithStats;
+    return {
+      id: email.id,
+      tracking_id: email.tracking_id,
+      destinatario: email.recipient_email,
+      assunto: email.subject || '',
+      remetente: email.sender_email || '',
+      status: email.delivery_status || 'sent',
+      data_envio: email.created_at,
+      aberturas: emailWithStats.open_count || 0,
+      cliques: emailWithStats.click_count || 0,
+    };
+  });
 
   if (isLoading) {
     return (

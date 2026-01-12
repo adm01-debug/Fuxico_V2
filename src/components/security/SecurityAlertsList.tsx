@@ -109,7 +109,7 @@ export function SecurityAlertsList({ limit, compact = false }: SecurityAlertsLis
       {alerts.map((alert) => {
         const config = getSeverityConfig(alert.severity);
         const Icon = config.icon;
-        const metadata = alert.metadata as any;
+        const metadata = alert.metadata as Record<string, string | undefined> | null;
 
         return (
           <div

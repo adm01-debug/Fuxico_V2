@@ -50,7 +50,8 @@ export function useFulltextSearch<T = Record<string, unknown>>({
         .map(col => `${col}.ilike.%${debouncedTerm}%`)
         .join(',');
 
-      const { data, error } = await (supabase as any)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as unknown as { from: (table: string) => { select: (cols: string) => { or: (filter: string) => { limit: (n: number) => Promise<{ data: T[] | null; error: Error | null }> } } } })
         .from(table)
         .select(columns.join(','))
         .or(orFilter)
