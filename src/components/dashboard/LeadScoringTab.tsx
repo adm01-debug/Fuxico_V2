@@ -48,7 +48,7 @@ function ScoreBadge({ level }: { level: ContactScore['score_level'] }) {
   );
 }
 
-function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color: string }) {
+function StatCard({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number; color: string }) {
   return (
     <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
       <div className={`p-2 rounded-lg ${color}`}>

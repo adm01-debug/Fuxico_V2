@@ -103,7 +103,7 @@ const FeatureCard = ({
   color, 
   delay 
 }: { 
-  icon: any; 
+  icon: React.ComponentType<{ className?: string }>; 
   title: string; 
   description: string; 
   color: string;

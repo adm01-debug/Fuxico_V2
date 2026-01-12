@@ -64,7 +64,7 @@ const NotificationContext = createContext<NotificationContextValue | null>(null)
 
 // Config
 const notificationConfig: Record<NotificationType, { 
-  icon: any; 
+  icon: React.ComponentType<{ className?: string }>; 
   color: string; 
   bgColor: string;
   borderColor: string;
@@ -118,7 +118,7 @@ function NotificationItem({
   isGrouped?: boolean;
 }) {
   const config = notificationConfig[notification.type];
-  const Icon = notification.icon || config.icon;
+  const ConfigIcon = config.icon;
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
@@ -169,7 +169,7 @@ function NotificationItem({
         'flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center',
         config.bgColor
       )}>
-        <Icon className={cn('h-4 w-4', config.color)} />
+        {notification.icon || <ConfigIcon className={cn('h-4 w-4', config.color)} />}
       </div>
 
       {/* Content */}
