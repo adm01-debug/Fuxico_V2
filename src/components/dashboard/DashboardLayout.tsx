@@ -54,6 +54,7 @@ const IntegrationsTab = lazy(() => import('@/components/dashboard/IntegrationsTa
 // MAPEAMENTO DE COMPONENTES
 // =============================================================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentType<any>>> = {
   home: DashboardHome,
   emails: EmailTable,
