@@ -9,7 +9,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Search, Mail, Loader2, Play, Users, Send, MessageSquare } from 'lucide-react';
+import { Plus, Search, Loader2, Play, Users, Send, MessageSquare } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useEmailSequences, useUpdateSequence, useDeleteSequence, useCreateSequence, EmailSequence } from '@/hooks/useEmailSequences';
@@ -217,25 +218,20 @@ function SequencesTabBase() {
           ))}
         </div>
       ) : filteredSequences.length === 0 ? (
-        <div className="text-center py-12">
-          <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">
-            {sequences?.length === 0 
-              ? 'Nenhuma sequência criada' 
-              : 'Nenhuma sequência encontrada'}
-          </h3>
-          <p className="text-muted-foreground mb-4">
-            {sequences?.length === 0 
-              ? 'Crie sua primeira sequência de email automatizada para aumentar suas taxas de resposta.'
-              : 'Tente ajustar os filtros de busca.'}
-          </p>
-          {sequences?.length === 0 && (
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Criar Primeira Sequência
-            </Button>
-          )}
-        </div>
+        <EmptyState
+          type="sequences"
+          title={sequences?.length === 0 
+            ? 'Nenhuma sequência criada' 
+            : 'Nenhuma sequência encontrada'}
+          description={sequences?.length === 0 
+            ? 'Crie sua primeira sequência de email automatizada para aumentar suas taxas de resposta.'
+            : 'Tente ajustar os filtros de busca.'}
+          action={sequences?.length === 0 ? {
+            label: 'Criar Primeira Sequência',
+            onClick: () => setIsCreateDialogOpen(true),
+            icon: <Plus className="h-4 w-4" />
+          } : undefined}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredSequences.map((sequence) => (

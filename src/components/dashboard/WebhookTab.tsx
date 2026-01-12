@@ -14,7 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Send, CheckCircle, XCircle, Webhook, Clock, AlertTriangle } from 'lucide-react';
+import { Loader2, Send, CheckCircle, XCircle, Webhook, Clock } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -218,10 +219,12 @@ export default function WebhookTab() {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : !logs || logs.length === 0 ? (
-            <div role="region" aria-label="WebhookTab" className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-              <AlertTriangle className="h-8 w-8 mb-2 opacity-50" />
-              <p>Nenhum webhook enviado ainda</p>
-            </div>
+            <EmptyState
+              type="webhooks"
+              title="Nenhum webhook enviado ainda"
+              description="Configure um webhook e teste a conexão para ver os logs aqui."
+              size="sm"
+            />
           ) : (
             <Table>
               <TableHeader>

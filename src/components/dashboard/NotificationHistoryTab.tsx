@@ -10,7 +10,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { 
   Bell, 
-  BellOff, 
   Check, 
   CheckCheck, 
   Trash2, 
@@ -26,6 +25,7 @@ import {
   CalendarIcon,
   X
 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 import { format, formatDistanceToNow, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { DateRange } from 'react-day-picker';
@@ -344,13 +344,11 @@ export default function NotificationHistoryTab() {
         
         <CardContent>
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <BellOff className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">Nenhuma notificação</h3>
-              <p className="text-sm text-muted-foreground">
-                Suas notificações aparecerão aqui quando você receber alertas
-              </p>
-            </div>
+            <EmptyState
+              type="notifications"
+              title="Nenhuma notificação"
+              description="Suas notificações aparecerão aqui quando você receber alertas."
+            />
           ) : filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Filter className="h-12 w-12 text-muted-foreground mb-4" />

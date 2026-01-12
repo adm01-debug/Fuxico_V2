@@ -57,9 +57,9 @@ export function ConfirmDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <div role="region" aria-label="Dialog de Confirmação" className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <div className={`p-2 rounded-full bg-muted ${config.color}`}>
-              <Icon className="h-5 w-5" />
+              <Icon className="h-5 w-5" aria-hidden="true" />
             </div>
             <AlertDialogTitle>{title}</AlertDialogTitle>
           </div>

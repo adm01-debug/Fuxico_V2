@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { ContactHistoryDialog } from './ContactHistoryDialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { 
   Loader2, 
   RefreshCw, 
@@ -23,7 +24,6 @@ import {
   Mail,
   MousePointerClick,
   Eye,
-  AlertTriangle,
   History,
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -161,11 +161,11 @@ export default function LeadScoringTab() {
         </CardHeader>
         <CardContent>
           {filteredContacts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-              <AlertTriangle className="h-8 w-8 mb-2 opacity-50" />
-              <p>Nenhum contato encontrado</p>
-              <p className="text-xs">Clique em "Recalcular Todos" para gerar scores</p>
-            </div>
+            <EmptyState
+              type="leads"
+              title="Nenhum contato encontrado"
+              description='Clique em "Recalcular Todos" para gerar scores baseados no engajamento.'
+            />
           ) : (
             <Table>
               <TableHeader>

@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Trash2, Upload, UserX, Mail, AlertTriangle, Loader2, Search } from 'lucide-react';
+import { Plus, Trash2, Upload, UserX, Mail, Loader2, Search, AlertTriangle } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from 'sonner';
 import { useUnsubscribedEmails } from '@/hooks/use-unsubscribed-emails';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -236,17 +237,16 @@ function UnsubscribeTabBase() {
           </div>
 
           {filteredEmails.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <UserX className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              {searchTerm ? (
-                <p>Nenhum email encontrado para "{searchTerm}"</p>
-              ) : (
-                <>
-                  <p>Nenhum email na lista de exclusão.</p>
-                  <p className="text-sm">Adicione emails que não devem receber comunicações.</p>
-                </>
-              )}
-            </div>
+            <EmptyState
+              type="unsubscribe"
+              title={searchTerm ? `Nenhum email encontrado para "${searchTerm}"` : 'Nenhum email na lista de exclusão'}
+              description={searchTerm ? 'Tente ajustar sua busca.' : 'Adicione emails que não devem receber comunicações.'}
+              action={!searchTerm ? {
+                label: 'Adicionar Email',
+                onClick: () => setIsAddOpen(true),
+                icon: <Plus className="h-4 w-4" />
+              } : undefined}
+            />
           ) : (
             <ScrollArea className="h-[400px]">
               <div className="space-y-2">
