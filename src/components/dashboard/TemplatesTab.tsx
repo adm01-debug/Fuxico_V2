@@ -7,12 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Copy, Plus, Trash2, Eye, Check, Loader2, FileText, Sparkles } from 'lucide-react';
+import { Copy, Plus, Trash2, Eye, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEmailTemplates } from '@/hooks/use-email-templates';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
-import { motion } from 'framer-motion';
 
 function TemplatesTabBase() {
   const { templates, isLoading, createTemplate, deleteTemplate, incrementUsage } = useEmailTemplates();

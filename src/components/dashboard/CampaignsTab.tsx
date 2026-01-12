@@ -46,7 +46,6 @@ import {
   Mail,
   MousePointerClick,
   Eye,
-  TrendingUp,
   Archive,
   CheckCircle,
   BarChart3

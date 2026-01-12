@@ -18,14 +18,9 @@ import {
   Download,
   Settings,
   BarChart3,
-  Bell,
   Zap,
   ArrowRight,
   Keyboard,
-  Sparkles,
-  TrendingUp,
-  Clock,
-  Target,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TabId } from './DashboardSidebar';
