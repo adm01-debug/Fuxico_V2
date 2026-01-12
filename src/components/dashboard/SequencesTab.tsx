@@ -13,6 +13,7 @@ import { Plus, Search, Loader2, Play, Users, Send, MessageSquare } from 'lucide-
 import { EmptyState } from '@/components/ui/empty-state';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { log } from '@/lib/logger';
 import { useEmailSequences, useUpdateSequence, useDeleteSequence, useCreateSequence, EmailSequence } from '@/hooks/useEmailSequences';
 import { SequenceCard } from './sequences/SequenceCard';
 import { SequenceDetail } from './sequences/SequenceDetail';
@@ -67,7 +68,7 @@ function SequencesTabBase() {
       toast.success(`Processamento concluído: ${data?.processed || 0} emails enviados`);
       refetch();
     } catch (error) {
-      console.error('Erro ao processar sequências:', error);
+      log.error('Erro ao processar sequências:', error);
       toast.error('Erro ao processar sequências');
     } finally {
       setIsProcessing(false);
