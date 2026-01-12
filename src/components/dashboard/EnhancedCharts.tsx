@@ -32,7 +32,7 @@ import { TrendingUp, TrendingDown, Minus, Calendar, BarChart3, PieChart as PieCh
 interface ChartDataPoint {
   name: string;
   value: number;
-  [key: string]: any;
+  [key: string]: string | number | undefined;
 }
 
 interface TrendIndicatorProps {
@@ -70,8 +70,20 @@ const GradientDefs = () => (
   </defs>
 );
 
-// Custom tooltip
-const CustomTooltip = ({ active, payload, label }: any) => {
+// Custom tooltip type
+interface TooltipPayloadItem {
+  name: string;
+  value: number | string;
+  color: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <motion.div
@@ -80,7 +92,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         className="bg-popover border border-border rounded-lg shadow-xl p-3"
       >
         <p className="text-xs text-muted-foreground mb-1">{label}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index) => (
           <p key={index} className="text-sm font-semibold" style={{ color: entry.color }}>
             {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
           </p>

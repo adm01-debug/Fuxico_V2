@@ -78,14 +78,21 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
     },
   });
 
-  const getDeviceIcon = (deviceInfo: any) => {
+  interface DeviceInfo {
+    device_type?: string;
+    device_name?: string;
+    os?: string;
+    browser?: string;
+  }
+
+  const getDeviceIcon = (deviceInfo: DeviceInfo | null) => {
     const type = deviceInfo?.device_type?.toLowerCase() || '';
     if (type.includes('mobile') || type.includes('phone')) return Smartphone;
     if (type.includes('tablet')) return Tablet;
     return Monitor;
   };
 
-  const getDeviceName = (deviceInfo: any, userAgent: string | null) => {
+  const getDeviceName = (deviceInfo: DeviceInfo | null, userAgent: string | null) => {
     if (deviceInfo?.device_name) return deviceInfo.device_name;
     if (!userAgent) return 'Dispositivo desconhecido';
     
@@ -163,7 +170,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
 
       <div className="space-y-2 sm:space-y-3">
         {sessions.map((s) => {
-          const deviceInfo = s.device_info as any;
+          const deviceInfo = s.device_info as DeviceInfo | null;
           const DeviceIcon = getDeviceIcon(deviceInfo);
           const isCurrentSession = s.session_token === session?.access_token;
 

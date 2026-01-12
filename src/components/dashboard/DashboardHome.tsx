@@ -642,7 +642,19 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
           .limit(20);
 
         if (events) {
-          const formattedEvents: RealtimeEvent[] = events.map((e: any) => ({
+          interface TrackingEventJoin {
+            id: string;
+            event_type: string;
+            created_at: string;
+            tracking_id: string;
+            tracked_emails: {
+              recipient_email: string;
+              subject: string | null;
+              user_id: string;
+            } | null;
+          }
+          
+          const formattedEvents: RealtimeEvent[] = events.map((e: TrackingEventJoin) => ({
             id: e.id,
             type: e.event_type as RealtimeEvent['type'],
             email: e.tracked_emails?.recipient_email || 'N/A',

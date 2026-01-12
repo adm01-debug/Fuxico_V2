@@ -40,10 +40,18 @@ export function useFollowUpReminders() {
 
       if (error) throw error;
 
-      return (data || []).map((item: any) => ({
+      interface ReminderQueryResult extends FollowUpReminder {
+        tracked_emails: {
+          recipient_email: string;
+          subject: string | null;
+          created_at: string;
+        };
+      }
+      
+      return (data || []).map((item: ReminderQueryResult) => ({
         ...item,
         recipient_email: item.tracked_emails.recipient_email,
-        subject: item.tracked_emails.subject,
+        subject: item.tracked_emails.subject || '',
         email_created_at: item.tracked_emails.created_at,
         days_since_sent: Math.floor(
           (Date.now() - new Date(item.tracked_emails.created_at).getTime()) / (1000 * 60 * 60 * 24)
@@ -74,14 +82,22 @@ export function usePendingReminders() {
 
       if (error) throw error;
 
-      return (data || []).map((item: any) => {
+      interface ReminderQueryResult extends FollowUpReminder {
+        tracked_emails: {
+          recipient_email: string;
+          subject: string | null;
+          created_at: string;
+        };
+      }
+      
+      return (data || []).map((item: ReminderQueryResult) => {
         const daysSinceSent = Math.floor(
           (Date.now() - new Date(item.tracked_emails.created_at).getTime()) / (1000 * 60 * 60 * 24)
         );
         return {
           ...item,
           recipient_email: item.tracked_emails.recipient_email,
-          subject: item.tracked_emails.subject,
+          subject: item.tracked_emails.subject || '',
           email_created_at: item.tracked_emails.created_at,
           days_since_sent: daysSinceSent,
         };
@@ -104,7 +120,7 @@ export function useDueReminders() {
 
       if (error) throw error;
 
-      return (data || []).filter((r: any) => r.user_id === user.id);
+      return (data || []).filter((r) => r.user_id === user.id);
     },
     enabled: !!user?.id,
     refetchInterval: 60000,

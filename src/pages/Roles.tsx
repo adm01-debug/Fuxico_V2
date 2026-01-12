@@ -103,7 +103,7 @@ export default function Roles() {
       setNewUserId('');
       setNewRole('user');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Erro ao adicionar role');
     },
   });
@@ -118,7 +118,7 @@ export default function Roles() {
       queryClient.invalidateQueries({ queryKey: ['userRoles'] });
       toast.success('Role removida com sucesso');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Erro ao remover role');
     },
   });
@@ -136,7 +136,7 @@ export default function Roles() {
       queryClient.invalidateQueries({ queryKey: ['userRoles'] });
       toast.success('Role atualizada com sucesso');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Erro ao atualizar role');
     },
   });

@@ -49,7 +49,7 @@ export default function TwoFactorAuth() {
       if (error && error.code !== 'PGRST116') throw error;
       
       setMfaSettings(data);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error loading MFA settings:', err);
     } finally {
       setLoading(false);
@@ -72,8 +72,9 @@ export default function TwoFactorAuth() {
         setSecret(data.totp.secret);
         setStep('enroll');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao iniciar configuração MFA');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao iniciar configuração MFA';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -125,8 +126,9 @@ export default function TwoFactorAuth() {
 
       toast.success('MFA ativado com sucesso!');
       setStep('backup');
-    } catch (err: any) {
-      toast.error(err.message || 'Código inválido');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Código inválido';
+      toast.error(message);
     } finally {
       setVerifying(false);
     }
@@ -158,8 +160,9 @@ export default function TwoFactorAuth() {
 
       setMfaSettings(null);
       toast.success('MFA desativado');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao desativar MFA');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao desativar MFA';
+      toast.error(message);
     } finally {
       setLoading(false);
     }

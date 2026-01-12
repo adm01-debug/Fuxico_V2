@@ -54,7 +54,7 @@ export default function VerifyEmail() {
             setStatus('error');
           }
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Verification error:', err);
         setStatus('error');
         toast.error('Erro ao verificar email');
@@ -85,8 +85,9 @@ export default function VerifyEmail() {
 
       setStatus('resent');
       toast.success('Email de verificação reenviado!');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao reenviar email');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao reenviar email';
+      toast.error(message);
     } finally {
       setResending(false);
     }

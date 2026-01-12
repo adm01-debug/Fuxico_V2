@@ -62,8 +62,9 @@ export default function MFAVerify() {
 
       toast.success('Verificação bem-sucedida!');
       navigate(redirectTo);
-    } catch (err: any) {
-      toast.error(err.message || 'Código inválido');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Código inválido';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -113,8 +114,9 @@ export default function MFAVerify() {
       }
 
       navigate(redirectTo);
-    } catch (err: any) {
-      toast.error(err.message || 'Erro na verificação');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro na verificação';
+      toast.error(message);
     } finally {
       setLoading(false);
     }

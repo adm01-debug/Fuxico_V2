@@ -80,9 +80,10 @@ export default function ResetPassword() {
       setTimeout(() => {
         navigate('/auth');
       }, 3000);
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao alterar senha');
-      setError(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao alterar senha';
+      toast.error(message);
+      setError(message);
     } finally {
       setLoading(false);
     }

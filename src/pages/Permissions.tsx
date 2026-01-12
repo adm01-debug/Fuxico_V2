@@ -130,7 +130,7 @@ export default function Permissions() {
       setNewPermission({ name: '', description: '', permission_key: '', category: 'general' });
       toast.success('Permissão criada com sucesso');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Erro ao criar permissão');
     },
   });
@@ -153,7 +153,7 @@ export default function Permissions() {
       setEditingPermission(null);
       toast.success('Permissão atualizada');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Erro ao atualizar permissão');
     },
   });
@@ -172,7 +172,7 @@ export default function Permissions() {
       queryClient.invalidateQueries({ queryKey: ['rolePermissions'] });
       toast.success('Permissão removida');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Erro ao remover permissão');
     },
   });
@@ -201,7 +201,7 @@ export default function Permissions() {
       setPendingChanges(new Map());
       toast.success('Permissões salvas com sucesso');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Erro ao salvar permissões');
     },
   });

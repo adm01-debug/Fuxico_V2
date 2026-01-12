@@ -170,7 +170,7 @@ function FollowUpTabBase() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {dueReminders.slice(0, 3).map((reminder: any) => (
+              {dueReminders.slice(0, 3).map((reminder) => (
                 <div key={reminder.id} className="flex items-center justify-between p-2 bg-background rounded">
                   <div>
                     <p className="text-sm font-medium">{reminder.recipient_email}</p>
