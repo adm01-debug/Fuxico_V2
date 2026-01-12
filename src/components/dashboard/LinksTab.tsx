@@ -22,7 +22,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { 
-  Link2, 
   MousePointerClick, 
   Copy, 
   Check, 
@@ -32,12 +31,10 @@ import {
   Smartphone,
   Tablet,
   ExternalLink,
-  Sparkles
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
