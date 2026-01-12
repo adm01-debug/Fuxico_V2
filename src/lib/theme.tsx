@@ -129,11 +129,13 @@ export function ThemeProvider({
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme, resolveTheme, applyTheme]);
 
+  // Initial theme application on mount
   useEffect(() => {
     const resolved = resolveTheme(theme);
     setResolvedTheme(resolved);
     applyTheme(resolved);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolveTheme, applyTheme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);

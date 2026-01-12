@@ -163,8 +163,14 @@ const Auth = () => {
   };
 
   // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
+  // Return null while redirecting
   if (user) {
-    navigate('/');
     return null;
   }
 
