@@ -17,7 +17,11 @@ import {
   Calendar,
   Globe,
   Award,
-  Target
+  Target,
+  ClipboardList,
+  FlaskConical,
+  Clock,
+  Sparkles
 } from "lucide-react";
 
 type EmptyStateType = 
@@ -30,7 +34,15 @@ type EmptyStateType =
   | "notifications"
   | "leads"
   | "campaigns"
-  | "geo";
+  | "geo"
+  | "templates"
+  | "abtesting"
+  | "followup"
+  | "reports"
+  | "sequences"
+  | "unsubscribe"
+  | "webhooks"
+  | "insights";
 
 interface EmptyStateProps {
   type: EmptyStateType;
@@ -319,6 +331,269 @@ const emptyStateConfigs: Record<EmptyStateType, {
           animate={{ opacity: [0, 1, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
         />
+      </div>
+    ),
+  },
+  templates: {
+    icon: FileText,
+    title: "Nenhum template criado",
+    description: "Crie templates prontos com pixel de tracking para enviar emails profissionais.",
+    actionLabel: "Criar Template",
+    gradient: "from-violet-500 to-purple-400",
+    illustration: (
+      <div className="relative">
+        <motion.div
+          className="w-24 h-24 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-400/20 flex items-center justify-center"
+          animate={{ y: [0, -5, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <FileText className="h-12 w-12 text-violet-500" />
+        </motion.div>
+        <motion.div
+          className="absolute -top-1 -right-1"
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <Sparkles className="h-5 w-5 text-purple-400" />
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5"
+        >
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-violet-400"
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+            />
+          ))}
+        </motion.div>
+      </div>
+    ),
+  },
+  abtesting: {
+    icon: FlaskConical,
+    title: "Nenhum teste A/B criado",
+    description: "Compare assuntos diferentes para descobrir qual tem melhor performance.",
+    actionLabel: "Criar Teste",
+    gradient: "from-fuchsia-500 to-pink-400",
+    illustration: (
+      <div className="relative">
+        <motion.div
+          className="w-24 h-24 rounded-2xl bg-gradient-to-br from-fuchsia-500/20 to-pink-400/20 flex items-center justify-center"
+        >
+          <FlaskConical className="h-12 w-12 text-fuchsia-500" />
+        </motion.div>
+        <motion.div
+          className="absolute -top-2 left-2 text-lg"
+          animate={{ y: [0, -5, 0], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          A
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-2 right-2 text-lg"
+          animate={{ y: [0, 5, 0], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+        >
+          B
+        </motion.div>
+        <motion.div
+          className="absolute top-1/2 right-0 -translate-y-1/2"
+          animate={{ x: [0, 3, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <TrendingUp className="h-5 w-5 text-pink-500" />
+        </motion.div>
+      </div>
+    ),
+  },
+  followup: {
+    icon: Clock,
+    title: "Nenhum lembrete de follow-up",
+    description: "Configure lembretes automáticos para fazer follow-up nos momentos certos.",
+    actionLabel: "Criar Lembrete",
+    gradient: "from-amber-500 to-yellow-400",
+    illustration: (
+      <div className="relative">
+        <motion.div
+          className="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-400/20 flex items-center justify-center"
+          animate={{ rotate: [0, 5, -5, 0] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        >
+          <Clock className="h-12 w-12 text-amber-500" />
+        </motion.div>
+        <motion.div
+          className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-amber-400/30 flex items-center justify-center"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 1, repeat: Infinity }}
+        >
+          <Bell className="h-4 w-4 text-amber-500" />
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-2 left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+        >
+          <span className="text-xs font-medium text-amber-600">Lembrar!</span>
+        </motion.div>
+      </div>
+    ),
+  },
+  reports: {
+    icon: ClipboardList,
+    title: "Nenhum relatório agendado",
+    description: "Configure relatórios automáticos para receber métricas importantes.",
+    actionLabel: "Agendar Relatório",
+    gradient: "from-emerald-500 to-teal-400",
+    illustration: (
+      <div className="relative">
+        <motion.div
+          className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-400/20 flex items-center justify-center"
+        >
+          <ClipboardList className="h-12 w-12 text-emerald-500" />
+        </motion.div>
+        <motion.div
+          className="absolute top-0 right-0 flex flex-col gap-1"
+        >
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="w-8 h-1.5 rounded-full bg-emerald-400"
+              initial={{ width: 0 }}
+              animate={{ width: [0, 32, 32] }}
+              transition={{ duration: 1, delay: i * 0.3, repeat: Infinity, repeatDelay: 2 }}
+            />
+          ))}
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-1 -left-1"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        >
+          <Calendar className="h-5 w-5 text-teal-500" />
+        </motion.div>
+      </div>
+    ),
+  },
+  sequences: {
+    icon: Mail,
+    title: "Nenhuma sequência criada",
+    description: "Crie sequências de email automatizadas para aumentar taxas de resposta.",
+    actionLabel: "Criar Sequência",
+    gradient: "from-cyan-500 to-blue-400",
+    illustration: (
+      <div className="relative">
+        <motion.div
+          className="w-24 h-24 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-400/20 flex items-center justify-center"
+        >
+          <Mail className="h-12 w-12 text-cyan-500" />
+        </motion.div>
+        <motion.div className="absolute -right-2 top-2 flex flex-col gap-1">
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="w-3 h-3 rounded-full bg-blue-400"
+              animate={{ x: [0, 10, 0], opacity: [0, 1, 0] }}
+              transition={{ duration: 1.5, delay: i * 0.3, repeat: Infinity }}
+            />
+          ))}
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-2 left-1/2 -translate-x-1/2"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <TrendingUp className="h-5 w-5 text-cyan-500" />
+        </motion.div>
+      </div>
+    ),
+  },
+  unsubscribe: {
+    icon: Users,
+    title: "Lista de exclusão vazia",
+    description: "Adicione emails que não devem receber comunicações.",
+    actionLabel: "Adicionar Email",
+    gradient: "from-slate-500 to-gray-400",
+    illustration: (
+      <div className="relative">
+        <motion.div
+          className="w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-500/20 to-gray-400/20 flex items-center justify-center"
+        >
+          <Users className="h-12 w-12 text-slate-500" />
+        </motion.div>
+        <motion.div
+          className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <span className="text-xs">✕</span>
+        </motion.div>
+      </div>
+    ),
+  },
+  webhooks: {
+    icon: Globe,
+    title: "Nenhum webhook configurado",
+    description: "Configure endpoints para receber notificações em tempo real.",
+    actionLabel: "Configurar Webhook",
+    gradient: "from-indigo-500 to-purple-400",
+    illustration: (
+      <div className="relative">
+        <motion.div
+          className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-400/20 flex items-center justify-center"
+        >
+          <Globe className="h-12 w-12 text-indigo-500" />
+        </motion.div>
+        <motion.div
+          className="absolute -right-2 top-1/2 -translate-y-1/2"
+          animate={{ x: [0, 5, 0] }}
+          transition={{ duration: 1, repeat: Infinity }}
+        >
+          <motion.div className="flex gap-1">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="w-2 h-2 rounded-full bg-indigo-400"
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 0.5, delay: i * 0.15, repeat: Infinity }}
+              />
+            ))}
+          </motion.div>
+        </motion.div>
+      </div>
+    ),
+  },
+  insights: {
+    icon: Sparkles,
+    title: "Sem dados para análise",
+    description: "Envie emails rastreados para gerar insights com IA automaticamente.",
+    actionLabel: "Criar Rastreamento",
+    gradient: "from-yellow-500 to-amber-400",
+    illustration: (
+      <div className="relative">
+        <motion.div
+          className="w-24 h-24 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-400/20 flex items-center justify-center"
+          animate={{ rotate: [0, 5, -5, 0] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        >
+          <Sparkles className="h-12 w-12 text-yellow-500" />
+        </motion.div>
+        <motion.div
+          className="absolute -top-2 -right-2"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <span className="text-2xl">✨</span>
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2"
+          animate={{ y: [0, -3, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <span className="text-xs font-medium text-amber-600">AI</span>
+        </motion.div>
       </div>
     ),
   },
