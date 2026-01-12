@@ -79,11 +79,10 @@ export function useNetworkStatus(): {
   return { isOnline, ...networkInfo };
 }
 
-interface NetworkInformation {
-  effectiveType?: string;
-  downlink?: number;
-  rtt?: number;
-  saveData?: boolean;
-  addEventListener: (type: string, listener: () => void) => void;
-  removeEventListener: (type: string, listener: () => void) => void;
+// Network Information API types (not yet in lib.dom.d.ts)
+interface NetworkInformation extends EventTarget {
+  readonly effectiveType?: 'slow-2g' | '2g' | '3g' | '4g';
+  readonly downlink?: number;
+  readonly rtt?: number;
+  readonly saveData?: boolean;
 }
