@@ -32,7 +32,6 @@ import {
   Pause, 
   Play, 
   XCircle,
-  Mail,
   Clock,
   CheckCircle,
   MessageSquare,
