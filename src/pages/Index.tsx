@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { 
   Mail, 
   Eye, 
@@ -24,11 +24,16 @@ import {
   Globe,
   Sparkles,
   Play,
-  Star
+  Star,
+  Lock,
+  Award,
+  ExternalLink
 } from "lucide-react";
 import logoImg from "@/assets/logo.jpg";
 import { ThemeToggleButton } from "@/components/landing/ThemeToggleButton";
 import { DemoModal } from "@/components/landing/DemoModal";
+import { TrustBar, SecurityBadges } from "@/components/landing/TrustSignals";
+import { ScrollIndicator, SectionDots } from "@/components/ui/scroll-indicator";
 
 // Animation variants
 const fadeInUp = {
@@ -148,32 +153,38 @@ const testimonials = [
   }
 ];
 
-// Animated counter component
+// Animated counter component with intersection observer
 const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) => {
   const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.5 });
   const numericValue = parseFloat(value.replace('<', ''));
   
   useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const increment = numericValue / steps;
-    let current = 0;
-    
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= numericValue) {
-        setCount(numericValue);
-        clearInterval(timer);
-      } else {
-        setCount(current);
-      }
-    }, duration / steps);
-    
-    return () => clearInterval(timer);
-  }, [numericValue]);
+    if (isInView && !hasAnimated) {
+      setHasAnimated(true);
+      const duration = 2000;
+      const steps = 60;
+      const increment = numericValue / steps;
+      let current = 0;
+      
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= numericValue) {
+          setCount(numericValue);
+          clearInterval(timer);
+        } else {
+          setCount(current);
+        }
+      }, duration / steps);
+      
+      return () => clearInterval(timer);
+    }
+  }, [isInView, numericValue, hasAnimated]);
   
   return (
-    <span className="font-mono">
+    <span ref={ref} className="font-mono tabular-nums">
       {value.includes('<') ? '<' : ''}{Math.round(count)}{suffix}
     </span>
   );
@@ -391,10 +402,18 @@ const Index = () => {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Scroll indicator */}
+        <div className="flex justify-center mt-8">
+          <ScrollIndicator targetId="features-section" />
+        </div>
       </section>
 
+      {/* Trust Bar */}
+      <TrustBar />
+
       {/* Features Section - Bento Grid */}
-      <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-20 relative">
+      <section id="features-section" className="container mx-auto px-4 sm:px-6 py-12 sm:py-20 relative">
         <motion.div 
           className="text-center mb-10 sm:mb-16"
           initial="hidden"
@@ -648,25 +667,93 @@ const Index = () => {
         </motion.div>
       </section>
 
+      {/* Security Badges */}
+      <SecurityBadges />
+
       {/* Footer */}
-      <footer className="border-t border-border/50 py-8 sm:py-12 relative">
+      <footer className="border-t border-border/50 py-8 sm:py-12 relative bg-card/30">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
-            <div className="flex items-center gap-3">
-              <img src={logoImg} alt="FUXICO" className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl object-cover" />
-              <div>
-                <span className="font-bold font-display text-base sm:text-lg">FUXICO</span>
-                <span className="text-muted-foreground text-xs sm:text-sm ml-2">by Promo Brindes</span>
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <img src={logoImg} alt="FUXICO" className="h-10 w-10 rounded-xl object-cover shadow-lg" />
+                <div>
+                  <span className="font-bold font-display text-lg">FUXICO</span>
+                  <p className="text-xs text-muted-foreground">Email Tracking Profissional</p>
+                </div>
               </div>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                A solução mais completa para rastreamento de emails empresariais. 
+                Saiba exatamente quando seus emails são lidos e aumente suas conversões.
+              </p>
             </div>
-            <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
-              <button onClick={() => navigate("/pricing")} className="hover:text-foreground transition-colors touch-target py-2">Preços</button>
-              <a href="#" className="hover:text-foreground transition-colors touch-target py-2">Termos</a>
-              <a href="#" className="hover:text-foreground transition-colors touch-target py-2">Privacidade</a>
-              <a href="#" className="hover:text-foreground transition-colors touch-target py-2">Contato</a>
+
+            {/* Links */}
+            <div>
+              <h4 className="font-semibold mb-4">Produto</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <button onClick={() => navigate("/pricing")} className="hover:text-foreground transition-colors">
+                    Preços
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setDemoOpen(true)} className="hover:text-foreground transition-colors">
+                    Ver Demo
+                  </button>
+                </li>
+                <li>
+                  <a href="#features-section" className="hover:text-foreground transition-colors">
+                    Funcionalidades
+                  </a>
+                </li>
+                <li>
+                  <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors inline-flex items-center gap-1">
+                    Extensão Chrome
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Termos de Uso
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Política de Privacidade
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    LGPD
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:contato@fuxico.app" className="hover:text-foreground transition-colors">
+                    Contato
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border/50">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Lock className="h-4 w-4" />
+              <span>Dados protegidos com criptografia de ponta-a-ponta</span>
             </div>
             <div className="text-xs sm:text-sm text-muted-foreground">
-              © 2025 FUXICO. Todos os direitos reservados.
+              © {new Date().getFullYear()} FUXICO by Promo Brindes. Todos os direitos reservados.
             </div>
           </div>
         </div>

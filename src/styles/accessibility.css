@@ -1,4 +1,31 @@
-/* Skip to content link for accessibility */
+/* =============================================================================
+   ACCESSIBILITY STYLES - FUXICO
+   WCAG 2.1 AA Compliant
+   ============================================================================= */
+
+/* Skip to content link for keyboard navigation */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  transition: left 0.2s ease;
+}
+
+.skip-to-content:focus {
+  left: 50%;
+  transform: translateX(-50%);
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Screen reader only - improved version */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -11,24 +38,107 @@
   border-width: 0;
 }
 
-.sr-only.focus\:not-sr-only:focus {
+.sr-only.focus\:not-sr-only:focus,
+.sr-only-focusable:focus {
   position: absolute;
   width: auto;
   height: auto;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   margin: 0;
   overflow: visible;
   clip: auto;
   white-space: normal;
+  background: hsl(var(--background));
+  border: 2px solid hsl(var(--primary));
+  border-radius: var(--radius);
+  z-index: 9999;
 }
 
-/* Focus styles for accessibility */
+/* Enhanced Focus styles for accessibility - WCAG 2.1 AA */
 :focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 3px;
+  border-radius: var(--radius);
 }
 
-/* Reduced motion preference */
+/* Focus ring for interactive elements */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* High contrast focus for dark backgrounds */
+.dark :focus-visible {
+  outline-color: hsl(var(--primary));
+}
+
+/* Focus within for containers */
+.focus-within-ring:focus-within {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* Minimum touch target size (44x44px) - WCAG 2.5.5 */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Enhanced touch targets for mobile */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Larger tap targets for navigation */
+  nav a,
+  nav button {
+    padding: 12px 16px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 20%;
+    --ring: 220 90% 40%;
+  }
+  
+  .dark {
+    --border: 0 0% 80%;
+    --ring: 220 90% 70%;
+  }
+  
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    border-width: 2px !important;
+  }
+  
+  :focus-visible {
+    outline-width: 4px !important;
+  }
+}
+
+/* Reduced motion preference - respect user settings */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -37,5 +147,262 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  
+  /* Disable parallax and transforms */
+  .hover-lift:hover,
+  .hover-scale:hover,
+  .card-interactive:hover {
+    transform: none !important;
+  }
+  
+  /* Keep essential state changes */
+  [aria-expanded] {
+    transition: none !important;
+  }
+}
+
+/* Color contrast improvements */
+.text-contrast-high {
+  color: hsl(var(--foreground));
+}
+
+.text-contrast-medium {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Ensure sufficient contrast for muted text */
+.text-muted-accessible {
+  color: hsl(220 9% 40%);
+}
+
+.dark .text-muted-accessible {
+  color: hsl(220 9% 70%);
+}
+
+/* Link accessibility - underline on focus/hover */
+a:not(.no-underline):hover,
+a:not(.no-underline):focus {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Visible focus for cards */
+.card-focusable:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 4px;
+}
+
+/* Form error states with proper contrast */
+.input-error {
+  border-color: hsl(var(--destructive)) !important;
+  background-color: hsl(var(--destructive) / 0.05);
+}
+
+.input-error:focus-visible {
+  outline-color: hsl(var(--destructive));
+}
+
+/* Success state */
+.input-success {
+  border-color: hsl(var(--success)) !important;
+}
+
+.input-success:focus-visible {
+  outline-color: hsl(var(--success));
+}
+
+/* Visually hidden but accessible labels */
+.label-accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Required field indicator */
+.required-indicator::after {
+  content: " *";
+  color: hsl(var(--destructive));
+  font-weight: bold;
+}
+
+/* Keyboard navigation indicators */
+[data-keyboard-focus="true"]:focus {
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.3);
+}
+
+/* Live region for screen readers */
+.live-region {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Visible live region for important announcements */
+.live-region-visible {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  max-width: 320px;
+  padding: 1rem;
+  background: hsl(var(--background));
+  border: 2px solid hsl(var(--primary));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Loading state announcements */
+.loading-announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* Table accessibility */
+table[role="grid"] {
+  border-collapse: collapse;
+}
+
+table[role="grid"] th,
+table[role="grid"] td {
+  text-align: left;
+  vertical-align: middle;
+}
+
+table[role="grid"] [role="row"]:focus-within {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: -2px;
+}
+
+/* Dialog/Modal accessibility */
+[role="dialog"] {
+  outline: none;
+}
+
+[role="dialog"]:focus-visible {
+  outline: none;
+}
+
+[role="dialog"] [data-focus-guard] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Menu accessibility */
+[role="menu"] {
+  outline: none;
+}
+
+[role="menuitem"]:focus,
+[role="menuitemcheckbox"]:focus,
+[role="menuitemradio"]:focus {
+  background-color: hsl(var(--accent));
+  outline: none;
+}
+
+/* Tab accessibility */
+[role="tablist"] {
+  display: flex;
+  gap: 0.25rem;
+}
+
+[role="tab"] {
+  cursor: pointer;
+  user-select: none;
+}
+
+[role="tab"][aria-selected="true"] {
+  font-weight: 600;
+}
+
+[role="tab"]:focus-visible {
+  z-index: 1;
+}
+
+[role="tabpanel"]:focus {
+  outline: none;
+}
+
+[role="tabpanel"]:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Button state indicators */
+button[aria-pressed="true"],
+[role="button"][aria-pressed="true"] {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+button[aria-expanded="true"],
+[role="button"][aria-expanded="true"] {
+  border-color: hsl(var(--primary));
+}
+
+/* Checkbox and radio accessibility */
+input[type="checkbox"]:focus-visible + label,
+input[type="radio"]:focus-visible + label {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* Progress bar accessibility */
+[role="progressbar"] {
+  overflow: hidden;
+}
+
+/* Slider accessibility */
+[role="slider"]:focus-visible {
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Tooltip accessibility - ensure visible on focus */
+[data-state="delayed-open"][data-side] {
+  animation-duration: 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-state="delayed-open"][data-side] {
+    animation: none;
+  }
+}
+
+/* Print styles for accessibility */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+  
+  .print-full-width {
+    width: 100% !important;
+    max-width: none !important;
   }
 }

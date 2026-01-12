@@ -38,6 +38,7 @@ interface EmptyStateProps {
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
+  action?: React.ReactNode;
   className?: string;
 }
 
@@ -329,6 +330,7 @@ export const EmptyState = ({
   description,
   actionLabel,
   onAction,
+  action,
   className = "",
 }: EmptyStateProps) => {
   const config = emptyStateConfigs[type];
@@ -367,19 +369,21 @@ export const EmptyState = ({
         {description || config.description}
       </motion.p>
       
-      {onAction && (
+      {(onAction || action) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Button
-            onClick={onAction}
-            className={`gap-2 bg-gradient-to-r ${config.gradient} text-white border-0 hover:opacity-90 transition-opacity`}
-          >
-            <Plus className="h-4 w-4" />
-            {actionLabel || config.actionLabel}
-          </Button>
+          {action ? action : (
+            <Button
+              onClick={onAction}
+              className={`gap-2 bg-gradient-to-r ${config.gradient} text-white border-0 hover:opacity-90 transition-opacity`}
+            >
+              <Plus className="h-4 w-4" />
+              {actionLabel || config.actionLabel}
+            </Button>
+          )}
         </motion.div>
       )}
     </motion.div>

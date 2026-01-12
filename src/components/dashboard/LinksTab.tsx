@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
   TableBody,
@@ -30,11 +31,13 @@ import {
   Monitor,
   Smartphone,
   Tablet,
-  ExternalLink
+  ExternalLink,
+  Sparkles
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
@@ -85,16 +88,12 @@ function LinksTabBase() {
       </div>
 
       {!links?.length ? (
-        <Card role="article">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Link2 className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-medium mb-2">Nenhum link rastreado</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Crie um link para começar a rastrear cliques
-            </p>
-            <LinkCreateDialog />
-          </CardContent>
-        </Card>
+        <EmptyState
+          type="links"
+          title="Crie seu primeiro link rastreável"
+          description="Links rastreados permitem monitorar cliques e engajamento em tempo real"
+          action={<LinkCreateDialog />}
+        />
       ) : (
         <Card role="article" data-tour="links-table">
           <Table aria-label="Lista de links rastreados">
