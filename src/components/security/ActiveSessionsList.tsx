@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Trash2, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Trash2, CheckCircle2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';

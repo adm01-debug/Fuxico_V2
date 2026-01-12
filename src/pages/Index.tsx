@@ -10,7 +10,6 @@ import {
   Eye, 
   MousePointerClick, 
   FileText, 
-  Link2, 
   Building2, 
   Shield, 
   Bell,
@@ -26,8 +25,7 @@ import {
   Play,
   Star,
   Lock,
-  Award,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
 import logoImg from "@/assets/logo.jpg";
 import { ThemeToggleButton } from "@/components/landing/ThemeToggleButton";
