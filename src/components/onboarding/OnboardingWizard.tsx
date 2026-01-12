@@ -167,7 +167,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
           >
             <div className="relative">
-              <PulseRing color="hsl(var(--primary))" size={120} />
+              <PulseRing show={true} color="primary" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-2xl">
                   <Mail className="h-12 w-12 text-primary-foreground" />
@@ -442,7 +442,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
           >
             <div className="relative">
-              <CelebrationBurst isActive={true} />
+              <CelebrationBurst trigger={true} />
               <motion.div 
                 className="h-28 w-28 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-2xl"
                 animate={{ 
@@ -553,7 +553,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
 
   const wizardContent = (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      {showCelebration && <Confetti duration={1500} />}
+      {showCelebration && <Confetti trigger={showCelebration} duration={1500} />}
       
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}

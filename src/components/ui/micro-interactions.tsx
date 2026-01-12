@@ -213,33 +213,42 @@ export function AnimatedIcon({
   isActive = false,
   className 
 }: AnimatedIconProps) {
-  const animations = {
-    bounce: {
-      animate: isActive ? { y: [0, -5, 0] } : {},
-      transition: { duration: 0.3, repeat: isActive ? Infinity : 0, repeatDelay: 0.5 },
-    },
-    spin: {
-      animate: isActive ? { rotate: 360 } : {},
-      transition: { duration: 1, repeat: isActive ? Infinity : 0, ease: 'linear' },
-    },
-    pulse: {
-      animate: isActive ? { scale: [1, 1.1, 1] } : {},
-      transition: { duration: 0.5, repeat: isActive ? Infinity : 0 },
-    },
-    wiggle: {
-      animate: isActive ? { rotate: [0, -10, 10, -10, 10, 0] } : {},
-      transition: { duration: 0.5, repeat: isActive ? Infinity : 0, repeatDelay: 1 },
-    },
-    pop: {
-      animate: isActive ? { scale: [1, 1.3, 1] } : {},
-      transition: { duration: 0.2 },
-    },
+  const getAnimationProps = () => {
+    switch (animation) {
+      case 'bounce':
+        return {
+          animate: isActive ? { y: [0, -5, 0] } : { y: 0 },
+          transition: { duration: 0.3, repeat: isActive ? Infinity : 0, repeatDelay: 0.5 },
+        };
+      case 'spin':
+        return {
+          animate: isActive ? { rotate: 360 } : { rotate: 0 },
+          transition: { duration: 1, repeat: isActive ? Infinity : 0, ease: "linear" as const },
+        };
+      case 'pulse':
+        return {
+          animate: isActive ? { scale: [1, 1.1, 1] } : { scale: 1 },
+          transition: { duration: 0.5, repeat: isActive ? Infinity : 0 },
+        };
+      case 'wiggle':
+        return {
+          animate: isActive ? { rotate: [0, -10, 10, -10, 10, 0] } : { rotate: 0 },
+          transition: { duration: 0.5, repeat: isActive ? Infinity : 0, repeatDelay: 1 },
+        };
+      case 'pop':
+        return {
+          animate: isActive ? { scale: [1, 1.3, 1] } : { scale: 1 },
+          transition: { duration: 0.2 },
+        };
+      default:
+        return {};
+    }
   };
 
   return (
     <motion.span
       className={cn('inline-flex', className)}
-      {...animations[animation]}
+      {...getAnimationProps()}
     >
       {icon}
     </motion.span>
