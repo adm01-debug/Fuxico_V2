@@ -660,6 +660,7 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
+              <button onClick={() => navigate("/pricing")} className="hover:text-foreground transition-colors touch-target py-2">Preços</button>
               <a href="#" className="hover:text-foreground transition-colors touch-target py-2">Termos</a>
               <a href="#" className="hover:text-foreground transition-colors touch-target py-2">Privacidade</a>
               <a href="#" className="hover:text-foreground transition-colors touch-target py-2">Contato</a>
