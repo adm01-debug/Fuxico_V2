@@ -7,13 +7,15 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Calendar, Clock, Mail, FileText, TrendingUp, Download, Plus, Trash2, Loader2 } from 'lucide-react';
+import { Calendar, Clock, Mail, FileText, TrendingUp, Download, Plus, Trash2, Loader2, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ExportDialog } from './ExportDialog';
 import { useTrackedEmails, useTrackingStats } from '@/hooks/use-tracking';
 import { useScheduledReports } from '@/hooks/use-scheduled-reports';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
+import { EmptyState } from '@/components/ui/empty-state';
+import { motion } from 'framer-motion';
 
 const metricOptions = [
   { value: 'emails_sent', label: 'Emails Enviados' },
@@ -347,10 +349,17 @@ function ReportsTabBase() {
         </CardHeader>
         <CardContent className="space-y-6">
           {reports.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p>Nenhum relatório agendado.</p>
-              <p className="text-sm">Clique em "Novo Relatório" para começar.</p>
-            </div>
+            <EmptyState
+              type="reports"
+              title="Nenhum relatório agendado"
+              description="Configure relatórios automáticos para receber métricas importantes diretamente no seu email."
+              action={
+                <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Agendar Relatório
+                </Button>
+              }
+            />
           ) : (
             reports.map(report => (
               <Card key={report.id} className={`${report.enabled ? 'border-primary/30' : 'opacity-60'}`}>

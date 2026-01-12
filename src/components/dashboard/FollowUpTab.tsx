@@ -18,6 +18,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { AIFollowUpDialog } from './AIFollowUpDialog';
+import { EmptyState } from '@/components/ui/empty-state';
+import { motion } from 'framer-motion';
 
 function FollowUpTabBase() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -292,14 +294,31 @@ function FollowUpTabBase() {
               {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
-                    Carregando...
+                    <div className="flex items-center justify-center gap-2">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Bell className="h-5 w-5 text-primary" />
+                      </motion.div>
+                      <span>Carregando lembretes...</span>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : filteredReminders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    Nenhum lembrete encontrado
+                  <TableCell colSpan={6} className="py-0">
+                    <EmptyState
+                      type="followup"
+                      title="Nenhum lembrete encontrado"
+                      description="Configure lembretes automáticos para fazer follow-up nos momentos certos."
+                      action={
+                        <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+                          <Plus className="h-4 w-4" />
+                          Criar Lembrete
+                        </Button>
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               ) : (

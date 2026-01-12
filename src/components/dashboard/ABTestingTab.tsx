@@ -6,10 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail } from 'lucide-react';
+import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useABTests } from '@/hooks/use-ab-tests';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
+import { motion } from 'framer-motion';
 
 function ABTestingTabBase() {
   const { tests, isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
@@ -172,11 +174,17 @@ function ABTestingTabBase() {
         </CardHeader>
         <CardContent className="space-y-6">
           {tests.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <FlaskConical className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum teste A/B criado ainda.</p>
-              <p className="text-sm">Clique em "Novo Teste" para começar.</p>
-            </div>
+            <EmptyState
+              type="abtesting"
+              title="Nenhum teste A/B criado"
+              description="Compare diferentes assuntos de email para descobrir qual tem melhor performance e otimize suas taxas de abertura."
+              action={
+                <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Criar Primeiro Teste
+                </Button>
+              }
+            />
           ) : (
             tests.map(test => {
               const openRateA = calculateOpenRate(test.variant_a_opens, test.variant_a_sends);

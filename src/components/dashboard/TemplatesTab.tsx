@@ -7,10 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Copy, Plus, Trash2, Eye, Check, Loader2 } from 'lucide-react';
+import { Copy, Plus, Trash2, Eye, Check, Loader2, FileText, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEmailTemplates } from '@/hooks/use-email-templates';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
+import { motion } from 'framer-motion';
 
 function TemplatesTabBase() {
   const { templates, isLoading, createTemplate, deleteTemplate, incrementUsage } = useEmailTemplates();
@@ -168,10 +170,17 @@ function TemplatesTabBase() {
           )}
 
           {templates.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p>Nenhum template criado ainda.</p>
-              <p className="text-sm">Clique em "Novo Template" para começar.</p>
-            </div>
+            <EmptyState
+              type="templates"
+              title="Nenhum template criado"
+              description="Crie templates prontos com pixel de tracking integrado para enviar emails profissionais rapidamente."
+              action={
+                <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Criar Template
+                </Button>
+              }
+            />
           ) : (
             <ScrollArea className="h-[500px]">
               <div className="grid gap-4">
