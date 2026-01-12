@@ -19,7 +19,6 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { AIFollowUpDialog } from './AIFollowUpDialog';
 import { EmptyState } from '@/components/ui/empty-state';
-import { motion } from 'framer-motion';
 
 function FollowUpTabBase() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -295,12 +294,7 @@ function FollowUpTabBase() {
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                     <div className="flex items-center justify-center gap-2">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Bell className="h-5 w-5 text-primary" />
-                      </motion.div>
+                      <Bell className="h-5 w-5 text-primary animate-spin" />
                       <span>Carregando lembretes...</span>
                     </div>
                   </TableCell>

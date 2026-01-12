@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Calendar, Clock, Mail, FileText, TrendingUp, Download, Plus, Trash2, Loader2, BarChart3 } from 'lucide-react';
+import { Calendar, Clock, Mail, FileText, TrendingUp, Download, Plus, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ExportDialog } from './ExportDialog';
 import { useTrackedEmails, useTrackingStats, type TrackedEmailWithStats } from '@/hooks/use-tracking';
@@ -15,7 +15,6 @@ import { useScheduledReports } from '@/hooks/use-scheduled-reports';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
 import { EmptyState } from '@/components/ui/empty-state';
-import { motion } from 'framer-motion';
 
 const metricOptions = [
   { value: 'emails_sent', label: 'Emails Enviados' },
