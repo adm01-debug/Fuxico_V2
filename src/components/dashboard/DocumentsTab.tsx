@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import { useTrackedDocuments, useDocumentEvents } from "@/hooks/use-tracked-documents";
 import { DocumentUploadDialog } from "./DocumentUploadDialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -86,16 +87,12 @@ function DocumentsTabBase() {
       </div>
 
       {!documents?.length ? (
-        <Card role="article">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-medium mb-2">Nenhum documento rastreado</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Envie um PDF para começar a rastrear visualizações
-            </p>
-            <DocumentUploadDialog />
-          </CardContent>
-        </Card>
+        <EmptyState
+          type="documents"
+          title="Nenhum documento rastreado"
+          description="Envie um PDF para começar a rastrear visualizações e downloads em tempo real"
+          action={<DocumentUploadDialog />}
+        />
       ) : (
         <Card role="article" data-tour="docs-table">
           <Table aria-label="Lista de documentos rastreados">

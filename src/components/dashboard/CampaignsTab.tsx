@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Dialog,
   DialogContent,
@@ -321,17 +322,17 @@ function CampaignsTabBase() {
               </TableBody>
             </Table>
           ) : (
-            <div role="region" aria-label="CampaignsTab" className="flex flex-col items-center justify-center py-12 text-center">
-              <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="font-medium text-lg">Nenhuma campanha criada</h3>
-              <p className="text-muted-foreground mb-4">
-                Crie campanhas para organizar e comparar seus emails
-              </p>
-              <Button onClick={() => setIsCreateOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Criar Primeira Campanha
-              </Button>
-            </div>
+            <EmptyState
+              type="campaigns"
+              title="Nenhuma campanha criada"
+              description="Crie campanhas para organizar e comparar a performance dos seus emails"
+              action={
+                <Button onClick={() => setIsCreateOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Criar Primeira Campanha
+                </Button>
+              }
+            />
           )}
         </CardContent>
       </Card>
