@@ -4,36 +4,15 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
 import { log } from '@/lib/logger';
+import { playNotificationSound as playSound, NotificationSoundType } from '@/lib/notification-sound';
 
-// Play a pleasant notification chime using Web Audio API
-function playNotificationSound() {
+// Play notification using centralized sound system
+function playNotificationChime(
+  soundType?: NotificationSoundType, 
+  volume?: number
+) {
   try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    // Pleasant chime frequencies (C major chord arpeggio)
-    const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
-    const now = audioContext.currentTime;
-    
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequencies[0], now);
-    oscillator.frequency.setValueAtTime(frequencies[1], now + 0.1);
-    oscillator.frequency.setValueAtTime(frequencies[2], now + 0.2);
-    
-    // Envelope for smooth sound
-    gainNode.gain.setValueAtTime(0, now);
-    gainNode.gain.linearRampToValueAtTime(0.3, now + 0.05);
-    gainNode.gain.linearRampToValueAtTime(0.2, now + 0.15);
-    gainNode.gain.linearRampToValueAtTime(0.3, now + 0.25);
-    gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
-    
-    oscillator.start(now);
-    oscillator.stop(now + 0.5);
+    playSound('success', soundType || 'gentle', volume || 0.5);
   } catch (error) {
     log.warn('Failed to play notification sound', { error });
   }
@@ -98,7 +77,10 @@ export function useRealtimeNotifications() {
     if (email && email.user_id === user?.id) {
       // Play sound if enabled
       if (preferences?.sound_enabled) {
-        playNotificationSound();
+        playNotificationChime(
+          preferences.notification_sound_type as NotificationSoundType,
+          preferences.notification_volume || 0.5
+        );
       }
       
       const title = '📧 Email Aberto!';
@@ -126,7 +108,10 @@ export function useRealtimeNotifications() {
     if (email && email.user_id === user?.id) {
       // Play sound if enabled
       if (preferences?.sound_enabled) {
-        playNotificationSound();
+        playNotificationChime(
+          preferences.notification_sound_type as NotificationSoundType,
+          preferences.notification_volume || 0.5
+        );
       }
       
       const title = '🔗 Link Clicado!';
@@ -149,7 +134,10 @@ export function useRealtimeNotifications() {
   }) => {
     // Play urgent sound for fraud alerts
     if (preferences?.sound_enabled) {
-      playNotificationSound();
+      playNotificationChime(
+        preferences.notification_sound_type as NotificationSoundType,
+        preferences.critical_volume || 0.8
+      );
     }
     
     const severityEmoji = alert.severity === 'high' ? '🚨' : alert.severity === 'medium' ? '⚠️' : 'ℹ️';
