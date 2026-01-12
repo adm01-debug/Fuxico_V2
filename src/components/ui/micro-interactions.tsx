@@ -3,7 +3,7 @@
 // Reusable animation components for delightful UX
 // =============================================================================
 
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useEffect } from 'react';
 import { motion, HTMLMotionProps, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -308,9 +308,9 @@ export function AnimatedCounter({
   const springValue = useSpring(motionValue, { duration: duration * 1000 });
   const displayValue = useTransform(springValue, (v) => formatter(v));
 
-  useState(() => {
+  useEffect(() => {
     motionValue.set(value);
-  });
+  }, [value, motionValue]);
 
   return (
     <motion.span className={className}>
