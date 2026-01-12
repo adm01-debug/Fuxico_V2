@@ -6,12 +6,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { validateIPAccess } from '../_shared/ip-whitelist.ts';
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-import { createLogger } from '../_shared/logger.ts'
-
-const log = createLogger('get-config')
 const ConfigQuerySchema = z.object({
   keys: z.array(z.string()).optional()
 });

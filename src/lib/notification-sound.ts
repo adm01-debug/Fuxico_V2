@@ -2,9 +2,19 @@ import { log } from './logger';
 
 let audioContext: AudioContext | null = null;
 
+// Type for webkit prefixed AudioContext
+interface WindowWithWebkitAudioContext extends Window {
+  webkitAudioContext?: typeof AudioContext;
+}
+
 function getAudioContext(): AudioContext {
   if (!audioContext) {
-    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || (window as WindowWithWebkitAudioContext).webkitAudioContext;
+    if (AudioContextClass) {
+      audioContext = new AudioContextClass();
+    } else {
+      throw new Error('AudioContext not supported');
+    }
   }
   return audioContext;
 }

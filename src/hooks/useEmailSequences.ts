@@ -299,10 +299,16 @@ export function useEnrollContact() {
 
       if (error) throw error;
 
-      // Update total_enrolled count
+      // Update total_enrolled count using RPC or separate query
+      const { data: sequence } = await supabase
+        .from('email_sequences')
+        .select('total_enrolled')
+        .eq('id', data.sequenceId)
+        .single();
+      
       await supabase
         .from('email_sequences')
-        .update({ total_enrolled: (enrollment as any).total_enrolled + 1 })
+        .update({ total_enrolled: ((sequence?.total_enrolled ?? 0) + 1) })
         .eq('id', data.sequenceId);
 
       return enrollment as SequenceEnrollment;

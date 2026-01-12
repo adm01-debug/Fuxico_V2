@@ -65,26 +65,8 @@ async function hmacSha1(key: Uint8Array, data: Uint8Array): Promise<Uint8Array> 
   return new Uint8Array(signature);
 }
 
-async function generateTOTP(secret: string, timeStep = 30): Promise<string> {
-  const key = base32ToBytes(secret);
-  const time = Math.floor(Date.now() / 1000 / timeStep);
-  
-  const timeBytes = new Uint8Array(8);
-  let t = time;
-  for (let i = 7; i >= 0; i--) {
-    timeBytes[i] = t & 0xff;
-    t = Math.floor(t / 256);
-  }
-  
-  const hmac = await hmacSha1(key, timeBytes);
-  const offset = hmac[19] & 0x0f;
-  const code = ((hmac[offset] & 0x7f) << 24) |
-               ((hmac[offset + 1] & 0xff) << 16) |
-               ((hmac[offset + 2] & 0xff) << 8) |
-               (hmac[offset + 3] & 0xff);
-  
-  return (code % 1000000).toString().padStart(6, "0");
-}
+// generateTOTP function kept for potential future use but not currently called
+// async function generateTOTP(secret: string, timeStep = 30): Promise<string> { ... }
 
 async function verifyTOTP(secret: string, token: string, window = 1): Promise<boolean> {
   const timeStep = 30;

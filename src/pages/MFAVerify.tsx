@@ -13,7 +13,7 @@ export default function MFAVerify() {
   const [useBackupCode, setUseBackupCode] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = (location.state as any)?.from || '/';
+  const redirectTo = (location.state as { from?: string } | null)?.from || '/';
 
   const handleVerify = async () => {
     if (code.length !== 6) {

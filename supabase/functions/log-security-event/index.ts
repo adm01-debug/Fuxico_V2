@@ -26,11 +26,7 @@ serve(async (req: Request): Promise<Response> => {
                    req.headers.get('x-forwarded-for')?.split(',')[0] || 
                    'unknown';
 
-  const rateLimitResult = await checkRateLimit(clientIP, {
-    windowMs: 60000,
-    maxRequests: 30,
-    keyPrefix: "log-security:"
-  });
+  const rateLimitResult = await checkRateLimit(clientIP, 'log-security', 30, 60);
 
   if (!rateLimitResult.allowed) {
     const retryAfter = Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000);
