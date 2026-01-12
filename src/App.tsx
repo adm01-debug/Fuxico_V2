@@ -24,6 +24,7 @@ const MFAVerify = lazy(() => import("./pages/MFAVerify"));
 const Permissions = lazy(() => import("./pages/Permissions"));
 const Roles = lazy(() => import("./pages/Roles"));
 const TwoFactorAuth = lazy(() => import("./pages/TwoFactorAuth"));
+const Pricing = lazy(() => import("./pages/Pricing"));
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
                     <Route path="/" element={<Index />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/pricing" element={<Pricing />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/security" element={<Security />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
