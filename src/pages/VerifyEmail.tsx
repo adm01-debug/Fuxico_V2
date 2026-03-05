@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,7 +56,7 @@ export default function VerifyEmail() {
           }
         }
       } catch (err) {
-        console.error('Verification error:', err);
+        log.error('Verification error:', err);
         setStatus('error');
         toast.error('Erro ao verificar email');
       }

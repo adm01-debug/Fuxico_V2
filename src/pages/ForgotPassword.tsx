@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,7 +56,7 @@ export default function ForgotPassword() {
       setSent(true);
       toast.success('Solicitação enviada! Aguarde aprovação.');
     } catch (err) {
-      console.error('Reset request error:', err);
+      log.error('Reset request error:', err);
       toast.error('Erro ao enviar solicitação. Tente novamente.');
     } finally {
       setLoading(false);
