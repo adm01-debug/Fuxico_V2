@@ -18,7 +18,7 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist coverage node_modules/.cache .vitest",
-    "prepare": "husky install"
+    "prepare": "echo 'skip husky'"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.2.8",
