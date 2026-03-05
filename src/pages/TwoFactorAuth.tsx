@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,7 +51,7 @@ export default function TwoFactorAuth() {
       
       setMfaSettings(data);
     } catch (err) {
-      console.error('Error loading MFA settings:', err);
+      log.error('Error loading MFA settings:', err);
     } finally {
       setLoading(false);
     }

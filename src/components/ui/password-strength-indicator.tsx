@@ -1,3 +1,4 @@
+import { log } from '@/lib/logger';
 import { useMemo, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Check, X, Loader2, AlertTriangle } from 'lucide-react';
@@ -52,7 +53,7 @@ async function checkPasswordBreach(password: string): Promise<boolean> {
     });
     
     if (!response.ok) {
-      console.warn('HIBP API error:', response.status);
+      log.warn('HIBP API error:', response.status);
       return false;
     }
     
@@ -69,7 +70,7 @@ async function checkPasswordBreach(password: string): Promise<boolean> {
     
     return false;
   } catch (error) {
-    console.warn('Error checking password breach:', error);
+    log.warn('Error checking password breach:', error);
     return false;
   }
 }
