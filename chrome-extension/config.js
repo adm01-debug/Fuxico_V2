@@ -8,7 +8,7 @@ const FUXICO_CONFIG = {
   
   // URLs do Backend (Supabase)
   SUPABASE_URL: 'https://npjfwzzapbtcguoupozd.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wamZ3enphaGJ0Y2d1b3Vwb3pkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ0NTQ0NDAsImV4cCI6MjA1MDAzMDQ0MH0.placeholder',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wamZ3enphcGJ0Y2d1b3Vwb3pkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NzMzNjUsImV4cCI6MjA4MTU0OTM2NX0.YXA4kIY0eJl2Z3jeIw6yTB-KDjWwHLlftjOz6qVkoEw',
   
   // URL do Dashboard Web
   DASHBOARD_URL: 'https://fuxico.lovable.app',
