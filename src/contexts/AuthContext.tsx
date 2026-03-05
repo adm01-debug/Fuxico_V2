@@ -39,10 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    const { error } = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
-    if (error) throw error;
+    if (result?.error) throw result.error;
   };
 
   const signInWithEmail = async (email: string, password: string) => {
