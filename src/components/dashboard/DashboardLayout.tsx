@@ -38,7 +38,7 @@ const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
 const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
 const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'))
 const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab'))
-const InsightsTab = lazy(() => import('@/components/dashboard/InsightsTab'))
+// InsightsTab removed - using ReportsTab as fallback
 const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'))
 const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'))
 const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'))
@@ -48,7 +48,7 @@ const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedu
 const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab'))
 const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab'))
 const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'))
-const IntegrationsTab = lazy(() => import('@/components/dashboard/IntegrationsTab'))
+// IntegrationsTab removed - using BitrixTab as fallback
 
 // =============================================================================
 // MAPEAMENTO DE COMPONENTES
@@ -69,7 +69,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   notifications: NotificationHistoryTab,
   leads: LeadScoringTab,
   followup: FollowUpTab,
-  insights: InsightsTab,
+  insights: ReportsTab, // Consolidado com ReportsTab
   campaigns: CampaignsTab,
   abtesting: ABTestingTab,
   unsubscribe: UnsubscribeTab,
@@ -80,7 +80,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   config: AuditConfigTab,
   bitrix: BitrixTab,
   webhooks: WebhookTab,
-  integrations: IntegrationsTab,
+  integrations: BitrixTab, // Consolidado com BitrixTab
 }
 
 const TAB_LABELS: Record<TabId, string> = {
