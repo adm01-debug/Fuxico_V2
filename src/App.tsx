@@ -40,8 +40,8 @@ const PageLoader = () => (
 );
 
 const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
+    <ErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
           <TooltipProvider>
@@ -73,8 +73,8 @@ const App = () => (
           </TooltipProvider>
         </AuthProvider>
       </ThemeProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
+    </ErrorBoundary>
+  </QueryClientProvider>
 );
 
 export default App;
