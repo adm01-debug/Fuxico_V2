@@ -50,14 +50,41 @@ export function useDeliverability() {
   const { data, isLoading, error, refetch } = useQuery<DeliverabilityData>({
     queryKey: ['deliverability-stats'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('check-deliverability', {
-        body: null,
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Use RPC to get domain stats instead of edge function
+      const { data: domainStats, error: rpcError } = await supabase.rpc('calculate_domain_deliverability', {
+        p_user_id: user.id,
       });
 
-      if (error) throw error;
-      return data as DeliverabilityData;
+      if (rpcError) throw rpcError;
+
+      const domains = (domainStats || []) as DomainStats[];
+
+      // Calculate totals
+      const totalSent = domains.reduce((sum, d) => sum + Number(d.total_sent), 0);
+      const totalDelivered = domains.reduce((sum, d) => sum + Number(d.total_delivered), 0);
+      const totalBounced = domains.reduce((sum, d) => sum + Number(d.total_bounced), 0);
+      const totalOpened = domains.reduce((sum, d) => sum + Number(d.total_opened), 0);
+
+      const totals: DeliverabilityTotals = {
+        totalSent,
+        totalDelivered,
+        totalBounced,
+        totalOpened,
+        deliveryRate: totalSent > 0 ? (totalDelivered / totalSent) * 100 : 0,
+        bounceRate: totalSent > 0 ? (totalBounced / totalSent) * 100 : 0,
+        openRate: totalDelivered > 0 ? (totalOpened / totalDelivered) * 100 : 0,
+        reputationScore: domains.length > 0
+          ? Math.round(domains.reduce((sum, d) => sum + Number(d.reputation_score), 0) / domains.length)
+          : 50,
+      };
+
+      return { domains, totals };
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
+    enabled: !!queryClient,
   });
 
   const checkDNSMutation = useMutation({
