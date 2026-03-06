@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,10 +9,10 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationBadgeManager } from "@/components/NotificationBadgeManager";
 import { Skeleton } from "@/components/ui/skeleton";
-import Auth from "./pages/Auth";
 
-// Lazy load other pages
+// Lazy load ALL pages including Auth
 const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Security = lazy(() => import("./pages/Security"));
@@ -40,20 +40,9 @@ const PageLoader = () => (
 );
 
 const App = () => {
-  // Force ErrorBoundary reset on HMR by changing key
-  const [errorKey, setErrorKey] = useState(0);
-
-  useEffect(() => {
-    if (import.meta.hot) {
-      import.meta.hot.on('vite:beforeUpdate', () => {
-        setErrorKey(prev => prev + 1);
-      });
-    }
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary key={errorKey}>
+      <ErrorBoundary>
         <ThemeProvider>
           <AuthProvider>
             <TooltipProvider>
