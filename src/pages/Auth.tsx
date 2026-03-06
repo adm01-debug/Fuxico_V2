@@ -98,8 +98,28 @@ const Auth = () => {
   const [isLockedOut, setIsLockedOut] = useState(false);
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isBreached, setIsBreached] = useState<boolean | null>(null);
   
-  const passwordStrength = usePasswordStrength(signupPassword);
+  const passwordStrength = useMemo(() => {
+    const pwRequirements = [
+      { test: (p: string) => p.length >= 8 },
+      { test: (p: string) => /[A-Z]/.test(p) },
+      { test: (p: string) => /[a-z]/.test(p) },
+      { test: (p: string) => /[0-9]/.test(p) },
+      { test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
+    ];
+    const passed = pwRequirements.filter(req => req.test(signupPassword));
+    const score = passed.length;
+    return {
+      score,
+      isValid: score >= 4 && isBreached !== true,
+      isStrong: score === 5 && isBreached === false,
+      isBreached,
+      passedCount: passed.length,
+      totalCount: pwRequirements.length,
+      setIsBreached,
+    };
+  }, [signupPassword, isBreached]);
   
   const { signInWithGoogle, signInWithEmail, signUpWithEmail, user } = useAuth();
   const { toast } = useToast();
