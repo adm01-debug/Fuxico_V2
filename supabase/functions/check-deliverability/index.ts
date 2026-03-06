@@ -31,7 +31,24 @@ serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
-    const body = await req.json();
+    let body: unknown = {};
+    try {
+      const text = await req.text();
+      if (text) body = JSON.parse(text);
+    } catch {
+      // Empty body is OK for stats-only requests
+    }
+
+    // If no email provided, return general deliverability stats using RPC
+    if (!body || !(body as Record<string, unknown>).email) {
+      const adminSupabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
+      const { data: stats, error: statsError } = await adminSupabase.rpc('calculate_domain_deliverability', {
+        p_user_id: user.id,
+      });
+      if (statsError) return secureErrorResponse("Database error", 500, corsHeaders);
+      return secureJsonResponse({ domains: stats || [], totals: null }, corsHeaders);
+    }
+
     const validation = DeliverabilitySchema.safeParse(body);
     if (!validation.success) return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
 
