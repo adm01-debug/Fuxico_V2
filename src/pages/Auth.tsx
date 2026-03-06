@@ -2,7 +2,7 @@
 // FUXICO - Premium Auth Page with Animations
 // =============================================================================
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { log } from '@/lib/logger';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail, Eye, EyeOff, Lock, AlertTriangle, Sparkles, Shield, Zap, ArrowRight } from 'lucide-react';
-import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/ui/password-strength-indicator';
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
 import { supabase } from '@/integrations/supabase/client';
 import logoImg from '@/assets/logo.jpg';
 import { motion, AnimatePresence } from 'framer-motion';
