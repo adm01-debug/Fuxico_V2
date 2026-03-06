@@ -1,14 +1,20 @@
 // FUXICO - Gmail Content Script
-// Versão 1.2.0 - Com indicadores visuais na inbox
+// Versão 1.3.0 - Com config centralizada e indicadores visuais na inbox
 
 (function() {
   'use strict';
 
   // ============================================
-  // CONFIGURAÇÃO
+  // CONFIGURAÇÃO (usa config.js via FUXICO_CONFIG ou fallback)
   // ============================================
   
-  const CONFIG = {
+  const CONFIG = typeof FUXICO_CONFIG !== 'undefined' ? {
+    SUPABASE_URL: FUXICO_CONFIG.SUPABASE_URL,
+    get API_URL() { return `${this.SUPABASE_URL}/functions/v1`; },
+    ENDPOINTS: FUXICO_CONFIG.ENDPOINTS,
+    INTERVALS: FUXICO_CONFIG.INTERVALS,
+    FEATURES: FUXICO_CONFIG.FEATURES,
+  } : {
     SUPABASE_URL: 'https://npjfwzzapbtcguoupozd.supabase.co',
     get API_URL() { return `${this.SUPABASE_URL}/functions/v1`; },
     ENDPOINTS: {
@@ -22,8 +28,12 @@
       CHECK_COMPOSE: 1000,
       BOUNCE_CHECK: 30000,
       AUDIT_CHECK: 60000,
-      INBOX_INDICATORS: 15000, // Check inbox indicators every 15s
-      STATS_CACHE: 60000, // Cache stats for 1 minute
+      INBOX_INDICATORS: 15000,
+      STATS_CACHE: 60000,
+    },
+    FEATURES: {
+      EMAIL_TRACKING: true,
+      BOUNCE_DETECTION: true,
     },
   };
 
@@ -43,8 +53,8 @@
   // UTILITÁRIOS
   // ============================================
   
-  const log = (msg, ...args) => // 
-  const error = (msg, ...args) => // 
+  const log = (msg, ...args) => console.log(`[FUXICO] ${msg}`, ...args);
+  const error = (msg, ...args) => console.error(`[FUXICO] ${msg}`, ...args);
 
   // ============================================
   // AUTENTICAÇÃO
@@ -63,7 +73,20 @@
             log('Token válido carregado');
             return true;
           } else {
-            log('Token expirado');
+            log('Token expirado, solicitando refresh...');
+            // Request token refresh from service worker
+            try {
+              await chrome.runtime.sendMessage({ action: 'refreshToken' });
+              // Re-check after refresh attempt
+              const refreshed = await chrome.storage.sync.get(['authToken', 'tokenExpiry']);
+              if (refreshed.authToken && new Date(refreshed.tokenExpiry) > new Date()) {
+                authToken = refreshed.authToken;
+                isAuthenticated = true;
+                return true;
+              }
+            } catch (e) {
+              // Service worker may not be ready
+            }
           }
         } else {
           authToken = result.authToken;
@@ -98,12 +121,14 @@
     if (!isAuthenticated || !authToken) return null;
     
     const now = Date.now();
-    if (now - lastStatsFetch < CONFIG.INTERVALS.STATS_CACHE && emailStatsCache.size > 0) {
+    const cacheInterval = CONFIG.INTERVALS?.STATS_CACHE || 60000;
+    if (now - lastStatsFetch < cacheInterval && emailStatsCache.size > 0) {
       return emailStatsCache;
     }
 
     try {
-      const response = await fetch(`${CONFIG.API_URL}${CONFIG.ENDPOINTS.GET_STATS}`, {
+      const endpoint = CONFIG.ENDPOINTS?.GET_STATS || '/get-tracking-stats';
+      const response = await fetch(`${CONFIG.API_URL}${endpoint}`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -115,7 +140,10 @@
         emailStatsCache.clear();
         
         // Index by recipient email and subject for matching
-        (data.emails || []).forEach(email => {
+        const emails = Array.isArray(data.emails) ? data.emails : [];
+        emails.forEach(email => {
+          if (!email.recipient_email) return;
+          
           const key = `${email.recipient_email}|${email.subject || ''}`.toLowerCase();
           emailStatsCache.set(key, {
             trackingId: email.tracking_id,
@@ -143,11 +171,12 @@
         });
         
         lastStatsFetch = now;
-        log(`Stats cache atualizado: ${emailStatsCache.size} emails`);
+        log(`Stats cache atualizado: ${emailStatsCache.size} entradas`);
         return emailStatsCache;
       } else if (response.status === 401) {
         isAuthenticated = false;
         authToken = null;
+        log('Token inválido (401), desconectado');
       }
     } catch (e) {
       error('Erro ao buscar stats:', e);
@@ -168,7 +197,6 @@
     const hasClicks = stats.clicks > 0;
     
     if (!hasOpens && !hasClicks) {
-      // Email enviado mas não aberto
       container.innerHTML = `
         <div class="fuxico-indicator fuxico-indicator-pending" title="Aguardando leitura">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -178,7 +206,6 @@
         </div>
       `;
     } else {
-      // Email foi aberto
       const openText = stats.opens === 1 ? '1 abertura' : `${stats.opens} aberturas`;
       const clickText = stats.clicks > 0 ? ` • ${stats.clicks} clique${stats.clicks > 1 ? 's' : ''}` : '';
       const tooltip = `${openText}${clickText}`;
@@ -206,7 +233,6 @@
   }
 
   function extractEmailFromRow(row) {
-    // Try different selectors for recipient email in sent items
     const selectors = [
       '.yP [email]',
       '.yW [email]', 
@@ -235,29 +261,12 @@
   async function updateInboxIndicators() {
     if (!isAuthenticated) return;
     
-    // Check if we're in Sent folder
-    const isSentFolder = window.location.hash.includes('#sent') || 
-                         window.location.hash.includes('label/Sent') ||
-                         document.querySelector('[data-tooltip="Sent"]')?.classList.contains('nZ') ||
-                         document.querySelector('.aim[data-tooltip="Enviados"]');
-    
-    // Only show indicators in sent folder or all mail
-    const showIndicators = isSentFolder || 
-                          window.location.hash.includes('#all') ||
-                          window.location.hash.includes('#search');
-    
-    if (!showIndicators && !window.location.hash.includes('#inbox')) {
-      // Also check inbox for replies
-    }
-
     const stats = await fetchEmailStats();
     if (!stats || stats.size === 0) return;
 
-    // Find all email rows
     const emailRows = document.querySelectorAll('tr.zA');
     
     emailRows.forEach(row => {
-      // Skip if already has indicator
       if (row.querySelector('.fuxico-inbox-indicator')) return;
       
       const recipientEmail = extractEmailFromRow(row);
@@ -265,19 +274,15 @@
       
       if (!recipientEmail) return;
       
-      // Try to find matching stats
       const exactKey = `${recipientEmail}|${subject}`;
       let emailStats = stats.get(exactKey);
       
-      // Fallback to just email match
       if (!emailStats) {
         emailStats = stats.get(recipientEmail);
       }
       
       if (emailStats) {
         const indicator = createIndicatorElement(emailStats);
-        
-        // Find the right place to inject (after the sender/recipient column)
         const subjectCell = row.querySelector('.xT, .y6');
         if (subjectCell) {
           subjectCell.style.position = 'relative';
@@ -288,13 +293,11 @@
   }
 
   function startInboxIndicators() {
-    // Initial update
     setTimeout(updateInboxIndicators, 2000);
     
-    // Periodic updates
-    setInterval(updateInboxIndicators, CONFIG.INTERVALS.INBOX_INDICATORS);
+    const indicatorInterval = CONFIG.INTERVALS?.INBOX_INDICATORS || 15000;
+    setInterval(updateInboxIndicators, indicatorInterval);
     
-    // Update on navigation
     let lastHash = window.location.hash;
     setInterval(() => {
       if (window.location.hash !== lastHash) {
@@ -303,7 +306,6 @@
       }
     }, 500);
     
-    // Update on scroll/new content
     const observer = new MutationObserver((mutations) => {
       const hasNewRows = mutations.some(m => 
         m.addedNodes.length > 0 && 
@@ -323,7 +325,7 @@
   }
 
   // ============================================
-  // FUNÇÕES DE TRACKING (existentes)
+  // FUNÇÕES DE TRACKING
   // ============================================
   
   function generateTrackingId() {
@@ -336,8 +338,8 @@
   }
 
   function createPixelHTML(trackingId) {
-    // IMPORTANTE: O parâmetro correto é "t" (não "id") conforme track-pixel/index.ts
-    const pixelUrl = `${CONFIG.API_URL}${CONFIG.ENDPOINTS.TRACK_PIXEL}?t=${trackingId}`;
+    const endpoint = CONFIG.ENDPOINTS?.TRACK_PIXEL || '/track-pixel';
+    const pixelUrl = `${CONFIG.API_URL}${endpoint}?t=${trackingId}`;
     return `<img src="${pixelUrl}" width="1" height="1" style="display:none;opacity:0;width:1px;height:1px;" alt="" data-fuxico-pixel="true">`; 
   }
 
@@ -396,18 +398,24 @@
     const trackingId = generateTrackingId();
     const pixelHTML = createPixelHTML(trackingId);
 
-    const bodyDiv = composeWindow.querySelector('[role="textbox"][aria-label*="Message"], [role="textbox"][aria-label*="Corpo"], [contenteditable="true"][g_editable="true"]');
+    const bodyDiv = composeWindow.querySelector(
+      '[role="textbox"][aria-label*="Message"], ' +
+      '[role="textbox"][aria-label*="Corpo"], ' +
+      '[role="textbox"][aria-label*="message"], ' +
+      '[contenteditable="true"][g_editable="true"]'
+    );
     
     if (bodyDiv) {
       const pixelContainer = document.createElement('div');
       pixelContainer.innerHTML = pixelHTML;
-      pixelContainer.style.cssText = 'font-size:1px;line-height:1px;height:1px;';
+      pixelContainer.style.cssText = 'font-size:1px;line-height:1px;height:1px;overflow:hidden;';
       bodyDiv.appendChild(pixelContainer);
 
       log(`Pixel injetado! TrackingID: ${trackingId}`);
 
       try {
-        const response = await fetch(`${CONFIG.API_URL}${CONFIG.ENDPOINTS.CREATE_TRACKING}`, {
+        const endpoint = CONFIG.ENDPOINTS?.CREATE_TRACKING || '/create-tracking';
+        const response = await fetch(`${CONFIG.API_URL}${endpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -428,8 +436,6 @@
           const data = await response.json();
           log('Tracking registrado:', data.trackingId);
           showNotification('✅ FUXICO Ativado', `Email para ${recipients[0]} será rastreado`);
-          
-          // Invalidate cache to show new email
           lastStatsFetch = 0;
         } else if (response.status === 401) {
           error('Token expirado');
@@ -437,10 +443,13 @@
           isAuthenticated = false;
           authToken = null;
         } else {
-          error('Erro ao registrar tracking:', response.status);
+          const errData = await response.text().catch(() => '');
+          error('Erro ao registrar tracking:', response.status, errData);
+          showNotification('❌ Erro', 'Não foi possível registrar o rastreamento');
         }
       } catch (e) {
         error('Erro de rede:', e);
+        showNotification('❌ Erro de Rede', 'Verifique sua conexão');
       }
     } else {
       error('Corpo do email não encontrado');
@@ -460,8 +469,8 @@
     toast.innerHTML = `
       <div class="fuxico-toast-icon">📧</div>
       <div class="fuxico-toast-content">
-        <div class="fuxico-toast-title">${title}</div>
-        <div class="fuxico-toast-message">${message}</div>
+        <div class="fuxico-toast-title">${escapeHtml(title)}</div>
+        <div class="fuxico-toast-message">${escapeHtml(message)}</div>
       </div>
     `;
     document.body.appendChild(toast);
@@ -471,6 +480,12 @@
       toast.classList.remove('show');
       setTimeout(() => toast.remove(), 300);
     }, 4000);
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   // ============================================
@@ -527,7 +542,11 @@
       composeWindow.dataset.fuxicoId = generateTrackingId().slice(0, 8);
     }
 
-    const sendButton = composeWindow.querySelector('[data-tooltip*="Send"], [aria-label*="Send"], [aria-label*="Enviar"]');
+    // Support multiple Gmail languages
+    const sendButton = composeWindow.querySelector(
+      '[data-tooltip*="Send"], [aria-label*="Send"], [aria-label*="Enviar"], ' +
+      '[data-tooltip*="Enviar"], [aria-label*="Senden"], [aria-label*="Envoyer"]'
+    );
     
     if (sendButton && !sendButton.dataset.fuxicoIntercepted) {
       sendButton.dataset.fuxicoIntercepted = 'true';
@@ -561,7 +580,12 @@
       const composeWindows = document.querySelectorAll(composeSelector);
       
       composeWindows.forEach(win => {
-        const hasMessageField = win.querySelector('[role="textbox"][aria-label*="Message"], [contenteditable="true"][g_editable="true"]');
+        const hasMessageField = win.querySelector(
+          '[role="textbox"][aria-label*="Message"], ' +
+          '[role="textbox"][aria-label*="Corpo"], ' +
+          '[role="textbox"][aria-label*="message"], ' +
+          '[contenteditable="true"][g_editable="true"]'
+        );
         
         if (hasMessageField && !observedComposeWindows.has(win)) {
           observedComposeWindows.add(win);
@@ -572,6 +596,7 @@
         }
       });
 
+      // Cleanup removed compose windows
       observedComposeWindows.forEach(win => {
         if (!document.contains(win)) {
           observedComposeWindows.delete(win);
@@ -579,7 +604,8 @@
       });
     };
 
-    setInterval(checkForCompose, CONFIG.INTERVALS.CHECK_COMPOSE);
+    const checkInterval = CONFIG.INTERVALS?.CHECK_COMPOSE || 1000;
+    setInterval(checkForCompose, checkInterval);
 
     const observer = new MutationObserver(() => checkForCompose());
     observer.observe(document.body, { childList: true, subtree: true });
@@ -590,7 +616,7 @@
   // ============================================
   
   const BOUNCE_SENDERS = ['mailer-daemon', 'postmaster', 'mail-daemon', 'delivery status', 'undeliverable'];
-  const BOUNCE_SUBJECTS = ['undeliverable', 'delivery status', 'delivery failure', 'returned mail', 'falha na entrega'];
+  const BOUNCE_SUBJECTS = ['undeliverable', 'delivery status', 'delivery failure', 'returned mail', 'falha na entrega', 'não entregue'];
 
   async function checkForBounceEmails() {
     if (!isAuthenticated) return;
@@ -645,8 +671,9 @@
   async function reportBounce(recipientEmail, bounceSubject) {
     try {
       const bounceType = bounceSubject.includes('permanent') || bounceSubject.includes('failed') ? 'hard' : 'soft';
+      const endpoint = CONFIG.ENDPOINTS?.REPORT_BOUNCE || '/report-bounce';
       
-      const response = await fetch(`${CONFIG.API_URL}${CONFIG.ENDPOINTS.REPORT_BOUNCE}`, {
+      const response = await fetch(`${CONFIG.API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -669,8 +696,15 @@
   }
 
   function startBounceDetection() {
+    const bounceEnabled = CONFIG.FEATURES?.BOUNCE_DETECTION !== false;
+    if (!bounceEnabled) {
+      log('Detecção de bounce desabilitada');
+      return;
+    }
+    
     checkForBounceEmails();
-    setInterval(checkForBounceEmails, CONFIG.INTERVALS.BOUNCE_CHECK);
+    const bounceInterval = CONFIG.INTERVALS?.BOUNCE_CHECK || 30000;
+    setInterval(checkForBounceEmails, bounceInterval);
     log('Detecção de bounce iniciada');
   }
 
@@ -727,7 +761,7 @@
   // ============================================
   
   async function init() {
-    log('Iniciando FUXICO v1.2.0...');
+    log('Iniciando FUXICO v1.3.0...');
     
     await new Promise(resolve => {
       if (document.readyState === 'complete') resolve();
@@ -741,7 +775,7 @@
 
     observeComposeWindows();
     startBounceDetection();
-    startInboxIndicators(); // NEW: Start inbox indicators
+    startInboxIndicators();
 
     log('FUXICO inicializado!', isAuthenticated ? '(Autenticado)' : '(Não autenticado)');
     

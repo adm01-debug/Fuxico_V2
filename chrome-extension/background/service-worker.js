@@ -1,15 +1,17 @@
 // FUXICO - Background Service Worker
-// Versão 1.1.0 - Com gestão de autenticação
+// Versão 1.2.0 - Compatível com classic worker (não module)
 
-// Importar configuração
+// Importar configuração centralizada
 importScripts('../config.js');
 
 // Usar config ou fallback
 const CONFIG = typeof FUXICO_CONFIG !== 'undefined' ? FUXICO_CONFIG : {
   SUPABASE_URL: 'https://npjfwzzapbtcguoupozd.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wamZ3enphcGJ0Y2d1b3Vwb3pkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NzMzNjUsImV4cCI6MjA4MTU0OTM2NX0.YXA4kIY0eJl2Z3jeIw6yTB-KDjWwHLlftjOz6qVkoEw',
+  DASHBOARD_URL: 'https://fuxico.lovable.app',
   get API_URL() { return `${this.SUPABASE_URL}/functions/v1`; },
   INTERVALS: { POLL_OPENS: 30000 },
-  VERSION: '1.1.0',
+  VERSION: '1.2.0',
 };
 
 // ============================================
@@ -25,18 +27,14 @@ let lastCheckTimestamp = null;
 // ============================================
 
 chrome.runtime.onInstalled.addListener((details) => {
-  // 
-  
-  // Configurar valores padrão
   chrome.storage.sync.set({
     trackingEnabled: true,
     notificationsEnabled: true,
     soundEnabled: false,
   });
 
-  // Criar alarme para verificação periódica
   chrome.alarms.create('checkOpens', { periodInMinutes: 0.5 });
-  chrome.alarms.create('refreshToken', { periodInMinutes: 30 }); // Refresh a cada 30 min
+  chrome.alarms.create('refreshToken', { periodInMinutes: 30 });
 });
 
 // Carregar token na inicialização
@@ -44,7 +42,6 @@ chrome.storage.sync.get(['authToken', 'user'], (result) => {
   if (result.authToken) {
     authToken = result.authToken;
     currentUser = result.user;
-    // 
   }
 });
 
@@ -70,7 +67,6 @@ async function refreshAuthToken() {
     const result = await chrome.storage.sync.get(['refreshToken', 'tokenExpiry']);
     
     if (!result.refreshToken) {
-      // 
       return;
     }
     
@@ -81,18 +77,17 @@ async function refreshAuthToken() {
       const diffMinutes = (expiry - now) / 60000;
       
       if (diffMinutes > 10) {
-        // , 'minutos');
-        return;
+        return; // Token ainda válido
       }
     }
     
-    // 
+    const anonKey = CONFIG.SUPABASE_ANON_KEY || '';
     
     const response = await fetch(`${CONFIG.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': CONFIG.SUPABASE_ANON_KEY || '',
+        'apikey': anonKey,
       },
       body: JSON.stringify({
         refresh_token: result.refreshToken,
@@ -115,15 +110,12 @@ async function refreshAuthToken() {
       
       // Notificar content scripts
       broadcastAuthUpdate();
-      
-      // 
     } else {
-      // 
       // Token inválido, limpar sessão
       await clearAuth();
     }
   } catch (error) {
-    // 
+    console.error('[FUXICO SW] Erro ao refresh token:', error);
   }
 }
 
@@ -135,8 +127,8 @@ async function clearAuth() {
 }
 
 function broadcastAuthUpdate() {
-  // Notificar todas as tabs do Gmail
   chrome.tabs.query({ url: 'https://mail.google.com/*' }, (tabs) => {
+    if (!tabs) return;
     tabs.forEach(tab => {
       chrome.tabs.sendMessage(tab.id, {
         action: 'setAuthToken',
@@ -152,21 +144,18 @@ function broadcastAuthUpdate() {
 
 async function checkForNewOpens() {
   try {
-    // Verificar se temos autenticação
     if (!authToken) {
       const result = await chrome.storage.sync.get(['authToken']);
       if (result.authToken) {
         authToken = result.authToken;
       } else {
-        // 
         return;
       }
     }
     
     const settings = await chrome.storage.sync.get(['notificationsEnabled']);
-    if (!settings.notificationsEnabled) return;
+    if (settings.notificationsEnabled === false) return;
 
-    // Buscar estatísticas do backend COM autenticação
     const response = await fetch(`${CONFIG.API_URL}/get-tracking-stats`, {
       headers: {
         'Authorization': `Bearer ${authToken}`,
@@ -175,7 +164,6 @@ async function checkForNewOpens() {
     });
     
     if (response.status === 401) {
-      // Token expirado, tentar renovar
       await refreshAuthToken();
       return;
     }
@@ -183,17 +171,14 @@ async function checkForNewOpens() {
     if (!response.ok) return;
 
     const data = await response.json();
+    const emails = Array.isArray(data.emails) ? data.emails : [];
     
-    // Verificar se há novas aberturas desde última checagem
-    if (data.emails && lastCheckTimestamp) {
-      for (const email of data.emails) {
-        // Verificar aberturas recentes
+    if (emails.length > 0 && lastCheckTimestamp) {
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      
+      for (const email of emails) {
         if (email.opens > 0) {
-          const lastCheck = new Date(lastCheckTimestamp);
-          // Lógica para detectar novas aberturas baseada em eventos
-          // Por enquanto, só notificamos emails com aberturas > 0 que são recentes
           const emailDate = new Date(email.created_at);
-          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
           
           if (emailDate > fiveMinutesAgo && !email._notified) {
             await showNotification(
@@ -209,7 +194,7 @@ async function checkForNewOpens() {
     lastCheckTimestamp = new Date().toISOString();
     
   } catch (error) {
-    // 
+    console.error('[FUXICO SW] Erro ao verificar aberturas:', error);
   }
 }
 
@@ -230,7 +215,7 @@ async function showNotification(title, message, id) {
       silent: !settings.soundEnabled,
     });
   } catch (error) {
-    // 
+    console.error('[FUXICO SW] Erro ao mostrar notificação:', error);
   }
 }
 
@@ -245,23 +230,22 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 // ============================================
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  // 
-
   // Auth state changed (do popup)
   if (request.action === 'authStateChanged') {
     authToken = request.token;
     currentUser = request.user;
-    
-    if (request.isAuthenticated) {
-      // 
-    } else {
-      // 
-    }
-    
-    // Notificar content scripts
     broadcastAuthUpdate();
-    
     sendResponse({ success: true });
+    return true;
+  }
+
+  // Refresh token (do content script)
+  if (request.action === 'refreshToken') {
+    refreshAuthToken().then(() => {
+      sendResponse({ success: true });
+    }).catch(() => {
+      sendResponse({ success: false });
+    });
     return true;
   }
 
@@ -277,7 +261,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     trackEmail(request.data).then(result => {
       sendResponse(result);
     });
-    return true; // Indica resposta assíncrona
+    return true;
   }
 
   // Obter estatísticas
@@ -327,7 +311,7 @@ async function trackEmail(data) {
 
     return await response.json();
   } catch (error) {
-    // 
+    console.error('[FUXICO SW] Erro ao rastrear email:', error);
     return { success: false, error: error.message };
   }
 }
@@ -356,9 +340,7 @@ async function getStats() {
     
     return await response.json();
   } catch (error) {
-    // 
+    console.error('[FUXICO SW] Erro ao buscar stats:', error);
     return { emails: [], total: 0 };
   }
 }
-
-// 
