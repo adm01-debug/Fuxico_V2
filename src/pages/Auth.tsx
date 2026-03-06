@@ -2,7 +2,7 @@
 // FUXICO - Premium Auth Page with Animations
 // =============================================================================
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import { log } from '@/lib/logger';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -210,7 +210,7 @@ const Auth = () => {
     }
   };
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const handleEmailSignIn = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast({
@@ -286,7 +286,7 @@ const Auth = () => {
     setIsLoading(false);
   };
 
-  const handleEmailSignUp = async (e: React.FormEvent) => {
+  const handleEmailSignUp = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !signupPassword) {
       toast({
