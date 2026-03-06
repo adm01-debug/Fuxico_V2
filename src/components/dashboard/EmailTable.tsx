@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
 import type { TrackedEmail } from "@/lib/tracking-api";
+import { useTrackedEmails } from "@/hooks/use-tracking";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Mail, Eye, MousePointerClick, ChevronRight } from "lucide-react";
+import { Mail, Eye, MousePointerClick, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmailFiltersComponent, useEmailFilters, filterEmails, type EmailFilters } from "./EmailFilters";
@@ -10,9 +11,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmailStatusBadge } from "@/components/ui/email-status-badge";
 
 interface EmailTableProps {
-  emails: TrackedEmail[];
-  selectedId: string | null;
-  onSelect: (trackingId: string) => void;
+  emails?: TrackedEmail[];
+  selectedId?: string | null;
+  onSelect?: (trackingId: string) => void;
   showFilters?: boolean;
 }
 
@@ -147,13 +148,29 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   );
 }
 
-export function EmailTable({ emails, selectedId, onSelect, showFilters = true }: EmailTableProps) {
+export function EmailTable({ emails: externalEmails, selectedId: externalSelectedId, onSelect: externalOnSelect, showFilters = true }: EmailTableProps) {
+  // Self-contained mode: fetch data internally when no emails prop provided
+  const { data: fetchedEmails, isLoading } = useTrackedEmails();
+  const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
+
+  const emails = externalEmails ?? (fetchedEmails as TrackedEmail[] | undefined) ?? [];
+  const selectedId = externalSelectedId ?? internalSelectedId;
+  const onSelect = externalOnSelect ?? setInternalSelectedId;
+
   const { filters, setFilters, hasActiveFilters } = useEmailFilters();
   
   // Apply filters
   const filteredEmails = useMemo(() => {
     return filterEmails(emails, filters);
   }, [emails, filters]);
+
+  if (isLoading && !externalEmails) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
