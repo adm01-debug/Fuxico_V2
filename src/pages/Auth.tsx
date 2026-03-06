@@ -2,7 +2,7 @@
 // FUXICO - Premium Auth Page with Animations
 // =============================================================================
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import { log } from '@/lib/logger';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
