@@ -2,8 +2,8 @@ import React, { Suspense, lazy, useState, useCallback, useMemo, useEffect } from
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { DashboardSidebar, type TabId } from './DashboardSidebar'
-const MobileBottomNav = lazy(() => import('./MobileBottomNav'))
-const DashboardBreadcrumbs = lazy(() => import('./DashboardBreadcrumbs'))
+import MobileBottomNav from './MobileBottomNav'
+import DashboardBreadcrumbs from './DashboardBreadcrumbs'
 import { JoyrideTour, useOnboardingTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
