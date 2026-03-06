@@ -1,4 +1,4 @@
-import * as React from "react";
+import { forwardRef, type ElementRef, type ComponentPropsWithoutRef } from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
 
