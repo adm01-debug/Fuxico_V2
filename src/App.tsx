@@ -10,10 +10,12 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationBadgeManager } from "@/components/NotificationBadgeManager";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Lazy load pages for better performance
+// Direct import for Auth to avoid lazy loading issues
+import Auth from "./pages/Auth";
+
+// Lazy load other pages
 const Index = lazy(() => import("./pages/Index"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Settings = lazy(() => import("./pages/Settings"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Security = lazy(() => import("./pages/Security"));
 const NotFound = lazy(() => import("./pages/NotFound"));
