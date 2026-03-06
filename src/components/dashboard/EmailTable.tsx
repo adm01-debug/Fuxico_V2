@@ -148,13 +148,29 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   );
 }
 
-export function EmailTable({ emails, selectedId, onSelect, showFilters = true }: EmailTableProps) {
+export function EmailTable({ emails: externalEmails, selectedId: externalSelectedId, onSelect: externalOnSelect, showFilters = true }: EmailTableProps) {
+  // Self-contained mode: fetch data internally when no emails prop provided
+  const { data: fetchedEmails, isLoading } = useTrackedEmails();
+  const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
+
+  const emails = externalEmails ?? (fetchedEmails as TrackedEmail[] | undefined) ?? [];
+  const selectedId = externalSelectedId ?? internalSelectedId;
+  const onSelect = externalOnSelect ?? setInternalSelectedId;
+
   const { filters, setFilters, hasActiveFilters } = useEmailFilters();
   
   // Apply filters
   const filteredEmails = useMemo(() => {
     return filterEmails(emails, filters);
   }, [emails, filters]);
+
+  if (isLoading && !externalEmails) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
