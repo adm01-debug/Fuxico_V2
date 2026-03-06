@@ -1,4 +1,4 @@
-import * as React from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ElementRef, type ComponentPropsWithoutRef, type HTMLAttributes } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -18,11 +18,11 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-10 rounded-md px-3", // Increased from h-9 to h-10 for better touch targets
-        lg: "h-12 rounded-md px-8", // Increased from h-11 to h-12
+        sm: "h-10 rounded-md px-3",
+        lg: "h-12 rounded-md px-8",
         icon: "h-10 w-10",
-        "icon-sm": "h-9 w-9", // Explicit small icon for specific cases
-        "touch": "h-11 min-w-[44px] px-4", // Explicit touch-friendly size
+        "icon-sm": "h-9 w-9",
+        "touch": "h-11 min-w-[44px] px-4",
       },
     },
     defaultVariants: {
@@ -33,12 +33,12 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
