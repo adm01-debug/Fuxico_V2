@@ -210,7 +210,7 @@ const Auth = () => {
     }
   };
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const handleEmailSignIn = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast({
@@ -286,7 +286,7 @@ const Auth = () => {
     setIsLoading(false);
   };
 
-  const handleEmailSignUp = async (e: React.FormEvent) => {
+  const handleEmailSignUp = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !signupPassword) {
       toast({
