@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Auth = lazy(() => import("./pages/Auth"));
+const Settings = lazy(() => import("./pages/Settings"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Security = lazy(() => import("./pages/Security"));
 const NotFound = lazy(() => import("./pages/NotFound"));
