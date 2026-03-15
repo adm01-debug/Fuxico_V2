@@ -287,11 +287,13 @@ export function useEngagementMetrics() {
           const ua = event.user_agent?.toLowerCase() || ''
           if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
             acc.mobile++
+          } else if (ua.includes('ipad') || ua.includes('tablet')) {
+            acc.tablet++
           } else {
             acc.desktop++
           }
           return acc
-        }, { mobile: 0, desktop: 0 })
+        }, { mobile: 0, desktop: 0, tablet: 0 })
         
         const firstOpen = opens.length > 0 ? opens[opens.length - 1].created_at : null
         const timeToFirstOpen = firstOpen 
@@ -338,6 +340,7 @@ export function useEngagementMetrics() {
       // Device breakdown
       const totalMobile = emailEngagement.reduce((sum, e) => sum + e.devices.mobile, 0)
       const totalDesktop = emailEngagement.reduce((sum, e) => sum + e.devices.desktop, 0)
+      const totalTablet = emailEngagement.reduce((sum, e) => sum + (e.devices.tablet || 0), 0)
       
       // Top performing emails
       const topEmails = [...emailEngagement]
@@ -359,8 +362,12 @@ export function useEngagementMetrics() {
         devices: {
           mobile: totalMobile,
           desktop: totalDesktop,
-          mobilePercentage: (totalMobile + totalDesktop) > 0 
-            ? Math.round((totalMobile / (totalMobile + totalDesktop)) * 100) 
+          tablet: totalTablet,
+          mobilePercentage: (totalMobile + totalDesktop + totalTablet) > 0 
+            ? Math.round((totalMobile / (totalMobile + totalDesktop + totalTablet)) * 100) 
+            : 0,
+          tabletPercentage: (totalMobile + totalDesktop + totalTablet) > 0
+            ? Math.round((totalTablet / (totalMobile + totalDesktop + totalTablet)) * 100)
             : 0,
         },
         topEmails,

@@ -21,11 +21,23 @@ export function useTrackingTrends(days: number = 7) {
 
       const startDate = startOfDay(subDays(new Date(), days - 1));
 
-      // Get user's tracking IDs first
-      const { data: emails } = await supabase
-        .from('tracked_emails')
-        .select('tracking_id')
-        .eq('user_id', user.id);
+      // Get user's tracking IDs first (paginate to avoid 1000-row limit)
+      const allTrackingIds: string[] = [];
+      let offset = 0;
+      const pageSize = 1000;
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { data: page } = await supabase
+          .from('tracked_emails')
+          .select('tracking_id')
+          .eq('user_id', user.id)
+          .range(offset, offset + pageSize - 1);
+        if (!page || page.length === 0) break;
+        allTrackingIds.push(...page.map(e => e.tracking_id));
+        if (page.length < pageSize) break;
+        offset += pageSize;
+      }
+      const emails = allTrackingIds.length > 0 ? allTrackingIds.map(id => ({ tracking_id: id })) : null;
 
       if (!emails?.length) return generateEmptyDays(days);
 
