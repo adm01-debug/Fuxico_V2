@@ -48,6 +48,8 @@ const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedu
 const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab'))
 const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab'))
 const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'))
+const TrendPredictionTab = lazy(() => import('@/components/dashboard/TrendPredictionTab'))
+const FeatureFlagsTab = lazy(() => import('@/components/dashboard/FeatureFlagsTab'))
 // IntegrationsTab removed - using BitrixTab as fallback
 
 // =============================================================================
@@ -80,7 +82,9 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   config: AuditConfigTab,
   bitrix: BitrixTab,
   webhooks: WebhookTab,
-  integrations: BitrixTab, // Consolidado com BitrixTab
+  integrations: BitrixTab,
+  trends: TrendPredictionTab,
+  featureflags: FeatureFlagsTab,
 }
 
 const TAB_LABELS: Record<TabId, string> = {
@@ -109,6 +113,8 @@ const TAB_LABELS: Record<TabId, string> = {
   bitrix: 'Bitrix24',
   webhooks: 'Webhooks',
   integrations: 'Integrações',
+  trends: 'Tendências',
+  featureflags: 'Feature Flags',
 }
 
 // =============================================================================

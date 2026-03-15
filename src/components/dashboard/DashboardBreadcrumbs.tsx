@@ -35,12 +35,14 @@ const TAB_CATEGORIES: Record<TabId, { category: string; categoryTab?: TabId }> =
   bouncealerts: { category: 'Entregabilidade', categoryTab: 'deliverability' },
   notifications: { category: 'Entregabilidade', categoryTab: 'deliverability' },
   templates: { category: 'Administração' },
+  featureflags: { category: 'Administração', categoryTab: 'templates' },
   audit: { category: 'Administração', categoryTab: 'templates' },
   users: { category: 'Administração', categoryTab: 'templates' },
   config: { category: 'Administração', categoryTab: 'templates' },
   integrations: { category: 'Integrações' },
   bitrix: { category: 'Integrações', categoryTab: 'integrations' },
   webhooks: { category: 'Integrações', categoryTab: 'integrations' },
+  trends: { category: 'Analytics', categoryTab: 'reports' },
 }
 
 const TAB_LABELS: Record<TabId, string> = {
@@ -69,6 +71,8 @@ const TAB_LABELS: Record<TabId, string> = {
   bitrix: 'Bitrix24',
   webhooks: 'Webhooks',
   integrations: 'Slack/Teams',
+  trends: 'Tendências',
+  featureflags: 'Feature Flags',
 }
 
 export function DashboardBreadcrumbs({

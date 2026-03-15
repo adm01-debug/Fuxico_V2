@@ -92,6 +92,8 @@ export type TabId =
   | 'bitrix'
   | 'webhooks'
   | 'integrations'
+  | 'trends'
+  | 'featureflags'
 
 interface MenuItem {
   id: TabId
@@ -178,6 +180,7 @@ function useMenuCategories(): MenuCategory[] {
         { id: 'reports', label: 'Relatórios', icon: BarChart3 },
         { id: 'analytics', label: 'Analytics Avançado', icon: TrendingUp },
         { id: 'geo', label: 'Geo Analytics', icon: Globe },
+        { id: 'trends', label: 'Tendências', icon: TrendingUp, badge: 'new' as const },
         { id: 'insights', label: 'Insights IA', icon: Brain, badge: 'beta' as const },
       ],
     },
@@ -210,6 +213,7 @@ function useMenuCategories(): MenuCategory[] {
       icon: Shield,
       items: [
         { id: 'templates', label: 'Templates', icon: Settings },
+        { id: 'featureflags', label: 'Feature Flags', icon: Activity, badge: 'new' as const },
         { id: 'audit', label: 'Auditoria', icon: Shield },
         { id: 'users', label: 'Usuários', icon: Users },
         { id: 'config', label: 'Configuração', icon: Activity },

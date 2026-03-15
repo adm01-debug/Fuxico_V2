@@ -709,6 +709,45 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_flags: {
+        Row: {
+          conditions: Json | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          enabled: boolean
+          id: string
+          key: string
+          name: string
+          percentage: number | null
+          updated_at: string
+        }
+        Insert: {
+          conditions?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key: string
+          name: string
+          percentage?: number | null
+          updated_at?: string
+        }
+        Update: {
+          conditions?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key?: string
+          name?: string
+          percentage?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       follow_up_reminders: {
         Row: {
           created_at: string
@@ -2019,6 +2058,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      whitelabel_config: {
+        Row: {
+          created_at: string
+          custom_domain: string | null
+          custom_link_path: string | null
+          custom_pixel_path: string | null
+          hide_branding: boolean | null
+          id: string
+          tracking_brand: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_domain?: string | null
+          custom_link_path?: string | null
+          custom_pixel_path?: string | null
+          hide_branding?: boolean | null
+          id?: string
+          tracking_brand?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_domain?: string | null
+          custom_link_path?: string | null
+          custom_pixel_path?: string | null
+          hide_branding?: boolean | null
+          id?: string
+          tracking_brand?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
