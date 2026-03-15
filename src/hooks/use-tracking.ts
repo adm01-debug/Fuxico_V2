@@ -362,8 +362,12 @@ export function useEngagementMetrics() {
         devices: {
           mobile: totalMobile,
           desktop: totalDesktop,
-          mobilePercentage: (totalMobile + totalDesktop) > 0 
-            ? Math.round((totalMobile / (totalMobile + totalDesktop)) * 100) 
+          tablet: totalTablet,
+          mobilePercentage: (totalMobile + totalDesktop + totalTablet) > 0 
+            ? Math.round((totalMobile / (totalMobile + totalDesktop + totalTablet)) * 100) 
+            : 0,
+          tabletPercentage: (totalMobile + totalDesktop + totalTablet) > 0
+            ? Math.round((totalTablet / (totalMobile + totalDesktop + totalTablet)) * 100)
             : 0,
         },
         topEmails,
