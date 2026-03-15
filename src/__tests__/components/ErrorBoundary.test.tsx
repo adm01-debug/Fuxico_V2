@@ -9,10 +9,8 @@ vi.mock("@/lib/sentry", () => ({
   setContext: vi.fn(),
 }));
 
-// Import after mocks
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-// Component that throws
 function ThrowingComponent({ shouldThrow = true }: { shouldThrow?: boolean }) {
   if (shouldThrow) {
     throw new Error("Test error");
@@ -20,71 +18,68 @@ function ThrowingComponent({ shouldThrow = true }: { shouldThrow?: boolean }) {
   return <div>Content loaded</div>;
 }
 
-// Suppress console.error for expected errors
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 describe("ErrorBoundary", () => {
-  // ===== NORMAL RENDERING =====
   describe("Normal rendering", () => {
     it("should render children when no error", () => {
-      render(
+      const { getByText } = render(
         <ErrorBoundary>
           <div>Safe content</div>
         </ErrorBoundary>
       );
-      expect(screen.getByText("Safe content")).toBeInTheDocument();
+      expect(getByText("Safe content")).toBeInTheDocument();
     });
 
     it("should render multiple children", () => {
-      render(
+      const { getByText } = render(
         <ErrorBoundary>
           <div>Child 1</div>
           <div>Child 2</div>
         </ErrorBoundary>
       );
-      expect(screen.getByText("Child 1")).toBeInTheDocument();
-      expect(screen.getByText("Child 2")).toBeInTheDocument();
+      expect(getByText("Child 1")).toBeInTheDocument();
+      expect(getByText("Child 2")).toBeInTheDocument();
     });
   });
 
-  // ===== ERROR CATCHING =====
   describe("Error catching", () => {
     it("should catch errors and show fallback UI", () => {
-      render(
+      const { getByText } = render(
         <ErrorBoundary>
           <ThrowingComponent />
         </ErrorBoundary>
       );
-      expect(screen.getByText("Algo deu errado")).toBeInTheDocument();
+      expect(getByText("Algo deu errado")).toBeInTheDocument();
     });
 
     it("should show custom fallback when provided", () => {
-      render(
+      const { getByText } = render(
         <ErrorBoundary fallback={<div>Custom error page</div>}>
           <ThrowingComponent />
         </ErrorBoundary>
       );
-      expect(screen.getByText("Custom error page")).toBeInTheDocument();
+      expect(getByText("Custom error page")).toBeInTheDocument();
     });
 
     it("should show reload button", () => {
-      render(
+      const { getByText } = render(
         <ErrorBoundary>
           <ThrowingComponent />
         </ErrorBoundary>
       );
-      expect(screen.getByText("Recarregar")).toBeInTheDocument();
+      expect(getByText("Recarregar")).toBeInTheDocument();
     });
 
     it("should show home button", () => {
-      render(
+      const { getByText } = render(
         <ErrorBoundary>
           <ThrowingComponent />
         </ErrorBoundary>
       );
-      expect(screen.getByText("Início")).toBeInTheDocument();
+      expect(getByText("Início")).toBeInTheDocument();
     });
 
     it("should report to Sentry", () => {
@@ -98,12 +93,12 @@ describe("ErrorBoundary", () => {
     });
 
     it("should show event ID", () => {
-      render(
+      const { getByText } = render(
         <ErrorBoundary>
           <ThrowingComponent />
         </ErrorBoundary>
       );
-      expect(screen.getByText(/event-123/)).toBeInTheDocument();
+      expect(getByText(/event-123/)).toBeInTheDocument();
     });
   });
 });
