@@ -134,9 +134,11 @@ class Logger {
   /**
    * Remove dados sensíveis antes de enviar para logs remotos
    */
-  private sanitizeData(data: unknown): unknown {
+  private sanitizeData(data: unknown, depth = 0): unknown {
     if (!data) return undefined
     if (typeof data !== 'object') return data
+    // Prevent infinite recursion on deeply nested objects
+    if (depth > 10) return '[TRUNCATED]'
     
     const sensitiveKeys = [
       'password', 'token', 'secret', 'apiKey', 'api_key',
@@ -144,11 +146,19 @@ class Logger {
       'ssn', 'cpf', 'cnpj',
     ]
     
-    const sanitized = { ...data as Record<string, unknown> }
+    // Handle arrays recursively
+    if (Array.isArray(data)) {
+      return data.map(item => this.sanitizeData(item, depth + 1))
+    }
+    
+    const sanitized = { ...(data as Record<string, unknown>) }
     
     for (const key of Object.keys(sanitized)) {
       if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk.toLowerCase()))) {
         sanitized[key] = '[REDACTED]'
+      } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+        // Recursively sanitize nested objects and arrays
+        sanitized[key] = this.sanitizeData(sanitized[key], depth + 1)
       }
     }
     

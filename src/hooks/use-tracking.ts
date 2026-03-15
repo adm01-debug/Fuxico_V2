@@ -287,11 +287,13 @@ export function useEngagementMetrics() {
           const ua = event.user_agent?.toLowerCase() || ''
           if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
             acc.mobile++
+          } else if (ua.includes('ipad') || ua.includes('tablet')) {
+            acc.tablet++
           } else {
             acc.desktop++
           }
           return acc
-        }, { mobile: 0, desktop: 0 })
+        }, { mobile: 0, desktop: 0, tablet: 0 })
         
         const firstOpen = opens.length > 0 ? opens[opens.length - 1].created_at : null
         const timeToFirstOpen = firstOpen 
