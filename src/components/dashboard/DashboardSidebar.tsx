@@ -213,6 +213,7 @@ function useMenuCategories(): MenuCategory[] {
       icon: Shield,
       items: [
         { id: 'templates', label: 'Templates', icon: Settings },
+        { id: 'featureflags', label: 'Feature Flags', icon: Activity, badge: 'new' as const },
         { id: 'audit', label: 'Auditoria', icon: Shield },
         { id: 'users', label: 'Usuários', icon: Users },
         { id: 'config', label: 'Configuração', icon: Activity },
