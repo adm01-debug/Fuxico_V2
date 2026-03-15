@@ -217,6 +217,48 @@ export function useABTests() {
     },
   });
 
+  // Auto-winner detection with statistical significance
+  const checkAutoWinner = () => {
+    const runningTests = tests.filter(t => t.status === 'running');
+    for (const test of runningTests) {
+      const minSends = 30; // Minimum sends per variant
+      if (test.variant_a_sends < minSends || test.variant_b_sends < minSends) continue;
+
+      const rateA = test.variant_a_opens / test.variant_a_sends;
+      const rateB = test.variant_b_opens / test.variant_b_sends;
+      const totalSends = test.variant_a_sends + test.variant_b_sends;
+
+      // Simple Z-test for proportions
+      const pooledRate = (test.variant_a_opens + test.variant_b_opens) / totalSends;
+      const se = Math.sqrt(pooledRate * (1 - pooledRate) * (1 / test.variant_a_sends + 1 / test.variant_b_sends));
+      
+      if (se === 0) continue;
+      const zScore = Math.abs(rateA - rateB) / se;
+
+      // 95% confidence = z > 1.96
+      if (zScore > 1.96) {
+        const winner = rateA > rateB ? 'A' as const : 'B' as const;
+        const confidence = Math.min(99, Math.round((1 - 2 * (1 - normalCDF(zScore))) * 100));
+        
+        completeTest.mutate({ id: test.id, winner });
+        toast.success(`Vencedor automático: Variante ${winner}`, {
+          description: `Confiança estatística de ${confidence}%`,
+        });
+      }
+    }
+  };
+
+  // Standard normal CDF approximation
+  function normalCDF(x: number): number {
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429;
+    const p = 0.3275911;
+    const sign = x < 0 ? -1 : 1;
+    x = Math.abs(x) / Math.sqrt(2);
+    const t = 1.0 / (1.0 + p * x);
+    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return 0.5 * (1.0 + sign * y);
+  }
+
   return {
     tests,
     isLoading,
@@ -227,5 +269,6 @@ export function useABTests() {
     completeTest,
     updateMetrics,
     deleteTest,
+    checkAutoWinner,
   };
 }
