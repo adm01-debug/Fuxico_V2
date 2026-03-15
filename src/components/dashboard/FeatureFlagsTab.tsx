@@ -91,7 +91,7 @@ function FeatureFlagsTabBase() {
         </CardHeader>
         <CardContent>
           {flags.length === 0 ? (
-            <EmptyState type="settings" title="Nenhuma feature flag" description="Crie flags para controlar funcionalidades." />
+            <EmptyState type="webhooks" title="Nenhuma feature flag" description="Crie flags para controlar funcionalidades." />
           ) : (
             <div className="space-y-3">
               {flags.map(flag => (
