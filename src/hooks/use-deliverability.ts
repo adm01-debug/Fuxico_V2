@@ -128,6 +128,28 @@ export function useDeliverability() {
     },
   });
 
+  const checkBlacklistMutation = useMutation({
+    mutationFn: async (domain: string): Promise<BlacklistResult> => {
+      const { data: session } = await supabase.auth.getSession();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-deliverability?action=check-blacklist&domain=${encodeURIComponent(domain)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${session.session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to check blacklist');
+      }
+
+      return response.json();
+    },
+  });
+
   const getReputationLevel = (score: number): { level: string; color: string } => {
     if (score >= 80) return { level: 'Excelente', color: 'text-green-600' };
     if (score >= 60) return { level: 'Bom', color: 'text-blue-600' };
@@ -151,6 +173,9 @@ export function useDeliverability() {
     checkDNS: checkDNSMutation.mutate,
     isCheckingDNS: checkDNSMutation.isPending,
     dnsResult: checkDNSMutation.data,
+    checkBlacklist: checkBlacklistMutation.mutate,
+    isCheckingBlacklist: checkBlacklistMutation.isPending,
+    blacklistResult: checkBlacklistMutation.data,
     getReputationLevel,
     getDeliveryHealthStatus,
   };
