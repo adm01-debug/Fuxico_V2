@@ -82,7 +82,9 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   config: AuditConfigTab,
   bitrix: BitrixTab,
   webhooks: WebhookTab,
-  integrations: BitrixTab, // Consolidado com BitrixTab
+  integrations: BitrixTab,
+  trends: TrendPredictionTab,
+  featureflags: FeatureFlagsTab,
 }
 
 const TAB_LABELS: Record<TabId, string> = {
