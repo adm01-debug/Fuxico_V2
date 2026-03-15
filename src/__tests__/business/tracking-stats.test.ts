@@ -36,12 +36,14 @@ function calculateDeviceBreakdown(events: TrackingEvent[]) {
         ua.includes("iphone")
       ) {
         acc.mobile++;
+      } else if (ua.includes("ipad") || ua.includes("tablet")) {
+        acc.tablet++;
       } else {
         acc.desktop++;
       }
       return acc;
     },
-    { mobile: 0, desktop: 0 }
+    { mobile: 0, desktop: 0, tablet: 0 }
   );
 }
 
