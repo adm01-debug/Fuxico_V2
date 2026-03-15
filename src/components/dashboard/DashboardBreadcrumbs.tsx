@@ -71,6 +71,8 @@ const TAB_LABELS: Record<TabId, string> = {
   bitrix: 'Bitrix24',
   webhooks: 'Webhooks',
   integrations: 'Slack/Teams',
+  trends: 'Tendências',
+  featureflags: 'Feature Flags',
 }
 
 export function DashboardBreadcrumbs({

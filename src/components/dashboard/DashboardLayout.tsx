@@ -113,6 +113,8 @@ const TAB_LABELS: Record<TabId, string> = {
   bitrix: 'Bitrix24',
   webhooks: 'Webhooks',
   integrations: 'Integrações',
+  trends: 'Tendências',
+  featureflags: 'Feature Flags',
 }
 
 // =============================================================================
