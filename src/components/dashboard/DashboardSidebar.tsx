@@ -92,6 +92,8 @@ export type TabId =
   | 'bitrix'
   | 'webhooks'
   | 'integrations'
+  | 'trends'
+  | 'featureflags'
 
 interface MenuItem {
   id: TabId
