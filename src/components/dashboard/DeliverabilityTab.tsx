@@ -15,7 +15,10 @@ import {
   TrendingUp,
   TrendingDown,
   Activity,
-  Globe
+  Globe,
+  ShieldAlert,
+  ShieldCheck,
+  Search
 } from 'lucide-react';
 import { useDeliverability, DomainStats } from '@/hooks/use-deliverability';
 import { toast } from 'sonner';
@@ -28,10 +31,14 @@ function DeliverabilityTabBase() {
     checkDNS, 
     isCheckingDNS, 
     dnsResult,
+    checkBlacklist,
+    isCheckingBlacklist,
+    blacklistResult,
     getReputationLevel,
     getDeliveryHealthStatus 
   } = useDeliverability();
   const [domainToCheck, setDomainToCheck] = useState('');
+  const [blacklistDomain, setBlacklistDomain] = useState('');
 
   const handleCheckDNS = () => {
     if (!domainToCheck.trim()) {
@@ -41,10 +48,18 @@ function DeliverabilityTabBase() {
     checkDNS(domainToCheck.trim());
   };
 
+  const handleCheckBlacklist = () => {
+    if (!blacklistDomain.trim()) {
+      toast.error('Digite um domínio para verificar');
+      return;
+    }
+    checkBlacklist(blacklistDomain.trim());
+  };
+
   if (isLoading) {
     return (
       <div role="region" aria-label="DeliverabilityTab" className="space-y-6">
-        <div role="region" aria-label="DeliverabilityTab" className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-32" />
           ))}
@@ -58,6 +73,15 @@ function DeliverabilityTabBase() {
   const domains = data?.domains || [];
   const reputationInfo = totals ? getReputationLevel(totals.reputationScore) : { level: 'N/A', color: 'text-muted-foreground' };
   const healthStatus = totals ? getDeliveryHealthStatus(totals.deliveryRate) : { status: 'N/A', color: 'bg-muted' };
+
+  const getRiskBadge = (riskLevel: string) => {
+    switch (riskLevel) {
+      case 'critical': return <Badge variant="destructive">Crítico</Badge>;
+      case 'high': return <Badge className="bg-orange-500">Alto</Badge>;
+      case 'medium': return <Badge className="bg-yellow-500">Médio</Badge>;
+      default: return <Badge className="bg-green-500">Baixo</Badge>;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -154,6 +178,105 @@ function DeliverabilityTabBase() {
         </Card>
       </div>
 
+      {/* Blacklist Detection - NEW */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5" />
+            Verificação de Blacklist (DNSBL)
+          </CardTitle>
+          <CardDescription>
+            Verifique se seu domínio está em listas negras de email (Spamhaus, Barracuda, SpamCop, etc.)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Digite o domínio (ex: empresa.com)"
+              value={blacklistDomain}
+              onChange={(e) => setBlacklistDomain(e.target.value)}
+              className="max-w-md"
+              onKeyDown={(e) => e.key === 'Enter' && handleCheckBlacklist()}
+            />
+            <Button onClick={handleCheckBlacklist} disabled={isCheckingBlacklist}>
+              {isCheckingBlacklist ? (
+                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Search className="h-4 w-4 mr-2" />
+              )}
+              Verificar Blacklists
+            </Button>
+          </div>
+
+          {isCheckingBlacklist && (
+            <div className="border rounded-lg p-6 flex items-center justify-center gap-3">
+              <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
+              <span className="text-muted-foreground">Verificando {BLACKLIST_COUNT} blacklists...</span>
+            </div>
+          )}
+
+          {blacklistResult && !isCheckingBlacklist && (
+            <div className="border rounded-lg p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {blacklistResult.listed ? (
+                    <ShieldAlert className="h-6 w-6 text-red-600" />
+                  ) : (
+                    <ShieldCheck className="h-6 w-6 text-green-600" />
+                  )}
+                  <div>
+                    <h4 className="font-semibold text-lg">{blacklistResult.domain}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Verificado em {new Date(blacklistResult.checkedAt).toLocaleString('pt-BR')}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {getRiskBadge(blacklistResult.riskLevel)}
+                  <span className="text-sm text-muted-foreground">
+                    {blacklistResult.totalListed}/{blacklistResult.totalChecked} listas
+                  </span>
+                </div>
+              </div>
+
+              {/* Blacklist Results Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {blacklistResult.results.map((result) => (
+                  <div
+                    key={result.host}
+                    className={`flex items-center gap-2 p-3 rounded-lg border ${
+                      result.listed 
+                        ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950' 
+                        : 'border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950'
+                    }`}
+                  >
+                    {result.listed ? (
+                      <XCircle className="h-4 w-4 text-red-600 shrink-0" />
+                    ) : (
+                      <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{result.blacklist}</p>
+                      <p className="text-xs text-muted-foreground truncate">{result.host}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Recommendations */}
+              {blacklistResult.recommendations.length > 0 && (
+                <div className="mt-3 space-y-1 p-3 bg-muted/50 rounded-lg">
+                  <p className="text-sm font-medium">Recomendações:</p>
+                  {blacklistResult.recommendations.map((rec, i) => (
+                    <p key={i} className="text-sm text-muted-foreground">{rec}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Verificação de DNS */}
       <Card>
         <CardHeader>
@@ -172,6 +295,7 @@ function DeliverabilityTabBase() {
               value={domainToCheck}
               onChange={(e) => setDomainToCheck(e.target.value)}
               className="max-w-md"
+              onKeyDown={(e) => e.key === 'Enter' && handleCheckDNS()}
             />
             <Button onClick={handleCheckDNS} disabled={isCheckingDNS}>
               {isCheckingDNS ? (
@@ -179,7 +303,7 @@ function DeliverabilityTabBase() {
               ) : (
                 <Shield className="h-4 w-4 mr-2" />
               )}
-              Verificar
+              Verificar DNS
             </Button>
           </div>
 
@@ -289,6 +413,7 @@ function DeliverabilityTabBase() {
   );
 }
 
+const BLACKLIST_COUNT = 8;
 
 export const DeliverabilityTab = memo(DeliverabilityTabBase);
 export default DeliverabilityTab;
