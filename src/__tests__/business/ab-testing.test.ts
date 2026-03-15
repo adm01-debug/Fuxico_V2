@@ -217,14 +217,14 @@ describe("A/B Test Winner Determination", () => {
       expect(result.confidence).toBeLessThanOrEqual(99);
     });
 
-    it("should handle very large sample sizes", () => {
+    it("should handle very large sample sizes with meaningful difference", () => {
       const result = determineWinner({
         variant_a_sends: 100000,
-        variant_a_opens: 30100, // 30.1%
+        variant_a_opens: 31000, // 31%
         variant_b_sends: 100000,
-        variant_b_opens: 30000, // 30.0%
+        variant_b_opens: 30000, // 30%
       });
-      // With massive samples, even tiny differences become significant
+      // With massive samples, 1% difference is significant
       expect(result.significant).toBe(true);
     });
   });

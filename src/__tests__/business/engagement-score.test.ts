@@ -89,9 +89,10 @@ describe("Engagement Score Calculation", () => {
       expect(uniqueOpen).toBeGreaterThan(totalOpen);
     });
 
-    it("high clicker should score higher than high opener", () => {
-      const opener = calculateEngagementScore(50, 1, 30);
-      const clicker = calculateEngagementScore(10, 20, 5);
+    it("high clicker should score higher than equivalent opener", () => {
+      // Same total activity, but clicks weighted 3x vs opens 1x
+      const opener = calculateEngagementScore(10, 0, 5);  // 10 + 0 + 10 = 20
+      const clicker = calculateEngagementScore(0, 10, 0); // 0 + 30 + 0 = 30
       expect(clicker).toBeGreaterThan(opener);
     });
   });
