@@ -39,6 +39,22 @@ export interface DNSCheckResult {
   recommendations: string[];
 }
 
+export interface BlacklistResult {
+  domain: string;
+  listed: boolean;
+  totalChecked: number;
+  totalListed: number;
+  results: Array<{
+    blacklist: string;
+    host: string;
+    listed: boolean;
+    description: string;
+  }>;
+  checkedAt: string;
+  riskLevel: string;
+  recommendations: string[];
+}
+
 export interface DeliverabilityData {
   domains: DomainStats[];
   totals: DeliverabilityTotals;
