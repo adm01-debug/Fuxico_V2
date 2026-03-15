@@ -194,6 +194,8 @@ export function useABTests() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ab-tests'] });
+      // Check for auto-winner after metrics update
+      checkAutoWinner();
     },
   });
 
