@@ -207,7 +207,7 @@ function sanitizeData(data: unknown): any {
   const sanitized = { ...(data as Record<string, unknown>) };
 
   for (const key of Object.keys(sanitized)) {
-    if (sensitiveKeys.some((sk) => key.toLowerCase().includes(sk))) {
+    if (sensitiveKeys.some((sk) => key.toLowerCase().includes(sk.toLowerCase()))) {
       sanitized[key] = "[REDACTED]";
     }
   }
