@@ -180,6 +180,7 @@ function useMenuCategories(): MenuCategory[] {
         { id: 'reports', label: 'Relatórios', icon: BarChart3 },
         { id: 'analytics', label: 'Analytics Avançado', icon: TrendingUp },
         { id: 'geo', label: 'Geo Analytics', icon: Globe },
+        { id: 'trends', label: 'Tendências', icon: TrendingUp, badge: 'new' as const },
         { id: 'insights', label: 'Insights IA', icon: Brain, badge: 'beta' as const },
       ],
     },
