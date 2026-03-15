@@ -178,6 +178,15 @@ describe("Tracking Stats Calculation", () => {
       const devices = calculateDeviceBreakdown(events);
       expect(devices.desktop).toBe(1);
     });
+
+    it("should detect iPad as tablet", () => {
+      const events: TrackingEvent[] = [
+        { event_type: "open", ip_address: "1.1.1.1", is_self_open: false, created_at: "2024-01-01T10:00:00Z", user_agent: "Mozilla/5.0 (iPad; CPU OS 17_0)" },
+      ];
+      const devices = calculateDeviceBreakdown(events);
+      expect(devices.tablet).toBe(1);
+      expect(devices.desktop).toBe(0);
+    });
   });
 
   // ===== LARGE DATASET =====
