@@ -12,7 +12,7 @@ vi.mock("@/lib/sentry", () => ({
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { captureException } from "@/lib/sentry";
 
-function ThrowingComponent() {
+function ThrowingComponent(): React.ReactNode {
   throw new Error("Test error");
 }
 
