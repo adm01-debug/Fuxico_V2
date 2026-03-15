@@ -48,6 +48,8 @@ const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedu
 const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab'))
 const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab'))
 const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'))
+const TrendPredictionTab = lazy(() => import('@/components/dashboard/TrendPredictionTab'))
+const FeatureFlagsTab = lazy(() => import('@/components/dashboard/FeatureFlagsTab'))
 // IntegrationsTab removed - using BitrixTab as fallback
 
 // =============================================================================
