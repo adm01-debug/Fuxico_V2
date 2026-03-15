@@ -55,15 +55,17 @@ describe("Lead Scoring Engine", () => {
       })).toBe(100);
     });
 
-    it("should reward clicks more than opens", () => {
+    it("should reward clicks more than opens per-unit", () => {
+      // clicks: 5 points each (capped at 40), opens: 3 points each (capped at 30)
+      // Use small numbers to avoid caps and consistency bonus
       const openOnly = calculateLeadScore({
-        totalOpens: 10, totalClicks: 0, uniqueOpens: 10,
-        totalBounces: 0, totalSent: 10, daysSinceLastInteraction: 1,
-      });
+        totalOpens: 3, totalClicks: 0, uniqueOpens: 3,
+        totalBounces: 0, totalSent: 3, daysSinceLastInteraction: 1,
+      }); // 3*3=9 opens + 20 recency = 29
       const clickOnly = calculateLeadScore({
-        totalOpens: 0, totalClicks: 10, uniqueOpens: 0,
-        totalBounces: 0, totalSent: 10, daysSinceLastInteraction: 1,
-      });
+        totalOpens: 0, totalClicks: 3, uniqueOpens: 0,
+        totalBounces: 0, totalSent: 3, daysSinceLastInteraction: 1,
+      }); // 3*5=15 clicks + 20 recency = 35
       expect(clickOnly).toBeGreaterThan(openOnly);
     });
 
