@@ -206,7 +206,7 @@ describe("Tracking API", () => {
 
     it("should build correct create-tracking URL", () => {
       const url = `${baseUrl}/functions/v1/create-tracking`;
-      expect(url).toEndWith("/create-tracking");
+      expect(url.endsWith("/create-tracking")).toBe(true);
     });
 
     it("should handle special characters in tracking ID", () => {

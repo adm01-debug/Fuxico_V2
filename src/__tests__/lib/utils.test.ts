@@ -100,7 +100,7 @@ describe("cn() - Utility function", () => {
     });
 
     it("should handle complex conditionals", () => {
-      const variant = "primary";
+      const variant: string = "primary";
       expect(
         cn(
           "base",
