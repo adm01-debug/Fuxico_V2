@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
 import React from "react";
 
-// Mock sentry
+// Mock sentry BEFORE importing ErrorBoundary
 vi.mock("@/lib/sentry", () => ({
   captureException: vi.fn().mockReturnValue("event-123"),
   addBreadcrumb: vi.fn(),
@@ -10,16 +10,17 @@ vi.mock("@/lib/sentry", () => ({
 }));
 
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { captureException } from "@/lib/sentry";
 
-function ThrowingComponent({ shouldThrow = true }: { shouldThrow?: boolean }) {
-  if (shouldThrow) {
-    throw new Error("Test error");
-  }
-  return <div>Content loaded</div>;
+function ThrowingComponent() {
+  throw new Error("Test error");
 }
 
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
+  vi.clearAllMocks();
+  // Re-set the mock return value after clearAllMocks
+  vi.mocked(captureException).mockReturnValue("event-123");
 });
 
 describe("ErrorBoundary", () => {
@@ -83,7 +84,6 @@ describe("ErrorBoundary", () => {
     });
 
     it("should report to Sentry", () => {
-      const { captureException } = require("@/lib/sentry");
       render(
         <ErrorBoundary>
           <ThrowingComponent />

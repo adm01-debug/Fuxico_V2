@@ -37,33 +37,3 @@ Object.defineProperty(window, "ResizeObserver", {
   writable: true,
   value: MockResizeObserver,
 });
-
-// Mock import.meta.env
-vi.stubGlobal("import.meta", {
-  env: {
-    DEV: true,
-    PROD: false,
-    VITE_SUPABASE_URL: "https://test.supabase.co",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "test-key",
-  },
-});
-
-// Mock crypto.randomUUID
-if (!globalThis.crypto?.randomUUID) {
-  Object.defineProperty(globalThis, "crypto", {
-    value: {
-      randomUUID: () => "test-uuid-" + Math.random().toString(36).slice(2),
-      getRandomValues: (arr: Uint8Array) => {
-        for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 256);
-        return arr;
-      },
-    },
-  });
-}
-
-// Mock performance.now
-if (!globalThis.performance?.now) {
-  Object.defineProperty(globalThis, "performance", {
-    value: { now: () => Date.now() },
-  });
-}
