@@ -340,6 +340,7 @@ export function useEngagementMetrics() {
       // Device breakdown
       const totalMobile = emailEngagement.reduce((sum, e) => sum + e.devices.mobile, 0)
       const totalDesktop = emailEngagement.reduce((sum, e) => sum + e.devices.desktop, 0)
+      const totalTablet = emailEngagement.reduce((sum, e) => sum + (e.devices.tablet || 0), 0)
       
       // Top performing emails
       const topEmails = [...emailEngagement]
