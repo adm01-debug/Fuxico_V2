@@ -564,8 +564,8 @@ const Index = () => {
           >
             Rastreie aberturas, cliques e visualizações de forma{" "}
             <span className="text-foreground font-semibold">invisível</span> e{" "}
-            <span className="text-foreground font-semibold">precisa</span>.
-            <br className="hidden sm:block" />
+            <span className="text-foreground font-semibold">precisa</span>.{" "}
+            <span className="hidden sm:inline"><br /></span>
             Perfeito para vendas, follow-ups e comunicação empresarial.
           </motion.p>
           
