@@ -220,6 +220,7 @@ function useMenuCategories(): MenuCategory[] {
       items: [
         { id: 'deliverability', label: 'Reputação', icon: HeartPulse },
         { id: 'bouncealerts', label: 'Alertas Bounce', icon: AlertTriangle, badge: bounceAlertCount },
+        { id: 'push-notifications', label: 'Push Notif.', icon: BellDot, badge: 'new' as const },
         { id: 'notifications', label: 'Histórico', icon: BellRing },
       ],
     },
