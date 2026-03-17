@@ -16,7 +16,7 @@ import {
   Mail,
   Star,
 } from "lucide-react";
-import logoImg from "@/assets/logo.jpg";
+import logoImg from "@/assets/logo.webp";
 import { ThemeToggleButton } from "@/components/landing/ThemeToggleButton";
 
 const fadeInUp = {

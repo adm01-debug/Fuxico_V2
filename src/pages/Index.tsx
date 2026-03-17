@@ -31,7 +31,7 @@ import {
   Send,
   Target,
 } from "lucide-react";
-import logoImg from "@/assets/logo.jpg";
+import logoImg from "@/assets/logo.webp";
 import { ThemeToggleButton } from "@/components/landing/ThemeToggleButton";
 import { DemoModal } from "@/components/landing/DemoModal";
 import { TrustBar, SecurityBadges } from "@/components/landing/TrustSignals";
