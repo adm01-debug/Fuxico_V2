@@ -156,37 +156,36 @@ const testimonials = [
 // Animated counter
 const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) => {
   const [count, setCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "0px 0px -50px 0px" });
   const numericValue = parseFloat(value.replace('<', ''));
+  const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
-    if (isInView && !hasAnimated) {
-      setHasAnimated(true);
-      const duration = 2000;
-      const totalSteps = 60;
-      const increment = numericValue / totalSteps;
-      let current = 0;
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= numericValue) {
-          setCount(numericValue);
-          clearInterval(timer);
-        } else {
-          setCount(current);
-        }
-      }, duration / totalSteps);
-      return () => clearInterval(timer);
-    }
-  }, [isInView, numericValue, hasAnimated]);
+    const mountDelay = setTimeout(() => setMounted(true), 300);
+    return () => clearTimeout(mountDelay);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const duration = 2000;
+    const totalSteps = 60;
+    const increment = numericValue / totalSteps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= numericValue) {
+        setCount(numericValue);
+        clearInterval(timer);
+      } else {
+        setCount(current);
+      }
+    }, duration / totalSteps);
+    return () => clearInterval(timer);
+  }, [mounted, numericValue]);
   
   return (
-    <div ref={ref} className="inline-block">
-      <span className="font-mono tabular-nums">
-        {value.includes('<') ? '<' : ''}{Math.round(count)}{suffix}
-      </span>
-    </div>
+    <span className="font-mono tabular-nums">
+      {value.includes('<') ? '<' : ''}{Math.round(count)}{suffix}
+    </span>
   );
 };
 
