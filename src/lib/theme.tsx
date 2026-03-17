@@ -274,20 +274,4 @@ export const darkModeCSS = `
   --input: 217.2 32.6% 17.5%;
   --ring: 212.7 26.8% 83.9%;
 }
-
-/* Smooth transitions */
-:root {
-  --transition-duration: 0.2s;
-}
-
-* {
-  transition: background-color var(--transition-duration) ease,
-              border-color var(--transition-duration) ease,
-              color var(--transition-duration) ease;
-}
-
-/* Disable transitions for images and SVGs */
-img, svg, video, canvas {
-  transition: none;
-}
 `;
