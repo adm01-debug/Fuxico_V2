@@ -191,8 +191,11 @@ function useMenuCategories(): MenuCategory[] {
       items: [
         { id: 'reports', label: 'Relatórios', icon: BarChart3 },
         { id: 'analytics', label: 'Analytics Avançado', icon: TrendingUp },
+        { id: 'realtime', label: 'Tempo Real', icon: Radio, badge: 'new' as const },
         { id: 'geo', label: 'Geo Analytics', icon: Globe },
         { id: 'trends', label: 'Tendências', icon: TrendingUp, badge: 'new' as const },
+        { id: 'benchmark', label: 'Benchmark', icon: Award, badge: 'new' as const },
+        { id: 'ai-optimizer', label: 'Otimizador IA', icon: Wand2, badge: 'new' as const },
         { id: 'insights', label: 'Insights IA', icon: Brain, badge: 'beta' as const },
       ],
     },
