@@ -425,7 +425,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-primary/10 rounded-xl blur-md opacity-60" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-accent/20 rounded-xl blur-md opacity-60 dark:opacity-80" />
             <img 
               src={logoImg} 
               alt="FUXICO" 
