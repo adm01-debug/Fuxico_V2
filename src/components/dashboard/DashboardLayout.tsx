@@ -34,11 +34,9 @@ const AuditTab = lazy(() => import('@/components/dashboard/AuditTab'))
 const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'))
 const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'))
 const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
-// Nota: analytics usa ReportsTab (mesmo componente, evitando duplicação)
 const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
 const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'))
 const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab'))
-// InsightsTab removed - using ReportsTab as fallback
 const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'))
 const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'))
 const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'))
@@ -50,7 +48,13 @@ const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTa
 const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'))
 const TrendPredictionTab = lazy(() => import('@/components/dashboard/TrendPredictionTab'))
 const FeatureFlagsTab = lazy(() => import('@/components/dashboard/FeatureFlagsTab'))
-// IntegrationsTab removed - using BitrixTab as fallback
+// New feature tabs
+const RealtimeAnalyticsTab = lazy(() => import('@/components/dashboard/RealtimeAnalyticsTab'))
+const AISubjectOptimizerTab = lazy(() => import('@/components/dashboard/AISubjectOptimizerTab'))
+const PushNotificationsTab = lazy(() => import('@/components/dashboard/PushNotificationsTab'))
+const WhatsAppIntegrationTab = lazy(() => import('@/components/dashboard/WhatsAppIntegrationTab'))
+const BenchmarkReportsTab = lazy(() => import('@/components/dashboard/BenchmarkReportsTab'))
+const SmartSegmentationTab = lazy(() => import('@/components/dashboard/SmartSegmentationTab'))
 
 // =============================================================================
 // MAPEAMENTO DE COMPONENTES

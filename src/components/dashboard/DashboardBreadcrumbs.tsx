@@ -25,15 +25,20 @@ const TAB_CATEGORIES: Record<TabId, { category: string; categoryTab?: TabId }> =
   analytics: { category: 'Analytics', categoryTab: 'reports' },
   geo: { category: 'Analytics', categoryTab: 'reports' },
   insights: { category: 'Analytics', categoryTab: 'reports' },
+  realtime: { category: 'Analytics', categoryTab: 'reports' },
+  benchmark: { category: 'Analytics', categoryTab: 'reports' },
+  'ai-optimizer': { category: 'Analytics', categoryTab: 'reports' },
   leads: { category: 'Engajamento' },
   followup: { category: 'Engajamento', categoryTab: 'leads' },
   sequences: { category: 'Engajamento', categoryTab: 'leads' },
   campaigns: { category: 'Engajamento', categoryTab: 'leads' },
   abtesting: { category: 'Engajamento', categoryTab: 'leads' },
   unsubscribe: { category: 'Engajamento', categoryTab: 'leads' },
+  segmentation: { category: 'Engajamento', categoryTab: 'leads' },
   deliverability: { category: 'Entregabilidade' },
   bouncealerts: { category: 'Entregabilidade', categoryTab: 'deliverability' },
   notifications: { category: 'Entregabilidade', categoryTab: 'deliverability' },
+  'push-notifications': { category: 'Entregabilidade', categoryTab: 'deliverability' },
   templates: { category: 'Administração' },
   featureflags: { category: 'Administração', categoryTab: 'templates' },
   audit: { category: 'Administração', categoryTab: 'templates' },
@@ -42,6 +47,7 @@ const TAB_CATEGORIES: Record<TabId, { category: string; categoryTab?: TabId }> =
   integrations: { category: 'Integrações' },
   bitrix: { category: 'Integrações', categoryTab: 'integrations' },
   webhooks: { category: 'Integrações', categoryTab: 'integrations' },
+  whatsapp: { category: 'Integrações', categoryTab: 'integrations' },
   trends: { category: 'Analytics', categoryTab: 'reports' },
 }
 
@@ -73,6 +79,12 @@ const TAB_LABELS: Record<TabId, string> = {
   integrations: 'Slack/Teams',
   trends: 'Tendências',
   featureflags: 'Feature Flags',
+  realtime: 'Tempo Real',
+  'ai-optimizer': 'Otimizador IA',
+  'push-notifications': 'Push Notifications',
+  whatsapp: 'WhatsApp',
+  benchmark: 'Benchmark',
+  segmentation: 'Segmentação',
 }
 
 export function DashboardBreadcrumbs({
