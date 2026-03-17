@@ -47,13 +47,23 @@
     
     <!-- Preload critical fonts -->
     <link rel="preload" href="/src/assets/logo.webp" as="image" type="image/webp" />
-    <!-- cache-bust v3 -->
+    <!-- Prevent FOUC: apply saved theme before render -->
+    <script>
+      (function(){
+        try {
+          var t = localStorage.getItem('fuxico-theme');
+          var d = 'light';
+          if (t === 'dark' || (t === 'system' || !t) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            d = 'dark';
+          }
+          document.documentElement.classList.add(d);
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', d === 'dark' ? '#1a1a2e' : '#ffffff');
+        } catch(e){}
+      })();
+    </script>
   </head>
   <body>
-    <!-- Skip to content for accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50">
-      Pular para o conteúdo principal
-    </a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
