@@ -243,6 +243,7 @@ function useMenuCategories(): MenuCategory[] {
       items: [
         { id: 'integrations', label: 'Slack/Teams', icon: Plug },
         { id: 'bitrix', label: 'Bitrix24', icon: Building2 },
+        { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, badge: 'new' as const },
         { id: 'webhooks', label: 'Webhooks', icon: Webhook },
       ],
     },
