@@ -864,7 +864,7 @@
 .stagger-9 { animation-delay: 0.45s; }
 .stagger-10 { animation-delay: 0.5s; }
 
-/* Appear on scroll */
+/* Appear on scroll - Enhanced with variants */
 .appear-on-scroll {
   opacity: 0;
   transform: translateY(20px);
@@ -874,6 +874,69 @@
 .appear-on-scroll.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.appear-on-scroll-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+}
+
+.appear-on-scroll-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.appear-on-scroll-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+}
+
+.appear-on-scroll-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.appear-on-scroll-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+}
+
+.appear-on-scroll-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Futuristic scan line effect for dark mode */
+@keyframes scan-line {
+  0% { top: -10%; }
+  100% { top: 110%; }
+}
+
+.dark .scan-line-effect::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.4), transparent);
+  box-shadow: 0 0 15px 3px hsl(var(--primary) / 0.15);
+  animation: scan-line 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Futuristic dot grid background */
+.dot-grid-bg {
+  background-image: radial-gradient(circle, hsl(var(--border) / 0.5) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .dot-grid-bg {
+  background-image: radial-gradient(circle, hsl(var(--primary) / 0.08) 1px, transparent 1px);
 }
 
 /* Skeleton loading */
