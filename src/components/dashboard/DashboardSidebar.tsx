@@ -440,7 +440,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
               transition={{ delay: 0.1 }}
             >
               <div className="flex items-center gap-1.5">
-                <span className="font-display font-bold text-sm">FUXICO</span>
+                <span className="font-display font-bold text-sm dark:text-neon">FUXICO</span>
                 <Sparkles className="h-3 w-3 text-primary" />
               </div>
               <span className="text-[10px] text-muted-foreground">Email Tracking Pro</span>
