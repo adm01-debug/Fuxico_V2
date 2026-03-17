@@ -66,7 +66,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useBounceAlerts } from '@/hooks/use-bounce-alerts'
 import { Badge } from '@/components/ui/badge'
 import { motion, AnimatePresence } from 'framer-motion'
-import logoImg from '@/assets/logo.jpg'
+import logoImg from '@/assets/logo.webp'
 
 // =============================================================================
 // TIPOS

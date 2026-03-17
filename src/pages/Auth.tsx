@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail, Eye, EyeOff, Lock, AlertTriangle, Sparkles, Shield, Zap, ArrowRight } from 'lucide-react';
 import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
 import { supabase } from '@/integrations/supabase/client';
-import logoImg from '@/assets/logo.jpg';
+import logoImg from '@/assets/logo.webp';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Format seconds to readable time
