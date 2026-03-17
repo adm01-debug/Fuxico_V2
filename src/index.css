@@ -458,6 +458,22 @@
 }
 
 /* =============================================================================
+   GPU ACCELERATION FOR ANIMATED ELEMENTS
+   ============================================================================= */
+
+/* Promote animated elements to their own compositing layer */
+[style*="transform"],
+[style*="opacity"],
+.gradient-text-animated,
+.hover-lift,
+.hover-scale,
+.card-interactive,
+.press-effect {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* =============================================================================
    PREMIUM ANIMATIONS & EFFECTS
    ============================================================================= */
 
