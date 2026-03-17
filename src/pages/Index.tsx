@@ -157,8 +157,8 @@ const testimonials = [
 const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) => {
   const [count, setCount] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.1 });
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "0px 0px -50px 0px" });
   const numericValue = parseFloat(value.replace('<', ''));
   
   useEffect(() => {
@@ -182,9 +182,11 @@ const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) =
   }, [isInView, numericValue, hasAnimated]);
   
   return (
-    <span ref={ref} className="font-mono tabular-nums">
-      {value.includes('<') ? '<' : ''}{Math.round(count)}{suffix}
-    </span>
+    <div ref={ref} className="inline-block">
+      <span className="font-mono tabular-nums">
+        {value.includes('<') ? '<' : ''}{Math.round(count)}{suffix}
+      </span>
+    </div>
   );
 };
 
