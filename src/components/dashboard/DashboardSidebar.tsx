@@ -34,6 +34,12 @@ import {
   PieChart,
   Sparkles,
   GitBranch,
+  Radio,
+  Wand2,
+  MessageCircle,
+  Award,
+  UsersRound,
+  BellDot,
   type LucideIcon,
 } from 'lucide-react'
 import {
@@ -94,6 +100,12 @@ export type TabId =
   | 'integrations'
   | 'trends'
   | 'featureflags'
+  | 'realtime'
+  | 'ai-optimizer'
+  | 'push-notifications'
+  | 'whatsapp'
+  | 'benchmark'
+  | 'segmentation'
 
 interface MenuItem {
   id: TabId
@@ -179,8 +191,11 @@ function useMenuCategories(): MenuCategory[] {
       items: [
         { id: 'reports', label: 'Relatórios', icon: BarChart3 },
         { id: 'analytics', label: 'Analytics Avançado', icon: TrendingUp },
+        { id: 'realtime', label: 'Tempo Real', icon: Radio, badge: 'new' as const },
         { id: 'geo', label: 'Geo Analytics', icon: Globe },
         { id: 'trends', label: 'Tendências', icon: TrendingUp, badge: 'new' as const },
+        { id: 'benchmark', label: 'Benchmark', icon: Award, badge: 'new' as const },
+        { id: 'ai-optimizer', label: 'Otimizador IA', icon: Wand2, badge: 'new' as const },
         { id: 'insights', label: 'Insights IA', icon: Brain, badge: 'beta' as const },
       ],
     },
@@ -190,6 +205,7 @@ function useMenuCategories(): MenuCategory[] {
       icon: Zap,
       items: [
         { id: 'leads', label: 'Lead Scoring', icon: Flame },
+        { id: 'segmentation', label: 'Segmentação', icon: UsersRound, badge: 'new' as const },
         { id: 'followup', label: 'Follow-up', icon: Bell },
         { id: 'sequences', label: 'Sequências', icon: GitBranch, badge: 'new' as const },
         { id: 'campaigns', label: 'Campanhas', icon: Target },
@@ -204,6 +220,7 @@ function useMenuCategories(): MenuCategory[] {
       items: [
         { id: 'deliverability', label: 'Reputação', icon: HeartPulse },
         { id: 'bouncealerts', label: 'Alertas Bounce', icon: AlertTriangle, badge: bounceAlertCount },
+        { id: 'push-notifications', label: 'Push Notif.', icon: BellDot, badge: 'new' as const },
         { id: 'notifications', label: 'Histórico', icon: BellRing },
       ],
     },
@@ -226,6 +243,7 @@ function useMenuCategories(): MenuCategory[] {
       items: [
         { id: 'integrations', label: 'Slack/Teams', icon: Plug },
         { id: 'bitrix', label: 'Bitrix24', icon: Building2 },
+        { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, badge: 'new' as const },
         { id: 'webhooks', label: 'Webhooks', icon: Webhook },
       ],
     },
