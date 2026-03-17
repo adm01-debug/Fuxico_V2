@@ -417,8 +417,8 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
   const menuCategories = useMenuCategories()
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar/95 backdrop-blur-xl">
-      <SidebarHeader className="border-b border-sidebar-border/50">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50 bg-sidebar/95 backdrop-blur-xl dark:bg-sidebar/90 dark:border-primary/10">
+      <SidebarHeader className="border-b border-sidebar-border/50 dark:border-primary/10">
         <div className="flex items-center gap-3 px-2 py-3">
           <motion.div 
             className="relative"
