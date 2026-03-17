@@ -462,7 +462,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border/50">
+      <SidebarFooter className="border-t border-sidebar-border/50 dark:border-primary/10">
         <div className="flex items-center justify-between px-2 py-2">
           {!isCollapsed && (
             <motion.span 
