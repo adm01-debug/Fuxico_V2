@@ -184,7 +184,7 @@ const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) =
   
   return (
     <span className="font-mono tabular-nums">
-      {value.includes('<') ? '<' : ''}{Math.round(count)}{suffix}
+      {value.includes('<') ? '<' : ''}{numericValue % 1 !== 0 ? count.toFixed(1) : Math.round(count)}{suffix}
     </span>
   );
 };
