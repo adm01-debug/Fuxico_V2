@@ -37,9 +37,11 @@ import { DemoModal } from "@/components/landing/DemoModal";
 import { TrustBar, SecurityBadges } from "@/components/landing/TrustSignals";
 
 // Animation variants
+const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOutExpo } }
 };
 
 const staggerContainer = {
@@ -52,17 +54,17 @@ const staggerContainer = {
 
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.85 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: easeOutExpo } }
 };
 
 const slideInLeft = {
   hidden: { opacity: 0, x: -40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: easeOutExpo } }
 };
 
 const slideInRight = {
   hidden: { opacity: 0, x: 40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: easeOutExpo } }
 };
 
 const features = [
