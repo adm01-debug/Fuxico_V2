@@ -2322,6 +2322,16 @@ export type Database = {
           total_attempts: number
         }[]
       }
+      record_login_attempt: {
+        Args: {
+          _email: string
+          _ip_address: string
+          _metadata?: Json
+          _success?: boolean
+          _user_agent?: string
+        }
+        Returns: string
+      }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       update_contact_score: {
