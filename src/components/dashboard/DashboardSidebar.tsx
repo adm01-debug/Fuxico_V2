@@ -417,15 +417,15 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
   const menuCategories = useMenuCategories()
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar/95 backdrop-blur-xl">
-      <SidebarHeader className="border-b border-sidebar-border/50">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50 bg-sidebar/95 backdrop-blur-xl dark:bg-sidebar/90 dark:border-primary/10">
+      <SidebarHeader className="border-b border-sidebar-border/50 dark:border-primary/10">
         <div className="flex items-center gap-3 px-2 py-3">
           <motion.div 
             className="relative"
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-primary/10 rounded-xl blur-md opacity-60" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-accent/20 rounded-xl blur-md opacity-60 dark:opacity-80" />
             <img 
               src={logoImg} 
               alt="FUXICO" 
@@ -440,7 +440,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
               transition={{ delay: 0.1 }}
             >
               <div className="flex items-center gap-1.5">
-                <span className="font-display font-bold text-sm">FUXICO</span>
+                <span className="font-display font-bold text-sm dark:text-neon">FUXICO</span>
                 <Sparkles className="h-3 w-3 text-primary" />
               </div>
               <span className="text-[10px] text-muted-foreground">Email Tracking Pro</span>
@@ -462,7 +462,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border/50">
+      <SidebarFooter className="border-t border-sidebar-border/50 dark:border-primary/10">
         <div className="flex items-center justify-between px-2 py-2">
           {!isCollapsed && (
             <motion.span 

@@ -252,26 +252,27 @@ export function ThemeSelector({ className = '' }: { className?: string }) {
 // =============================================================================
 
 export const darkModeCSS = `
-/* Dark Mode Colors */
+/* Dark Mode Colors - Synced with index.css */
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
+  --background: 228 84% 3%;
+  --foreground: 220 20% 95%;
+  --card: 225 70% 7%;
+  --card-foreground: 220 20% 95%;
+  --popover: 225 70% 7%;
+  --popover-foreground: 220 20% 95%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
+  --primary-glow: 265 89% 62%;
+  --secondary: 225 60% 13%;
+  --secondary-foreground: 220 20% 95%;
+  --muted: 225 50% 14%;
+  --muted-foreground: 220 15% 60%;
+  --accent: 265 89% 62%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 225 40% 16%;
+  --input: 225 40% 16%;
+  --ring: 217 91% 60%;
 }
 `;
