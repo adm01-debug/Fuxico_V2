@@ -205,6 +205,7 @@ function useMenuCategories(): MenuCategory[] {
       icon: Zap,
       items: [
         { id: 'leads', label: 'Lead Scoring', icon: Flame },
+        { id: 'segmentation', label: 'Segmentação', icon: UsersRound, badge: 'new' as const },
         { id: 'followup', label: 'Follow-up', icon: Bell },
         { id: 'sequences', label: 'Sequências', icon: GitBranch, badge: 'new' as const },
         { id: 'campaigns', label: 'Campanhas', icon: Target },
