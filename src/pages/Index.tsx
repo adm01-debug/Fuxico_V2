@@ -156,34 +156,35 @@ const testimonials = [
 // Animated counter
 const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) => {
   const [count, setCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
   const numericValue = parseFloat(value.replace('<', ''));
+  const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
-    if (isInView && !hasAnimated) {
-      setHasAnimated(true);
-      const duration = 2000;
-      const totalSteps = 60;
-      const increment = numericValue / totalSteps;
-      let current = 0;
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= numericValue) {
-          setCount(numericValue);
-          clearInterval(timer);
-        } else {
-          setCount(current);
-        }
-      }, duration / totalSteps);
-      return () => clearInterval(timer);
-    }
-  }, [isInView, numericValue, hasAnimated]);
+    const mountDelay = setTimeout(() => setMounted(true), 300);
+    return () => clearTimeout(mountDelay);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const duration = 2000;
+    const totalSteps = 60;
+    const increment = numericValue / totalSteps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= numericValue) {
+        setCount(numericValue);
+        clearInterval(timer);
+      } else {
+        setCount(current);
+      }
+    }, duration / totalSteps);
+    return () => clearInterval(timer);
+  }, [mounted, numericValue]);
   
   return (
-    <span ref={ref} className="font-mono tabular-nums">
-      {value.includes('<') ? '<' : ''}{Math.round(count)}{suffix}
+    <span className="font-mono tabular-nums">
+      {value.includes('<') ? '<' : ''}{numericValue % 1 !== 0 ? count.toFixed(1) : Math.round(count)}{suffix}
     </span>
   );
 };
