@@ -158,7 +158,7 @@ const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) =
   const [count, setCount] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
   const numericValue = parseFloat(value.replace('<', ''));
   
   useEffect(() => {
