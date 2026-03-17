@@ -26,7 +26,21 @@ const Roles = lazy(() => import("./pages/Roles"));
 const TwoFactorAuth = lazy(() => import("./pages/TwoFactorAuth"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 min - avoid refetching fresh data
+      gcTime: 10 * 60 * 1000, // 10 min garbage collection
+      refetchOnWindowFocus: false, // prevent refetch on tab switch
+      refetchOnReconnect: 'always',
+      retry: 1, // single retry on failure
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    },
+    mutations: {
+      retry: 0,
+    },
+  },
+});
 
 // Loading fallback component
 const PageLoader = () => (
