@@ -38,8 +38,16 @@
     <!-- Security -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <!-- cache-bust v2 -->
+    
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://npjfwzzapbtcguoupozd.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://npjfwzzapbtcguoupozd.supabase.co" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="/src/assets/logo.jpg" as="image" />
+    <!-- cache-bust v3 -->
   </head>
   <body>
     <!-- Skip to content for accessibility -->
