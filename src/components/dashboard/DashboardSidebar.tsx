@@ -94,6 +94,12 @@ export type TabId =
   | 'integrations'
   | 'trends'
   | 'featureflags'
+  | 'realtime'
+  | 'ai-optimizer'
+  | 'push-notifications'
+  | 'whatsapp'
+  | 'benchmark'
+  | 'segmentation'
 
 interface MenuItem {
   id: TabId
