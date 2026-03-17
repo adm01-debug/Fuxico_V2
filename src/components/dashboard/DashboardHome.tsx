@@ -194,8 +194,9 @@ function MetricCard({
         role="region" 
         aria-label="Estatísticas" 
         className={cn(
-          'relative overflow-hidden transition-all duration-300',
-          'hover:shadow-xl hover:shadow-primary/5 hover:border-primary/20',
+          'relative overflow-hidden transition-all duration-300 card-futuristic',
+          'hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30',
+          'dark:hover:shadow-primary/15 dark:hover:shadow-glow',
           className
         )}
       >
