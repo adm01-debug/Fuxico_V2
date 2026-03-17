@@ -34,6 +34,12 @@ import {
   PieChart,
   Sparkles,
   GitBranch,
+  Radio,
+  Wand2,
+  MessageCircle,
+  Award,
+  UsersRound,
+  BellDot,
   type LucideIcon,
 } from 'lucide-react'
 import {
