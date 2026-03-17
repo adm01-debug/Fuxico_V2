@@ -62,7 +62,18 @@ export function ThemeProvider({
     return defaultTheme;
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
+  // Initialize resolvedTheme correctly to match the FOUC script and avoid flash
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(storageKey) as Theme | null;
+      const t = stored && ['light', 'dark', 'system'].includes(stored) ? stored : defaultTheme;
+      if (t === 'dark') return 'dark';
+      if (t === 'light') return 'light';
+      // system
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
 
   const resolveTheme = useCallback((themeToResolve: Theme): ResolvedTheme => {
     if (themeToResolve === 'system') {
@@ -107,6 +118,7 @@ export function ThemeProvider({
     }
   }, [attribute, disableTransitionOnChange]);
 
+  // Apply theme whenever theme preference changes
   useEffect(() => {
     const resolved = resolveTheme(theme);
     setResolvedTheme(resolved);
@@ -114,6 +126,7 @@ export function ThemeProvider({
     localStorage.setItem(storageKey, theme);
   }, [theme, resolveTheme, applyTheme, storageKey]);
 
+  // Listen for system theme changes
   useEffect(() => {
     if (theme !== 'system') return;
 
@@ -128,14 +141,6 @@ export function ThemeProvider({
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme, resolveTheme, applyTheme]);
-
-  // Initial theme application on mount
-  useEffect(() => {
-    const resolved = resolveTheme(theme);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resolveTheme, applyTheme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
