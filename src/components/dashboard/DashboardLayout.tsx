@@ -67,7 +67,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   links: LinksTab,
   documents: DocumentsTab,
   reports: ReportsTab,
-  analytics: ReportsTab, // Usa o mesmo componente de reports
+  analytics: ReportsTab,
   geo: GeoAnalyticsTab,
   scheduling: EmailSchedulingTab,
   deliverability: DeliverabilityTab,
@@ -75,7 +75,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   notifications: NotificationHistoryTab,
   leads: LeadScoringTab,
   followup: FollowUpTab,
-  insights: ReportsTab, // Consolidado com ReportsTab
+  insights: ReportsTab,
   campaigns: CampaignsTab,
   abtesting: ABTestingTab,
   unsubscribe: UnsubscribeTab,
@@ -89,6 +89,12 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   integrations: BitrixTab,
   trends: TrendPredictionTab,
   featureflags: FeatureFlagsTab,
+  realtime: RealtimeAnalyticsTab,
+  'ai-optimizer': AISubjectOptimizerTab,
+  'push-notifications': PushNotificationsTab,
+  whatsapp: WhatsAppIntegrationTab,
+  benchmark: BenchmarkReportsTab,
+  segmentation: SmartSegmentationTab,
 }
 
 const TAB_LABELS: Record<TabId, string> = {
@@ -119,6 +125,12 @@ const TAB_LABELS: Record<TabId, string> = {
   integrations: 'Integrações',
   trends: 'Tendências',
   featureflags: 'Feature Flags',
+  realtime: 'Tempo Real',
+  'ai-optimizer': 'Otimizador IA',
+  'push-notifications': 'Push Notifications',
+  whatsapp: 'WhatsApp',
+  benchmark: 'Benchmark',
+  segmentation: 'Segmentação',
 }
 
 // =============================================================================
