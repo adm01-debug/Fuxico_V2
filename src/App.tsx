@@ -9,10 +9,10 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationBadgeManager } from "@/components/NotificationBadgeManager";
 import { Skeleton } from "@/components/ui/skeleton";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 
-// Lazy load ALL pages including Auth
-const Index = lazy(() => import("./pages/Index"));
-const Auth = lazy(() => import("./pages/Auth"));
+// Keep non-critical pages lazy-loaded
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Security = lazy(() => import("./pages/Security"));
