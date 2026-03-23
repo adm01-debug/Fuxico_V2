@@ -6,7 +6,7 @@ import viteCompression from "vite-plugin-compression";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  cacheDir: "node_modules/.vite-v3",
+  cacheDir: "node_modules/.vite-v4",
   server: {
     host: "::",
     port: 8080,
