@@ -500,7 +500,7 @@ const Index = () => {
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-300" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold font-display tracking-tight">FUXICO</h1>
+                <span className="text-2xl font-bold font-display tracking-tight">FUXICO</span>
                 <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Email Tracking Pro</p>
               </div>
             </motion.div>
