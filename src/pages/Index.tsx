@@ -577,7 +577,7 @@ const Index = () => {
             <Button 
               size="lg" 
               onClick={() => navigate("/auth")} 
-              className="w-full sm:w-auto h-13 sm:h-14 px-8 sm:px-10 text-base sm:text-lg gradient-primary text-white border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300 hover-lift press-effect group rounded-xl"
+              className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg gradient-primary text-white border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300 hover-lift press-effect group rounded-xl"
             >
               <Mail className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
               Começar Agora — É Grátis
