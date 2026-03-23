@@ -2,19 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, useScroll } from "framer-motion";
-import { HeaderSection } from "@/components/landing/HeaderSection";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { StatsSection } from "@/components/landing/StatsSection";
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { BeforeAfterSection } from "@/components/landing/BeforeAfterSection";
-import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { BenefitsSection } from "@/components/landing/BenefitsSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { CTASection } from "@/components/landing/CTASection";
-import { FooterSection } from "@/components/landing/FooterSection";
-import { OrbBackground } from "@/components/landing/OrbBackground";
+import {
+  HeaderSection, HeroSection, StatsSection, FeaturesSection,
+  BeforeAfterSection, HowItWorksSection, BenefitsSection,
+  TestimonialsSection, CTASection, FooterSection, OrbBackground, DemoModal,
+} from "@/components/landing";
 import { TrustBar, SecurityBadges } from "@/components/landing/TrustSignals";
-import { DemoModal } from "@/components/landing/DemoModal";
 
 const Index = () => {
   const navigate = useNavigate();
