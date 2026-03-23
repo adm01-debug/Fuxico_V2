@@ -926,7 +926,7 @@ const Index = () => {
               size="lg" 
               variant="secondary" 
               onClick={() => navigate("/auth")}
-              className="h-13 sm:h-14 px-8 sm:px-10 text-base sm:text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover-lift press-effect rounded-xl"
+              className="h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover-lift press-effect rounded-xl"
             >
               Criar Conta Grátis
               <ArrowRight className="ml-2 h-5 w-5" />
