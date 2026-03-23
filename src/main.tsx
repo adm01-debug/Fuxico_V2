@@ -35,3 +35,6 @@ if (!existingSkip) {
 }
 
 createRoot(root).render(<App />);
+
+// Initialize Web Vitals monitoring
+initWebVitals();
