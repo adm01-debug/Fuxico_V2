@@ -586,7 +586,7 @@ const Index = () => {
               size="lg" 
               variant="outline" 
               onClick={() => setDemoOpen(true)}
-              className="w-full sm:w-auto h-13 sm:h-14 px-8 sm:px-10 text-base sm:text-lg gap-2 border-2 hover:bg-secondary/80 transition-all duration-300 hover-lift rounded-xl"
+              className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg gap-2 border-2 hover:bg-secondary/80 transition-all duration-300 hover-lift rounded-xl"
             >
               <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-current" />
               Ver Demo
