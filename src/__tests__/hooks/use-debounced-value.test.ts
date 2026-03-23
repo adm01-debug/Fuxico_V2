@@ -25,7 +25,7 @@ describe("useDebouncedValue", () => {
       );
 
       rerender({ value: "world" });
-      vi.advanceTimersByTime(200);
+      act(() => { vi.advanceTimersByTime(200); });
       expect(result.current).toBe("hello");
     });
 
@@ -36,7 +36,7 @@ describe("useDebouncedValue", () => {
       );
 
       rerender({ value: "world" });
-      vi.advanceTimersByTime(300);
+      act(() => { vi.advanceTimersByTime(300); });
       expect(result.current).toBe("world");
     });
 
@@ -47,16 +47,16 @@ describe("useDebouncedValue", () => {
       );
 
       rerender({ value: "ab" });
-      vi.advanceTimersByTime(100);
+      act(() => { vi.advanceTimersByTime(100); });
       rerender({ value: "abc" });
-      vi.advanceTimersByTime(100);
+      act(() => { vi.advanceTimersByTime(100); });
       rerender({ value: "abcd" });
-      vi.advanceTimersByTime(100);
+      act(() => { vi.advanceTimersByTime(100); });
 
       // Still showing initial since timer keeps resetting
       expect(result.current).toBe("a");
 
-      vi.advanceTimersByTime(200);
+      act(() => { vi.advanceTimersByTime(200); });
       expect(result.current).toBe("abcd");
     });
   });
@@ -70,10 +70,10 @@ describe("useDebouncedValue", () => {
       );
 
       rerender({ value: "updated" });
-      vi.advanceTimersByTime(299);
+      act(() => { vi.advanceTimersByTime(299); });
       expect(result.current).toBe("initial");
 
-      vi.advanceTimersByTime(1);
+      act(() => { vi.advanceTimersByTime(1); });
       expect(result.current).toBe("updated");
     });
 
@@ -84,7 +84,7 @@ describe("useDebouncedValue", () => {
       );
 
       rerender({ value: "updated" });
-      vi.advanceTimersByTime(0);
+      act(() => { vi.advanceTimersByTime(0); });
       expect(result.current).toBe("updated");
     });
 
@@ -95,10 +95,10 @@ describe("useDebouncedValue", () => {
       );
 
       rerender({ value: "updated" });
-      vi.advanceTimersByTime(999);
+      act(() => { vi.advanceTimersByTime(999); });
       expect(result.current).toBe("initial");
 
-      vi.advanceTimersByTime(1);
+      act(() => { vi.advanceTimersByTime(1); });
       expect(result.current).toBe("updated");
     });
   });
@@ -163,22 +163,21 @@ describe("useDebouncedValue", () => {
         { initialProps: { value: "" } }
       );
 
-      // User types "react"
       rerender({ value: "r" });
-      vi.advanceTimersByTime(50);
+      act(() => { vi.advanceTimersByTime(50); });
       rerender({ value: "re" });
-      vi.advanceTimersByTime(50);
+      act(() => { vi.advanceTimersByTime(50); });
       rerender({ value: "rea" });
-      vi.advanceTimersByTime(50);
+      act(() => { vi.advanceTimersByTime(50); });
       rerender({ value: "reac" });
-      vi.advanceTimersByTime(50);
+      act(() => { vi.advanceTimersByTime(50); });
       rerender({ value: "react" });
 
       // Should still be empty since timer keeps resetting
       expect(result.current).toBe("");
 
       // Wait for debounce
-      vi.advanceTimersByTime(300);
+      act(() => { vi.advanceTimersByTime(300); });
       expect(result.current).toBe("react");
     });
 
@@ -189,7 +188,7 @@ describe("useDebouncedValue", () => {
       );
 
       rerender({ value: "" });
-      vi.advanceTimersByTime(300);
+      act(() => { vi.advanceTimersByTime(300); });
       expect(result.current).toBe("");
     });
   });
