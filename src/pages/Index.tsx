@@ -500,7 +500,7 @@ const Index = () => {
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-300" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold font-display tracking-tight">FUXICO</h1>
+                <span className="text-2xl font-bold font-display tracking-tight">FUXICO</span>
                 <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Email Tracking Pro</p>
               </div>
             </motion.div>
@@ -577,7 +577,7 @@ const Index = () => {
             <Button 
               size="lg" 
               onClick={() => navigate("/auth")} 
-              className="w-full sm:w-auto h-13 sm:h-14 px-8 sm:px-10 text-base sm:text-lg gradient-primary text-white border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300 hover-lift press-effect group rounded-xl"
+              className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg gradient-primary text-white border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300 hover-lift press-effect group rounded-xl"
             >
               <Mail className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
               Começar Agora — É Grátis
@@ -586,7 +586,7 @@ const Index = () => {
               size="lg" 
               variant="outline" 
               onClick={() => setDemoOpen(true)}
-              className="w-full sm:w-auto h-13 sm:h-14 px-8 sm:px-10 text-base sm:text-lg gap-2 border-2 hover:bg-secondary/80 transition-all duration-300 hover-lift rounded-xl"
+              className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg gap-2 border-2 hover:bg-secondary/80 transition-all duration-300 hover-lift rounded-xl"
             >
               <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-current" />
               Ver Demo
@@ -926,7 +926,7 @@ const Index = () => {
               size="lg" 
               variant="secondary" 
               onClick={() => navigate("/auth")}
-              className="h-13 sm:h-14 px-8 sm:px-10 text-base sm:text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover-lift press-effect rounded-xl"
+              className="h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover-lift press-effect rounded-xl"
             >
               Criar Conta Grátis
               <ArrowRight className="ml-2 h-5 w-5" />
