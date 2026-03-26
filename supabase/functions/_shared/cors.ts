@@ -11,10 +11,12 @@ export const ALLOWED_ORIGINS: string[] = [
   'https://fuxico.app',
   'https://www.fuxico.app',
   'https://fuxico.lovable.app',
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://localhost:8080',
-  'chrome-extension://',
+  // Development origins - remove in production or gate behind env var
+  ...(Deno.env.get('ENVIRONMENT') !== 'production' ? [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:8080',
+  ] : []),
 ];
 
 /**
@@ -33,13 +35,7 @@ export function isOriginAllowed(origin: string | null): boolean {
   if (!origin) return false;
   
   if (ALLOWED_ORIGINS.includes(origin)) return true;
-  
-  for (const allowed of ALLOWED_ORIGINS) {
-    if (allowed.endsWith('://') && origin.startsWith(allowed)) {
-      return true;
-    }
-  }
-  
+
   for (const pattern of ALLOWED_DOMAIN_PATTERNS) {
     if (pattern.test(origin)) return true;
   }

@@ -42,45 +42,69 @@ export function useCampaigns() {
 
       if (error) throw error;
 
-      // Get stats for each campaign
-      const campaignsWithStats: CampaignWithStats[] = await Promise.all(
-        (campaigns || []).map(async (campaign) => {
-          const { data: emails } = await supabase
-            .from('tracked_emails')
-            .select('tracking_id')
-            .eq('campaign_id', campaign.id);
+      if (!campaigns || campaigns.length === 0) return [];
 
-          const trackingIds = emails?.map(e => e.tracking_id) || [];
-          
-          let totalOpens = 0;
-          let totalClicks = 0;
+      // Batch: fetch all emails for all campaigns in ONE query
+      const campaignIds = campaigns.map(c => c.id);
+      const { data: allEmails } = await supabase
+        .from('tracked_emails')
+        .select('campaign_id, tracking_id')
+        .in('campaign_id', campaignIds);
 
-          if (trackingIds.length > 0) {
-            const { data: events } = await supabase
-              .from('tracking_events')
-              .select('event_type')
-              .in('tracking_id', trackingIds);
+      // Group tracking IDs by campaign
+      const emailsByCampaign = new Map<string, string[]>();
+      for (const email of allEmails || []) {
+        if (!email.campaign_id) continue;
+        const list = emailsByCampaign.get(email.campaign_id) || [];
+        list.push(email.tracking_id);
+        emailsByCampaign.set(email.campaign_id, list);
+      }
 
-            totalOpens = events?.filter(e => e.event_type === 'open').length || 0;
-            totalClicks = events?.filter(e => e.event_type === 'click').length || 0;
+      // Batch: fetch all events for all tracking IDs in ONE query
+      const allTrackingIds = Array.from(emailsByCampaign.values()).flat();
+      let eventsByTrackingId = new Map<string, { opens: number; clicks: number }>();
+
+      if (allTrackingIds.length > 0) {
+        const { data: allEvents } = await supabase
+          .from('tracking_events')
+          .select('tracking_id, event_type')
+          .in('tracking_id', allTrackingIds);
+
+        for (const event of allEvents || []) {
+          const stats = eventsByTrackingId.get(event.tracking_id) || { opens: 0, clicks: 0 };
+          if (event.event_type === 'open') stats.opens++;
+          else if (event.event_type === 'click') stats.clicks++;
+          eventsByTrackingId.set(event.tracking_id, stats);
+        }
+      }
+
+      // Compute stats per campaign
+      return campaigns.map(campaign => {
+        const trackingIds = emailsByCampaign.get(campaign.id) || [];
+        const totalEmails = trackingIds.length;
+        let totalOpens = 0;
+        let totalClicks = 0;
+
+        for (const tid of trackingIds) {
+          const stats = eventsByTrackingId.get(tid);
+          if (stats) {
+            totalOpens += stats.opens;
+            totalClicks += stats.clicks;
           }
+        }
 
-          const totalEmails = trackingIds.length;
-          const openRate = totalEmails > 0 ? Math.round((totalOpens / totalEmails) * 100) : 0;
-          const clickRate = totalOpens > 0 ? Math.round((totalClicks / totalOpens) * 100) : 0;
+        const openRate = totalEmails > 0 ? Math.round((totalOpens / totalEmails) * 100) : 0;
+        const clickRate = totalOpens > 0 ? Math.round((totalClicks / totalOpens) * 100) : 0;
 
-          return {
-            ...campaign,
-            total_emails: totalEmails,
-            total_opens: totalOpens,
-            total_clicks: totalClicks,
-            open_rate: openRate,
-            click_rate: clickRate,
-          };
-        })
-      );
-
-      return campaignsWithStats;
+        return {
+          ...campaign,
+          total_emails: totalEmails,
+          total_opens: totalOpens,
+          total_clicks: totalClicks,
+          open_rate: openRate,
+          click_rate: clickRate,
+        };
+      });
     },
     enabled: !!user,
   });

@@ -5,6 +5,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
+import { isWebhookUrlSafe } from '../_shared/url-validator.ts'
 
 const log = createLogger('bitrix24-sync')
 
@@ -91,6 +92,11 @@ serve(async (req) => {
       return secureJsonResponse({ error: 'Bitrix24 not configured' }, 400, corsHeaders)
     }
 
+    // Validate webhook URL to prevent SSRF
+    if (!isWebhookUrlSafe(prefs.bitrix24_webhook_url)) {
+      return secureJsonResponse({ error: 'Bitrix24 webhook URL is not allowed' }, 400, corsHeaders)
+    }
+
     let result: BitrixSyncResult = { success: false }
 
     switch (action) {
@@ -128,7 +134,10 @@ serve(async (req) => {
 })
 
 async function syncContact(webhookUrl: string, email: string, data: BitrixContactData): Promise<BitrixSyncResult> {
-  const response = await fetch(`${webhookUrl}/crm.contact.list?filter[EMAIL]=${encodeURIComponent(email)}`)
+  // Use URL constructor for safe URL building (prevents parameter injection)
+  const listUrl = new URL(`${webhookUrl.replace(/\/+$/, '')}/crm.contact.list`)
+  listUrl.searchParams.set('filter[EMAIL]', email)
+  const response = await fetch(listUrl.toString())
   const existing = await response.json() as { result?: Array<{ ID: string }> }
   
   if (existing.result && existing.result.length > 0) {

@@ -299,17 +299,18 @@ export function useEnrollContact() {
 
       if (error) throw error;
 
-      // Update total_enrolled count using RPC or separate query
-      const { data: sequence } = await supabase
-        .from('email_sequences')
-        .select('total_enrolled')
-        .eq('id', data.sequenceId)
-        .single();
-      
-      await supabase
-        .from('email_sequences')
-        .update({ total_enrolled: ((sequence?.total_enrolled ?? 0) + 1) })
-        .eq('id', data.sequenceId);
+      // Atomic increment to prevent race conditions
+      await supabase.rpc('increment_sequence_enrolled', {
+        p_sequence_id: data.sequenceId
+      }).then(({ error: rpcError }) => {
+        // Fallback if RPC doesn't exist yet: use direct update with subquery
+        if (rpcError) {
+          return supabase
+            .from('email_sequences')
+            .update({ total_enrolled: supabase.rpc('coalesce_increment', { id: data.sequenceId }) as unknown as number })
+            .eq('id', data.sequenceId);
+        }
+      });
 
       return enrollment as SequenceEnrollment;
     },

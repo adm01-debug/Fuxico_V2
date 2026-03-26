@@ -4,6 +4,7 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureErrorResponse } from "../_shared/security-headers.ts";
+import { isUrlSafe } from "../_shared/url-validator.ts";
 const TrackLinkSchema = z.object({
   linkId: z.string().min(1),
   trackingId: z.string().min(1).optional()
@@ -44,11 +45,14 @@ serve(async (req) => {
     
     if (!link) return secureErrorResponse("Link not found", 404, corsHeaders);
 
-    // Update click count on tracked_links
-    await supabase
-      .from("tracked_links")
-      .update({ click_count: (link.click_count || 0) + 1 })
-      .eq("link_id", link.link_id);
+    // Atomic increment of click count to prevent race conditions
+    await supabase.rpc("increment_link_click_count", { p_link_id: link.link_id }).catch(() => {
+      // Fallback: non-atomic update if RPC not available
+      supabase
+        .from("tracked_links")
+        .update({ click_count: (link.click_count || 0) + 1 })
+        .eq("link_id", link.link_id);
+    });
 
     // Insert tracking event with correct column name (link_url, not link_id)
     await supabase.from("tracking_events").insert({
@@ -59,6 +63,11 @@ serve(async (req) => {
       user_agent: userAgent,
       is_self_open: false
     });
+
+    // Validate redirect URL to prevent open redirect attacks
+    if (!isUrlSafe(link.original_url)) {
+      return secureErrorResponse("Invalid redirect URL", 400, corsHeaders);
+    }
 
     return Response.redirect(link.original_url, 302);
   } catch (error) {

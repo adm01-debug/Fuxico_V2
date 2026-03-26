@@ -12,7 +12,7 @@ export function getAPISecurityHeaders(): Record<string, string> {
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'DENY',
   'X-XSS-Protection': '1; mode=block',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
     'Cache-Control': 'private, no-cache',

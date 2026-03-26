@@ -14,6 +14,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
+import { isWebhookUrlSafe } from '../_shared/url-validator.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 
 // =============================================================================
@@ -191,6 +192,16 @@ serve(async (req) => {
       return secureJsonResponse(
         { skipped: true, reason: 'No active webhook configuration' },
         200,
+        corsHeaders
+      )
+    }
+
+    // Validate webhook URL to prevent SSRF
+    if (!isWebhookUrlSafe(config.url)) {
+      log.warn('Webhook URL blocked by SSRF protection', { userId, url: config.url })
+      return secureJsonResponse(
+        { error: 'Webhook URL is not allowed (private/internal addresses are blocked)' },
+        400,
         corsHeaders
       )
     }
