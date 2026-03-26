@@ -105,10 +105,12 @@ export function useUpdateScheduledEmail() {
         metadata?: Json;
       }
     }) => {
+      // SECURITY: Verify ownership with user_id filter
       const { data, error } = await supabase
         .from('scheduled_emails')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user!.id)
         .select()
         .single();
 
@@ -131,10 +133,13 @@ export function useCancelScheduledEmail() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // SECURITY: Verify ownership with user_id filter
+      const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase
         .from('scheduled_emails')
         .update({ status: 'cancelled' })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user!.id);
 
       if (error) throw error;
     },

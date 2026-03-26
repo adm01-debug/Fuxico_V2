@@ -51,8 +51,14 @@ serve(async (req) => {
 
     const { documentId, signatureType, signatureData, signerName, signerEmail, position } = validation.data;
 
-    const { data: doc } = await supabase.from("tracked_documents").select("*").eq("id", documentId).single();
-    if (!doc) return secureErrorResponse("Document not found", 404, corsHeaders);
+    // SECURITY: Verify user owns the document before allowing signature
+    const { data: doc } = await supabase
+      .from("tracked_documents")
+      .select("*")
+      .eq("id", documentId)
+      .eq("user_id", user.id)
+      .single();
+    if (!doc) return secureErrorResponse("Document not found or access denied", 404, corsHeaders);
 
     const signature = {
       id: crypto.randomUUID(),
@@ -63,7 +69,7 @@ serve(async (req) => {
       signerIP: clientIP,
       position,
       signedAt: new Date().toISOString(),
-      hash: await crypto.subtle.digest("SHA-256", new TextEncoder().encode(signatureData + documentId + Date.now()))
+      hash: Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(signatureData + documentId + Date.now())))).map(b => b.toString(16).padStart(2, '0')).join('')
     };
 
     await supabase.from("document_signatures").insert(signature);

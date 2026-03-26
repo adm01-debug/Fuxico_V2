@@ -80,10 +80,12 @@ export function useEmailTemplates() {
 
   const updateTemplate = useMutation({
     mutationFn: async ({ id, ...updateData }: UpdateTemplateData) => {
+      // SECURITY: Verify ownership with user_id filter
       const { data, error } = await supabase
         .from('email_templates')
         .update(updateData)
         .eq('id', id)
+        .eq('user_id', user!.id)
         .select()
         .single();
       
@@ -101,10 +103,12 @@ export function useEmailTemplates() {
 
   const deleteTemplate = useMutation({
     mutationFn: async (id: string) => {
+      // SECURITY: Verify ownership with user_id filter
       const { error } = await supabase
         .from('email_templates')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user!.id);
       
       if (error) throw error;
     },

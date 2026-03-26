@@ -34,6 +34,23 @@ serve(async (req) => {
     if (!validation.success) return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
 
     const { userId, title, body: notifBody, icon, url, data } = validation.data;
+
+    // SECURITY: Verify user can only send notifications to themselves
+    // or has admin role to send to others
+    if (userId !== user.id) {
+      // Check if sender is admin
+      const { data: role } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .single();
+
+      if (!role) {
+        return secureErrorResponse("Cannot send notifications to other users", 403, corsHeaders);
+      }
+    }
+
     const notificationId = crypto.randomUUID();
 
     await supabase.from("push_notifications").insert({ id: notificationId, user_id: userId, title, body: notifBody, icon, url, data, sent_by: user.id });

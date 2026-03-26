@@ -115,10 +115,12 @@ export function useScheduledReports() {
         update.next_send_at = calculateNextSend(updateData.report_type);
       }
       
+      // SECURITY: Verify ownership with user_id filter
       const { data, error } = await supabase
         .from('scheduled_reports')
         .update(update)
         .eq('id', id)
+        .eq('user_id', user!.id)
         .select()
         .single();
       
@@ -136,10 +138,12 @@ export function useScheduledReports() {
 
   const deleteReport = useMutation({
     mutationFn: async (id: string) => {
+      // SECURITY: Verify ownership with user_id filter
       const { error } = await supabase
         .from('scheduled_reports')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user!.id);
       
       if (error) throw error;
     },
@@ -154,10 +158,12 @@ export function useScheduledReports() {
 
   const toggleEnabled = useMutation({
     mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      // SECURITY: Verify ownership with user_id filter
       const { error } = await supabase
         .from('scheduled_reports')
         .update({ enabled })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user!.id);
       
       if (error) throw error;
     },

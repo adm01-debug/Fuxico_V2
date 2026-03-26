@@ -3,7 +3,10 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 import { initWebVitals } from "./lib/web-vitals";
-// Force full reload v7
+import { initSentry } from "./lib/sentry";
+
+// Initialize error tracking before anything else
+initSentry();
 
 if (import.meta.env.DEV && "serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
