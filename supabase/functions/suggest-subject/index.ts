@@ -5,6 +5,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts';
+import { sanitizeLlmInput, detectPromptInjection, wrapUserInput } from '../_shared/llm-sanitizer.ts';
 
 const log = createLogger('suggest-subject');
 
@@ -57,6 +58,18 @@ serve(async (req) => {
 
     const { context, recipientType, tone, language } = validation.data;
 
+    // SECURITY: Check for prompt injection in user inputs
+    const userInputs = [context, recipientType, tone].filter(Boolean) as string[];
+    if (userInputs.some(input => detectPromptInjection(input))) {
+      log.warn("Prompt injection attempt detected", { userId: user.id });
+      return secureErrorResponse("Invalid input detected", 400, corsHeaders);
+    }
+
+    // SECURITY: Sanitize all user inputs
+    const safeContext = sanitizeLlmInput(context || 'Email profissional geral');
+    const safeRecipientType = sanitizeLlmInput(recipientType || 'profissional');
+    const safeTone = sanitizeLlmInput(tone || 'profissional');
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       log.error("LOVABLE_API_KEY is not configured");
@@ -73,9 +86,9 @@ Diretrizes:
 - Considere o tipo de destinatário e tom solicitado
 - Responda no idioma: ${language}`;
 
-    const userPrompt = `Contexto do email: ${context || 'Email profissional geral'}
-Tipo de destinatário: ${recipientType || 'profissional'}
-Tom desejado: ${tone || 'profissional'}
+    const userPrompt = `Contexto do email: ${wrapUserInput('context', safeContext)}
+Tipo de destinatário: ${wrapUserInput('recipientType', safeRecipientType)}
+Tom desejado: ${wrapUserInput('tone', safeTone)}
 
 Sugira 5 linhas de assunto otimizadas para alta taxa de abertura.`;
 
@@ -144,7 +157,13 @@ Sugira 5 linhas de assunto otimizadas para alta taxa de abertura.`;
     // Extract tool call response
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (toolCall?.function?.arguments) {
-      const suggestions = JSON.parse(toolCall.function.arguments);
+      let suggestions;
+      try {
+        suggestions = JSON.parse(toolCall.function.arguments);
+      } catch {
+        log.error("Failed to parse tool call arguments");
+        return secureErrorResponse("Invalid AI response format", 500, corsHeaders);
+      }
       log.info("Generated suggestions successfully", { count: suggestions.suggestions?.length || 0 });
       return secureJsonResponse(suggestions, corsHeaders);
     }

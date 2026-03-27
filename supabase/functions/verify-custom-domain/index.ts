@@ -31,7 +31,9 @@ serve(async (req) => {
 
     const { domain, verificationType } = validation.data;
 
-    const verificationToken = `fuxico-verify-${crypto.randomUUID().slice(0, 8)}`;
+    // SECURITY: Use full UUID for verification token (128 bits of entropy)
+    // Previously used only 8 chars (32 bits) which is brute-forceable
+    const verificationToken = `fuxico-verify-${crypto.randomUUID()}`;
     const verificationRecord = verificationType === "dns" ? `TXT _fuxico.${domain} = ${verificationToken}` : `/${verificationToken}.txt`;
 
     await supabase.from("custom_domains").upsert({

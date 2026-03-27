@@ -4,9 +4,10 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { sanitizeEmailHtml } from "../_shared/html-sanitizer.ts";
 const MassEmailSchema = z.object({
   subject: z.string().min(1).max(500),
-  htmlBody: z.string().min(1),
+  htmlBody: z.string().min(1).max(512000),
   textBody: z.string().optional(),
   recipients: z.array(z.string().email()).min(1).max(1000),
   fromName: z.string().min(1).max(100).optional(),
@@ -44,7 +45,10 @@ serve(async (req) => {
       return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
     }
 
-    const { subject, htmlBody, recipients, trackOpens, trackClicks, campaignId } = validation.data;
+    const { subject, htmlBody: rawHtmlBody, recipients, trackOpens, trackClicks, campaignId } = validation.data;
+
+    // SECURITY: Sanitize HTML to prevent script injection in emails
+    const htmlBody = sanitizeEmailHtml(rawHtmlBody);
 
     const campaignJobId = crypto.randomUUID();
     
