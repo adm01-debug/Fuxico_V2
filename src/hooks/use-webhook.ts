@@ -95,17 +95,36 @@ export function useSaveWebhookConfig() {
 export function useTestWebhook() {
   return useMutation({
     mutationFn: async (url: string) => {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        mode: 'no-cors',
-        body: JSON.stringify({
-          event: 'test',
-          message: 'Test webhook from FUXICO',
-          timestamp: new Date().toISOString(),
-        }),
-      });
-      return { success: true };
+      // SECURITY: Validate URL format before sending test request
+      try {
+        const parsed = new URL(url);
+        if (!['https:', 'http:'].includes(parsed.protocol)) {
+          throw new Error('Only HTTP/HTTPS URLs are allowed');
+        }
+        // Block localhost and private IPs from browser
+        const blockedHosts = ['localhost', '127.0.0.1', '0.0.0.0', '[::1]'];
+        if (blockedHosts.includes(parsed.hostname)) {
+          throw new Error('Localhost URLs are not allowed');
+        }
+      } catch (e) {
+        if (e instanceof TypeError) throw new Error('Invalid URL format');
+        throw e;
+      }
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'test',
+            message: 'Test webhook from FUXICO',
+            timestamp: new Date().toISOString(),
+          }),
+        });
+        return { success: response.ok, status: response.status };
+      } catch {
+        return { success: false, status: 0 };
+      }
     },
   });
 }

@@ -4,13 +4,14 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { SafeMetadataSchema } from "../_shared/schemas.ts";
 const PushSchema = z.object({
   userId: z.string().uuid(),
   title: z.string().min(1).max(100),
   body: z.string().min(1).max(500),
   icon: z.string().url().optional(),
   url: z.string().url().optional(),
-  data: z.record(z.unknown()).optional()
+  data: SafeMetadataSchema,
 });
 
 serve(async (req) => {
