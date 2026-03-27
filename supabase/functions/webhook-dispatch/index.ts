@@ -16,6 +16,7 @@ import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { isWebhookUrlSafe } from '../_shared/url-validator.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
+import { SafeMetadataSchema } from '../_shared/schemas.ts'
 
 // =============================================================================
 // SCHEMAS
@@ -24,7 +25,7 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 const WebhookDispatchSchema = z.object({
   userId: z.string().uuid(),
   eventType: z.enum(['email.opened', 'email.clicked', 'email.bounced', 'document.viewed', 'link.clicked']),
-  payload: z.record(z.any()).optional().default({})
+  payload: SafeMetadataSchema,
 })
 
 // =============================================================================

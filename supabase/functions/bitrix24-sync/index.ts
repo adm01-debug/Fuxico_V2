@@ -14,7 +14,7 @@ const Bitrix24SyncSchema = z.object({
   email: z.string().email().optional(),
   trackingId: z.string().uuid().optional(),
   eventType: z.string().optional(),
-  data: z.record(z.unknown()).optional().default({})
+  data: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional().default({})
 })
 
 // Types for Bitrix24 operations

@@ -508,7 +508,20 @@ Hooks como `use-tracking.ts` e `use-campaigns.ts` misturam:
 - track-document: valida existencia antes de inserir evento
 - use-webhook: validacao de URL + remocao de no-cors
 
+### Round 5 - Validacao e Race Conditions (7 arquivos)
+- zapier-webhook: SafeMetadataSchema + UUID enforcement
+- vote-poll: SafeMetadataSchema + atomic vote counting via RPC
+- totp: backup code entropy 32 bits -> 64 bits per code
+- create-watermarked-pdf: strip HTML/SVG tags from watermark text
+- use-bounce-alerts: batch existing alerts check (1 query vs N+1)
+- use-email-templates: fresh DB read for incrementUsage (prevent stale cache)
+
+### Round 6 - Final Hardening (5 arquivos)
+- webhook-dispatch: SafeMetadataSchema replacing z.record(z.any())
+- bitrix24-sync: typed data schema (primitives only)
+- use-scheduled-reports: email validation + duplicate check + ownership
+
 ### Totais
-- **4 commits, 40 arquivos alterados, ~1500 linhas de correcoes**
-- **5 modulos compartilhados criados** (url-validator, html-sanitizer, llm-sanitizer, schemas, PrivateRoute)
-- **1 migracao SQL** com RPCs atomicas, constraints e indexes
+- **6 commits, 50+ arquivos alterados, ~1700+ linhas de correcoes**
+- **6 modulos compartilhados criados** (url-validator, html-sanitizer, llm-sanitizer, schemas, PrivateRoute, SafeMetadataSchema)
+- **2 migracoes SQL** com RPCs atomicas, constraints e indexes
