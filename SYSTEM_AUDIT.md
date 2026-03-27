@@ -2,7 +2,7 @@
 
 **Data:** 2026-03-26
 **Autor:** Auditoria Automatizada (Claude Code)
-**Versao:** 1.0
+**Versao:** 2.0 (atualizado apos 4 rounds de correcoes)
 **Classificacao:** Confidencial
 
 ---
@@ -466,3 +466,49 @@ Hooks como `use-tracking.ts` e `use-campaigns.ts` misturam:
 - Login lockout com backoff exponencial
 - HMAC signature em webhooks (quando secret configurado)
 - Chunking manual otimizado no Vite config
+
+---
+
+## 9. CORRECOES IMPLEMENTADAS (4 Rounds)
+
+### Round 1 - Seguranca Critica (14 arquivos)
+- `.env` removido do git tracking
+- CORS: wildcard `chrome-extension://` removido
+- Open Redirect bloqueado com `url-validator.ts`
+- SSRF bloqueado em webhook-dispatch + bitrix24-sync
+- CSP: `unsafe-inline`/`unsafe-eval` removidos
+- JWT habilitado em 9 edge functions
+- N+1 eliminado em useCampaigns (batch queries)
+- Race conditions: RPCs atomicas (click count, enrollment)
+- XSS em fulltext search corrigido
+- Nginx hardened (HSTS, CSP, Permissions-Policy)
+- Migracao SQL: RPCs, constraints, indexes, FKs
+
+### Round 2 - Auth e Ownership (11 arquivos)
+- send-push-notification: verificacao de ownership
+- generate-signed-document: filtro user_id + hash hex
+- cleanup-security-data: cron secret auth
+- 6 hooks: ownership checks em CRUD mutations
+- Sentry inicializado em main.tsx
+- PrivateRoute auth guard em rotas protegidas
+- docker/nginx.conf sincronizado
+- Coverage threshold no vitest (60%)
+
+### Round 3 - LLM e HTML Injection (8 arquivos)
+- LLM Prompt Injection: sanitizador + detector + wrapUserInput
+- HTML Injection: sanitizador de email
+- send-mass-email + send-batch-emails: HTML sanitizado
+- process-sequences: CORS via shared module + cron auth + body sanitizado
+- verify-custom-domain: token UUID completo (128 bits)
+- JSON.parse protegido em respostas de LLM
+
+### Round 4 - Validacao e Bugs (7 arquivos)
+- SafeMetadataSchema: substitui z.record(z.unknown()) em 3 funcoes
+- track-pixel: fix self-open detection (comparava IP com email)
+- track-document: valida existencia antes de inserir evento
+- use-webhook: validacao de URL + remocao de no-cors
+
+### Totais
+- **4 commits, 40 arquivos alterados, ~1500 linhas de correcoes**
+- **5 modulos compartilhados criados** (url-validator, html-sanitizer, llm-sanitizer, schemas, PrivateRoute)
+- **1 migracao SQL** com RPCs atomicas, constraints e indexes
