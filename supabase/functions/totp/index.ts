@@ -102,13 +102,15 @@ async function verifyTOTP(secret: string, token: string, window = 1): Promise<bo
 function generateBackupCodes(count = 10): string[] {
   const codes: string[] = [];
   for (let i = 0; i < count; i++) {
-    const bytes = new Uint8Array(4);
+    // SECURITY: Use 8 bytes (64 bits) per code for adequate entropy
+    // Previously used 4 bytes (32 bits) which is brute-forceable
+    const bytes = new Uint8Array(8);
     crypto.getRandomValues(bytes);
     const code = Array.from(bytes)
       .map(b => b.toString(16).padStart(2, "0"))
       .join("")
       .toUpperCase();
-    codes.push(`${code.slice(0, 4)}-${code.slice(4)}`);
+    codes.push(`${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 12)}-${code.slice(12)}`);
   }
   return codes;
 }

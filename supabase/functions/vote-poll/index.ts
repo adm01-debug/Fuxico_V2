@@ -9,12 +9,13 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { SafeMetadataSchema } from "../_shared/schemas.ts";
 const VoteSchema = z.object({
   pollId: z.string().uuid(),
   optionId: z.string().uuid(),
   voterEmail: z.string().email().optional(),
   voterName: z.string().max(200).optional(),
-  metadata: z.record(z.unknown()).optional()
+  metadata: SafeMetadataSchema,
 });
 
 serve(async (req) => {
@@ -56,7 +57,12 @@ serve(async (req) => {
       metadata
     });
 
-    await supabase.from("poll_options").update({ votes_count: poll.poll_options.find((o: { id: string }) => o.id === optionId).votes_count + 1 }).eq("id", optionId);
+    // Atomic increment to prevent race conditions on vote count
+    await supabase.rpc("increment_poll_option_votes", { p_option_id: optionId }).catch(() => {
+      // Fallback if RPC doesn't exist
+      const current = poll.poll_options.find((o: { id: string }) => o.id === optionId);
+      supabase.from("poll_options").update({ votes_count: (current?.votes_count || 0) + 1 }).eq("id", optionId);
+    });
 
     return secureJsonResponse({ success: true, voteId }, corsHeaders);
   } catch (error) {

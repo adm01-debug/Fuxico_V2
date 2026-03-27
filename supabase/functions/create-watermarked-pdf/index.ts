@@ -10,7 +10,10 @@ const log = createLogger('create-watermarked-pdf')
 
 const WatermarkSchema = z.object({
   documentId: z.string().uuid(),
-  watermarkText: z.string().min(1).max(200),
+  // SECURITY: Strip HTML/SVG tags and control characters from watermark text
+  watermarkText: z.string().min(1).max(200).transform(text =>
+    text.replace(/<[^>]*>/g, '').replace(/[\x00-\x1F\x7F]/g, '').trim()
+  ),
   position: z.enum(["center", "diagonal", "footer"]).default("diagonal"),
   opacity: z.number().min(0.1).max(1).default(0.3),
   fontSize: z.number().min(8).max(72).default(48)

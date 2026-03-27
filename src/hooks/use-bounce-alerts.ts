@@ -170,6 +170,18 @@ export function useBounceAlerts() {
       if (domainsError) throw domainsError;
 
       const thresholds = thresholdsQuery.data || defaultThresholds;
+
+      // Batch: fetch ALL unresolved alerts in ONE query (instead of N+1)
+      const domainNames = (domains || []).filter(d => d.domain).map(d => d.domain as string);
+      const { data: existingAlerts } = await supabase
+        .from('bounce_alerts')
+        .select('domain')
+        .eq('user_id', user.id)
+        .eq('is_resolved', false)
+        .in('domain', domainNames);
+
+      const existingAlertDomains = new Set((existingAlerts || []).map(a => a.domain));
+
       const newAlerts: Array<{
         user_id: string;
         domain: string;
@@ -180,16 +192,7 @@ export function useBounceAlerts() {
 
       for (const domain of domains || []) {
         if (domain.bounce_rate && domain.bounce_rate >= thresholds.bounce_rate_warning) {
-          // Check if alert already exists for this domain
-          const { data: existingAlert } = await supabase
-            .from('bounce_alerts')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('domain', domain.domain)
-            .eq('is_resolved', false)
-            .single();
-
-          if (!existingAlert && domain.domain) {
+          if (!existingAlertDomains.has(domain.domain) && domain.domain) {
             const isCritical = domain.bounce_rate >= thresholds.bounce_rate_critical;
             newAlerts.push({
               user_id: user.id,

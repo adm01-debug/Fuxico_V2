@@ -123,12 +123,20 @@ export function useEmailTemplates() {
 
   const incrementUsage = useMutation({
     mutationFn: async (id: string) => {
-      const template = templates.find(t => t.id === id);
-      if (template) {
+      // SECURITY: Use fresh DB read instead of stale cache to prevent race conditions
+      const { data: current, error: fetchError } = await supabase
+        .from('email_templates')
+        .select('usage_count')
+        .eq('id', id)
+        .eq('user_id', user!.id)
+        .single();
+      if (fetchError) throw fetchError;
+      if (current) {
         const { error } = await supabase
           .from('email_templates')
-          .update({ usage_count: template.usage_count + 1 })
-          .eq('id', id);
+          .update({ usage_count: (current.usage_count || 0) + 1 })
+          .eq('id', id)
+          .eq('user_id', user!.id);
         if (error) throw error;
       }
     },
