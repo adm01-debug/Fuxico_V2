@@ -8,8 +8,9 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+const ALLOWED_CONFIG_KEYS = ['version', 'features', 'limits', 'tracking'] as const;
 const ConfigQuerySchema = z.object({
-  keys: z.array(z.string()).optional()
+  keys: z.array(z.enum(ALLOWED_CONFIG_KEYS)).optional()
 });
 
 serve(async (req) => {
