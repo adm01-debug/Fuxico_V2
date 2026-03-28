@@ -6,6 +6,7 @@ import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { isWebhookUrlSafe } from '../_shared/url-validator.ts'
+import { withCircuitBreaker } from '../_shared/circuit-breaker.ts'
 
 const log = createLogger('bitrix24-sync')
 
@@ -99,24 +100,36 @@ serve(async (req) => {
 
     let result: BitrixSyncResult = { success: false }
 
-    switch (action) {
-      case 'sync_contact':
-        if (email) {
-          result = await syncContact(prefs.bitrix24_webhook_url, email, data as BitrixContactData)
-        }
-        break
-      case 'create_deal':
-        result = await createDeal(prefs.bitrix24_webhook_url, data as BitrixDealData)
-        break
-      case 'register_activity':
-        result = await registerActivity(prefs.bitrix24_webhook_url, data as BitrixActivityData)
-        break
-      case 'sync_email_event':
-        if (trackingId && eventType) {
-          result = await syncEmailEvent(prefs.bitrix24_webhook_url, trackingId, eventType, data as Record<string, string>)
-        }
-        break
+    // Circuit breaker: fail fast if Bitrix24 is consistently failing
+    const circuitResult = await withCircuitBreaker('bitrix24', async () => {
+      let innerResult: BitrixSyncResult = { success: false }
+
+      switch (action) {
+        case 'sync_contact':
+          if (email) {
+            innerResult = await syncContact(prefs.bitrix24_webhook_url, email, data as BitrixContactData)
+          }
+          break
+        case 'create_deal':
+          innerResult = await createDeal(prefs.bitrix24_webhook_url, data as BitrixDealData)
+          break
+        case 'register_activity':
+          innerResult = await registerActivity(prefs.bitrix24_webhook_url, data as BitrixActivityData)
+          break
+        case 'sync_email_event':
+          if (trackingId && eventType) {
+            innerResult = await syncEmailEvent(prefs.bitrix24_webhook_url, trackingId, eventType, data as Record<string, string>)
+          }
+          break
+      }
+
+      return innerResult
+    }, { failureThreshold: 3, resetTimeoutMs: 120_000 })
+
+    if (circuitResult === null) {
+      return secureJsonResponse({ error: 'Bitrix24 service temporarily unavailable (circuit open)' }, 503, corsHeaders)
     }
+    result = circuitResult
 
     // Log sync
     await supabaseClient.from('bitrix24_sync_logs').insert({

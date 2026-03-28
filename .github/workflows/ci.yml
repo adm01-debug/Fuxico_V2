@@ -37,6 +37,14 @@ jobs:
       - name: Type Check
         run: npm run typecheck
 
+      - name: Verify Supabase Types
+        run: |
+          if [ -f "src/integrations/supabase/types.ts" ]; then
+            echo "Supabase types file exists"
+          else
+            echo "WARNING: Supabase types file missing - run 'supabase gen types' to generate"
+          fi
+
   # ===========================================================================
   # UNIT TESTS
   # ===========================================================================
