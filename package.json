@@ -18,7 +18,12 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist coverage node_modules/.cache .vitest",
-    "prepare": "echo 'skip husky'"
+    "prepare": "echo 'skip husky'",
+    "lint-staged": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{json,md,css}": ["prettier --write"]
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.2.8",
