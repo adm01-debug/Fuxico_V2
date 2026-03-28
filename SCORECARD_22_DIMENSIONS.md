@@ -1,102 +1,78 @@
-# FUXICO - Scorecard 22 Dimensoes (Pos-Auditoria)
+# FUXICO - Scorecard 22 Dimensoes v3 (Pos-Auditoria Final)
 
-**Data:** 2026-03-28 | **Rounds de correcao:** 7 | **Commits:** 8 | **Arquivos alterados:** 55+
-
----
-
-## SCORECARD
-
-| # | Dimensao | Antes | Depois | Gap para 10/10 |
-|---|----------|-------|--------|-----------------|
-| 1 | Arquitetura | 6 | 7 | ADRs formais, camada services separada dos hooks |
-| 2 | Autenticacao | 5 | 7 | Session timeout, token refresh race condition handling |
-| 3 | Autorizacao | 4 | 8 | Testes de RLS automatizados, audit trail 100% |
-| 4 | Banco de Dados | 5 | 8 | Encrypt webhook secrets (pgcrypto), EXPLAIN top queries |
-| 5 | CI/CD | 4 | 5 | Deploy real (nao placeholder), DAST, staging, rollback |
-| 6 | Data Integrity | 4 | 7 | Optimistic locking em entities, soft delete policy |
-| 7 | Documentacao | 5 | 6 | API docs (OpenAPI), diagrama ER, onboarding guide |
-| 8 | Infraestrutura | 4 | 6 | IaC (Terraform), CDN, DR plan, secrets rotation |
-| 9 | Logging/Monitoring | 5 | 6 | Dashboards, alertas automaticos, uptime monitoring |
-| 10 | Observabilidade | 3 | 4 | Distributed tracing, metricas RED/USE, SLOs |
-| 11 | Logica de Negocio | 6 | 7 | State machines explicitas, edge cases financeiros |
-| 12 | Manutenibilidade | 5 | 7 | Dead code removal, debito tecnico rastreado |
-| 13 | Operacionalidade | 3 | 5 | Feature flags, circuit breaker, runbooks, rollback |
-| 14 | Performance | 5 | 7 | Paginacao universal restante, cache Redis, bundle < 250KB |
-| 15 | Qualidade de Codigo | 4 | 7 | Pre-commit hooks ativos, zero console.log em prod |
-| 16 | Seguranca | 3 | 8 | Pen test, secrets rotation, LGPD compliance formal |
-| 17 | Testes | 3 | 4 | Cobertura 22% -> 70%+, E2E, integration, RLS tests |
-| 18 | Tipagem | 3 | 7 | Strict mode ativado, DB types codegen no pipeline |
-| 19 | Validacao | 5 | 8 | Schema compartilhado front/back, formatos BR |
-| 20 | Operacoes (Processos) | 4 | 5 | Git flow doc, code review SLA, hotfix procedure |
+**Data:** 2026-03-28 | **Rounds:** 9 | **Commits:** 11 | **Arquivos:** 70+ | **Linhas:** ~3000+
 
 ---
 
-## CALCULO DA NOTA PONDERADA
+## SCORECARD FINAL
 
-| Peso | Dimensoes | Notas |
-|------|-----------|-------|
-| x3 (Critico) | Seguranca(8), Autenticacao(7), Autorizacao(8), Data Integrity(7) | Sum=30, Weighted=90 |
-| x2 (Alto) | BD(8), Tipagem(7), Validacao(8), Testes(4), Arquitetura(7) | Sum=34, Weighted=68 |
-| x1 (Padrao) | CI/CD(5), Docs(6), Infra(6), Log(6), Obs(4), Logica(7), Manut(7), Oper(5), Perf(7), Qualid(7), Ops(5) | Sum=65, Weighted=65 |
+```
++----------------------------------+-------+-------------------------------------------+
+| DIMENSAO                         | NOTA  | GAP PRINCIPAL PARA 10/10                  |
++----------------------------------+-------+-------------------------------------------+
+| 1.  Arquitetura                  |  7/10 | Camada services separada dos hooks        |
+| 2.  Autenticacao                 |  8/10 | Token refresh race condition handling     |
+| 3.  Autorizacao                  |  8/10 | Testes automatizados de RLS               |
+| 4.  Banco de Dados               |  8/10 | EXPLAIN ANALYZE top queries, pgcrypto     |
+| 5.  CI/CD                        |  7/10 | Staging environment, rollback automatico  |
+| 6.  Data Integrity               |  8/10 | Optimistic locking em entities            |
+| 7.  Documentacao                 |  7/10 | OpenAPI docs, diagrama ER atualizado      |
+| 8.  Infraestrutura / DevOps      |  6/10 | IaC (Terraform), CDN, DR plan             |
+| 9.  Logging / Monitoring         |  7/10 | Dashboards, alertas, uptime monitoring    |
+| 10. Observabilidade              |  5/10 | Distributed tracing, metricas RED/USE     |
+| 11. Logica de Negocio            |  7/10 | State machines, edge cases financeiros    |
+| 12. Manutenibilidade             |  7/10 | Deps audit rotina, debito rastreado       |
+| 13. Operacionalidade             |  6/10 | Feature flags, circuit breaker            |
+| 14. Performance                  |  7/10 | Cache Redis, bundle monitoring            |
+| 15. Qualidade de Codigo          |  8/10 | Pre-commit hooks ativos (Husky)           |
+| 16. Seguranca                    |  8/10 | Pen test, LGPD formal, secrets rotation   |
+| 17. Testes                       |  6/10 | Cobertura 52 files, falta E2E + carga     |
+| 18. Tipagem / Type Safety        |  8/10 | DB types codegen no pipeline              |
+| 19. Validacao                    |  8/10 | Formatos BR (CPF/CNPJ) com libs           |
+| 20. Operacoes (Processos)        |  6/10 | Code review SLA, hotfix procedure doc     |
++----------------------------------+-------+-------------------------------------------+
+| NOTA GERAL PONDERADA             | 7.3   |                                           |
++----------------------------------+-------+-------------------------------------------+
+```
 
-**Total ponderado: (90 + 68 + 65) / (12 + 10 + 11) = 223 / 33 = 6.8/10**
+## Calculo Ponderado
 
----
+| Peso | Dimensoes | Notas | Weighted |
+|------|-----------|-------|----------|
+| x3 | Seguranca(8) + Autenticacao(8) + Autorizacao(8) + Data Integrity(8) | 32 | 96 |
+| x2 | BD(8) + Tipagem(8) + Validacao(8) + Testes(6) + Arquitetura(7) | 37 | 74 |
+| x1 | CI/CD(7) + Docs(7) + Infra(6) + Log(7) + Obs(5) + Logica(7) + Manut(7) + Oper(6) + Perf(7) + Qualid(8) + Ops(6) | 73 | 73 |
+| **Total** | | | **(96+74+73) / (12+10+11) = 243/33 = 7.36** |
 
-## ANTES vs DEPOIS
+## Evolucao
 
-| Metrica | Antes (Round 0) | Depois (Round 7) |
-|---------|-----------------|-------------------|
-| Vulnerabilidades CRITICAS | 9 | 0 |
-| Vulnerabilidades ALTAS | 19 | 2 (testes, deploy) |
-| TypeScript strict | false | true |
-| ESLint rules | 1 | 10 |
-| Ownership checks em hooks | 0/10 | 10/10 |
-| Edge functions com metadata segura | 0/9 | 9/9 |
-| LLM prompt injection protection | 0 | 2 funcoes |
-| HTML sanitization | 0 | 3 funcoes |
-| SSRF protection | 0 | 3 funcoes |
-| Auth guards em rotas | 0 | 6 rotas |
-| Sentry inicializado | Nao | Sim |
-| Nginx HSTS | Nao | Sim |
-| Docker non-root | Nao | Sim |
-| Coverage threshold | 0% | 60% |
+| Fase | Nota | Vuln Criticas | Vuln Altas | Testes |
+|------|------|---------------|------------|--------|
+| Pre-auditoria | ~4.5 | 9 | 19 | 39 files |
+| Pos-Round 4 | ~6.4 | 0 | 4 | 39 files |
+| Pos-Round 7 | ~6.8 | 0 | 2 | 45 files |
+| **Pos-Round 9** | **7.36** | **0** | **0** | **52 files** |
 
----
+## Implementacoes por Round
 
-## TOP 10 ACOES RESTANTES (ROI)
+| Round | Foco | Arquivos |
+|-------|------|----------|
+| 1 | CORS, SSRF, Open Redirect, CSP, N+1 | 14 |
+| 2 | Ownership checks, auth guards, Sentry init | 11 |
+| 3 | LLM injection, HTML sanitization, cron auth | 8 |
+| 4 | Metadata validation, self-open bug, webhook | 7 |
+| 5 | Metadata, entropy, N+1, race conditions | 7 |
+| 6 | Final metadata hardening, email validation | 4 |
+| 7 | TypeScript strict, ESLint, Docker security | 5 |
+| 8 | Session timeout, 6 test files, Sentry integration, deploy | 9 |
+| 9 | 7 test files, ADR-004, runbook enhancements | 9 |
 
-| # | Acao | Impacto | Esforco | Onda |
-|---|------|---------|---------|------|
-| 1 | Implementar deploy real no CI/CD | Alto | Medio | Sprint 1 |
-| 2 | Escrever testes para hooks criticos (20 hooks) | Alto | Alto | Sprint 1 |
-| 3 | Escrever testes para edge functions (10 funcoes) | Alto | Alto | Sprint 1 |
-| 4 | Adicionar distributed tracing (Sentry Performance) | Alto | Medio | Sprint 1 |
-| 5 | Expandir E2E de 2 para 15+ specs | Alto | Alto | Sprint 2 |
-| 6 | Implementar session timeout/idle detection | Medio | Baixo | Quick Win |
-| 7 | Adicionar OpenAPI/Swagger docs | Medio | Medio | Sprint 1 |
-| 8 | Criar runbooks operacionais | Medio | Baixo | Quick Win |
-| 9 | Implementar feature flags (LaunchDarkly/Unleash) | Medio | Medio | Sprint 2 |
-| 10 | Secrets rotation automatica | Medio | Medio | Sprint 2 |
+## Top 5 Gaps Restantes (para 8.5+)
 
----
-
-## ROADMAP
-
-### Quick Wins (1-3 dias)
-- Session timeout no AuthContext
-- Runbooks para deploy/rollback/incidente
-- Diagrama ER do banco
-
-### Sprint 1 (1-2 semanas)
-- Deploy real no CI/CD (Vercel/Cloudflare)
-- Testes para 20 hooks + 10 edge functions
-- Distributed tracing com Sentry Performance
-- OpenAPI docs para edge functions
-
-### Sprint 2 (2-4 semanas)
-- 15+ E2E specs com Playwright
-- Feature flags
-- Secrets rotation
-- LGPD compliance formal (DPO, consent management)
-- Pen test
+| # | Gap | Dimensao | Esforco |
+|---|-----|----------|---------|
+| 1 | E2E tests (Playwright) para fluxos criticos | Testes | 1 semana |
+| 2 | Distributed tracing (Sentry Performance) | Observabilidade | 2 dias |
+| 3 | Feature flags (Unleash/custom) | Operacionalidade | 3 dias |
+| 4 | IaC para infra (Terraform/Pulumi) | Infraestrutura | 1 semana |
+| 5 | OpenAPI docs para Edge Functions | Documentacao | 3 dias |
