@@ -60,7 +60,35 @@
 - [ ] Limpeza de logs antigos
 - [ ] Análise de performance
 
-### Contatos de Emergência
+### Trimestral
+- [ ] Rotacao de secrets (LOVABLE_API_KEY)
+- [ ] Revisao de seguranca (OWASP checklist)
+- [ ] Auditoria de RLS policies
+- [ ] npm audit + update de dependencias
+
+### Semestral
+- [ ] Rotacao de CRON_SECRET
+- [ ] Review de ADRs
+
+## Secrets Rotation
+
+| Secret | Local | Rotacao |
+|--------|-------|---------|
+| SUPABASE_ANON_KEY | Vercel Env | Quando comprometido |
+| SUPABASE_SERVICE_ROLE_KEY | Supabase Secrets | Quando comprometido |
+| VERCEL_TOKEN | GitHub Secrets | Anual |
+| LOVABLE_API_KEY | Supabase Secrets | Trimestral |
+| CRON_SECRET | Supabase Secrets | Semestral |
+
+## Health Checks
+
+| Endpoint | Esperado | Frequencia |
+|----------|----------|------------|
+| https://fuxico.app/health | 200 "healthy" | 30s (Nginx) |
+| Edge Functions health-check | 200 JSON | 60s |
+| Redis | PONG | 10s (docker) |
+
+### Contatos de Emergencia
 - Supabase Support: support@supabase.io
 - Lovable Support: via Discord
 
