@@ -166,18 +166,18 @@ class Logger {
   }
   
   /**
-   * Envia log para console
+   * Envia log para console e Sentry (para erros/warnings)
    */
   private logToConsole(entry: LogEntry): void {
     if (!this.config.enableConsole) return
-    
+
     const prefix = `[${entry.context}][${entry.level.toUpperCase()}]`
     const args: unknown[] = [prefix, entry.message]
-    
+
     if (entry.data) {
       args.push(entry.data)
     }
-    
+
     switch (entry.level) {
       case 'debug':
         console.debug(...args)
@@ -191,6 +191,28 @@ class Logger {
       case 'error':
         console.error(...args, entry.error?.stack)
         break
+    }
+
+    // Forward errors and warnings to Sentry for centralized observability
+    if (entry.level === 'error' || entry.level === 'warn') {
+      try {
+        // Dynamic import to avoid circular dependency
+        import('./sentry').then(({ captureException, captureMessage, addBreadcrumb }) => {
+          addBreadcrumb({
+            category: entry.context || 'logger',
+            message: entry.message,
+            level: entry.level === 'error' ? 'error' : 'warning',
+            data: entry.data as Record<string, unknown> | undefined,
+          })
+          if (entry.level === 'error' && entry.error) {
+            const err = new Error(entry.error.message)
+            err.name = entry.error.name
+            captureException(err, { context: entry.context, data: entry.data } as Record<string, unknown>)
+          } else if (entry.level === 'warn') {
+            captureMessage(entry.message, 'warning')
+          }
+        }).catch(() => { /* Sentry not available, ignore */ })
+      } catch { /* ignore */ }
     }
   }
   
