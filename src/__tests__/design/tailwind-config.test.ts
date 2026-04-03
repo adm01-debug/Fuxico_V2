@@ -40,7 +40,8 @@ describe('Tailwind - Border Radius', () => {
 
 describe('Tailwind - Font Family', () => {
   it('should reference font-display variable', () => {
-    expect(tailwindConfig).toContain('font-display') || expect(tailwindConfig).toContain('Space Grotesk');
+    const hasFont = tailwindConfig.includes('font-display') || tailwindConfig.includes('Space Grotesk');
+    expect(hasFont).toBe(true);
   });
 });
 

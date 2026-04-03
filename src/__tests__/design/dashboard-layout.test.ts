@@ -105,8 +105,8 @@ describe('DashboardLayout - Skeleton Variants Mapping', () => {
 
   Object.entries(skeletonMappings).forEach(([tab, variant]) => {
     it(`tab '${tab}' should use '${variant}' skeleton`, () => {
-      expect(layoutContent).toContain(`${tab}: '${variant}'`) || 
-      expect(layoutContent).toContain(`'${tab}': '${variant}'`);
+      const hasMapping = layoutContent.includes(`${tab}: '${variant}'`) || layoutContent.includes(`'${tab}': '${variant}'`);
+      expect(hasMapping).toBe(true);
     });
   });
 
