@@ -151,7 +151,7 @@ function GlobalSearchDialogBase({
 
   // Filter navigation items based on search
   const filteredNavItems = useMemo(() => {
-    if (!debouncedSearch) return NAVIGATION_ITEMS.slice(0, 6);
+    if (!debouncedSearch) return NAVIGATION_ITEMS.slice(0, 8);
     
     const searchLower = debouncedSearch.toLowerCase();
     return NAVIGATION_ITEMS.filter(item => 
@@ -159,6 +159,16 @@ function GlobalSearchDialogBase({
       item.keywords.some(k => k.includes(searchLower))
     );
   }, [debouncedSearch]);
+
+  // Group items by category
+  const groupedNavItems = useMemo(() => {
+    const groups: Record<string, typeof filteredNavItems> = {};
+    filteredNavItems.forEach(item => {
+      if (!groups[item.category]) groups[item.category] = [];
+      groups[item.category].push(item);
+    });
+    return groups;
+  }, [filteredNavItems]);
 
   // Handle navigation
   const handleNavigate = useCallback((tabId: TabId) => {
