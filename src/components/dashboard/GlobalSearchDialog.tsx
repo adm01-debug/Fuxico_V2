@@ -59,28 +59,47 @@ interface RecentSearch {
 }
 
 // Navigation items for quick access
-const NAVIGATION_ITEMS: Array<{ id: TabId; label: string; icon: React.ElementType; keywords: string[] }> = [
-  { id: 'home', label: 'Início', icon: Home, keywords: ['home', 'dashboard', 'inicio'] },
-  { id: 'emails', label: 'Emails Rastreados', icon: Mail, keywords: ['email', 'rastreamento', 'tracking'] },
-  { id: 'links', label: 'Links Rastreados', icon: Link2, keywords: ['link', 'url', 'clique'] },
-  { id: 'documents', label: 'Documentos', icon: FileText, keywords: ['documento', 'pdf', 'arquivo'] },
-  { id: 'analytics', label: 'Analytics Avançado', icon: BarChart3, keywords: ['analytics', 'estatisticas', 'metricas'] },
-  { id: 'geo', label: 'Geo Analytics', icon: MapPin, keywords: ['geo', 'localizacao', 'mapa', 'pais'] },
-  { id: 'scheduling', label: 'Agendamento', icon: Calendar, keywords: ['agendar', 'schedule', 'programar'] },
-  { id: 'deliverability', label: 'Reputação', icon: Shield, keywords: ['reputacao', 'entrega', 'deliverability'] },
-  { id: 'bouncealerts', label: 'Alertas de Bounce', icon: Bell, keywords: ['bounce', 'alerta', 'erro'] },
-  { id: 'leads', label: 'Lead Scoring', icon: Target, keywords: ['lead', 'score', 'pontuacao'] },
-  { id: 'followup', label: 'Follow-up', icon: MessageSquare, keywords: ['followup', 'lembrete', 'acompanhar'] },
-  { id: 'insights', label: 'Insights IA', icon: Zap, keywords: ['ia', 'insights', 'inteligencia'] },
-  { id: 'campaigns', label: 'Campanhas', icon: Layout, keywords: ['campanha', 'campaign'] },
-  { id: 'abtesting', label: 'Teste A/B', icon: Target, keywords: ['teste', 'ab', 'experimento'] },
-  { id: 'unsubscribe', label: 'Lista de Exclusão', icon: UserMinus, keywords: ['exclusao', 'unsubscribe', 'opt-out'] },
-  { id: 'templates', label: 'Templates', icon: FileText, keywords: ['template', 'modelo'] },
-  { id: 'reports', label: 'Relatórios', icon: BarChart3, keywords: ['relatorio', 'report', 'exportar'] },
-  { id: 'users', label: 'Usuários e Papéis', icon: Users, keywords: ['usuario', 'papel', 'permissao', 'role'] },
-  { id: 'config', label: 'Configurações', icon: Settings, keywords: ['config', 'ajuste', 'opcao'] },
-  { id: 'webhooks', label: 'Webhooks', icon: Webhook, keywords: ['webhook', 'integracao', 'api'] },
-  { id: 'integrations', label: 'Integrações', icon: Globe, keywords: ['integracao', 'conectar'] },
+const NAVIGATION_ITEMS: Array<{ id: TabId; label: string; icon: React.ElementType; keywords: string[]; category: string }> = [
+  // Visão Geral
+  { id: 'home', label: 'Início', icon: Home, keywords: ['home', 'dashboard', 'inicio', 'painel'], category: 'Visão Geral' },
+  // Rastreamento
+  { id: 'emails', label: 'Emails Rastreados', icon: Mail, keywords: ['email', 'rastreamento', 'tracking', 'abertura'], category: 'Rastreamento' },
+  { id: 'links', label: 'Links Rastreados', icon: Link2, keywords: ['link', 'url', 'clique', 'click'], category: 'Rastreamento' },
+  { id: 'documents', label: 'Documentos', icon: FileText, keywords: ['documento', 'pdf', 'arquivo', 'upload'], category: 'Rastreamento' },
+  { id: 'scheduling', label: 'Agendamento', icon: Calendar, keywords: ['agendar', 'schedule', 'programar', 'envio'], category: 'Rastreamento' },
+  // Analytics
+  { id: 'reports', label: 'Relatórios', icon: BarChart3, keywords: ['relatorio', 'report', 'exportar', 'csv'], category: 'Analytics' },
+  { id: 'analytics', label: 'Analytics Avançado', icon: BarChart3, keywords: ['analytics', 'estatisticas', 'metricas', 'dados'], category: 'Analytics' },
+  { id: 'realtime', label: 'Tempo Real', icon: Zap, keywords: ['realtime', 'tempo real', 'live', 'ao vivo'], category: 'Analytics' },
+  { id: 'geo', label: 'Geo Analytics', icon: MapPin, keywords: ['geo', 'localizacao', 'mapa', 'pais', 'cidade'], category: 'Analytics' },
+  { id: 'trends', label: 'Tendências', icon: BarChart3, keywords: ['tendencia', 'trend', 'previsao', 'forecast'], category: 'Analytics' },
+  { id: 'benchmark', label: 'Benchmark', icon: BarChart3, keywords: ['benchmark', 'comparacao', 'mercado'], category: 'Analytics' },
+  { id: 'ai-optimizer', label: 'Otimizador IA', icon: Zap, keywords: ['ia', 'otimizar', 'assunto', 'subject', 'ai'], category: 'Analytics' },
+  { id: 'insights', label: 'Insights IA', icon: Zap, keywords: ['ia', 'insights', 'inteligencia', 'sugestao'], category: 'Analytics' },
+  // Engajamento
+  { id: 'leads', label: 'Lead Scoring', icon: Target, keywords: ['lead', 'score', 'pontuacao', 'contato'], category: 'Engajamento' },
+  { id: 'segmentation', label: 'Segmentação', icon: Users, keywords: ['segmento', 'grupo', 'segmentacao', 'audiencia'], category: 'Engajamento' },
+  { id: 'followup', label: 'Follow-up', icon: MessageSquare, keywords: ['followup', 'lembrete', 'acompanhar'], category: 'Engajamento' },
+  { id: 'sequences', label: 'Sequências', icon: Layout, keywords: ['sequencia', 'automacao', 'cadencia', 'drip'], category: 'Engajamento' },
+  { id: 'campaigns', label: 'Campanhas', icon: Layout, keywords: ['campanha', 'campaign', 'envio em massa'], category: 'Engajamento' },
+  { id: 'abtesting', label: 'Teste A/B', icon: Target, keywords: ['teste', 'ab', 'experimento', 'variante'], category: 'Engajamento' },
+  { id: 'unsubscribe', label: 'Lista de Exclusão', icon: UserMinus, keywords: ['exclusao', 'unsubscribe', 'opt-out', 'descadastro'], category: 'Engajamento' },
+  // Entregabilidade
+  { id: 'deliverability', label: 'Reputação', icon: Shield, keywords: ['reputacao', 'entrega', 'deliverability', 'spf', 'dkim'], category: 'Entregabilidade' },
+  { id: 'bouncealerts', label: 'Alertas de Bounce', icon: Bell, keywords: ['bounce', 'alerta', 'erro', 'rejeicao'], category: 'Entregabilidade' },
+  { id: 'push-notifications', label: 'Push Notifications', icon: Bell, keywords: ['push', 'notificacao', 'navegador'], category: 'Entregabilidade' },
+  { id: 'notifications', label: 'Histórico de Notificações', icon: Bell, keywords: ['historico', 'notificacao', 'log'], category: 'Entregabilidade' },
+  // Administração
+  { id: 'templates', label: 'Templates', icon: FileText, keywords: ['template', 'modelo', 'rascunho'], category: 'Administração' },
+  { id: 'featureflags', label: 'Feature Flags', icon: Settings, keywords: ['feature', 'flag', 'toggle', 'funcionalidade'], category: 'Administração' },
+  { id: 'audit', label: 'Auditoria', icon: Shield, keywords: ['auditoria', 'audit', 'log', 'historico'], category: 'Administração' },
+  { id: 'users', label: 'Usuários e Papéis', icon: Users, keywords: ['usuario', 'papel', 'permissao', 'role'], category: 'Administração' },
+  { id: 'config', label: 'Configurações', icon: Settings, keywords: ['config', 'ajuste', 'opcao', 'preferencia'], category: 'Administração' },
+  // Integrações
+  { id: 'integrations', label: 'Slack/Teams', icon: Globe, keywords: ['integracao', 'conectar', 'slack', 'teams'], category: 'Integrações' },
+  { id: 'bitrix', label: 'Bitrix24', icon: Globe, keywords: ['bitrix', 'crm', 'bitrix24'], category: 'Integrações' },
+  { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, keywords: ['whatsapp', 'mensagem', 'zap'], category: 'Integrações' },
+  { id: 'webhooks', label: 'Webhooks', icon: Webhook, keywords: ['webhook', 'integracao', 'api', 'endpoint'], category: 'Integrações' },
 ];
 
 // Quick actions
@@ -132,7 +151,7 @@ function GlobalSearchDialogBase({
 
   // Filter navigation items based on search
   const filteredNavItems = useMemo(() => {
-    if (!debouncedSearch) return NAVIGATION_ITEMS.slice(0, 6);
+    if (!debouncedSearch) return NAVIGATION_ITEMS.slice(0, 8);
     
     const searchLower = debouncedSearch.toLowerCase();
     return NAVIGATION_ITEMS.filter(item => 
@@ -140,6 +159,16 @@ function GlobalSearchDialogBase({
       item.keywords.some(k => k.includes(searchLower))
     );
   }, [debouncedSearch]);
+
+  // Group items by category
+  const groupedNavItems = useMemo(() => {
+    const groups: Record<string, typeof filteredNavItems> = {};
+    filteredNavItems.forEach(item => {
+      if (!groups[item.category]) groups[item.category] = [];
+      groups[item.category].push(item);
+    });
+    return groups;
+  }, [filteredNavItems]);
 
   // Handle navigation
   const handleNavigate = useCallback((tabId: TabId) => {
@@ -237,21 +266,23 @@ function GlobalSearchDialogBase({
           </>
         )}
 
-        {/* Navigation */}
-        <CommandGroup heading={debouncedSearch ? 'Resultados' : 'Navegação'}>
-          {filteredNavItems.map((item) => (
-            <CommandItem
-              key={item.id}
-              value={item.label}
-              onSelect={() => handleNavigate(item.id)}
-              className="gap-2"
-            >
-              <item.icon className="h-4 w-4 text-muted-foreground" />
-              <span>{item.label}</span>
-              <ArrowRight className="ml-auto h-3 w-3 text-muted-foreground" />
-            </CommandItem>
-          ))}
-        </CommandGroup>
+        {/* Navigation - grouped by category */}
+        {Object.entries(groupedNavItems).map(([category, items]) => (
+          <CommandGroup key={category} heading={debouncedSearch ? `${category}` : category}>
+            {items.map((item) => (
+              <CommandItem
+                key={item.id}
+                value={`${item.label} ${item.keywords.join(' ')}`}
+                onSelect={() => handleNavigate(item.id)}
+                className="gap-2"
+              >
+                <item.icon className="h-4 w-4 text-muted-foreground" />
+                <span>{item.label}</span>
+                <ArrowRight className="ml-auto h-3 w-3 text-muted-foreground opacity-0 group-data-[selected=true]:opacity-100 transition-opacity" />
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        ))}
       </CommandList>
       
       {/* Footer with hint */}
