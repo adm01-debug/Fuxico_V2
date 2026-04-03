@@ -266,21 +266,23 @@ function GlobalSearchDialogBase({
           </>
         )}
 
-        {/* Navigation */}
-        <CommandGroup heading={debouncedSearch ? 'Resultados' : 'Navegação'}>
-          {filteredNavItems.map((item) => (
-            <CommandItem
-              key={item.id}
-              value={item.label}
-              onSelect={() => handleNavigate(item.id)}
-              className="gap-2"
-            >
-              <item.icon className="h-4 w-4 text-muted-foreground" />
-              <span>{item.label}</span>
-              <ArrowRight className="ml-auto h-3 w-3 text-muted-foreground" />
-            </CommandItem>
-          ))}
-        </CommandGroup>
+        {/* Navigation - grouped by category */}
+        {Object.entries(groupedNavItems).map(([category, items]) => (
+          <CommandGroup key={category} heading={debouncedSearch ? `${category}` : category}>
+            {items.map((item) => (
+              <CommandItem
+                key={item.id}
+                value={`${item.label} ${item.keywords.join(' ')}`}
+                onSelect={() => handleNavigate(item.id)}
+                className="gap-2"
+              >
+                <item.icon className="h-4 w-4 text-muted-foreground" />
+                <span>{item.label}</span>
+                <ArrowRight className="ml-auto h-3 w-3 text-muted-foreground opacity-0 group-data-[selected=true]:opacity-100 transition-opacity" />
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        ))}
       </CommandList>
       
       {/* Footer with hint */}
