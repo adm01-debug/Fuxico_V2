@@ -4,10 +4,11 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { sanitizeEmailHtml } from "../_shared/html-sanitizer.ts";
 const EmailSchema = z.object({
   to: z.string().email(),
   subject: z.string().min(1).max(500),
-  body: z.string().min(1),
+  body: z.string().min(1).max(512000).transform(html => sanitizeEmailHtml(html)),
   trackingEnabled: z.boolean().default(true)
 });
 

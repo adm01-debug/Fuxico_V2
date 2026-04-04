@@ -5,6 +5,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts';
+import { isWebhookUrlSafe } from '../_shared/url-validator.ts';
 
 const log = createLogger('send-slack-notification');
 
@@ -252,6 +253,11 @@ serve(async (req) => {
     }
 
     const { webhookUrl, platform, eventType, data } = validation.data;
+
+    // SECURITY: Validate webhook URL to prevent SSRF
+    if (!isWebhookUrlSafe(webhookUrl)) {
+      return secureErrorResponse("Webhook URL is not allowed (private/internal addresses blocked)", 400, corsHeaders);
+    }
 
     log.info(`Sending ${platform} notification`, { eventType });
 

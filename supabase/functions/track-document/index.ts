@@ -33,6 +33,10 @@ serve(async (req) => {
     const { documentId, eventType, pageNumber, duration } = validation.data;
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
+    // Verify document exists before inserting event
+    const { data: doc } = await supabase.from("tracked_documents").select("id").eq("document_id", documentId).single();
+    if (!doc) return secureErrorResponse("Document not found", 404, corsHeaders);
+
     await supabase.from("document_events").insert({
       document_id: documentId,
       event_type: eventType,

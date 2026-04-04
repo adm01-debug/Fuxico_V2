@@ -77,13 +77,32 @@ export function useFulltextSearch({
     staleTime: 30000, // 30s
   });
 
-  // Highlight matched text with proper escaping
-  const highlightText = useCallback((text: string): string => {
-    if (!debouncedTerm || debouncedTerm.length < minChars) return text;
-    
+  // Highlight matched text - returns segments for safe React rendering
+  // SECURITY: Does NOT return HTML strings to prevent XSS injection
+  const getHighlightSegments = useCallback((text: string): Array<{ text: string; highlighted: boolean }> => {
+    if (!debouncedTerm || debouncedTerm.length < minChars) {
+      return [{ text, highlighted: false }];
+    }
+
     const escapedTerm = debouncedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedTerm})`, 'gi');
-    return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+    const parts = text.split(regex);
+
+    return parts.filter(Boolean).map(part => ({
+      text: part,
+      highlighted: regex.test(part) && (regex.lastIndex = 0, true),
+    }));
+  }, [debouncedTerm, minChars]);
+
+  // Legacy highlightText kept for backward compatibility but escapes output
+  const highlightText = useCallback((text: string): string => {
+    if (!debouncedTerm || debouncedTerm.length < minChars) return text;
+
+    const escapedTerm = debouncedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedTerm})`, 'gi');
+    // Escape HTML entities to prevent XSS when used with dangerouslySetInnerHTML
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return escaped.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
   }, [debouncedTerm, minChars]);
 
   return {
@@ -93,6 +112,7 @@ export function useFulltextSearch({
     isSearching: isLoading,
     error,
     highlightText,
+    getHighlightSegments,
     hasMinChars: searchTerm.length >= minChars,
     refetch,
   };

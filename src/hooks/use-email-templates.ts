@@ -80,10 +80,12 @@ export function useEmailTemplates() {
 
   const updateTemplate = useMutation({
     mutationFn: async ({ id, ...updateData }: UpdateTemplateData) => {
+      // SECURITY: Verify ownership with user_id filter
       const { data, error } = await supabase
         .from('email_templates')
         .update(updateData)
         .eq('id', id)
+        .eq('user_id', user!.id)
         .select()
         .single();
       
@@ -101,10 +103,12 @@ export function useEmailTemplates() {
 
   const deleteTemplate = useMutation({
     mutationFn: async (id: string) => {
+      // SECURITY: Verify ownership with user_id filter
       const { error } = await supabase
         .from('email_templates')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user!.id);
       
       if (error) throw error;
     },
@@ -119,12 +123,20 @@ export function useEmailTemplates() {
 
   const incrementUsage = useMutation({
     mutationFn: async (id: string) => {
-      const template = templates.find(t => t.id === id);
-      if (template) {
+      // SECURITY: Use fresh DB read instead of stale cache to prevent race conditions
+      const { data: current, error: fetchError } = await supabase
+        .from('email_templates')
+        .select('usage_count')
+        .eq('id', id)
+        .eq('user_id', user!.id)
+        .single();
+      if (fetchError) throw fetchError;
+      if (current) {
         const { error } = await supabase
           .from('email_templates')
-          .update({ usage_count: template.usage_count + 1 })
-          .eq('id', id);
+          .update({ usage_count: (current.usage_count || 0) + 1 })
+          .eq('id', id)
+          .eq('user_id', user!.id);
         if (error) throw error;
       }
     },

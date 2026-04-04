@@ -41,9 +41,10 @@ serve(async (req) => {
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
-    const { data: email } = await supabase.from("tracked_emails").select("user_id, sender_email").eq("tracking_id", trackingId).single();
+    const { data: email } = await supabase.from("tracked_emails").select("user_id, sender_email, sender_ip").eq("tracking_id", trackingId).single();
 
-    const isSelfOpen = email?.sender_email && clientIP.includes(email.sender_email);
+    // Self-open detection: compare client IP with stored sender IP (not email)
+    const isSelfOpen = !!(email?.sender_ip && clientIP === email.sender_ip);
 
     await supabase.from("tracking_events").insert({
       tracking_id: trackingId,

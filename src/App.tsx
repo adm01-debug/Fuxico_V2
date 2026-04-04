@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/lib/theme";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationBadgeManager } from "@/components/NotificationBadgeManager";
+import { PrivateRoute } from "@/components/PrivateRoute";
 import { Skeleton } from "@/components/ui/skeleton";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -67,19 +68,21 @@ const App = () => {
                 <main id="main-content">
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
+                      {/* Public routes */}
                       <Route path="/" element={<Index />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/auth" element={<Auth />} />
                       <Route path="/pricing" element={<Pricing />} />
-                      <Route path="/settings" element={<Settings />} />
-                      <Route path="/security" element={<Security />} />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
                       <Route path="/verify-email" element={<VerifyEmail />} />
                       <Route path="/mfa-verify" element={<MFAVerify />} />
-                      <Route path="/permissions" element={<Permissions />} />
-                      <Route path="/roles" element={<Roles />} />
-                      <Route path="/two-factor-auth" element={<TwoFactorAuth />} />
+                      {/* Protected routes - require authentication */}
+                      <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                      <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+                      <Route path="/security" element={<PrivateRoute><Security /></PrivateRoute>} />
+                      <Route path="/permissions" element={<PrivateRoute><Permissions /></PrivateRoute>} />
+                      <Route path="/roles" element={<PrivateRoute><Roles /></PrivateRoute>} />
+                      <Route path="/two-factor-auth" element={<PrivateRoute><TwoFactorAuth /></PrivateRoute>} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>

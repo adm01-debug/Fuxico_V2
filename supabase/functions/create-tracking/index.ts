@@ -5,15 +5,16 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
+import { SafeMetadataSchema } from '../_shared/schemas.ts'
 
 const log = createLogger('create-tracking')
 
 const createTrackingSchema = z.object({
   recipientEmail: z.string().email(),
-  subject: z.string().optional(),
+  subject: z.string().max(500).optional(),
   senderEmail: z.string().email().optional(),
-  links: z.array(z.string().url()).optional(),
-  metadata: z.record(z.any()).optional()
+  links: z.array(z.string().url()).max(50).optional(),
+  metadata: SafeMetadataSchema,
 })
 
 serve(async (req) => {

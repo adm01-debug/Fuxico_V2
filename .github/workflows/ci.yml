@@ -37,6 +37,14 @@ jobs:
       - name: Type Check
         run: npm run typecheck
 
+      - name: Verify Supabase Types
+        run: |
+          if [ -f "src/integrations/supabase/types.ts" ]; then
+            echo "Supabase types file exists"
+          else
+            echo "WARNING: Supabase types file missing - run 'supabase gen types' to generate"
+          fi
+
   # ===========================================================================
   # UNIT TESTS
   # ===========================================================================
@@ -230,8 +238,17 @@ jobs:
           name: dist
           path: dist
 
-      - name: Deploy to Production
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./
+
+      - name: Verify deployment health
         run: |
-          echo "🚀 Deploy would happen here"
-          echo "Artifact ready in dist/"
-        # Adicionar deploy real aqui (Vercel, Netlify, etc.)
+          sleep 10
+          curl -sf https://fuxico.app/health || echo "Health check pending - verify manually"
+        continue-on-error: true

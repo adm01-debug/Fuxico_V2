@@ -5,6 +5,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts';
+import { sanitizeLlmInput, detectPromptInjection, wrapUserInput } from '../_shared/llm-sanitizer.ts';
 
 const log = createLogger('generate-followup');
 
@@ -63,14 +64,26 @@ serve(async (req) => {
       }, 400, corsHeaders);
     }
 
-    const { 
-      originalSubject, 
-      recipientEmail, 
+    const {
+      originalSubject,
+      recipientEmail,
       daysSinceOriginal,
       originalContext = '',
       tone,
       language
     } = validation.data;
+
+    // SECURITY: Check for prompt injection in user inputs
+    const userInputs = [originalSubject, recipientEmail, originalContext];
+    if (userInputs.some(input => detectPromptInjection(input))) {
+      log.warn("Prompt injection attempt detected", { userId: user.id });
+      return secureErrorResponse("Invalid input detected", 400, corsHeaders);
+    }
+
+    // SECURITY: Sanitize all user inputs before including in prompts
+    const safeSubject = sanitizeLlmInput(originalSubject);
+    const safeEmail = sanitizeLlmInput(recipientEmail);
+    const safeContext = sanitizeLlmInput(originalContext);
 
     const toneDescriptions: Record<string, string> = {
       formal: 'profissional e formal',
@@ -98,9 +111,9 @@ O tom deve ser ${toneDescriptions[tone]}.
 
 Considere que:
 - Já se passaram ${daysSinceOriginal} dias desde o email original
-- O destinatário é: ${recipientEmail}
-- Assunto original: "${originalSubject}"
-${originalContext ? `- Contexto adicional: ${originalContext}` : ''}
+- O destinatário é: ${wrapUserInput('email', safeEmail)}
+- Assunto original: ${wrapUserInput('subject', safeSubject)}
+${safeContext ? `- Contexto adicional: ${wrapUserInput('context', safeContext)}` : ''}
 
 Retorne APENAS um JSON válido no formato:
 {
@@ -116,7 +129,7 @@ Retorne APENAS um JSON válido no formato:
   "tips": ["Dica 1", "Dica 2"]
 }`;
 
-    log.info("Generating follow-up suggestions", { recipientEmail, daysSinceOriginal, userId: user.id });
+    log.info("Generating follow-up suggestions", { daysSinceOriginal, userId: user.id });
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -128,7 +141,7 @@ Retorne APENAS um JSON válido no formato:
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Gere 3 sugestões de follow-up para o email "${originalSubject}" enviado para ${recipientEmail} há ${daysSinceOriginal} dias.` }
+          { role: "user", content: `Gere 3 sugestões de follow-up para o email com o assunto e destinatário indicados acima, enviado há ${daysSinceOriginal} dias.` }
         ],
         temperature: 0.7,
       }),
@@ -158,7 +171,13 @@ Retorne APENAS um JSON válido no formato:
       return secureErrorResponse("Invalid AI response format", 500, corsHeaders);
     }
 
-    const result = JSON.parse(jsonMatch[0]);
+    let result;
+    try {
+      result = JSON.parse(jsonMatch[0]);
+    } catch {
+      log.error("Failed to parse AI JSON response");
+      return secureErrorResponse("Invalid AI response format", 500, corsHeaders);
+    }
 
     log.info("Generated suggestions successfully", { count: result.suggestions?.length || 0 });
 

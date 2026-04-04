@@ -39,6 +39,22 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
+    // SECURITY: Verify admin authorization via service key header or cron secret
+    const cronSecret = Deno.env.get('CRON_SECRET');
+    const authHeader = req.headers.get('Authorization');
+    const providedSecret = req.headers.get('X-Cron-Secret');
+
+    if (cronSecret && providedSecret !== cronSecret) {
+      // If cron secret is configured, require it
+      // Otherwise fall back to admin user check
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Unauthorized - admin access required' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''

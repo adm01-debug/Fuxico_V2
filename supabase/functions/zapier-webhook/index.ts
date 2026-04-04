@@ -9,10 +9,11 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { SafeMetadataSchema } from "../_shared/schemas.ts";
 const ZapierSchema = z.object({
   event: z.enum(["email.opened", "email.clicked", "email.bounced", "document.viewed"]),
-  trackingId: z.string().min(1),
-  data: z.record(z.unknown()).optional()
+  trackingId: z.string().uuid(),
+  data: SafeMetadataSchema,
 });
 
 serve(async (req) => {

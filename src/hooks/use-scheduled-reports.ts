@@ -115,10 +115,12 @@ export function useScheduledReports() {
         update.next_send_at = calculateNextSend(updateData.report_type);
       }
       
+      // SECURITY: Verify ownership with user_id filter
       const { data, error } = await supabase
         .from('scheduled_reports')
         .update(update)
         .eq('id', id)
+        .eq('user_id', user!.id)
         .select()
         .single();
       
@@ -136,10 +138,12 @@ export function useScheduledReports() {
 
   const deleteReport = useMutation({
     mutationFn: async (id: string) => {
+      // SECURITY: Verify ownership with user_id filter
       const { error } = await supabase
         .from('scheduled_reports')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user!.id);
       
       if (error) throw error;
     },
@@ -154,10 +158,12 @@ export function useScheduledReports() {
 
   const toggleEnabled = useMutation({
     mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      // SECURITY: Verify ownership with user_id filter
       const { error } = await supabase
         .from('scheduled_reports')
         .update({ enabled })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user!.id);
       
       if (error) throw error;
     },
@@ -172,13 +178,22 @@ export function useScheduledReports() {
 
   const addRecipient = useMutation({
     mutationFn: async ({ id, email }: { id: string; email: string }) => {
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) throw new Error('Formato de email inválido');
+
       const report = reports.find(r => r.id === id);
       if (!report) throw new Error('Relatório não encontrado');
-      
+
+      // Prevent duplicate recipients
+      if (report.recipients.includes(email)) throw new Error('Destinatário já adicionado');
+
+      // SECURITY: ownership check
       const { error } = await supabase
         .from('scheduled_reports')
         .update({ recipients: [...report.recipients, email] })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user!.id);
       
       if (error) throw error;
     },

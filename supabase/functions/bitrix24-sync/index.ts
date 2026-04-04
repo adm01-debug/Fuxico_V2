@@ -5,6 +5,8 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
+import { isWebhookUrlSafe } from '../_shared/url-validator.ts'
+import { withCircuitBreaker } from '../_shared/circuit-breaker.ts'
 
 const log = createLogger('bitrix24-sync')
 
@@ -13,7 +15,7 @@ const Bitrix24SyncSchema = z.object({
   email: z.string().email().optional(),
   trackingId: z.string().uuid().optional(),
   eventType: z.string().optional(),
-  data: z.record(z.unknown()).optional().default({})
+  data: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional().default({})
 })
 
 // Types for Bitrix24 operations
@@ -91,26 +93,43 @@ serve(async (req) => {
       return secureJsonResponse({ error: 'Bitrix24 not configured' }, 400, corsHeaders)
     }
 
+    // Validate webhook URL to prevent SSRF
+    if (!isWebhookUrlSafe(prefs.bitrix24_webhook_url)) {
+      return secureJsonResponse({ error: 'Bitrix24 webhook URL is not allowed' }, 400, corsHeaders)
+    }
+
     let result: BitrixSyncResult = { success: false }
 
-    switch (action) {
-      case 'sync_contact':
-        if (email) {
-          result = await syncContact(prefs.bitrix24_webhook_url, email, data as BitrixContactData)
-        }
-        break
-      case 'create_deal':
-        result = await createDeal(prefs.bitrix24_webhook_url, data as BitrixDealData)
-        break
-      case 'register_activity':
-        result = await registerActivity(prefs.bitrix24_webhook_url, data as BitrixActivityData)
-        break
-      case 'sync_email_event':
-        if (trackingId && eventType) {
-          result = await syncEmailEvent(prefs.bitrix24_webhook_url, trackingId, eventType, data as Record<string, string>)
-        }
-        break
+    // Circuit breaker: fail fast if Bitrix24 is consistently failing
+    const circuitResult = await withCircuitBreaker('bitrix24', async () => {
+      let innerResult: BitrixSyncResult = { success: false }
+
+      switch (action) {
+        case 'sync_contact':
+          if (email) {
+            innerResult = await syncContact(prefs.bitrix24_webhook_url, email, data as BitrixContactData)
+          }
+          break
+        case 'create_deal':
+          innerResult = await createDeal(prefs.bitrix24_webhook_url, data as BitrixDealData)
+          break
+        case 'register_activity':
+          innerResult = await registerActivity(prefs.bitrix24_webhook_url, data as BitrixActivityData)
+          break
+        case 'sync_email_event':
+          if (trackingId && eventType) {
+            innerResult = await syncEmailEvent(prefs.bitrix24_webhook_url, trackingId, eventType, data as Record<string, string>)
+          }
+          break
+      }
+
+      return innerResult
+    }, { failureThreshold: 3, resetTimeoutMs: 120_000 })
+
+    if (circuitResult === null) {
+      return secureJsonResponse({ error: 'Bitrix24 service temporarily unavailable (circuit open)' }, 503, corsHeaders)
     }
+    result = circuitResult
 
     // Log sync
     await supabaseClient.from('bitrix24_sync_logs').insert({
@@ -128,7 +147,10 @@ serve(async (req) => {
 })
 
 async function syncContact(webhookUrl: string, email: string, data: BitrixContactData): Promise<BitrixSyncResult> {
-  const response = await fetch(`${webhookUrl}/crm.contact.list?filter[EMAIL]=${encodeURIComponent(email)}`)
+  // Use URL constructor for safe URL building (prevents parameter injection)
+  const listUrl = new URL(`${webhookUrl.replace(/\/+$/, '')}/crm.contact.list`)
+  listUrl.searchParams.set('filter[EMAIL]', email)
+  const response = await fetch(listUrl.toString())
   const existing = await response.json() as { result?: Array<{ ID: string }> }
   
   if (existing.result && existing.result.length > 0) {

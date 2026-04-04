@@ -7,16 +7,17 @@ const log = createLogger('log-email-activity')
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
+import { SafeMetadataSchema } from '../_shared/schemas.ts'
 
 const logSchema = z.object({
   userEmail: z.string().email(),
   direction: z.enum(['inbound', 'outbound']),
   senderEmail: z.string().email().optional(),
   recipientEmail: z.string().email().optional(),
-  subject: z.string().optional(),
-  externalDomain: z.string().optional(),
+  subject: z.string().max(500).optional(),
+  externalDomain: z.string().max(255).optional(),
   isExternal: z.boolean().optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: SafeMetadataSchema,
 })
 
 serve(async (req) => {
