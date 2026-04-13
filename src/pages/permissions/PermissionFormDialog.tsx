@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,7 +33,6 @@ interface NewPermission {
   category: string;
 }
 
-// Create dialog
 export function CreatePermissionDialog({
   open, onOpenChange, newPermission, setNewPermission, onSubmit, isPending,
 }: {
@@ -89,7 +89,6 @@ export function CreatePermissionDialog({
   );
 }
 
-// Edit dialog
 export function EditPermissionDialog({
   permission, onClose, onSubmit, isPending,
 }: {
@@ -116,10 +115,8 @@ export function EditPermissionDialog({
 function EditPermissionForm({ permission, onClose, onSubmit, isPending }: {
   permission: Permission; onClose: () => void; onSubmit: (p: Permission) => void; isPending: boolean;
 }) {
-  // Use local state for editing
   const [local, setLocal] = useState(permission);
 
-  // Need to import useState
   return (
     <>
       <div className="space-y-4 py-4">
@@ -154,5 +151,3 @@ function EditPermissionForm({ permission, onClose, onSubmit, isPending }: {
     </>
   );
 }
-
-import { useState } from 'react';
