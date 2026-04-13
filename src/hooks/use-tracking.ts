@@ -65,10 +65,10 @@ export function useTrackedEmails(filters: TrackingFilters = {}) {
         p_user_id: user.id,
         p_limit: filters.limit || 100,
         p_offset: filters.offset || 0,
-        p_status: filters.deliveryStatus === 'all' ? null : filters.deliveryStatus || null,
-        p_search: filters.search || null,
-        p_start_date: filters.dateFrom || null,
-        p_end_date: filters.dateTo || null,
+        p_status: filters.deliveryStatus === 'all' ? undefined : filters.deliveryStatus || undefined,
+        p_search: filters.search || undefined,
+        p_start_date: filters.dateFrom || undefined,
+        p_end_date: filters.dateTo || undefined,
       })
       
       if (error) {

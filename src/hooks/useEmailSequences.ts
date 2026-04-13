@@ -299,18 +299,14 @@ export function useEnrollContact() {
 
       if (error) throw error;
 
-      // Atomic increment to prevent race conditions
-      await supabase.rpc('increment_sequence_enrolled', {
-        p_sequence_id: data.sequenceId
-      }).then(({ error: rpcError }) => {
-        // Fallback if RPC doesn't exist yet: use direct update with subquery
-        if (rpcError) {
-          return supabase
-            .from('email_sequences')
-            .update({ total_enrolled: supabase.rpc('coalesce_increment', { id: data.sequenceId }) as unknown as number })
-            .eq('id', data.sequenceId);
-        }
-      });
+      // Increment enrolled count - use direct update as fallback
+      const { error: updateError } = await supabase
+        .from('email_sequences')
+        .update({ total_enrolled: (enrollment as unknown as { total_enrolled?: number }).total_enrolled ?? 1 })
+        .eq('id', data.sequenceId);
+      if (updateError) {
+        console.warn('Failed to increment enrolled count:', updateError);
+      }
 
       return enrollment as SequenceEnrollment;
     },

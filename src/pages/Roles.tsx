@@ -16,8 +16,7 @@ import {
   Search,
   MoreVertical,
   Trash2,
-  Edit,
-  Check
+  Edit
 } from 'lucide-react';
 import {
   DropdownMenu,

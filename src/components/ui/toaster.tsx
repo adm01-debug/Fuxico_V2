@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/use-toast";
 import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle  } from "lucide-react";
 
 const variantIcons = {
   default: <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />,

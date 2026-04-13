@@ -40,7 +40,15 @@ export function useFollowUpReminders() {
 
       if (error) throw error;
 
-      interface ReminderQueryResult extends FollowUpReminder {
+      interface ReminderQueryResult {
+        id: string;
+        user_id: string;
+        tracking_id: string;
+        reminder_days: number;
+        status: string;
+        reminded_at: string | null;
+        created_at: string;
+        updated_at: string;
         tracked_emails: {
           recipient_email: string;
           subject: string | null;
@@ -82,7 +90,15 @@ export function usePendingReminders() {
 
       if (error) throw error;
 
-      interface ReminderQueryResult extends FollowUpReminder {
+      interface ReminderQueryResult2 {
+        id: string;
+        user_id: string;
+        tracking_id: string;
+        reminder_days: number;
+        status: string;
+        reminded_at: string | null;
+        created_at: string;
+        updated_at: string;
         tracked_emails: {
           recipient_email: string;
           subject: string | null;
@@ -90,7 +106,7 @@ export function usePendingReminders() {
         };
       }
       
-      return (data || []).map((item: ReminderQueryResult) => {
+      return (data || []).map((item: ReminderQueryResult2) => {
         const daysSinceSent = Math.floor(
           (Date.now() - new Date(item.tracked_emails.created_at).getTime()) / (1000 * 60 * 60 * 24)
         );

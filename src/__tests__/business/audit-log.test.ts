@@ -5,15 +5,7 @@ import { describe, it, expect } from "vitest";
 // =============================================================================
 
 describe("Email Audit Log", () => {
-  interface AuditEntry {
-    direction: "inbound" | "outbound";
-    sender_email: string;
-    recipient_email: string;
-    subject: string | null;
-    is_external: boolean;
-    external_domain: string | null;
-    timestamp: string;
-  }
+  type AuditDirection = "inbound" | "outbound";
 
   const isExternalEmail = (email: string, internalDomains: string[]): boolean => {
     const domain = email.split("@")[1]?.toLowerCase();

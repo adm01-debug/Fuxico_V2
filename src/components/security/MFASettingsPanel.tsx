@@ -43,17 +43,16 @@ export function MFASettingsPanel() {
       const { error } = await supabase
         .from('mfa_settings')
         .upsert({
-          ...(user?.id ? { user_id: user.id } : {}),
+          user_id: user?.id ?? '',
           is_enabled: true,
           enrolled_at: new Date().toISOString(),
           backup_codes: backupCodes,
           recovery_email: user?.email ?? '',
-        } as Record<string, unknown>);
+        });
       if (error) throw error;
 
-      // Log security event
       await supabase.rpc('log_security_event', {
-        _user_id: user?.id ?? null,
+        _user_id: user?.id ?? '',
         _event_type: 'mfa_enabled',
         _severity: 'info',
         _description: 'MFA foi ativado na conta',
@@ -80,12 +79,11 @@ export function MFASettingsPanel() {
           totp_secret: null,
           backup_codes: null,
         })
-        .eq('user_id', user?.id);
+        .eq('user_id', user?.id ?? '');
       if (error) throw error;
 
-      // Log security event
       await supabase.rpc('log_security_event', {
-        _user_id: user?.id,
+        _user_id: user?.id ?? '',
         _event_type: 'mfa_disabled',
         _severity: 'warning',
         _description: 'MFA foi desativado na conta',
@@ -110,11 +108,11 @@ export function MFASettingsPanel() {
       const { error } = await supabase
         .from('mfa_settings')
         .update({ backup_codes: backupCodes })
-        .eq('user_id', user?.id);
+        .eq('user_id', user?.id ?? '');
       if (error) throw error;
 
       await supabase.rpc('log_security_event', {
-        _user_id: user?.id,
+        _user_id: user?.id ?? '',
         _event_type: 'backup_codes_regenerated',
         _severity: 'info',
         _description: 'Códigos de backup foram regenerados',

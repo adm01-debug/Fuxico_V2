@@ -27,7 +27,7 @@ export default function ResetPassword() {
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
   
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [_searchParams] = useSearchParams();
 
   useEffect(() => {
     // Check if we have access token in URL (from email link)

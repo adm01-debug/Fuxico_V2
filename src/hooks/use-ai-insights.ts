@@ -65,7 +65,7 @@ export function useAIInsights() {
 }
 
 export function useRefreshInsights() {
-  const { user } = useAuth();
+  useAuth();
 
   return useMutation({
     mutationFn: async (): Promise<InsightsData> => {

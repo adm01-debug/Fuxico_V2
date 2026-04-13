@@ -86,6 +86,7 @@ export function useCreateScheduledEmail() {
 
 export function useUpdateScheduledEmail() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({ 

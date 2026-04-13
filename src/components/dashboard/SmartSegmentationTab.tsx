@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { 
   Users, Flame, Snowflake, TrendingUp, 
   UserX, Sparkles, Download, Eye,
-  MousePointerClick
+  MousePointerClick,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -36,7 +36,8 @@ interface Segment {
 
 export default function SmartSegmentationTab() {
   const { user } = useAuth()
-  const [searchQuery, setSearchQuery] = useState('')
+  const [_searchQuery, _setSearchQuery] = useState('')
+  void _searchQuery; void _setSearchQuery;
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contact-scores', user?.id],
