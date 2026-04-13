@@ -53,8 +53,7 @@ interface StepFormData {
 function StepCard({ 
   step, 
   index, 
-  sequenceId,
-  onDelete 
+    onDelete 
 }: { 
   step: SequenceStep; 
   index: number;

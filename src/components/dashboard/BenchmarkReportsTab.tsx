@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
-  BarChart3, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, 
-  Target, Award, Info, RefreshCw, Download 
+  TrendingUp, ArrowUpRight, ArrowDownRight, 
+  Target, Award, Download 
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'

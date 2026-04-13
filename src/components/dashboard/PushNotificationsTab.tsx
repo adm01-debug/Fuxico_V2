@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { 
-  Bell, BellRing, BellOff, Smartphone, Monitor, CheckCircle2, 
+  Bell, BellRing, BellOff, Smartphone, CheckCircle2, 
   AlertTriangle, Settings, Volume2, VolumeX, Eye, MousePointerClick,
   Mail, Shield, Zap, Clock
 } from 'lucide-react'

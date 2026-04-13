@@ -179,7 +179,7 @@ const TAB_SKELETON_VARIANTS: Partial<Record<TabId, 'table' | 'metrics' | 'chart'
 
 export default function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
-  const [prevTab, setPrevTab] = useState<TabId>('home')
+  const [setPrevTab] = useState<TabId>('home')
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [showCreateTracking, setShowCreateTracking] = useState(false)
   const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()

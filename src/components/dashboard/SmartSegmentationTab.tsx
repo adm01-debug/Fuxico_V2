@@ -6,11 +6,10 @@ import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { 
-  Users, Flame, Snowflake, TrendingUp, TrendingDown, 
-  UserCheck, UserX, Sparkles, Search, Download, Filter, Eye,
-  MousePointerClick, Mail, Clock
+  Users, Flame, Snowflake, TrendingUp, 
+  UserX, Sparkles, Download, Eye,
+  MousePointerClick, Clock
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
