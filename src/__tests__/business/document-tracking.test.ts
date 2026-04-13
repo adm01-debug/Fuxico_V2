@@ -53,7 +53,7 @@ describe("Document Tracking", () => {
 
     it("should handle null expiration (never expires)", () => {
       const expiresAt: Date | null = null;
-      const isExpired = expiresAt !== null ? expiresAt < new Date() : false;
+      const isExpired = expiresAt !== null && expiresAt < new Date();
       expect(isExpired).toBe(false);
     });
   });

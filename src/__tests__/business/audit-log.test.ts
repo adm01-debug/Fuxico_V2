@@ -5,7 +5,7 @@ import { describe, it, expect } from "vitest";
 // =============================================================================
 
 describe("Email Audit Log", () => {
-  type AuditDirection = "inbound" | "outbound";
+  // AuditEntry: direction, sender_email, recipient_email, subject, is_external, external_domain, timestamp
 
   const isExternalEmail = (email: string, internalDomains: string[]): boolean => {
     const domain = email.split("@")[1]?.toLowerCase();

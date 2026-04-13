@@ -546,7 +546,7 @@ export default function Permissions() {
                     </TableHeader>
                     <TableBody>
                       {permissions?.map((perm) => {
-                        const _roleCount = (rolePermissions?.filter(rp => rp.permission_id === perm.id).length ?? 0) + 1;
+                        void ((rolePermissions?.filter(rp => rp.permission_id === perm.id).length ?? 0) + 1);
                         return (
                           <TableRow key={perm.id}>
                             <TableCell>

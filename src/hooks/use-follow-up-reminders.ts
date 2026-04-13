@@ -8,7 +8,7 @@ interface FollowUpReminder {
   user_id: string;
   tracking_id: string;
   reminder_days: number;
-  status: 'pending' | 'sent' | 'cancelled' | 'opened';
+  status: string;
   reminded_at: string | null;
   created_at: string;
   updated_at: string;

@@ -166,9 +166,8 @@ function GeoAnalyticsTabBase() {
     );
   }
 
-  const _totalOpens = geoStats.reduce((acc, s) => acc + s.opens, 0);
-  const _totalClicks = geoStats.reduce((acc, s) => acc + s.clicks, 0);
-  void (_totalOpens + _totalClicks);
+  const totalOpens = geoStats.reduce((acc, s) => acc + s.opens, 0);
+  const totalClicks = geoStats.reduce((acc, s) => acc + s.clicks, 0);
   const maxTotal = geoStats.length > 0 ? geoStats[0].total : 0;
 
   // Prepare chart data
