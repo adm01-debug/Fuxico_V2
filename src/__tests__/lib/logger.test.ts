@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // We need to test the Logger class directly since the module uses import.meta.env
 describe("Logger", () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let consoleSpy: {
+  let consoleSpy!: {
     debug: ReturnType<typeof vi.spyOn>;
     info: ReturnType<typeof vi.spyOn>;
     warn: ReturnType<typeof vi.spyOn>;

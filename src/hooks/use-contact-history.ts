@@ -85,7 +85,7 @@ export function useContactHistory(email: string | null) {
         timeline.push({
           id: `sent-${email.id}`,
           type: 'email_sent',
-          timestamp: email.created_at,
+          timestamp: email.created_at ?? '',
           subject: email.subject,
           tracking_id: safeStr(email.tracking_id),
         });
@@ -94,7 +94,7 @@ export function useContactHistory(email: string | null) {
           timeline.push({
             id: `bounce-${email.id}`,
             type: 'bounce',
-            timestamp: email.created_at,
+            timestamp: email.created_at ?? '',
             subject: email.subject,
             tracking_id: safeStr(email.tracking_id),
           });
