@@ -2,20 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // We need to test the Logger class directly since the module uses import.meta.env
 describe("Logger", () => {
-  let consoleSpy!: {
-    debug: ReturnType<typeof vi.spyOn>;
-    info: ReturnType<typeof vi.spyOn>;
-    warn: ReturnType<typeof vi.spyOn>;
-    error: ReturnType<typeof vi.spyOn>;
-  };
-
   beforeEach(() => {
-    consoleSpy = {
-      debug: vi.spyOn(console, "debug").mockImplementation(() => {}),
-      info: vi.spyOn(console, "info").mockImplementation(() => {}),
-      warn: vi.spyOn(console, "warn").mockImplementation(() => {}),
-      error: vi.spyOn(console, "error").mockImplementation(() => {}),
-    };
+    vi.spyOn(console, "debug").mockImplementation(() => {});
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
