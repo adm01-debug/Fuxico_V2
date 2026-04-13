@@ -19,7 +19,7 @@ import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/hooks/use
 import { useTrackingTrends } from '@/hooks/use-tracking-trends';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { supabase } from '@/integrations/supabase/client';
-import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 import type { RealtimeEvent, BounceAlert } from './home/types';
