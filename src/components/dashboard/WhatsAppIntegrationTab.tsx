@@ -13,8 +13,8 @@ import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { 
-  MessageCircle, Phone, Settings, Zap, Clock, CheckCircle2, 
-  AlertTriangle, Send, Users, BarChart3, ArrowRight, Shield 
+  MessageCircle, Settings, Zap, Clock, CheckCircle2, 
+  AlertTriangle, Send, Users, ArrowRight, Shield 
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'

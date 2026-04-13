@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Minus, Brain, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Brain } from 'lucide-react';
 import { useTrendPrediction } from '@/hooks/use-trend-prediction';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';

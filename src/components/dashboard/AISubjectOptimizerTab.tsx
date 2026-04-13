@@ -14,8 +14,8 @@ import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
 import { 
-  Brain, Sparkles, Clock, TrendingUp, Target, Copy, 
-  Lightbulb, BarChart3, Loader2, Wand2, Send, CheckCircle2 
+  Brain, Sparkles, Clock, Copy, 
+  Lightbulb, Loader2, Wand2 
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -29,7 +29,7 @@ interface Suggestion {
 }
 
 export default function AISubjectOptimizerTab() {
-  const { user } = useAuth()
+  const { } = useAuth()
   const [originalSubject, setOriginalSubject] = useState('')
   const [context, setContext] = useState('')
   const [audience, setAudience] = useState('general')

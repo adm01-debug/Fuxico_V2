@@ -67,7 +67,7 @@ export function UserRolesTab() {
       }
     } catch (error) {
       toast.error("Erro ao atualizar role");
-      log.error(error);
+      log.error(String(error));
     } finally {
       setConfirmAction(null);
     }

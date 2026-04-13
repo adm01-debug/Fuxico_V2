@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { 
   Home, 
@@ -18,8 +18,7 @@ import {
   Webhook,
   TestTube,
   TrendingUp,
-  MessageSquare,
-  Clock,
+    Clock,
   GitBranch,
   X,
   type LucideIcon 

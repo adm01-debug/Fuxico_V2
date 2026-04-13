@@ -168,7 +168,7 @@ function GeoAnalyticsTabBase() {
 
   const totalOpens = geoStats.reduce((acc, s) => acc + s.opens, 0);
   const totalClicks = geoStats.reduce((acc, s) => acc + s.clicks, 0);
-  const totalInteractions = totalOpens + totalClicks;
+  void (totalOpens + totalClicks);
   const maxTotal = geoStats.length > 0 ? geoStats[0].total : 0;
 
   // Prepare chart data

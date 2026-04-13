@@ -123,7 +123,7 @@ function ContactHistoryDialogBase({ email, open, onOpenChange }: ContactHistoryD
                   <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
 
                   <div className="space-y-4">
-                    {data?.timeline.map((item, index) => (
+                    {data?.timeline.map((item) => (
                       <div key={item.id} className="relative flex items-start gap-4 pl-10">
                         {/* Timeline dot */}
                         <div className={`absolute left-2 w-5 h-5 rounded-full ${getEventColor(item.type)} flex items-center justify-center text-white`}>

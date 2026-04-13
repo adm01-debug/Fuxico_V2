@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { ArrowLeft, Shield, Key, Save, Loader2, Plus, Trash2, Edit, Users, Lock, Eye, FileEdit, Settings, BarChart3, Webhook, Mail, FileText, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Shield, Key, Save, Loader2, Plus, Trash2, Edit, Users, Lock, Eye, Settings, BarChart3, Webhook, Mail, FileText, AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';

@@ -7,8 +7,7 @@ import { useState, useCallback, useEffect } from 'react';
 import Joyride, { 
   CallBackProps, 
   STATUS, 
-  Step, 
-  TooltipRenderProps,
+    TooltipRenderProps,
   ACTIONS,
   EVENTS,
 } from 'react-joyride';
@@ -36,8 +35,7 @@ interface TourState {
 // =============================================================================
 
 function CustomTooltip({
-  continuous,
-  index,
+    index,
   step,
   backProps,
   closeProps,

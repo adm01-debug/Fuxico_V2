@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Trash2, CheckCircle2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,7 +19,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
   const { user, session } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: sessions, isLoading, refetch } = useQuery({
+  const { data: sessions, isLoading } = useQuery({
     queryKey: ['activeSessions', user?.id, limit],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -48,7 +47,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
         .from('active_sessions')
         .delete()
         .eq('id', sessionId)
-        .eq('user_id', user?.id);
+        .eq('user_id', user?.id ?? '');
       if (error) throw error;
     },
     onSuccess: () => {
@@ -65,7 +64,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
       const { error } = await supabase
         .from('active_sessions')
         .delete()
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id ?? '')
         .neq('session_token', session?.access_token || '');
       if (error) throw error;
     },
