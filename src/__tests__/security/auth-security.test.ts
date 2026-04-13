@@ -217,7 +217,6 @@ describe("IP Security", () => {
 
   it("should handle IP whitelist matching", () => {
     const isInRange = (ip: string, cidr: string) => {
-    const isInRange = (ip: string, cidr: string) => {
       if (!cidr.includes("/")) return ip === cidr;
       const [base, bits] = cidr.split("/");
       const mask = ~((1 << (32 - parseInt(bits))) - 1);
