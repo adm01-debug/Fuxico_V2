@@ -111,7 +111,7 @@ export const SecurityBadges = () => {
         { icon: Lock, label: "LGPD" },
         { icon: Globe, label: "Global CDN" },
         { icon: Clock, label: "24/7 Monitoring" },
-      ].map((badge, index) => (
+      ].map((badge) => (
         <motion.div
           key={badge.label}
           whileHover={{ scale: 1.05 }}

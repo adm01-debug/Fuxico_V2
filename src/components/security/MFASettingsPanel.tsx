@@ -43,17 +43,17 @@ export function MFASettingsPanel() {
       const { error } = await supabase
         .from('mfa_settings')
         .upsert({
-          user_id: user?.id,
+          ...(user?.id ? { user_id: user.id } : {}),
           is_enabled: true,
           enrolled_at: new Date().toISOString(),
           backup_codes: backupCodes,
-          recovery_email: user?.email,
-        });
+          recovery_email: user?.email ?? '',
+        } as Record<string, unknown>);
       if (error) throw error;
 
       // Log security event
       await supabase.rpc('log_security_event', {
-        _user_id: user?.id,
+        _user_id: user?.id ?? null,
         _event_type: 'mfa_enabled',
         _severity: 'info',
         _description: 'MFA foi ativado na conta',
@@ -61,7 +61,7 @@ export function MFASettingsPanel() {
 
       return backupCodes;
     },
-    onSuccess: (backupCodes) => {
+    onSuccess: (_backupCodes) => {
       queryClient.invalidateQueries({ queryKey: ['mfaSettings'] });
       toast.success('MFA ativado com sucesso! Guarde seus códigos de backup.');
       setShowBackupCodes(true);

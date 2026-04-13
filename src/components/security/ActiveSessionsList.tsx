@@ -47,7 +47,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
         .from('active_sessions')
         .delete()
         .eq('id', sessionId)
-        .eq('user_id', user?.id);
+        .eq('user_id', user?.id ?? '');
       if (error) throw error;
     },
     onSuccess: () => {
@@ -64,7 +64,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
       const { error } = await supabase
         .from('active_sessions')
         .delete()
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id ?? '')
         .neq('session_token', session?.access_token || '');
       if (error) throw error;
     },
