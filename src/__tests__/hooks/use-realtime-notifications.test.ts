@@ -11,7 +11,7 @@ describe('useRealtimeNotifications - security', () => {
   it('should only show notifications for own emails', () => {
     const currentUserId = 'user-123';
     const emailUserId = 'user-456';
-    const isOwner = emailUserId === currentUserId;
+    const isOwner = emailUserId as string === currentUserId as string;
     expect(isOwner).toBe(false);
   });
 

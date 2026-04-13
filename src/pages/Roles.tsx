@@ -16,8 +16,7 @@ import {
   Search,
   MoreVertical,
   Trash2,
-  Edit,
-  Check
+  Edit
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -84,7 +83,7 @@ export default function Roles() {
       if (error) throw error;
       return data as UserRole[];
     },
-    enabled: isAdmin,
+    enabled: !!isAdmin,
   });
 
   // Add role mutation
@@ -141,7 +140,7 @@ export default function Roles() {
     },
   });
 
-  const filteredRoles = userRoles?.filter(role => 
+  const filteredRoles = (userRoles as UserRole[] | undefined)?.filter((role: UserRole) => 
     role.user_id.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -199,7 +198,7 @@ export default function Roles() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {userRoles?.filter(r => r.role === 'admin').length || 0}
+                    {(userRoles as UserRole[] | undefined)?.filter((r: UserRole) => r.role === 'admin').length || 0}
                   </p>
                   <p className="text-xs text-muted-foreground">Administradores</p>
                 </div>
@@ -215,7 +214,7 @@ export default function Roles() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {userRoles?.filter(r => r.role === 'user').length || 0}
+                    {(userRoles as UserRole[] | undefined)?.filter((r: UserRole) => r.role === 'user').length || 0}
                   </p>
                   <p className="text-xs text-muted-foreground">Usuários</p>
                 </div>
@@ -254,7 +253,7 @@ export default function Roles() {
               </div>
             ) : (
               <div className="space-y-2">
-                {filteredRoles?.map((userRole) => (
+                {filteredRoles?.map((userRole: UserRole) => (
                   <div 
                     key={userRole.id}
                     className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"

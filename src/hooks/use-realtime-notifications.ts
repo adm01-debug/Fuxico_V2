@@ -95,7 +95,7 @@ export function useRealtimeNotifications() {
     }
   }, [user, toast, preferences]);
 
-  const showClickNotification = useCallback(async (trackingId: string, linkUrl: string) => {
+  const showClickNotification = useCallback(async (trackingId: string, _linkUrl: string) => {
     // Check if user wants click notifications
     if (!preferences?.notify_on_click) return;
 

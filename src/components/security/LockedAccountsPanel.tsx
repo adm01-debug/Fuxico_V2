@@ -71,10 +71,11 @@ export function LockedAccountsPanel() {
     !l.lockout_until || new Date(l.lockout_until) <= now
   );
 
-  const _isLocked_fn = (lockout: LoginLockout) => {
+  const isLockedFn = (lockout: LoginLockout) => {
     if (!lockout.lockout_until) return false;
     return new Date(lockout.lockout_until) > now;
   };
+  void isLockedFn;
 
   const getTimeRemaining = (lockoutUntil: string) => {
     const until = new Date(lockoutUntil);

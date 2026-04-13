@@ -7,10 +7,7 @@ import { describe, it, expect } from "vitest";
 describe("Role-Based Access Control", () => {
   type Role = "admin" | "user" | "moderator";
 
-  interface Permission {
-    key: string;
-    category: string;
-  }
+  // Permission type: { key: string; category: string }
 
   const ROLE_PERMISSIONS: Record<Role, string[]> = {
     admin: [
@@ -33,8 +30,9 @@ describe("Role-Based Access Control", () => {
     return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
   };
 
-  const hasRole = (userRoles: Role[], requiredRole: Role): boolean =>
+  const _hasRole = (userRoles: Role[], requiredRole: Role): boolean =>
     userRoles.includes(requiredRole);
+  void _hasRole;
 
   describe("Permission checks", () => {
     it("admin should have all permissions", () => {

@@ -14,7 +14,7 @@ export default function VerifyEmail() {
   const [email, setEmail] = useState('');
   const [resending, setResending] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [_searchParams] = useSearchParams();
 
   useEffect(() => {
     const verifyEmail = async () => {

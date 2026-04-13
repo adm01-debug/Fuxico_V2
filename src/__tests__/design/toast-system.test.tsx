@@ -4,7 +4,7 @@
 // =============================================================================
 
 import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { expect as _expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 

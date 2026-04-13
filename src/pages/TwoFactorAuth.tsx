@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Shield, Loader2, ArrowLeft, KeyRound, Copy, CheckCircle } from 'lucide-react';
@@ -44,7 +43,7 @@ export default function TwoFactorAuth() {
       const { data, error } = await supabase
         .from('mfa_settings')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id ?? '')
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -118,7 +117,7 @@ export default function TwoFactorAuth() {
 
       // Save MFA settings to our table
       await supabase.from('mfa_settings').upsert({
-        user_id: user?.id,
+        user_id: user?.id ?? '',
         is_enabled: true,
         enrolled_at: new Date().toISOString(),
         last_verified_at: new Date().toISOString(),
@@ -152,7 +151,7 @@ export default function TwoFactorAuth() {
 
       // Update our settings
       await supabase.from('mfa_settings').upsert({
-        user_id: user?.id,
+        user_id: user?.id ?? '',
         is_enabled: false,
         totp_secret: null,
         backup_codes: null,

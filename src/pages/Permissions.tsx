@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { ArrowLeft, Shield, Key, Save, Loader2, Plus, Trash2, Edit, Users, Lock, Eye, Settings, BarChart3, Webhook, Mail, FileText, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Shield, Key, Save, Loader2, Plus, Trash2, Edit, Users, Lock, Eye, Settings, BarChart3, Webhook, Mail, FileText, AlertTriangle  } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -100,7 +100,7 @@ export default function Permissions() {
   });
 
   // Fetch role permissions
-  const { data: rolePermissions, isLoading: isLoadingRolePermissions } = useQuery({
+  const { data: rolePermissions } = useQuery({
     queryKey: ['rolePermissions'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -546,7 +546,7 @@ export default function Permissions() {
                     </TableHeader>
                     <TableBody>
                       {permissions?.map((perm) => {
-                        const roleCount = (rolePermissions?.filter(rp => rp.permission_id === perm.id).length ?? 0) + 1; // +1 for admin
+                        void ((rolePermissions?.filter(rp => rp.permission_id === perm.id).length ?? 0) + 1);
                         return (
                           <TableRow key={perm.id}>
                             <TableCell>

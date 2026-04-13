@@ -16,6 +16,9 @@ export interface ContactEmail {
   click_count: number | null;
 }
 
+// Helper to safely convert string | null to string
+const safeStr = (v: string | null): string => v ?? '';
+
 export interface ContactEvent {
   id: string;
   tracking_id: string;
@@ -59,7 +62,7 @@ export function useContactHistory(email: string | null) {
 
       if (emailsError) throw emailsError;
 
-      const trackingIds = emails?.map(e => e.tracking_id) || [];
+      const trackingIds = (emails?.map(e => e.tracking_id).filter((id): id is string => id !== null)) || [];
 
       // Fetch all events for these emails
       let events: ContactEvent[] = [];
@@ -82,19 +85,18 @@ export function useContactHistory(email: string | null) {
         timeline.push({
           id: `sent-${email.id}`,
           type: 'email_sent',
-          timestamp: email.created_at,
+          timestamp: email.created_at ?? '',
           subject: email.subject,
-          tracking_id: email.tracking_id,
+          tracking_id: safeStr(email.tracking_id),
         });
 
-        // Add bounce event if bounced
         if (email.delivery_status === 'bounced') {
           timeline.push({
             id: `bounce-${email.id}`,
             type: 'bounce',
-            timestamp: email.created_at,
+            timestamp: email.created_at ?? '',
             subject: email.subject,
-            tracking_id: email.tracking_id,
+            tracking_id: safeStr(email.tracking_id),
           });
         }
       });
@@ -107,7 +109,7 @@ export function useContactHistory(email: string | null) {
           type: event.event_type === 'open' ? 'email_open' : 'link_click',
           timestamp: event.created_at,
           subject: email?.subject,
-          tracking_id: event.tracking_id,
+          tracking_id: safeStr(event.tracking_id),
           link_url: event.link_url,
           ip_address: event.ip_address,
           is_self_open: event.is_self_open,

@@ -307,7 +307,7 @@ export function ModeToggle({
   if (variant === 'button-group') {
     return (
       <div className={cn('flex items-center rounded-xl border bg-muted/50 p-1 gap-1', className)}>
-        {themeConfig.map(({ value, shortLabel, icon, gradient }) => (
+        {themeConfig.map(({ value, shortLabel, icon }) => (
           <motion.div key={value} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               variant={theme === value ? 'default' : 'ghost'}

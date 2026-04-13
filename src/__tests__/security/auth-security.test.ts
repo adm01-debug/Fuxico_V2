@@ -216,7 +216,6 @@ describe("IP Security", () => {
   });
 
   it("should handle IP whitelist matching", () => {
-    const whitelist = ["192.168.1.0/24", "10.0.0.1"];
     const isInRange = (ip: string, cidr: string) => {
       if (!cidr.includes("/")) return ip === cidr;
       const [base, bits] = cidr.split("/");
