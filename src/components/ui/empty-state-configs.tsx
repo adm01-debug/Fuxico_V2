@@ -25,11 +25,11 @@ export interface EmptyStateConfig {
 const IllustrationBox = ({ gradient, children, animate }: {
   gradient: string;
   children: React.ReactNode;
-  animate?: { [key: string]: number[] | string[] };
+  animate?: Record<string, number[] | string[] | number>;
 }) => (
   <motion.div
     className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center`}
-    animate={animate}
+    animate={animate as any}
     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
   >
     {children}
