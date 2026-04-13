@@ -31,7 +31,7 @@ interface CreateReportDialogProps {
     format: 'email' | 'pdf' | 'csv';
     recipients: string[];
     metrics: string[];
-  }) => Promise<void>;
+  }) => Promise<unknown>;
   isPending: boolean;
 }
 

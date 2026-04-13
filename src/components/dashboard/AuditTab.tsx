@@ -22,7 +22,6 @@ import {
   useUserActivitySummary,
 } from "@/hooks/use-email-audit";
 import { toast } from "sonner";
-import { Badge as BadgeIcon } from "lucide-react";
 import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
 function AuditTabBase() {
