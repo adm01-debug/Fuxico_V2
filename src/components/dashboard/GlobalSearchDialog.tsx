@@ -39,6 +39,7 @@ import {
   Globe,
   Webhook,
 } from 'lucide-react';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { log } from '@/lib/logger';
 import type { TabId } from './DashboardSidebar';
 
