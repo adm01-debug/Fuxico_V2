@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, 
-  ResponsiveContainer, Bar 
+  ResponsiveContainer 
 } from 'recharts'
 
 interface RealtimeEvent {

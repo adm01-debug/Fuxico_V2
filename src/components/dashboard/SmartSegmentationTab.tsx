@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { 
   Users, Flame, Snowflake, TrendingUp, 
   UserX, Sparkles, Download, Eye,
-  MousePointerClick, Clock
+  MousePointerClick
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'

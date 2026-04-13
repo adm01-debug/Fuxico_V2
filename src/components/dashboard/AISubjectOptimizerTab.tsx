@@ -15,7 +15,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
 import { 
   Brain, Sparkles, Clock, Copy, 
-  Lightbulb, Loader2, Wand2, CheckCircle2 
+  Lightbulb, Loader2, Wand2 
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
