@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, ArrowDownLeft, ExternalLink, AlertTriangle, Users } from 'lucide-react';
 
 interface AuditStats {
