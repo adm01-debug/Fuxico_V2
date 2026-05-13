@@ -8,12 +8,8 @@ import { protectedHandler } from '../_shared/security-middleware.ts';
 
 const log = createLogger('check-deliverability');
 
-const DeliverabilitySchema = z.object({
-  email: z.string().email(),
-  checkMx: z.boolean().default(true),
-  checkSyntax: z.boolean().default(true),
-  checkDisposable: z.boolean().default(true)
-});
+import { CommonDeliverabilitySchema } from "../_shared/schemas.ts";
+const DeliverabilitySchema = CommonDeliverabilitySchema;
 
 const DNSCheckSchema = z.object({
   domain: z.string().min(3),
