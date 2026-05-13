@@ -8,9 +8,8 @@ const HealthQuerySchema = z.object({
   component: z.enum(["all", "database", "auth", "storage"]).default("all")
 });
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+Deno.serve(publicHandler(async (req, corsHeaders) => {
+  try {
 
   try {
     const url = new URL(req.url);
