@@ -3,14 +3,13 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { publicHandler } from '../_shared/security-middleware.ts';
+
 const HealthQuerySchema = z.object({
   detailed: z.enum(["true", "false"]).default("false"),
   component: z.enum(["all", "database", "auth", "storage"]).default("all")
 });
 
-Deno.serve(publicHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const url = new URL(req.url);
     const params = {
@@ -61,4 +60,6 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse({ status: "unhealthy", error: "Health check failed" }, 503, corsHeaders);
   }
-}));
+}
+
+Deno.serve(publicHandler(handler));
