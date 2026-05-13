@@ -111,10 +111,18 @@ export const CommonSignedDocSchema = z.object({
   }).optional()
 });
 
-export const CommonZapierSchema = z.object({
-  event: z.enum(["email.opened", "email.clicked", "email.bounced", "document.viewed"]),
-  trackingId: z.string().uuid(),
-  data: SafeMetadataSchema,
+export const CommonAiInsightsSchema = z.object({
+  period: z.enum(['7d', '30d', '90d', 'all']).default('30d'),
+  trackingId: z.string().uuid().optional(),
+  includeRecommendations: z.boolean().default(true)
+});
+
+export const CommonVoteSchema = z.object({
+  pollId: z.string().uuid(),
+  optionId: z.string().uuid(),
+  voterEmail: z.string().email().optional(),
+  voterName: z.string().max(200).optional(),
+  metadata: SafeMetadataSchema,
 });
 
 export const CommonPushSchema = z.object({
