@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import type { TrackedEmail } from "@/lib/tracking-api";
-import { useTrackedEmails } from "@/hooks/use-tracking";
+import type { TrackedEmail } from "@/features/tracking/lib/tracking-api";
+import { useTrackedEmails } from "@/features/tracking/hooks/use-tracking";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Mail, Eye, MousePointerClick, ChevronRight, Loader2 } from "lucide-react";

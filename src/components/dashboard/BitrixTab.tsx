@@ -31,8 +31,8 @@ import {
   useBitrix24Contacts,
   useBitrix24Activities,
   useBitrix24Deals
-} from '@/hooks/use-bitrix24';
-import type { Bitrix24Activity } from '@/hooks/use-bitrix24';
+} from '@/features/crm/hooks/use-bitrix24';
+import type { Bitrix24Activity } from '@/features/crm/hooks/use-bitrix24';
 
 function ActivityIcon({ type }: { type: Bitrix24Activity['type'] }) {
   switch (type) {

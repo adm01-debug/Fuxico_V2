@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Mail, FileText, TrendingUp, Download, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ExportDialog } from './ExportDialog';
-import { useTrackedEmails, useTrackingStats, type TrackedEmailWithStats } from '@/hooks/use-tracking';
+import { useTrackedEmails, useTrackingStats, type TrackedEmailWithStats } from '@/features/tracking/hooks/use-tracking';
 import { useScheduledReports } from '@/hooks/use-scheduled-reports';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';

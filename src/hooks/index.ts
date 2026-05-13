@@ -124,9 +124,9 @@ export { useUnsubscribedEmails } from './use-unsubscribed-emails';
 // =============================================================================
 // SEQUENCES
 // =============================================================================
-export { useEmailSequences } from './useEmailSequences';
-export { useSequenceStats } from './useSequenceStats';
-export { useSequenceWebhookLogs } from './useSequenceWebhookLogs';
+export { useEmailSequences } from '@/features/sequences/hooks/useEmailSequences';
+export { useSequenceStats } from '@/features/sequences/hooks/useSequenceStats';
+export { useSequenceWebhookLogs } from '@/features/sequences/hooks/useSequenceWebhookLogs';
 
 // =============================================================================
 // DASHBOARD

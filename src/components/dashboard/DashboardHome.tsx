@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { QuickActions } from './QuickActions';
 import { useDashboardWidgets } from '@/hooks/use-dashboard-widgets';
-import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/hooks/use-tracking';
+import { useTrackingStats, useTrackedEmails, useRefreshStats } from '@/features/tracking/hooks/use-tracking';
 import { useTrackingTrends } from '@/hooks/use-tracking-trends';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { supabase } from '@/integrations/supabase/client';
