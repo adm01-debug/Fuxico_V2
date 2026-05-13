@@ -7,9 +7,7 @@ import { publicHandler } from '../_shared/security-middleware.ts';
 
 const TrackDocSchema = CommonTrackDocSchema;
 
-Deno.serve(publicHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const userAgent = req.headers.get("user-agent") || "";
@@ -23,7 +21,6 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     const { documentId, eventType, pageNumber, duration } = validation.data;
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
-    // Verify document exists before inserting event
     const { data: doc } = await supabase.from("tracked_documents").select("id").eq("document_id", documentId).single();
     if (!doc) return secureErrorResponse("Document not found", 404, corsHeaders);
 
@@ -40,4 +37,6 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(publicHandler(handler));
