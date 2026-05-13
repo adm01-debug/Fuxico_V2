@@ -19,10 +19,7 @@ const WatermarkSchema = z.object({
   fontSize: z.number().min(8).max(72).default(48)
 });
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "watermark", 20, 60);
