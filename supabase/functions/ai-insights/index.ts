@@ -6,14 +6,12 @@ import { createLogger } from '../_shared/logger.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 import { protectedHandler } from '../_shared/security-middleware.ts'
 import { validateIPAccess } from '../_shared/ip-whitelist.ts'
-
-const log = createLogger('ai-insights')
-
 import { CommonAiInsightsSchema } from '../_shared/schemas.ts'
 
+const log = createLogger('ai-insights')
 const AiInsightsSchema = CommonAiInsightsSchema
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   const endTimer = log.time('request')
   const ip = getClientIP(req.headers)
 
@@ -73,7 +71,9 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     endTimer()
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-}))
+}
+
+Deno.serve(protectedHandler(handler))
 
 // Type for email stats from materialized view
 interface EmailStatsRecord {
