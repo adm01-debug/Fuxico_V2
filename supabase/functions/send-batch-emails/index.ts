@@ -19,9 +19,8 @@ const BatchEmailSchema = z.object({
   priority: z.enum(["low", "normal", "high"]).default("normal")
 });
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
+  try {
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
