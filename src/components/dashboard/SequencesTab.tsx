@@ -81,16 +81,16 @@ function SequencesTabBase() {
       return { totalEnrolled: 0, totalCompleted: 0, totalReplied: 0, replyRate: 0 };
     }
     
-    const totalEnrolled = sequences.reduce((sum, seq) => sum + (seq.total_enrolled || 0), 0);
-    const totalCompleted = sequences.reduce((sum, seq) => sum + (seq.total_completed || 0), 0);
-    const totalReplied = sequences.reduce((sum, seq) => sum + (seq.total_replied || 0), 0);
+    const totalEnrolled = sequences.reduce((sum: number, seq: EmailSequence) => sum + (seq.total_enrolled || 0), 0);
+    const totalCompleted = sequences.reduce((sum: number, seq: EmailSequence) => sum + (seq.total_completed || 0), 0);
+    const totalReplied = sequences.reduce((sum: number, seq: EmailSequence) => sum + (seq.total_replied || 0), 0);
     const replyRate = totalEnrolled > 0 ? (totalReplied / totalEnrolled) * 100 : 0;
     
     return { totalEnrolled, totalCompleted, totalReplied, replyRate };
   }, [sequences]);
 
   // Filter sequences
-  const filteredSequences = sequences?.filter(seq => {
+  const filteredSequences = sequences?.filter((seq: EmailSequence) => {
     const matchesSearch = seq.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (seq.description?.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || seq.status === statusFilter;

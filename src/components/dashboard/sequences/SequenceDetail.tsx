@@ -94,7 +94,7 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
     value: EmailSequence['settings'][K]
   ) => {
     if (!settings) return;
-    setSettings(prev => prev ? { ...prev, [key]: value } : prev);
+    setSettings((prev: EmailSequence['settings'] | null) => prev ? { ...prev, [key]: value } : prev);
     setHasSettingsChanges(true);
   };
 
