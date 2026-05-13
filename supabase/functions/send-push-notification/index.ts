@@ -7,9 +7,7 @@ import { protectedHandler } from '../_shared/security-middleware.ts';
 
 const PushSchema = CommonPushSchema;
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "push", 30, 60);
@@ -24,14 +22,12 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
 
     const body = await req.json();
     const validation = PushSchema.safeParse(body);
-    if (!validation.success) return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+    if (!validation.success) return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
 
     const { userId, title, body: notifBody, icon, url, data } = validation.data;
 
-    // SECURITY: Verify user can only send notifications to themselves
-    // or has admin role to send to others
+    // SECURITY: Verify user can only send notifications to themselves or has admin role
     if (userId !== user.id) {
-      // Check if sender is admin
       const { data: role } = await supabase
         .from("user_roles")
         .select("role")
@@ -45,11 +41,12 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     }
 
     const notificationId = crypto.randomUUID();
-
     await supabase.from("push_notifications").insert({ id: notificationId, user_id: userId, title, body: notifBody, icon, url, data, sent_by: user.id });
 
     return secureJsonResponse({ success: true, notificationId }, corsHeaders);
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(protectedHandler(handler));
