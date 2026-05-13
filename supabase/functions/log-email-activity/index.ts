@@ -1,29 +1,17 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
 import { createLogger } from '../_shared/logger.ts'
+import { protectedHandler } from '../_shared/security-middleware.ts'
 
 const log = createLogger('log-email-activity')
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
-import { SafeMetadataSchema } from '../_shared/schemas.ts'
+import { SafeMetadataSchema, CommonEmailAuditSchema } from '../_shared/schemas.ts'
 
-const logSchema = z.object({
-  userEmail: z.string().email(),
-  direction: z.enum(['inbound', 'outbound']),
-  senderEmail: z.string().email().optional(),
-  recipientEmail: z.string().email().optional(),
-  subject: z.string().max(500).optional(),
-  externalDomain: z.string().max(255).optional(),
-  isExternal: z.boolean().optional(),
-  metadata: SafeMetadataSchema,
-})
+const logSchema = CommonEmailAuditSchema
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   const rateLimitResult = await checkRateLimit(ip, 'log-email-activity', 100, 60)
@@ -58,4 +46,4 @@ serve(async (req) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-})
+}))

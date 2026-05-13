@@ -1,17 +1,14 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-const DomainSchema = z.object({
-  domain: z.string().regex(/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/, "Invalid domain format"),
-  verificationType: z.enum(["dns", "file", "meta"]).default("dns")
-});
+import { protectedHandler } from '../_shared/security-middleware.ts';
+import { CommonDomainSchema } from "../_shared/schemas.ts";
+const DomainSchema = CommonDomainSchema;
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
+  try {
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
@@ -57,4 +54,4 @@ serve(async (req) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-});
+}));

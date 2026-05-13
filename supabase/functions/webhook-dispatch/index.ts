@@ -8,25 +8,21 @@
 // Arquivo: supabase/functions/webhook-dispatch/index.ts
 // =============================================================================
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
+import { publicHandler } from '../_shared/security-middleware.ts'
 import { isWebhookUrlSafe } from '../_shared/url-validator.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
-import { SafeMetadataSchema } from '../_shared/schemas.ts'
+import { SafeMetadataSchema, CommonWebhookDispatchSchema } from '../_shared/schemas.ts'
 
 // =============================================================================
 // SCHEMAS
 // =============================================================================
 
-const WebhookDispatchSchema = z.object({
-  userId: z.string().uuid(),
-  eventType: z.enum(['email.opened', 'email.clicked', 'email.bounced', 'document.viewed', 'link.clicked']),
-  payload: SafeMetadataSchema,
-})
+const WebhookDispatchSchema = CommonWebhookDispatchSchema
 
 // =============================================================================
 // RETRY LOGIC
@@ -142,13 +138,8 @@ async function dispatchWithRetry(
 // MAIN HANDLER
 // =============================================================================
 
-serve(async (req) => {
+Deno.serve(publicHandler(async (req, corsHeaders) => {
   const log = createLogger('webhook-dispatch')
-  
-  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
-
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
   const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   // Rate limiting
@@ -303,4 +294,4 @@ serve(async (req) => {
     log.error('Webhook dispatch failed', error)
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-})
+}))

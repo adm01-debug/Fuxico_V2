@@ -3,19 +3,17 @@
 // Rate limiting e validação de origem aplicados via Supabase Edge
 // ============================================================================
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
-import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
+import { publicHandler } from '../_shared/security-middleware.ts'
+import { CommonBounceSchema } from '../_shared/schemas.ts'
 
-const bounceSchema = z.object({ trackingId: z.string().uuid(), bounceType: z.string().optional(), bounceReason: z.string().optional() })
+const bounceSchema = CommonBounceSchema
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
+Deno.serve(publicHandler(async (req, corsHeaders) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   const rateLimitResult = await checkRateLimit(ip, 'report-bounce', 50, 60)
@@ -36,4 +34,4 @@ serve(async (req) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-})
+}))

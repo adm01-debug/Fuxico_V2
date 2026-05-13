@@ -1,29 +1,16 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts'
+import { CommonSignatureRequestSchema } from "../_shared/schemas.ts";
+import { protectedHandler } from '../_shared/security-middleware.ts';
 
 const log = createLogger('send-signature-request')
-const SignerSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1).max(200),
-  order: z.number().int().positive().optional()
-});
+const SignatureRequestSchema = CommonSignatureRequestSchema;
 
-const SignatureRequestSchema = z.object({
-  documentId: z.string().uuid(),
-  signers: z.array(SignerSchema).min(1).max(10),
-  message: z.string().max(1000).optional(),
-  expiresAt: z.string().datetime().optional(),
-  reminderDays: z.number().int().min(1).max(30).optional()
-});
-
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
+  try {
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
@@ -64,4 +51,4 @@ serve(async (req) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-});
+}));

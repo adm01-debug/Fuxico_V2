@@ -1,28 +1,17 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts'
+import { protectedHandler } from '../_shared/security-middleware.ts'
 
 const log = createLogger('create-watermarked-pdf')
 
-const WatermarkSchema = z.object({
-  documentId: z.string().uuid(),
-  // SECURITY: Strip HTML/SVG tags and control characters from watermark text
-  watermarkText: z.string().min(1).max(200).transform(text =>
-    text.replace(/<[^>]*>/g, '').replace(/[\x00-\x1F\x7F]/g, '').trim()
-  ),
-  position: z.enum(["center", "diagonal", "footer"]).default("diagonal"),
-  opacity: z.number().min(0.1).max(1).default(0.3),
-  fontSize: z.number().min(8).max(72).default(48)
-});
+import { CommonWatermarkSchema } from "../_shared/schemas.ts";
+const WatermarkSchema = CommonWatermarkSchema;
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "watermark", 20, 60);
@@ -60,4 +49,4 @@ serve(async (req) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-});
+}));

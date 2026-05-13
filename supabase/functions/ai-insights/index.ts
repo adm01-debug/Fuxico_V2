@@ -5,6 +5,7 @@ import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 import { protectedHandler } from '../_shared/security-middleware.ts'
+import { validateIPAccess } from '../_shared/ip-whitelist.ts'
 
 const log = createLogger('ai-insights')
 

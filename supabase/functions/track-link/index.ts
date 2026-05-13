@@ -1,18 +1,15 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureErrorResponse } from "../_shared/security-headers.ts";
 import { isUrlSafe } from "../_shared/url-validator.ts";
-const TrackLinkSchema = z.object({
-  linkId: z.string().min(1),
-  trackingId: z.string().min(1).optional()
-});
+import { CommonTrackLinkSchema } from "../_shared/schemas.ts";
+import { publicHandler } from '../_shared/security-middleware.ts';
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+const TrackLinkSchema = CommonTrackLinkSchema;
+
+Deno.serve(publicHandler(async (req, corsHeaders) => {
+  try {
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
@@ -73,4 +70,4 @@ serve(async (req) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-});
+}));

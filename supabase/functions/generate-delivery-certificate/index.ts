@@ -1,26 +1,17 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts'
+import { protectedHandler } from '../_shared/security-middleware.ts'
 
 const log = createLogger('generate-delivery-certificate');
 
-const CertificateSchema = z.object({
-  trackingId: z.string().min(1),
-  recipientEmail: z.string().email(),
-  recipientName: z.string().min(1).max(200).optional(),
-  deliveredAt: z.string().datetime().optional(),
-  includeEvents: z.boolean().default(true),
-  format: z.enum(["pdf", "html"]).default("pdf")
-});
+import { CommonCertificateSchema } from "../_shared/schemas.ts";
+const CertificateSchema = CommonCertificateSchema;
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "certificate", 10, 60);
@@ -69,4 +60,4 @@ serve(async (req) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-});
+}));
