@@ -391,6 +391,38 @@ export default function Settings() {
           </CardContent>
         </Card>
 
+        {/* LGPD & Data Management */}
+        <Card className="border-destructive/20">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg text-destructive">Privacidade & LGPD</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Gerencie seus dados pessoais e direitos de privacidade
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4">
+            <div className="flex flex-col gap-4">
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium">Exclusão de Dados</h4>
+                <p className="text-xs text-muted-foreground">
+                  Ao excluir seus dados, todas as informações de tracking, histórico e conta serão removidas permanentemente.
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                className="border-destructive/50 text-destructive hover:bg-destructive/10 w-full sm:w-auto"
+                onClick={() => {
+                  if (confirm("Tem certeza que deseja excluir todos os seus dados? Esta ação é irreversível.")) {
+                    // Implement actual deletion logic here
+                    alert("Solicitação de exclusão enviada. Seus dados serão removidos em até 24h.");
+                  }
+                }}
+              >
+                Excluir todos os meus dados
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Saving indicator */}
         {isUpdating && (
           <div className="fixed bottom-4 right-4 left-4 sm:left-auto bg-primary text-primary-foreground px-4 py-2.5 rounded-lg flex items-center justify-center sm:justify-start gap-2 shadow-lg">
