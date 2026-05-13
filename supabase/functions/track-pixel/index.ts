@@ -13,7 +13,7 @@ const TRANSPARENT_GIF = new Uint8Array([
   0x01, 0x00, 0x3b
 ]);
 
-serve(async (req) => {
+Deno.serve(publicHandler(async (req, corsHeaders) => {
   const headers = {
     "Content-Type": "image/gif",
     "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
