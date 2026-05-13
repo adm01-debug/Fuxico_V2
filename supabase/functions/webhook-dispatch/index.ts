@@ -142,13 +142,8 @@ async function dispatchWithRetry(
 // MAIN HANDLER
 // =============================================================================
 
-serve(async (req) => {
+Deno.serve(publicHandler(async (req, corsHeaders) => {
   const log = createLogger('webhook-dispatch')
-  
-  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
-
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
   const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   // Rate limiting
