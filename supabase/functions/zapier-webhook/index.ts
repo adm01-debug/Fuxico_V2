@@ -9,12 +9,8 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { publicHandler } from '../_shared/security-middleware.ts';
-import { SafeMetadataSchema } from "../_shared/schemas.ts";
-const ZapierSchema = z.object({
-  event: z.enum(["email.opened", "email.clicked", "email.bounced", "document.viewed"]),
-  trackingId: z.string().uuid(),
-  data: SafeMetadataSchema,
-});
+import { SafeMetadataSchema, CommonZapierSchema } from "../_shared/schemas.ts";
+const ZapierSchema = CommonZapierSchema;
 
 Deno.serve(publicHandler(async (req, corsHeaders) => {
   try {
