@@ -2201,39 +2201,74 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_emails_with_stats: {
-        Args: {
-          p_end_date?: string
-          p_limit?: number
-          p_offset?: number
-          p_search?: string
-          p_start_date?: string
-          p_status?: string
-          p_user_id: string
-        }
-        Returns: {
-          bounce_detected_at: string
-          bounce_reason: string
-          bounce_type: string
-          click_count: number
-          created_at: string
-          delivery_status: string
-          first_opened_at: string
-          id: string
-          last_opened_at: string
-          metadata: Json
-          open_count: number
-          recipient_email: string
-          sender_email: string
-          subject: string
-          total_count: number
-          total_link_clicks: number
-          tracking_id: string
-          unique_links_clicked: number
-          unique_opens: number
-          user_id: string
-        }[]
-      }
+      get_emails_with_stats:
+        | {
+            Args: {
+              p_end_date?: string
+              p_last_id?: string
+              p_last_timestamp?: string
+              p_limit?: number
+              p_search?: string
+              p_start_date?: string
+              p_status?: string
+              p_user_id: string
+            }
+            Returns: {
+              bounce_detected_at: string
+              bounce_reason: string
+              bounce_type: string
+              click_count: number
+              created_at: string
+              delivery_status: string
+              first_opened_at: string
+              id: string
+              last_opened_at: string
+              metadata: Json
+              open_count: number
+              recipient_email: string
+              sender_email: string
+              subject: string
+              total_count: number
+              total_link_clicks: number
+              tracking_id: string
+              unique_links_clicked: number
+              unique_opens: number
+              user_id: string
+            }[]
+          }
+        | {
+            Args: {
+              p_end_date?: string
+              p_limit?: number
+              p_offset?: number
+              p_search?: string
+              p_start_date?: string
+              p_status?: string
+              p_user_id: string
+            }
+            Returns: {
+              bounce_detected_at: string
+              bounce_reason: string
+              bounce_type: string
+              click_count: number
+              created_at: string
+              delivery_status: string
+              first_opened_at: string
+              id: string
+              last_opened_at: string
+              metadata: Json
+              open_count: number
+              recipient_email: string
+              sender_email: string
+              subject: string
+              total_count: number
+              total_link_clicks: number
+              tracking_id: string
+              unique_links_clicked: number
+              unique_opens: number
+              user_id: string
+            }[]
+          }
       get_geo_stats: {
         Args: { p_user_id: string }
         Returns: {
