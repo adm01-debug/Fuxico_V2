@@ -50,7 +50,7 @@ interface BitrixSyncResult {
   activityId?: string;
 }
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   const rateLimitResult = await checkRateLimit(clientIP, 'bitrix24-sync', 60, 60)
@@ -140,7 +140,9 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-}))
+}
+
+Deno.serve(protectedHandler(handler))
 
 async function syncContact(webhookUrl: string, email: string, data: BitrixContactData): Promise<BitrixSyncResult> {
   // Use URL constructor for safe URL building (prevents parameter injection)
