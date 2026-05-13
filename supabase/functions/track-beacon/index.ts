@@ -1,16 +1,11 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-import { SafeMetadataSchema } from "../_shared/schemas.ts";
-const BeaconSchema = z.object({
-  trackingId: z.string().min(1),
-  eventType: z.enum(["open", "click", "scroll", "time"]),
-  metadata: SafeMetadataSchema,
-  timestamp: z.string().datetime().optional()
-});
+import { CommonBeaconSchema } from "../_shared/schemas.ts";
+import { publicHandler } from '../_shared/security-middleware.ts';
+
+const BeaconSchema = CommonBeaconSchema;
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
