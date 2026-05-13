@@ -7,9 +7,7 @@ import { publicHandler } from '../_shared/security-middleware.ts';
 
 const BeaconSchema = CommonBeaconSchema;
 
-Deno.serve(publicHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const userAgent = req.headers.get("user-agent") || "";
@@ -49,4 +47,6 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(publicHandler(handler));
