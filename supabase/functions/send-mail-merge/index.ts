@@ -4,6 +4,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { protectedHandler } from '../_shared/security-middleware.ts';
+
 const RecipientSchema = z.object({
   email: z.string().email(),
   name: z.string().optional(),
@@ -18,9 +19,7 @@ const MailMergeSchema = z.object({
   scheduledAt: z.string().datetime().optional()
 });
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "mail-merge", 3, 60);
@@ -41,7 +40,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const body = await req.json();
     const validation = MailMergeSchema.safeParse(body);
     if (!validation.success) {
-      return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+      return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
     const { templateId, recipients, subject, trackingEnabled, scheduledAt } = validation.data;
@@ -71,4 +70,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(protectedHandler(handler));
