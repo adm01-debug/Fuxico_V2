@@ -8,14 +8,8 @@ import { protectedHandler } from '../_shared/security-middleware.ts'
 
 const log = createLogger('generate-delivery-certificate');
 
-const CertificateSchema = z.object({
-  trackingId: z.string().min(1),
-  recipientEmail: z.string().email(),
-  recipientName: z.string().min(1).max(200).optional(),
-  deliveredAt: z.string().datetime().optional(),
-  includeEvents: z.boolean().default(true),
-  format: z.enum(["pdf", "html"]).default("pdf")
-});
+import { CommonCertificateSchema } from "../_shared/schemas.ts";
+const CertificateSchema = CommonCertificateSchema;
 
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   try {
