@@ -7,19 +7,7 @@ import { CommonSignatureRequestSchema } from "../_shared/schemas.ts";
 import { protectedHandler } from '../_shared/security-middleware.ts';
 
 const log = createLogger('send-signature-request')
-const SignerSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1).max(200),
-  order: z.number().int().positive().optional()
-});
-
-const SignatureRequestSchema = z.object({
-  documentId: z.string().uuid(),
-  signers: z.array(SignerSchema).min(1).max(10),
-  message: z.string().max(1000).optional(),
-  expiresAt: z.string().datetime().optional(),
-  reminderDays: z.number().int().min(1).max(30).optional()
-});
+const SignatureRequestSchema = CommonSignatureRequestSchema;
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
