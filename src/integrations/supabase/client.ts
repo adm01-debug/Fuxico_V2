@@ -17,8 +17,12 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   },
   global: {
     fetch: (url, options) => {
+      const requestId = crypto.randomUUID();
+      const headers = new Headers(options?.headers);
+      headers.set('X-Request-ID', requestId);
+      
       const name = `Supabase ${options?.method || 'GET'} ${new URL(url.toString()).pathname}`;
-      return traceRequest(name, () => fetch(url, options));
+      return traceRequest(name, () => fetch(url, { ...options, headers }));
     }
   }
 });
