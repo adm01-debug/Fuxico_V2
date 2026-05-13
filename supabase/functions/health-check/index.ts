@@ -1,8 +1,8 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { publicHandler } from '../_shared/security-middleware.ts';
 const HealthQuerySchema = z.object({
   detailed: z.enum(["true", "false"]).default("false"),
   component: z.enum(["all", "database", "auth", "storage"]).default("all")
