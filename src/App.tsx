@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +10,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationBadgeManager } from "@/components/NotificationBadgeManager";
 import { PrivateRoute } from "@/components/PrivateRoute";
 import { Skeleton } from "@/components/ui/skeleton";
+import { initSentry } from "@/lib/sentry";
+import { initTracing } from "@/lib/otel";
+import { initWebVitals } from "@/lib/web-vitals";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 
@@ -56,6 +59,12 @@ const PageLoader = () => (
 );
 
 const App = () => {
+  useEffect(() => {
+    initSentry();
+    initTracing();
+    initWebVitals();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
