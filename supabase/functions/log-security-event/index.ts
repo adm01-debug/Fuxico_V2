@@ -3,30 +3,24 @@
 // File: supabase/functions/log-security-event/index.ts
 // =============================================================================
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
+import { protectedHandler } from "../_shared/security-middleware.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
-interface SecurityEventRequest {
-  event_type: string;
-  severity: 'info' | 'warning' | 'error' | 'critical' | 'success';
-  description: string;
-  metadata?: Record<string, unknown>;
-}
+const SecurityEventSchema = z.object({
+  event_type: z.string().min(1),
+  severity: z.enum(['info', 'warning', 'error', 'critical', 'success']).default('info'),
+  description: z.string().min(1),
+  metadata: z.record(z.unknown()).optional(),
+});
 
-serve(async (req: Request): Promise<Response> => {
-  const corsHeaders = getCorsHeaders(req.headers.get('origin'));
-  
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  const clientIP = req.headers.get('cf-connecting-ip') || 
-                   req.headers.get('x-forwarded-for')?.split(',')[0] || 
-                   'unknown';
+Deno.serve(protectedHandler(async (req: Request, corsHeaders: Record<string, string>): Promise<Response> => {
+  const clientIP = getClientIP(req.headers);
 
   const rateLimitResult = await checkRateLimit(clientIP, 'log-security', 30, 60);
+
 
   if (!rateLimitResult.allowed) {
     const retryAfter = Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000);
@@ -55,14 +49,17 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     const userAgent = req.headers.get('user-agent');
-    const { event_type, severity, description, metadata }: SecurityEventRequest = await req.json();
-
-    if (!event_type || !description) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+    const body = await req.json();
+    const validation = SecurityEventSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return new Response(JSON.stringify({ error: 'Validation failed', details: validation.error.errors }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    const { event_type, severity, description, metadata } = validation.data;
 
     const { data: eventId, error } = await supabase.rpc('log_security_event', {
       _user_id: userId,
@@ -89,4 +86,4 @@ serve(async (req: Request): Promise<Response> => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-});
+}));

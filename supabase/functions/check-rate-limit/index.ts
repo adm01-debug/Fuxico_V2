@@ -3,16 +3,17 @@
 // File: supabase/functions/check-rate-limit/index.ts
 // =============================================================================
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
+import { protectedHandler } from "../_shared/security-middleware.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
-interface RateLimitRequest {
-  endpoint: string;
-  maxRequests?: number;
-  windowSeconds?: number;
-}
+const RateLimitRequestSchema = z.object({
+  endpoint: z.string().min(1),
+  maxRequests: z.number().min(1).default(60),
+  windowSeconds: z.number().min(1).default(60),
+});
 
 interface RateLimitResult {
   allowed: boolean;
@@ -25,18 +26,10 @@ interface RateLimitResult {
 // In-memory rate limit store
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
-serve(async (req: Request): Promise<Response> => {
-  const corsHeaders = getCorsHeaders(req.headers.get('origin'));
-  
-  // Handle CORS
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
+Deno.serve(protectedHandler(async (req: Request, corsHeaders: Record<string, string>): Promise<Response> => {
   // Self rate limiting - prevent abuse of the rate limit checker itself
-  const selfIP = req.headers.get('cf-connecting-ip') || 
-                 req.headers.get('x-forwarded-for')?.split(',')[0] || 
-                 'unknown';
+  const selfIP = getClientIP(req.headers);
+
   
   const selfRateLimit = await checkRateLimit(selfIP, 'check-rate-limit', 100, 60);
 
@@ -62,12 +55,18 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     // Get client IP
-    const ip = req.headers.get('cf-connecting-ip') ||
-               req.headers.get('x-real-ip') ||
-               req.headers.get('x-forwarded-for')?.split(',')[0] ||
-               'unknown';
+    const ip = getClientIP(req.headers);
 
-    const { endpoint, maxRequests = 60, windowSeconds = 60 }: RateLimitRequest = await req.json();
+    const body = await req.json();
+    const validation = RateLimitRequestSchema.safeParse(body);
+    if (!validation.success) {
+      return new Response(JSON.stringify({ error: 'Invalid parameters', details: validation.error.errors }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { endpoint, maxRequests, windowSeconds } = validation.data;
 
     // Check if IP is whitelisted
     const { data: whitelisted } = await supabase.rpc('is_ip_whitelisted', { _ip_address: ip });
@@ -181,4 +180,4 @@ serve(async (req: Request): Promise<Response> => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-});
+}));

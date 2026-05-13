@@ -1,10 +1,10 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts'
-import { checkRateLimit } from '../_shared/rate-limit.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
+import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
+import { protectedHandler } from '../_shared/security-middleware.ts'
 
 const log = createLogger('ai-insights')
 
@@ -14,16 +14,9 @@ const AiInsightsSchema = z.object({
   includeRecommendations: z.boolean().default(true)
 })
 
-serve(async (req) => {
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
   const endTimer = log.time('request')
-  
-  if (req.method === 'OPTIONS') {
-    return handleCorsPreflightRequest(req)
-  }
-
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+  const ip = getClientIP(req.headers)
 
   log.info('Processing AI insights request', { ip, method: req.method })
 
@@ -81,7 +74,7 @@ serve(async (req) => {
     endTimer()
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-})
+}))
 
 // Type for email stats from materialized view
 interface EmailStatsRecord {

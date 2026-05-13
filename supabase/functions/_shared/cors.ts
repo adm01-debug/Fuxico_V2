@@ -12,7 +12,7 @@ export const ALLOWED_ORIGINS: string[] = [
   'https://www.fuxico.app',
   'https://fuxico.lovable.app',
   // Development origins - remove in production or gate behind env var
-  ...(Deno.env.get('ENVIRONMENT') !== 'production' ? [
+  ...(typeof (globalThis as any).Deno !== 'undefined' && (globalThis as any).Deno.env.get('ENVIRONMENT') !== 'production' ? [
     'http://localhost:5173',
     'http://localhost:3000',
     'http://localhost:8080',
