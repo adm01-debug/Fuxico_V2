@@ -298,4 +298,4 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     log.error('Webhook dispatch failed', error)
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-})
+}))
