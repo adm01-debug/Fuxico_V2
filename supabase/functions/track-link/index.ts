@@ -8,9 +8,7 @@ import { publicHandler } from '../_shared/security-middleware.ts';
 
 const TrackLinkSchema = CommonTrackLinkSchema;
 
-Deno.serve(publicHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const userAgent = req.headers.get("user-agent") || "";
@@ -28,30 +26,25 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
-    // Try to find by link_id first (UUID format from create-tracking), fallback to id
     let link = null;
     const { data: linkByLinkId } = await supabase.from("tracked_links").select("*").eq("link_id", linkId).single();
     
     if (linkByLinkId) {
       link = linkByLinkId;
     } else {
-      // Fallback: try finding by id
       const { data: linkById } = await supabase.from("tracked_links").select("*").eq("id", linkId).single();
       link = linkById;
     }
     
     if (!link) return secureErrorResponse("Link not found", 404, corsHeaders);
 
-    // Atomic increment of click count to prevent race conditions
     await supabase.rpc("increment_link_click_count", { p_link_id: link.link_id }).catch(() => {
-      // Fallback: non-atomic update if RPC not available
       supabase
         .from("tracked_links")
         .update({ click_count: (link.click_count || 0) + 1 })
         .eq("link_id", link.link_id);
     });
 
-    // Insert tracking event with correct column name (link_url, not link_id)
     await supabase.from("tracking_events").insert({
       tracking_id: trackingId || link.tracking_id,
       event_type: "click",
@@ -61,7 +54,6 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
       is_self_open: false
     });
 
-    // Validate redirect URL to prevent open redirect attacks
     if (!isUrlSafe(link.original_url)) {
       return secureErrorResponse("Invalid redirect URL", 400, corsHeaders);
     }
@@ -70,4 +62,6 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(publicHandler(handler));

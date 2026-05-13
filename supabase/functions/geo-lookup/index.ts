@@ -8,9 +8,7 @@ const GeoSchema = z.object({
   ip: z.string().ip().optional()
 });
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "geo", 60, 60);
@@ -44,4 +42,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(protectedHandler(handler));

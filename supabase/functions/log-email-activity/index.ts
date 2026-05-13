@@ -2,16 +2,15 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { protectedHandler } from '../_shared/security-middleware.ts'
-
-const log = createLogger('log-email-activity')
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
-import { SafeMetadataSchema, CommonEmailAuditSchema } from '../_shared/schemas.ts'
+import { CommonEmailAuditSchema } from '../_shared/schemas.ts'
 
+const log = createLogger('log-email-activity')
 const logSchema = CommonEmailAuditSchema
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   const rateLimitResult = await checkRateLimit(ip, 'log-email-activity', 100, 60)
@@ -46,4 +45,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-}))
+}
+
+Deno.serve(protectedHandler(handler))

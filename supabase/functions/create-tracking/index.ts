@@ -8,10 +8,9 @@ import { SafeMetadataSchema, CommonTrackingSchema } from '../_shared/schemas.ts'
 import { protectedHandler } from '../_shared/security-middleware.ts'
 
 const log = createLogger('create-tracking')
-
 const createTrackingSchema = CommonTrackingSchema
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   const rateLimitResult = await checkRateLimit(ip, 'create-tracking', 60, 60)
@@ -98,4 +97,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-}))
+}
+
+Deno.serve(protectedHandler(handler))

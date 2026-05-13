@@ -1,8 +1,3 @@
-// ============================================================================
-// SECURITY: Esta função é pública por design (tracking/webhook)
-// Rate limiting e validação de origem aplicados via Supabase Edge
-// ============================================================================
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 import { getCorsHeaders } from '../_shared/cors.ts'
@@ -13,7 +8,7 @@ import { CommonBounceSchema } from '../_shared/schemas.ts'
 
 const bounceSchema = CommonBounceSchema
 
-Deno.serve(publicHandler(async (req, corsHeaders) => {
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   const rateLimitResult = await checkRateLimit(ip, 'report-bounce', 50, 60)
@@ -34,4 +29,6 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-}))
+}
+
+Deno.serve(publicHandler(handler))

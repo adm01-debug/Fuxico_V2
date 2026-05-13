@@ -5,13 +5,12 @@ import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts'
 import { protectedHandler } from '../_shared/security-middleware.ts'
+import { CommonWatermarkSchema } from "../_shared/schemas.ts";
 
 const log = createLogger('create-watermarked-pdf')
-
-import { CommonWatermarkSchema } from "../_shared/schemas.ts";
 const WatermarkSchema = CommonWatermarkSchema;
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "watermark", 20, 60);
@@ -32,7 +31,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const body = await req.json();
     const validation = WatermarkSchema.safeParse(body);
     if (!validation.success) {
-      return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+      return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
     const { documentId, watermarkText, position, opacity, fontSize } = validation.data;
@@ -49,4 +48,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(protectedHandler(handler));

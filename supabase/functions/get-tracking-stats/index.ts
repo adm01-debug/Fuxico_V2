@@ -17,7 +17,7 @@ const StatsQuerySchema = z.object({
   status: z.enum(["all", "opened", "clicked", "bounced"]).default("all")
 });
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "tracking-stats", 60, 60);
@@ -47,12 +47,10 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
 
     const validation = StatsQuerySchema.safeParse(params);
     if (!validation.success) {
-      return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+      return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
     const { limit, offset, cursor } = validation.data;
-
-    log.info('Fetching tracking stats', { userId: user.id, limit, offset });
 
     const { data, error } = await supabase.rpc("get_emails_with_stats", {
       p_user_id: user.id,
@@ -76,4 +74,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     log.error('Internal error', error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(protectedHandler(handler));

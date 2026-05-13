@@ -5,10 +5,9 @@ import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { createLogger } from '../_shared/logger.ts';
 import { protectedHandler } from '../_shared/security-middleware.ts';
+import { CommonDeliverabilitySchema } from "../_shared/schemas.ts";
 
 const log = createLogger('check-deliverability');
-
-import { CommonDeliverabilitySchema } from "../_shared/schemas.ts";
 const DeliverabilitySchema = CommonDeliverabilitySchema;
 
 const DNSCheckSchema = z.object({
@@ -31,21 +30,7 @@ const DNSBL_SERVERS = [
   { name: "Truncate", host: "truncate.gbudb.net", description: "Truncate DNSBL" },
 ];
 
-async function checkDNSBL(domain: string): Promise<{
-  domain: string;
-  listed: boolean;
-  totalChecked: number;
-  totalListed: number;
-  results: Array<{
-    blacklist: string;
-    host: string;
-    listed: boolean;
-    description: string;
-  }>;
-  checkedAt: string;
-  riskLevel: string;
-  recommendations: string[];
-}> {
+async function checkDNSBL(domain: string) {
   const results: Array<{
     blacklist: string;
     host: string;
@@ -53,18 +38,14 @@ async function checkDNSBL(domain: string): Promise<{
     description: string;
   }> = [];
 
-  // For each DNSBL, we attempt a DNS lookup of domain.dnsbl-host
-  // If DNS resolves (returns an A record), the domain is listed
   for (const bl of DNSBL_SERVERS) {
     try {
       const lookupHost = `${domain}.${bl.host}`;
-      // Use Deno's DNS resolution to check if the domain is listed
       let listed = false;
       try {
         const records = await Deno.resolveDns(lookupHost, "A");
         listed = records.length > 0;
       } catch {
-        // NXDOMAIN = not listed (this is the expected/good result)
         listed = false;
       }
 
@@ -94,14 +75,9 @@ async function checkDNSBL(domain: string): Promise<{
 
   const recommendations: string[] = [];
   if (totalListed > 0) {
-    recommendations.push(`Seu domínio está listado em ${totalListed} blacklist(s). Isso pode afetar a entregabilidade.`);
+    recommendations.push(`Seu domínio está listado em ${totalListed} blacklist(s).`);
     const listedIn = results.filter(r => r.listed).map(r => r.blacklist);
     recommendations.push(`Blacklists: ${listedIn.join(", ")}`);
-    recommendations.push("Verifique se seu servidor está enviando spam ou se foi comprometido.");
-    recommendations.push("Entre em contato com as blacklists para solicitar a remoção (delisting).");
-    if (riskLevel === "critical") {
-      recommendations.push("⚠️ URGENTE: Múltiplas listagens indicam problemas sérios de reputação.");
-    }
   } else {
     recommendations.push("✅ Seu domínio não está em nenhuma blacklist verificada.");
   }
@@ -126,15 +102,13 @@ async function checkDNSRecords(domain: string) {
   };
 
   try {
-    // Check SPF
     try {
       const txtRecords = await Deno.resolveDns(domain, "TXT");
       result.dns.spf = txtRecords.some((r: string[]) => 
         r.some((txt: string) => txt.startsWith("v=spf1"))
       );
-    } catch { /* no TXT records */ }
+    } catch { }
 
-    // Check DKIM (common selectors)
     for (const selector of ["default", "google", "mail", "selector1", "selector2"]) {
       try {
         const dkimRecords = await Deno.resolveDns(`${selector}._domainkey.${domain}`, "TXT");
@@ -142,29 +116,23 @@ async function checkDNSRecords(domain: string) {
           result.dns.dkim = true;
           break;
         }
-      } catch { /* selector not found */ }
+      } catch { }
     }
 
-    // Check DMARC
     try {
       const dmarcRecords = await Deno.resolveDns(`_dmarc.${domain}`, "TXT");
       result.dns.dmarc = dmarcRecords.some((r: string[]) =>
         r.some((txt: string) => txt.startsWith("v=DMARC1"))
       );
-    } catch { /* no DMARC */ }
-
-    if (!result.dns.spf) result.recommendations.push("Configure um registro SPF para autenticar seus emails");
-    if (!result.dns.dkim) result.recommendations.push("Configure DKIM para assinar digitalmente seus emails");
-    if (!result.dns.dmarc) result.recommendations.push("Configure DMARC para proteger contra spoofing");
+    } catch { }
   } catch (error) {
     log.error('DNS check error', error);
-    result.recommendations.push("Não foi possível verificar os registros DNS do domínio");
   }
 
   return result;
 }
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "deliverability", 30, 60);
@@ -177,7 +145,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return secureErrorResponse("Unauthorized", 401, corsHeaders);
 
-    // Handle GET requests with query params (DNS check, blacklist check)
     const url = new URL(req.url);
     const action = url.searchParams.get("action");
 
@@ -188,7 +155,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
       const validation = DNSCheckSchema.safeParse({ domain });
       if (!validation.success) return secureErrorResponse("Invalid domain", 400, corsHeaders);
 
-      log.info('Checking DNS records', { domain, userId: user.id });
       const dnsResult = await checkDNSRecords(domain);
       return secureJsonResponse(dnsResult, corsHeaders);
     }
@@ -200,37 +166,29 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
       const validation = BlacklistCheckSchema.safeParse({ domain });
       if (!validation.success) return secureErrorResponse("Invalid domain", 400, corsHeaders);
 
-      log.info('Checking blacklist status', { domain, userId: user.id });
       const blacklistResult = await checkDNSBL(domain);
       return secureJsonResponse(blacklistResult, corsHeaders);
     }
 
-    // Handle POST body
-    let body: unknown = {};
+    let body: any = {};
     try {
       const text = await req.text();
       if (text) body = JSON.parse(text);
-    } catch {
-      // Empty body is OK for stats-only requests
-    }
+    } catch { }
 
-    // If no email provided, return general deliverability stats using RPC
-    if (!body || !(body as Record<string, unknown>).email) {
+    if (!body || !body.email) {
       const adminSupabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
-      const { data: stats, error: statsError } = await adminSupabase.rpc('calculate_domain_deliverability', {
+      const { data: stats } = await adminSupabase.rpc('calculate_domain_deliverability', {
         p_user_id: user.id,
       });
-      if (statsError) return secureErrorResponse("Database error", 500, corsHeaders);
       return secureJsonResponse({ domains: stats || [], totals: null }, corsHeaders);
     }
 
     const validation = DeliverabilitySchema.safeParse(body);
-    if (!validation.success) return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+    if (!validation.success) return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
 
     const { email, checkMx, checkSyntax, checkDisposable } = validation.data;
     const domain = email.split("@")[1];
-
-    log.info('Checking deliverability', { email, domain });
 
     const result = {
       email,
@@ -249,4 +207,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     log.error('Error checking deliverability', error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(protectedHandler(handler));

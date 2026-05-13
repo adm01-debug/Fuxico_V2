@@ -5,6 +5,7 @@ import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { sanitizeEmailHtml } from "../_shared/html-sanitizer.ts";
 import { protectedHandler } from '../_shared/security-middleware.ts';
+
 const EmailSchema = z.object({
   to: z.string().email(),
   subject: z.string().min(1).max(500),
@@ -19,9 +20,7 @@ const BatchEmailSchema = z.object({
   priority: z.enum(["low", "normal", "high"]).default("normal")
 });
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "batch-email", 5, 60);
@@ -42,7 +41,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const body = await req.json();
     const validation = BatchEmailSchema.safeParse(body);
     if (!validation.success) {
-      return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+      return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
     const { emails, templateId, scheduledAt, priority } = validation.data;
@@ -76,4 +75,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(protectedHandler(handler));
