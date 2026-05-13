@@ -8,19 +8,8 @@ import { protectedHandler } from '../_shared/security-middleware.ts'
 
 const log = createLogger('generate-signed-document')
 
-const SignedDocSchema = z.object({
-  documentId: z.string().uuid(),
-  signatureType: z.enum(["draw", "type", "upload"]).default("type"),
-  signatureData: z.string().min(1),
-  signerName: z.string().min(1).max(200),
-  signerEmail: z.string().email(),
-  signerIP: z.string().optional(),
-  position: z.object({
-    page: z.number().int().positive(),
-    x: z.number(),
-    y: z.number()
-  }).optional()
-});
+import { CommonSignedDocSchema } from "../_shared/schemas.ts";
+const SignedDocSchema = CommonSignedDocSchema;
 
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   try {
