@@ -40,4 +40,4 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-});
+}));
