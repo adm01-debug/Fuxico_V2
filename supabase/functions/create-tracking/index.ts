@@ -4,18 +4,12 @@ import { getCorsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
-import { SafeMetadataSchema } from '../_shared/schemas.ts'
+import { SafeMetadataSchema, CommonTrackingSchema } from '../_shared/schemas.ts'
 import { protectedHandler } from '../_shared/security-middleware.ts'
 
 const log = createLogger('create-tracking')
 
-const createTrackingSchema = z.object({
-  recipientEmail: z.string().email(),
-  subject: z.string().max(500).optional(),
-  senderEmail: z.string().email().optional(),
-  links: z.array(z.string().url()).max(50).optional(),
-  metadata: SafeMetadataSchema,
-})
+const createTrackingSchema = CommonTrackingSchema
 
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
