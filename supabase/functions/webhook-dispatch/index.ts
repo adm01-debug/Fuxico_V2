@@ -16,17 +16,13 @@ import { createLogger } from '../_shared/logger.ts'
 import { publicHandler } from '../_shared/security-middleware.ts'
 import { isWebhookUrlSafe } from '../_shared/url-validator.ts'
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
-import { SafeMetadataSchema } from '../_shared/schemas.ts'
+import { SafeMetadataSchema, CommonWebhookDispatchSchema } from '../_shared/schemas.ts'
 
 // =============================================================================
 // SCHEMAS
 // =============================================================================
 
-const WebhookDispatchSchema = z.object({
-  userId: z.string().uuid(),
-  eventType: z.enum(['email.opened', 'email.clicked', 'email.bounced', 'document.viewed', 'link.clicked']),
-  payload: SafeMetadataSchema,
-})
+const WebhookDispatchSchema = CommonWebhookDispatchSchema
 
 // =============================================================================
 // RETRY LOGIC
