@@ -117,7 +117,7 @@ function FollowUpTabBase() {
 
   // Get emails that don't have a reminder yet
   const availableEmails = emails.filter(
-    email => !reminders.some(r => r.tracking_id === email.tracking_id && r.status === 'pending')
+    (email: any) => !reminders.some(r => r.tracking_id === email.tracking_id && r.status === 'pending')
   );
 
   return (
