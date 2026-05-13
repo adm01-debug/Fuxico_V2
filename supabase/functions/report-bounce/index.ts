@@ -12,10 +12,7 @@ import { publicHandler } from '../_shared/security-middleware.ts'
 
 const bounceSchema = z.object({ trackingId: z.string().uuid(), bounceType: z.string().optional(), bounceReason: z.string().optional() })
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
+Deno.serve(publicHandler(async (req, corsHeaders) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   const rateLimitResult = await checkRateLimit(ip, 'report-bounce', 50, 60)
