@@ -1,18 +1,11 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-import { SafeMetadataSchema } from "../_shared/schemas.ts";
-const PushSchema = z.object({
-  userId: z.string().uuid(),
-  title: z.string().min(1).max(100),
-  body: z.string().min(1).max(500),
-  icon: z.string().url().optional(),
-  url: z.string().url().optional(),
-  data: SafeMetadataSchema,
-});
+import { CommonPushSchema } from "../_shared/schemas.ts";
+import { protectedHandler } from '../_shared/security-middleware.ts';
+
+const PushSchema = CommonPushSchema;
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
