@@ -12,7 +12,7 @@ import {
   useUpdateReminderStatus,
   useDeleteReminder 
 } from '@/hooks/use-follow-up-reminders';
-import { useTrackedEmails } from '@/hooks/use-tracking';
+import { useTrackedEmails } from '@/features/tracking/hooks/use-tracking';
 import { Bell, BellRing, Clock, Mail, Plus, Trash2, CheckCircle, XCircle, AlertTriangle, Sparkles, Wand2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -117,7 +117,7 @@ function FollowUpTabBase() {
 
   // Get emails that don't have a reminder yet
   const availableEmails = emails.filter(
-    email => !reminders.some(r => r.tracking_id === email.tracking_id && r.status === 'pending')
+    (email: any) => !reminders.some(r => r.tracking_id === email.tracking_id && r.status === 'pending')
   );
 
   return (

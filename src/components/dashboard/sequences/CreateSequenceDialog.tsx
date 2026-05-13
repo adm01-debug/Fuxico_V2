@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { EmailSequence, useCreateSequence } from '@/hooks/useEmailSequences';
+import { EmailSequence, useCreateSequence } from '@/features/sequences/hooks/useEmailSequences';
 import { Loader2 } from 'lucide-react';
 
 interface CreateSequenceDialogProps {

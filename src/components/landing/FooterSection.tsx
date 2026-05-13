@@ -51,8 +51,8 @@ export const FooterSection = ({ onNavigatePricing, onOpenDemo }: FooterSectionPr
           <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">Legal</h4>
           <ul className="space-y-2.5 text-sm text-muted-foreground">
             <li><a href="#" className="hover:text-primary transition-colors">Termos de Uso</a></li>
-            <li><a href="#" className="hover:text-primary transition-colors">Política de Privacidade</a></li>
-            <li><a href="#" className="hover:text-primary transition-colors">LGPD</a></li>
+            <li><button onClick={() => window.location.href='/privacy'} className="hover:text-primary transition-colors">Política de Privacidade</button></li>
+            <li><button onClick={() => window.location.href='/privacy'} className="hover:text-primary transition-colors">LGPD</button></li>
             <li><a href="mailto:contato@fuxico.app" className="hover:text-primary transition-colors">Contato</a></li>
           </ul>
         </div>

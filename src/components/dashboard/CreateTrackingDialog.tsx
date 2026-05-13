@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTracking, CreateTrackingRequest, CreateTrackingResponse } from "@/lib/tracking-api";
+import { createTracking, CreateTrackingRequest, CreateTrackingResponse } from "@/features/tracking/lib/tracking-api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -26,6 +26,7 @@ const Permissions = lazy(() => import("./pages/Permissions"));
 const Roles = lazy(() => import("./pages/Roles"));
 const TwoFactorAuth = lazy(() => import("./pages/TwoFactorAuth"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,6 +73,7 @@ const App = () => {
                       <Route path="/" element={<Index />} />
                       <Route path="/auth" element={<Auth />} />
                       <Route path="/pricing" element={<Pricing />} />
+                      <Route path="/privacy" element={<Privacy />} />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
                       <Route path="/verify-email" element={<VerifyEmail />} />

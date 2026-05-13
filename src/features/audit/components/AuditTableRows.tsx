@@ -4,7 +4,7 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { AlertTriangle, ArrowUpRight, ArrowDownLeft, Clock, Globe, TrendingUp, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import type { FraudAlert, EmailAuditLog } from '@/hooks/use-email-audit';
+import type { FraudAlert, EmailAuditLog } from '../hooks/use-email-audit';
 
 const alertTypeLabels: Record<string, { label: string; icon: React.ReactNode }> = {
   suspicious_hours: { label: 'Horário Suspeito', icon: <Clock className="h-4 w-4" /> },

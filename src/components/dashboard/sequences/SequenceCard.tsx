@@ -21,7 +21,7 @@ import {
   Copy,
   Archive
 } from 'lucide-react';
-import { EmailSequence } from '@/hooks/useEmailSequences';
+import { EmailSequence } from '@/features/sequences/hooks/useEmailSequences';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

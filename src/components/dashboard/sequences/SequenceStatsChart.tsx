@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { useSequenceStats } from '@/hooks/useSequenceStats';
+import { useSequenceStats } from '@/features/sequences/hooks/useSequenceStats';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -30,7 +30,7 @@ export function SequenceStatsChart() {
     );
   }
 
-  const chartData = stats?.map((s) => ({
+  const chartData = stats?.map((s: any) => ({
     ...s,
     displayDate: format(parseISO(s.date), 'dd/MM', { locale: ptBR }),
   })) || [];

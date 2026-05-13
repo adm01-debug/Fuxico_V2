@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Mail, FileText, TrendingUp, Download, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ExportDialog } from './ExportDialog';
-import { useTrackedEmails, useTrackingStats, type TrackedEmailWithStats } from '@/hooks/use-tracking';
+import { useTrackedEmails, useTrackingStats, type TrackedEmailWithStats } from '@/features/tracking/hooks/use-tracking';
 import { useScheduledReports } from '@/hooks/use-scheduled-reports';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -59,7 +59,7 @@ function ReportsTabBase() {
   const { data: emails } = useTrackedEmails();
   const { data: stats } = useTrackingStats();
   
-  const exportData = (emails || []).map(email => {
+  const exportData = (emails || []).map((email: any) => {
     const emailWithStats = email as TrackedEmailWithStats;
     return {
       id: email.id, tracking_id: email.tracking_id, destinatario: email.recipient_email,

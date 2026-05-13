@@ -11,8 +11,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertTriangle, CheckCircle, Users, Mail, Shield, Settings, UserCog } from "lucide-react";
 import { AuditConfigTab } from "./AuditConfigTab";
 import { UserRolesTab } from "./UserRolesTab";
-import { AuditStatsCards } from "./audit/AuditStatsCards";
-import { AlertRow, LogRow } from "./audit/AuditTableRows";
+import { AuditStatsCards } from "@/features/audit/components/AuditStatsCards";
+import { AlertRow, LogRow } from "@/features/audit/components/AuditTableRows";
 import {
   useIsAdmin,
   useEmailAuditLogs,
@@ -20,7 +20,7 @@ import {
   useResolveAlert,
   useAuditStats,
   useUserActivitySummary,
-} from "@/hooks/use-email-audit";
+} from "@/features/audit/hooks/use-email-audit";
 import { toast } from "sonner";
 import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
