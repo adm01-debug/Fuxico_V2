@@ -8,7 +8,7 @@
 // =============================================================================
 // CORE HOOKS
 // =============================================================================
-export { useUserRoles } from './use-user-roles';
+export { useUserRoles } from '@/features/security/hooks/use-user-roles';
 export { useUserPreferences } from './use-user-preferences';
 
 // =============================================================================
@@ -47,7 +47,7 @@ export { useTrackingTrends } from './use-tracking-trends';
 // FEATURE HOOKS
 // =============================================================================
 export { useRealtimeNotifications } from './use-realtime-notifications';
-export { useAuditConfig, useUpdateAuditConfig } from './use-audit-config';
+export { useAuditConfig, useUpdateAuditConfig } from '@/features/security/hooks/use-audit-config';
 export { useBounceAlerts } from './use-bounce-alerts';
 export { useContactScores, useRecalculateScores, useUpdateContactScore } from './use-lead-scoring';
 export { useDesktopNotifications } from './use-desktop-notifications';
