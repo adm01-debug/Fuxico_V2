@@ -151,4 +151,4 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     log.error('Unsubscribe error', error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-});
+}));
