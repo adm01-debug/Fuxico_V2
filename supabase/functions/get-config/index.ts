@@ -3,11 +3,11 @@
 // Rate limiting e validação de origem aplicados via Supabase Edge
 // ============================================================================
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import { publicHandler } from '../_shared/security-middleware.ts';
 const ALLOWED_CONFIG_KEYS = ['version', 'features', 'limits', 'tracking'] as const;
 const ConfigQuerySchema = z.object({
   keys: z.array(z.enum(ALLOWED_CONFIG_KEYS)).optional()
