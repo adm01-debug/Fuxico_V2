@@ -12,7 +12,7 @@ import {
   useUpdateReminderStatus,
   useDeleteReminder 
 } from '@/hooks/use-follow-up-reminders';
-import { useTrackedEmails } from '@/hooks/use-tracking';
+import { useTrackedEmails } from '@/features/tracking/hooks/use-tracking';
 import { Bell, BellRing, Clock, Mail, Plus, Trash2, CheckCircle, XCircle, AlertTriangle, Sparkles, Wand2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

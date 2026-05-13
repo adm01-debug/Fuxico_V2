@@ -38,7 +38,7 @@ export {
   useEngagementMetrics,
   useRefreshStats,
   useInvalidateTracking
-} from './use-tracking';
+} from '@/features/tracking/hooks/use-tracking';
 export { useTrackedDocuments, useDocumentEvents } from './use-tracked-documents';
 export { useTrackedLinks, useLinkClickEvents } from './use-tracked-links';
 export { useTrackingTrends } from './use-tracking-trends';
@@ -92,7 +92,7 @@ export {
   useSendNotification,
   useBitrix24Status,
   useTestBitrix24Connection
-} from './use-bitrix24';
+} from '@/features/crm/hooks/use-bitrix24';
 export { 
   useWebhookConfig, 
   useWebhookLogs, 
@@ -118,7 +118,7 @@ export {
   useResolveAlert, 
   useAuditStats, 
   useUserActivitySummary 
-} from './use-email-audit';
+} from '@/features/audit/hooks/use-email-audit';
 export { useUnsubscribedEmails } from './use-unsubscribed-emails';
 
 // =============================================================================
