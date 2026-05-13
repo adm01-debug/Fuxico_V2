@@ -17,11 +17,7 @@ const createTrackingSchema = z.object({
   metadata: SafeMetadataSchema,
 })
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(req)
-
-  const origin = req.headers.get('origin')
-  const corsHeaders = getCorsHeaders(origin)
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
 
   const rateLimitResult = await checkRateLimit(ip, 'create-tracking', 60, 60)
