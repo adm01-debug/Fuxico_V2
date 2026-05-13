@@ -4,10 +4,8 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { protectedHandler } from '../_shared/security-middleware.ts';
-const DomainSchema = z.object({
-  domain: z.string().regex(/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/, "Invalid domain format"),
-  verificationType: z.enum(["dns", "file", "meta"]).default("dns")
-});
+import { CommonDomainSchema } from "../_shared/schemas.ts";
+const DomainSchema = CommonDomainSchema;
 
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   try {
