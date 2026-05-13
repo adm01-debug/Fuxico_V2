@@ -42,7 +42,8 @@ export interface TrackingFilters {
   dateFrom?: string
   dateTo?: string
   limit?: number
-  offset?: number
+  lastId?: string
+  lastTimestamp?: string
 }
 
 // =============================================================================
@@ -64,7 +65,8 @@ export function useTrackedEmails(filters: TrackingFilters = {}) {
       const { data, error } = await supabase.rpc('get_emails_with_stats', {
         p_user_id: user.id,
         p_limit: filters.limit || 100,
-        p_offset: filters.offset || 0,
+        p_last_id: filters.lastId || undefined,
+        p_last_timestamp: filters.lastTimestamp || undefined,
         p_status: filters.deliveryStatus === 'all' ? undefined : filters.deliveryStatus || undefined,
         p_search: filters.search || undefined,
         p_start_date: filters.dateFrom || undefined,
