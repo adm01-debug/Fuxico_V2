@@ -1,10 +1,18 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
 import { createLogger } from '../_shared/logger.ts';
+import { protectedHandler } from '../_shared/security-middleware.ts';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const log = createLogger('totp');
+
+const TotpActionSchema = z.object({
+  action: z.enum(["setup", "verify", "verify-backup", "disable", "regenerate-backup", "status"]),
+  code: z.string().optional(),
+  recoveryEmail: z.string().email().optional(),
+});
+
 // Simple TOTP implementation using HMAC-SHA1
 function base32ToBytes(base32: string): Uint8Array {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -65,9 +73,6 @@ async function hmacSha1(key: Uint8Array, data: Uint8Array): Promise<Uint8Array> 
   return new Uint8Array(signature);
 }
 
-// generateTOTP function kept for potential future use but not currently called
-// async function generateTOTP(secret: string, timeStep = 30): Promise<string> { ... }
-
 async function verifyTOTP(secret: string, token: string, window = 1): Promise<boolean> {
   const timeStep = 30;
   
@@ -102,8 +107,6 @@ async function verifyTOTP(secret: string, token: string, window = 1): Promise<bo
 function generateBackupCodes(count = 10): string[] {
   const codes: string[] = [];
   for (let i = 0; i < count; i++) {
-    // SECURITY: Use 8 bytes (64 bits) per code for adequate entropy
-    // Previously used 4 bytes (32 bits) which is brute-forceable
     const bytes = new Uint8Array(8);
     crypto.getRandomValues(bytes);
     const code = Array.from(bytes)
@@ -115,15 +118,9 @@ function generateBackupCodes(count = 10): string[] {
   return codes;
 }
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
+Deno.serve(protectedHandler(async (req, corsHeaders) => {
   // Rate limiting - TOTP is security-critical, limit to 5 attempts per minute
-  const clientIP = req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown";
+  const clientIP = getClientIP(req.headers);
   const rateLimitResult = await checkRateLimit(clientIP, "totp", 5, 60);
 
   if (!rateLimitResult.allowed) {
@@ -143,6 +140,7 @@ serve(async (req) => {
       }
     );
   }
+
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -167,7 +165,16 @@ serve(async (req) => {
       );
     }
 
-    const { action, code, recoveryEmail } = await req.json();
+    const body = await req.json();
+    const validation = TotpActionSchema.safeParse(body);
+    if (!validation.success) {
+      return new Response(JSON.stringify({ error: "Invalid parameters", details: validation.error.errors }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    const { action, code, recoveryEmail } = validation.data;
 
     switch (action) {
       case "setup": {
@@ -476,4 +483,4 @@ serve(async (req) => {
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-});
+}));
