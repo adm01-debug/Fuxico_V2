@@ -8,11 +8,7 @@ import { publicHandler } from '../_shared/security-middleware.ts';
 
 const log = createLogger('unsubscribe')
 
-const UnsubSchema = z.object({
-  trackingId: z.string().min(1).optional(),
-  email: z.string().email().optional(),
-  reason: z.string().max(500).optional()
-});
+const UnsubSchema = CommonUnsubSchema;
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
