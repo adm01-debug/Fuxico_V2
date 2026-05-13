@@ -9,8 +9,9 @@ import { getCorsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { publicHandler } from '../_shared/security-middleware.ts'
+import { CommonBounceSchema } from '../_shared/schemas.ts'
 
-const bounceSchema = z.object({ trackingId: z.string().uuid(), bounceType: z.string().optional(), bounceReason: z.string().optional() })
+const bounceSchema = CommonBounceSchema
 
 Deno.serve(publicHandler(async (req, corsHeaders) => {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
