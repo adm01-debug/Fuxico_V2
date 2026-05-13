@@ -1,4 +1,4 @@
-import { SecurityDashboard } from '@/components/security';
+import { SecurityDashboard } from '@/features/security/components';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
