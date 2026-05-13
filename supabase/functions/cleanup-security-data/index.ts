@@ -3,25 +3,17 @@
 // File: supabase/functions/cleanup-security-data/index.ts
 // =============================================================================
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
+import { protectedHandler } from "../_shared/security-middleware.ts";
 
-serve(async (req: Request): Promise<Response> => {
-  const corsHeaders = getCorsHeaders(req.headers.get('origin'));
-  
-  // Handle CORS
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
+Deno.serve(protectedHandler(async (req: Request, corsHeaders: Record<string, string>): Promise<Response> => {
   // Rate limiting - this is an admin function, limit to 10/minute
-  const clientIP = req.headers.get('cf-connecting-ip') || 
-                   req.headers.get('x-forwarded-for')?.split(',')[0] || 
-                   'unknown';
+  const clientIP = getClientIP(req.headers);
   
   const rateLimitResult = await checkRateLimit(clientIP, 'cleanup-security', 10, 60);
+
 
   if (!rateLimitResult.allowed) {
     const retryAfter = Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000);
@@ -131,4 +123,4 @@ serve(async (req: Request): Promise<Response> => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-});
+}));
