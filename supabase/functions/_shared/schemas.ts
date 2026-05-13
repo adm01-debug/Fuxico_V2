@@ -116,3 +116,26 @@ export const CommonZapierSchema = z.object({
   trackingId: z.string().uuid(),
   data: SafeMetadataSchema,
 });
+
+export const CommonPushSchema = z.object({
+  userId: z.string().uuid(),
+  title: z.string().min(1).max(100),
+  body: z.string().min(1).max(500),
+  icon: z.string().url().optional(),
+  url: z.string().url().optional(),
+  data: SafeMetadataSchema,
+});
+
+export const CommonSignerSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1).max(200),
+  order: z.number().int().positive().optional()
+});
+
+export const CommonSignatureRequestSchema = z.object({
+  documentId: z.string().uuid(),
+  signers: z.array(CommonSignerSchema).min(1).max(10),
+  message: z.string().max(1000).optional(),
+  expiresAt: z.string().datetime().optional(),
+  reminderDays: z.number().int().min(1).max(30).optional()
+});
