@@ -140,7 +140,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-})
+}))
 
 async function syncContact(webhookUrl: string, email: string, data: BitrixContactData): Promise<BitrixSyncResult> {
   // Use URL constructor for safe URL building (prevents parameter injection)
