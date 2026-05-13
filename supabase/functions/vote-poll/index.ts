@@ -12,9 +12,8 @@ import { publicHandler } from '../_shared/security-middleware.ts';
 
 const VoteSchema = CommonVoteSchema;
 
-serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+Deno.serve(publicHandler(async (req, corsHeaders) => {
+  try {
 
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
