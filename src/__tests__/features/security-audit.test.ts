@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import * as securityMiddleware from '../../../supabase/functions/_shared/security-middleware.ts';
+import * as ipWhitelist from '../../../supabase/functions/_shared/ip-whitelist.ts';
+
 
 describe('Security Audit - Infrastructure Hardening', () => {
   it('should have Sentry and OTel initialized in App.tsx', async () => {
@@ -7,13 +10,10 @@ describe('Security Audit - Infrastructure Hardening', () => {
     expect(appFile).toBeDefined();
   });
 
-  it('should have shared security middlewares', async () => {
-    // Check if security-middleware and ip-whitelist exist and export correctly
-    const securityMiddleware = await import('../../../supabase/functions/_shared/security-middleware.ts');
-    const ipWhitelist = await import('../../../supabase/functions/_shared/ip-whitelist.ts');
-    
+  it('should have shared security middlewares', () => {
     expect(securityMiddleware.protectedHandler).toBeDefined();
     expect(securityMiddleware.publicHandler).toBeDefined();
     expect(ipWhitelist.validateIPAccess).toBeDefined();
   });
+
 });
