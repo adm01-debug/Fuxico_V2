@@ -9,11 +9,9 @@ import { validateIPAccess } from '../_shared/ip-whitelist.ts'
 
 const log = createLogger('ai-insights')
 
-const AiInsightsSchema = z.object({
-  period: z.enum(['7d', '30d', '90d', 'all']).default('30d'),
-  trackingId: z.string().uuid().optional(),
-  includeRecommendations: z.boolean().default(true)
-})
+import { CommonAiInsightsSchema } from '../_shared/schemas.ts'
+
+const AiInsightsSchema = CommonAiInsightsSchema
 
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   const endTimer = log.time('request')
