@@ -55,4 +55,4 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return secureJsonResponse({ error: message }, 500, corsHeaders)
   }
-})
+}))
