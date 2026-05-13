@@ -30,9 +30,11 @@ import {
   useBitrix24Config,
   useBitrix24Contacts,
   useBitrix24Activities,
-  useBitrix24Deals
+  useBitrix24Deals,
+  Bitrix24Contact,
+  Bitrix24Activity,
+  Bitrix24Deal
 } from '@/features/crm/hooks/use-bitrix24';
-import type { Bitrix24Activity } from '@/features/crm/hooks/use-bitrix24';
 
 function ActivityIcon({ type }: { type: Bitrix24Activity['type'] }) {
   switch (type) {
@@ -85,7 +87,7 @@ function ContactsPanel() {
         <div className="space-y-2">
           {contacts?.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Nenhum contato encontrado</p>
-          ) : contacts?.map(contact => (
+          ) : contacts?.map((contact: Bitrix24Contact) => (
             <Card key={contact.id} className="bg-muted/30">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
@@ -169,7 +171,7 @@ function ActivitiesPanel() {
         <div className="space-y-2">
           {activities?.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Nenhuma atividade encontrada</p>
-          ) : activities?.map(activity => (
+          ) : activities?.map((activity: Bitrix24Activity) => (
             <Card key={activity.id} className="bg-muted/30">
               <CardContent className="p-3">
                 <div className="flex items-center gap-3">
@@ -232,7 +234,7 @@ function DealsPanel() {
         <div className="space-y-2">
           {deals?.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Nenhum negócio encontrado</p>
-          ) : deals?.map(deal => (
+          ) : deals?.map((deal: Bitrix24Deal) => (
             <Card key={deal.id} className="bg-muted/30">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
