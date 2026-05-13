@@ -25,7 +25,7 @@ import {
   Save,
   Plus
 } from 'lucide-react';
-import { SequenceStep, useCreateStep, useUpdateStep, useDeleteStep } from '@/hooks/useEmailSequences';
+import { SequenceStep, useCreateStep, useUpdateStep, useDeleteStep } from '@/features/sequences/hooks/useEmailSequences';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface SequenceStepEditorProps {

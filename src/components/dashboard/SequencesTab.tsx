@@ -14,7 +14,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { log } from '@/lib/logger';
-import { useEmailSequences, useUpdateSequence, useDeleteSequence, useCreateSequence, EmailSequence } from '@/hooks/useEmailSequences';
+import { useEmailSequences, useUpdateSequence, useDeleteSequence, useCreateSequence, EmailSequence } from '@/features/sequences/hooks/useEmailSequences';
 import { SequenceCard } from './sequences/SequenceCard';
 import { SequenceDetail } from './sequences/SequenceDetail';
 import { CreateSequenceDialog } from './sequences/CreateSequenceDialog';

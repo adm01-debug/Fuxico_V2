@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { memo } from 'react';
-import { useSequenceWebhookLogs } from '@/hooks/useSequenceWebhookLogs';
+import { useSequenceWebhookLogs } from '@/features/sequences/hooks/useSequenceWebhookLogs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

@@ -38,7 +38,7 @@ import {
   AlertTriangle,
   Users
 } from 'lucide-react';
-import { SequenceEnrollment, useEnrollContact, useCancelEnrollment, useUpdateEnrollment } from '@/hooks/useEmailSequences';
+import { SequenceEnrollment, useEnrollContact, useCancelEnrollment, useUpdateEnrollment } from '@/features/sequences/hooks/useEmailSequences';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

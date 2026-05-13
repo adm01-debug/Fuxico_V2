@@ -23,7 +23,7 @@ import {
   Save,
   Loader2
 } from 'lucide-react';
-import { EmailSequence, useSequenceDetail, useUpdateSequence } from '@/hooks/useEmailSequences';
+import { EmailSequence, useSequenceDetail, useUpdateSequence } from '@/features/sequences/hooks/useEmailSequences';
 import { SequenceStepEditor } from './SequenceStepEditor';
 import { SequenceEnrollments } from './SequenceEnrollments';
 import { Skeleton } from '@/components/ui/skeleton';
