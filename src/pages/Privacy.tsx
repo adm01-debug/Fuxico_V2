@@ -1,10 +1,17 @@
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { FooterSection } from "@/components/landing/FooterSection";
+import { useNavigate } from "react-router-dom";
 
 export default function Privacy() {
+  const navigate = useNavigate();
+  
+  const onNavigateAuth = () => navigate("/auth");
+  const onNavigatePricing = () => navigate("/pricing");
+  const onOpenDemo = () => navigate("/auth"); // Fallback for demo in this context
+
   return (
     <div className="min-h-screen bg-background">
-      <HeaderSection />
+      <HeaderSection onNavigateAuth={onNavigateAuth} />
       <main className="container mx-auto px-4 py-20 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8">Política de Privacidade (LGPD)</h1>
         <section className="prose dark:prose-invert max-w-none space-y-6">
@@ -39,7 +46,7 @@ export default function Privacy() {
           </p>
         </section>
       </main>
-      <FooterSection />
+      <FooterSection onNavigatePricing={onNavigatePricing} onOpenDemo={onOpenDemo} />
     </div>
   );
 }
