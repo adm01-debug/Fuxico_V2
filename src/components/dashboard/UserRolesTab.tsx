@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Shield, ShieldCheck, User, Search, UserMinus, UserPlus } from "lucide-react";
-import { useUsersWithRoles, useAssignRole, useRemoveRole, type UserWithRole } from "@/hooks/use-user-roles";
+import { useUsersWithRoles, useAssignRole, useRemoveRole, type UserWithRole } from "@/features/security/hooks/use-user-roles";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";

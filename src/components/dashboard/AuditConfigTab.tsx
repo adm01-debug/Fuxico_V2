@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { X, Plus, Clock, Globe, TrendingUp, Save, Loader2 } from "lucide-react";
-import { useAuditConfig, useUpdateAuditConfig } from "@/hooks/use-audit-config";
+import { useAuditConfig, useUpdateAuditConfig } from "@/features/security/hooks/use-audit-config";
 import { toast } from "sonner";
 
 const timezones = [
