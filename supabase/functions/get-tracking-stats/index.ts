@@ -76,4 +76,4 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     log.error('Internal error', error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-});
+}));
