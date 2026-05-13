@@ -61,4 +61,4 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse({ status: "unhealthy", error: "Health check failed" }, 503, corsHeaders);
   }
-});
+}));
