@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
@@ -9,9 +10,7 @@ import { protectedHandler } from '../_shared/security-middleware.ts';
 const log = createLogger('send-signature-request')
 const SignatureRequestSchema = CommonSignatureRequestSchema;
 
-Deno.serve(protectedHandler(async (req, corsHeaders) => {
-  try {
-
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "sig-request", 10, 60);
@@ -26,7 +25,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
 
     const body = await req.json();
     const validation = SignatureRequestSchema.safeParse(body);
-    if (!validation.success) return secureErrorResponse({ error: "Validation failed", details: validation.error.flatten() }, 400, corsHeaders);
+    if (!validation.success) return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
 
     const { documentId, signers, message, expiresAt } = validation.data;
 
@@ -51,4 +50,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
   } catch (error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
-}));
+}
+
+Deno.serve(protectedHandler(handler));
