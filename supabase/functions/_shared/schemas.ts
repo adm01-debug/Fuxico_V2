@@ -139,3 +139,36 @@ export const CommonSignatureRequestSchema = z.object({
   expiresAt: z.string().datetime().optional(),
   reminderDays: z.number().int().min(1).max(30).optional()
 });
+
+export const CommonBeaconSchema = z.object({
+  trackingId: z.string().min(1),
+  eventType: z.enum(["open", "click", "scroll", "time"]),
+  metadata: SafeMetadataSchema,
+  timestamp: z.string().datetime().optional()
+});
+
+export const CommonTrackDocSchema = z.object({
+  documentId: z.string().uuid(),
+  eventType: z.enum(["view", "download", "print", "share"]).default("view"),
+  pageNumber: z.number().int().positive().optional(),
+  duration: z.number().int().min(0).optional()
+});
+
+export const CommonTrackLinkSchema = z.object({
+  linkId: z.string().min(1),
+  trackingId: z.string().min(1).optional()
+});
+
+export const CommonTrackPixelSchema = z.object({
+  t: z.string().min(1)
+});
+
+export const CommonStandaloneLinkSchema = z.object({
+  shortCode: z.string().min(1).max(50)
+});
+
+export const CommonUnsubSchema = z.object({
+  trackingId: z.string().min(1).optional(),
+  email: z.string().email().optional(),
+  reason: z.string().max(500).optional()
+});
