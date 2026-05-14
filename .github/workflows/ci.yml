@@ -16,6 +16,30 @@ env:
 
 jobs:
   # ===========================================================================
+  # GENERATE AUDIT REPORT
+  # ===========================================================================
+  audit:
+    name: Generate Audit Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Generate Audit PDF
+        run: bun scripts/generate-pdf.ts
+      
+      - name: Commit Audit Report
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --global user.name "Audit Bot"
+          git config --global user.email "audit-bot@users.noreply.github.com"
+          git add SYSTEM_AUDIT_ENTERPRISE.md docs/SYSTEM_AUDIT_ENTERPRISE_V3.md docs/SYSTEM_AUDIT_ENTERPRISE_V3.pdf README.md
+          git diff --staged --quiet || (git commit -m "docs: update audit report and PDF [skip ci]" && git push)
+
+  # ===========================================================================
   # LINT & TYPE CHECK
   # ===========================================================================
   lint:
