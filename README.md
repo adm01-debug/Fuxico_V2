@@ -1,13 +1,17 @@
 # 🔍 FUXICO - Email Tracking System
 
-Sistema completo de rastreamento de emails com pixel invisível, detecção de aberturas, cliques e integração com CRMs.
-
+[![Security Audit](https://img.shields.io/badge/Audit-Passed-success)](SYSTEM_AUDIT_ENTERPRISE.md)
 ![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)
-![React](https://img.shields.io/badge/React-18.3-61dafb)
+
+## 🛡️ Auditoria Enterprise
+O sistema passou por uma auditoria completa de segurança e funcionalidades.
+- **Relatório Markdown:** [SYSTEM_AUDIT_ENTERPRISE.md](./SYSTEM_AUDIT_ENTERPRISE.md)
+- **Documentação Detalhada:** [docs/SYSTEM_AUDIT_ENTERPRISE_V3.md](./docs/SYSTEM_AUDIT_ENTERPRISE_V3.md)
+- **Versão PDF:** Disponível em [docs/SYSTEM_AUDIT_ENTERPRISE_V3.pdf](./docs/SYSTEM_AUDIT_ENTERPRISE_V3.pdf)
 
 ## 📋 Índice
+
 
 - [Instalação](#-instalação)
 - [Arquitetura](#-arquitetura)
