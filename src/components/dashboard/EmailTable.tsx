@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import type { TrackedEmail } from "@/features/tracking/lib/tracking-api";
 import { useTrackedEmails } from "@/features/tracking/hooks/use-tracking";
 import { formatDistanceToNow } from "date-fns";
@@ -7,8 +7,8 @@ import { Mail, Eye, MousePointerClick, ChevronRight, Loader2 } from "lucide-reac
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmailFiltersComponent, useEmailFilters, filterEmails, type EmailFilters } from "./EmailFilters";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmailStatusBadge } from "@/components/ui/email-status-badge";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 interface EmailTableProps {
   emails?: TrackedEmail[];
