@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1 } from 'lucide-react';
+import { Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1, Type } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType } from '@/lib/notification-sound';
@@ -75,9 +76,7 @@ export default function Settings() {
       <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="h-10 w-10 shrink-0">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          <BackButton onClick={() => navigate(-1)} />
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold truncate">Configurações</h1>
             <p className="text-muted-foreground text-xs sm:text-sm truncate">{user?.email}</p>
@@ -376,6 +375,46 @@ export default function Settings() {
                 </div>
               </>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Accessibility Settings */}
+        <Card>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Type className="h-5 w-5 shrink-0" />
+              Acessibilidade
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Personalize a interface para melhor visualização
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="font_size" className="text-sm sm:text-base">Tamanho da Fonte</Label>
+                <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                  {preferences?.font_size ?? 16}px
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-muted-foreground">A</span>
+                <Slider
+                  id="font_size"
+                  value={[preferences?.font_size ?? 16]}
+                  onValueChange={(value) => updatePreferences({ font_size: value[0] })}
+                  min={12}
+                  max={24}
+                  step={1}
+                  className="flex-1"
+                  disabled={isUpdating}
+                />
+                <span className="text-lg text-muted-foreground">A</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Ajuste o tamanho base da fonte para facilitar a leitura. (Padrão: 16px)
+              </p>
+            </div>
           </CardContent>
         </Card>
 

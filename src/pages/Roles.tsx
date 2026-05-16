@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { 
-  ArrowLeft, 
   Shield, 
   Users, 
   Plus, 
@@ -18,6 +17,7 @@ import {
   Trash2,
   Edit
 } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -173,9 +173,7 @@ export default function Roles() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          <BackButton onClick={() => navigate(-1)} />
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Gerenciamento de Roles</h1>
             <p className="text-muted-foreground">

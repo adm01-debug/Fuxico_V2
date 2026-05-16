@@ -1829,6 +1829,7 @@ export type Database = {
           desktop_enabled: boolean
           email_digest_frequency: string | null
           email_enabled: boolean
+          font_size: number | null
           id: string
           notification_sound_type: string | null
           notification_volume: number | null
@@ -1849,6 +1850,7 @@ export type Database = {
           desktop_enabled?: boolean
           email_digest_frequency?: string | null
           email_enabled?: boolean
+          font_size?: number | null
           id?: string
           notification_sound_type?: string | null
           notification_volume?: number | null
@@ -1869,6 +1871,7 @@ export type Database = {
           desktop_enabled?: boolean
           email_digest_frequency?: string | null
           email_enabled?: boolean
+          font_size?: number | null
           id?: string
           notification_sound_type?: string | null
           notification_volume?: number | null

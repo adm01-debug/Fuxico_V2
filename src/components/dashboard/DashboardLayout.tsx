@@ -10,15 +10,16 @@ import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardS
 import { GlobalSearchDialog, useGlobalSearch } from './GlobalSearchDialog'
 import { CreateTrackingDialog } from './CreateTrackingDialog'
 import { NotificationCenter } from './NotificationCenter'
-// WidgetCustomizer removed - simplified dashboard
 import { ModeToggle } from '@/components/ui/mode-toggle'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { Keyboard, Plus, Search, Settings2 } from 'lucide-react'
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper'
+import { BackButton } from '@/components/ui/back-button'
+import { TopProgressBar } from '@/components/ui/top-progress-bar'
 import TabSkeleton from './TabSkeleton'
-import { cn } from '@/lib/utils'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // =============================================================================
 // LAZY LOADING
@@ -179,8 +180,7 @@ const TAB_SKELETON_VARIANTS: Partial<Record<TabId, 'table' | 'metrics' | 'chart'
 
 export default function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
-  const [, setPrevTab] = useState<TabId>('home')
-  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [tabHistory, setTabHistory] = useState<TabId[]>(['home'])
   const [showCreateTracking, setShowCreateTracking] = useState(false)
   const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()
   const { open: shortcutsOpen, setOpen: setShortcutsOpen } = useKeyboardShortcutsDialog()
@@ -221,17 +221,20 @@ export default function DashboardLayout() {
   // Handle tab change with transition animation
   const handleTabChange = useCallback((value: TabId) => {
     if (value === activeTab) return
-    
-    setPrevTab(activeTab)
-    setIsTransitioning(true)
-    
-    // Small delay for exit animation
-    setTimeout(() => {
-      setActiveTab(value)
-      // Allow enter animation to complete
-      setTimeout(() => setIsTransitioning(false), 150)
-    }, 100)
+    setTabHistory(prev => [...prev, value])
+    setActiveTab(value)
   }, [activeTab])
+
+  const handleBack = useCallback(() => {
+    if (tabHistory.length <= 1) return
+    
+    const newHistory = [...tabHistory]
+    newHistory.pop() // Remove current
+    const prevTab = newHistory[newHistory.length - 1]
+    
+    setTabHistory(newHistory)
+    setActiveTab(prevTab)
+  }, [tabHistory])
 
   // Keyboard shortcuts for navigation
   const keyboardBindings = useMemo(() => ({
@@ -241,7 +244,8 @@ export default function DashboardLayout() {
     'alt+l': () => setActiveTab('leads'),
     'alt+s': () => setActiveTab('config'),
     'alt+n': () => setShowCreateTracking(true),
-  }), [])
+    'escape': () => handleBack(),
+  }), [handleBack])
 
   useKeyboardNavigation(keyboardBindings)
 
@@ -273,10 +277,15 @@ export default function DashboardLayout() {
         <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
         
         <SidebarInset role="main" aria-label="Conteúdo Principal" className="flex-1">
+          <TopProgressBar key={activeTab} />
           {/* Header */}
           <header className="sticky top-0 z-10 flex flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6">
               <SidebarTrigger className="md:hidden h-10 w-10 shrink-0" />
+              
+              {activeTab !== 'home' && (
+                <BackButton onClick={handleBack} />
+              )}
               
               <div className="flex-1 min-w-0">
                 <h1 className="text-base sm:text-lg font-semibold lg:text-xl truncate">
@@ -379,26 +388,28 @@ export default function DashboardLayout() {
           </header>
 
           {/* Main Content with Tab Transition */}
-          <main className="flex-1 p-4 lg:p-6 xl:p-8 pb-20 md:pb-8">
-            <div 
-              className={cn(
-                "transition-all duration-200 ease-out",
-                isTransitioning 
-                  ? "opacity-0 translate-y-2" 
-                  : "opacity-100 translate-y-0"
-              )}
-            >
-              <Suspense fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}>
-                {activeTab === 'home' ? (
-                  <ActiveComponent 
-                    onNavigate={handleTabChange} 
-                    onCreateTracking={handleCreateTracking}
-                  />
-                ) : (
-                  <ActiveComponent />
-                )}
-              </Suspense>
-            </div>
+          <main className="flex-1 p-4 lg:p-6 xl:p-8 pb-20 md:pb-8 overflow-x-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: 10, y: 0 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={{ opacity: 0, x: -10, y: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="w-full"
+              >
+                <Suspense fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}>
+                  {activeTab === 'home' ? (
+                    <ActiveComponent 
+                      onNavigate={handleTabChange} 
+                      onCreateTracking={handleCreateTracking}
+                    />
+                  ) : (
+                    <ActiveComponent />
+                  )}
+                </Suspense>
+              </motion.div>
+            </AnimatePresence>
           </main>
         </SidebarInset>
 
