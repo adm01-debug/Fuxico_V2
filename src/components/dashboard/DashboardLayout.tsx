@@ -181,7 +181,6 @@ const TAB_SKELETON_VARIANTS: Partial<Record<TabId, 'table' | 'metrics' | 'chart'
 export default function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
   const [tabHistory, setTabHistory] = useState<TabId[]>(['home'])
-  const [isTransitioning, setIsTransitioning] = useState(false)
   const [showCreateTracking, setShowCreateTracking] = useState(false)
   const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()
   const { open: shortcutsOpen, setOpen: setShortcutsOpen } = useKeyboardShortcutsDialog()
