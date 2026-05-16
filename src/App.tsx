@@ -4,13 +4,15 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "@/lib/theme";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import { NotificationBadgeManager } from "@/components/NotificationBadgeManager";
 import { AccessibilityManager } from "@/components/AccessibilityManager";
 import { PrivateRoute } from "@/components/PrivateRoute";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DashboardSkeleton as PageLoader } from "@/components/ui/skeletons";
 import { initSentry } from "@/lib/sentry";
 import { initTracing } from "@/lib/otel";
 import { initWebVitals } from "@/lib/web-vitals";
@@ -48,16 +50,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Loading fallback component
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen p-4" role="status" aria-label="Carregando página">
-    <div className="w-full max-w-4xl space-y-4">
-      <Skeleton className="h-12 w-3/4" />
-      <Skeleton className="h-64 w-full" />
-      <Skeleton className="h-8 w-1/2" />
-    </div>
-  </div>
-);
+// PageLoader is now DashboardSkeleton imported from skeletons.tsx
 
 const App = () => {
   useEffect(() => {
@@ -67,45 +60,49 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <ThemeProvider>
-          <AuthProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <NotificationBadgeManager />
-              <AccessibilityManager />
-              <BrowserRouter>
-                <main id="main-content">
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      {/* Public routes */}
-                      <Route path="/" element={<Index />} />
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/pricing" element={<Pricing />} />
-                      <Route path="/privacy" element={<Privacy />} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
-                      <Route path="/reset-password" element={<ResetPassword />} />
-                      <Route path="/verify-email" element={<VerifyEmail />} />
-                      <Route path="/mfa-verify" element={<MFAVerify />} />
-                      {/* Protected routes - require authentication */}
-                      <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                      <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-                      <Route path="/security" element={<PrivateRoute><Security /></PrivateRoute>} />
-                      <Route path="/permissions" element={<PrivateRoute><Permissions /></PrivateRoute>} />
-                      <Route path="/roles" element={<PrivateRoute><Roles /></PrivateRoute>} />
-                      <Route path="/two-factor-auth" element={<PrivateRoute><TwoFactorAuth /></PrivateRoute>} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                </main>
-              </BrowserRouter>
-            </TooltipProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </ErrorBoundary>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <ThemeProvider>
+            <AccessibilityProvider>
+              <AuthProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <NotificationBadgeManager />
+                  <AccessibilityManager />
+                  <BrowserRouter>
+                    <main id="main-content">
+                      <Suspense fallback={<PageLoader />}>
+                        <Routes>
+                          {/* Public routes */}
+                          <Route path="/" element={<Index />} />
+                          <Route path="/auth" element={<Auth />} />
+                          <Route path="/pricing" element={<Pricing />} />
+                          <Route path="/privacy" element={<Privacy />} />
+                          <Route path="/forgot-password" element={<ForgotPassword />} />
+                          <Route path="/reset-password" element={<ResetPassword />} />
+                          <Route path="/verify-email" element={<VerifyEmail />} />
+                          <Route path="/mfa-verify" element={<MFAVerify />} />
+                          {/* Protected routes - require authentication */}
+                          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                          <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+                          <Route path="/security" element={<PrivateRoute><Security /></PrivateRoute>} />
+                          <Route path="/permissions" element={<PrivateRoute><Permissions /></PrivateRoute>} />
+                          <Route path="/roles" element={<PrivateRoute><Roles /></PrivateRoute>} />
+                          <Route path="/two-factor-auth" element={<PrivateRoute><TwoFactorAuth /></PrivateRoute>} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </Suspense>
+                    </main>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </AuthProvider>
+            </AccessibilityProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 };
 

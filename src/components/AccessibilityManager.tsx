@@ -1,22 +1,24 @@
 import { useEffect } from 'react';
-import { useUserPreferences } from '@/hooks/use-user-preferences';
+import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 export function AccessibilityManager() {
-  const { preferences } = useUserPreferences();
+  const { fontSize, motionPreference, contrastPreference } = useAccessibility();
 
   useEffect(() => {
-    if (preferences?.font_size) {
-      document.documentElement.style.fontSize = `${preferences.font_size}px`;
-    } else {
-      // Default font size if not set or preferred
-      document.documentElement.style.fontSize = '16px';
-    }
+    document.documentElement.style.fontSize = `${fontSize}px`;
     
-    // Cleanup if component unmounts (though it's intended to stay mounted)
-    return () => {
-      document.documentElement.style.fontSize = '';
-    };
-  }, [preferences?.font_size]);
+    if (motionPreference === "reduce") {
+      document.documentElement.classList.add("reduce-motion");
+    } else {
+      document.documentElement.classList.remove("reduce-motion");
+    }
+
+    if (contrastPreference === "high") {
+      document.documentElement.classList.add("high-contrast");
+    } else {
+      document.documentElement.classList.remove("high-contrast");
+    }
+  }, [fontSize, motionPreference, contrastPreference]);
 
   return null;
 }
