@@ -2,7 +2,7 @@
 // FUXICO - WhatsApp Business Integration Tab
 // =============================================================================
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,10 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import { 
   MessageCircle, Settings, Zap, Clock, CheckCircle2, 
-  AlertTriangle, Send, Users, ArrowRight, Shield 
+  AlertTriangle, Send, Users, ArrowRight, Shield, Loader2 
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useWhatsAppConfig } from '@/hooks/use-whatsapp-config'
 
 interface WhatsAppConfig {
   enabled: boolean
