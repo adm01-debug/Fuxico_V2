@@ -255,7 +255,8 @@ export default function DashboardLayout() {
     'alt+l': () => setActiveTab('leads'),
     'alt+s': () => setActiveTab('config'),
     'alt+n': () => setShowCreateTracking(true),
-  }), [])
+    'escape': () => handleBack(),
+  }), [handleBack])
 
   useKeyboardNavigation(keyboardBindings)
 
