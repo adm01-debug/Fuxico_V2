@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/lib/theme";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationBadgeManager } from "@/components/NotificationBadgeManager";
+import { AccessibilityManager } from "@/components/AccessibilityManager";
 import { PrivateRoute } from "@/components/PrivateRoute";
 import { Skeleton } from "@/components/ui/skeleton";
 import { initSentry } from "@/lib/sentry";
