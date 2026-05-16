@@ -18,7 +18,6 @@ import { Keyboard, Plus, Search, Settings2 } from 'lucide-react'
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper'
 import { BackButton } from '@/components/ui/back-button'
 import TabSkeleton from './TabSkeleton'
-import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // =============================================================================
