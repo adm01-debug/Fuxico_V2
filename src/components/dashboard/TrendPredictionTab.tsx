@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, Minus, Brain, Info } from 'lucide-react';
 import { useTrendPrediction } from '@/hooks/use-trend-prediction';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
+import { motion } from 'framer-motion';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 
 function TrendIcon({ trend }: { trend: 'up' | 'down' | 'stable' }) {
