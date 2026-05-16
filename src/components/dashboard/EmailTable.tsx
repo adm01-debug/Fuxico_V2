@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import type { TrackedEmail } from "@/features/tracking/lib/tracking-api";
 import { useTrackedEmails } from "@/features/tracking/hooks/use-tracking";
 import { formatDistanceToNow } from "date-fns";
@@ -7,8 +7,8 @@ import { Mail, Eye, MousePointerClick, ChevronRight, Loader2 } from "lucide-reac
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmailFiltersComponent, useEmailFilters, filterEmails, type EmailFilters } from "./EmailFilters";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmailStatusBadge } from "@/components/ui/email-status-badge";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 interface EmailTableProps {
   emails?: TrackedEmail[];
@@ -149,9 +149,9 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
 }
 
 export function EmailTable({ emails: externalEmails, selectedId: externalSelectedId, onSelect: externalOnSelect, showFilters = true }: EmailTableProps) {
-  // Self-contained mode: fetch data internally when no emails prop provided
   const { data: fetchedEmails, isLoading } = useTrackedEmails();
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
 
   const emails = externalEmails ?? (fetchedEmails as TrackedEmail[] | undefined) ?? [];
   const selectedId = externalSelectedId ?? internalSelectedId;
@@ -159,10 +159,16 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
 
   const { filters, setFilters, hasActiveFilters } = useEmailFilters();
   
-  // Apply filters
   const filteredEmails = useMemo(() => {
     return filterEmails(emails, filters);
   }, [emails, filters]);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredEmails.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 92, // Average height of an EmailRow
+    overscan: 5,
+  });
 
   if (isLoading && !externalEmails) {
     return (
@@ -175,7 +181,6 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
   return (
     <TooltipProvider>
       <div className="flex flex-col h-full">
-        {/* Filters */}
         {showFilters && (
           <div className="p-4 border-b bg-muted/30">
             <EmailFiltersComponent
@@ -187,31 +192,53 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
           </div>
         )}
 
-        {/* Email list */}
         {filteredEmails.length === 0 ? (
           <EmptyState hasFilters={hasActiveFilters} />
         ) : (
-          <ScrollArea role="region" aria-label="Lista de emails rastreados" className="xl:max-h-none flex-1">
-            <div className="divide-y divide-border">
-              {filteredEmails.map((email) => (
-                <EmailRow
-                  key={email.id}
-                  email={email}
-                  isSelected={selectedId === email.tracking_id}
-                  onSelect={() => onSelect(email.tracking_id)}
-                />
-              ))}
+          <div 
+            ref={parentRef}
+            className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
+            role="region" 
+            aria-label="Lista de emails rastreados"
+          >
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const email = filteredEmails[virtualRow.index];
+                return (
+                  <div
+                    key={virtualRow.key}
+                    data-index={virtualRow.index}
+                    ref={rowVirtualizer.measureElement}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                  >
+                    <EmailRow
+                      email={email}
+                      isSelected={selectedId === email.tracking_id}
+                      onSelect={() => onSelect(email.tracking_id)}
+                    />
+                  </div>
+                );
+              })}
             </div>
-          </ScrollArea>
+          </div>
         )}
       </div>
     </TooltipProvider>
   );
 }
 
-// Export for backward compatibility
 export { useEmailFilters, filterEmails };
 export type { EmailFilters };
-
-// Default export for lazy loading
 export default EmailTable;
