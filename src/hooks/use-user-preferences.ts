@@ -41,6 +41,7 @@ const defaultPreferences: Omit<UserPreferences, 'id' | 'user_id' | 'created_at' 
   notification_volume: 0.5,
   warning_volume: 0.4,
   critical_volume: 0.7,
+  font_size: 16,
 };
 
 export function useUserPreferences() {
