@@ -293,6 +293,10 @@ export default function DashboardLayout() {
             <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6">
               <SidebarTrigger className="md:hidden h-10 w-10 shrink-0" />
               
+              {activeTab !== 'home' && (
+                <BackButton onClick={handleBack} />
+              )}
+              
               <div className="flex-1 min-w-0">
                 <h1 className="text-base sm:text-lg font-semibold lg:text-xl truncate">
                   {TAB_LABELS[activeTab]}
