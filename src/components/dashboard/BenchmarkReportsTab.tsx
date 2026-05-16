@@ -31,6 +31,24 @@ export default function BenchmarkReportsTab() {
   const [industry, setIndustry] = useState('saas')
   const [period, setPeriod] = useState('30d')
 
+  const handleExport = () => {
+    const csvContent = [
+      ['Métrica', 'Seu Valor', 'Média do Setor', 'Top Performers', 'Status'],
+      ...metrics.map(m => [m.name, m.yourValue + m.unit, m.industryAvg + m.unit, m.topPerformers + m.unit, m.status])
+    ].map(e => e.join(",")).join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `benchmark_${industry}_${period}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Relatório CSV exportado com sucesso!')
+  }
+
   const metrics: BenchmarkMetric[] = [
     { name: 'Taxa de Abertura', yourValue: 42, industryAvg: 28, topPerformers: 55, unit: '%', status: 'above' },
     { name: 'Taxa de Cliques', yourValue: 8.5, industryAvg: 4.2, topPerformers: 12, unit: '%', status: 'above' },
