@@ -76,9 +76,7 @@ export default function Settings() {
       <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="h-10 w-10 shrink-0">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          <BackButton onClick={() => navigate(-1)} />
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold truncate">Configurações</h1>
             <p className="text-muted-foreground text-xs sm:text-sm truncate">{user?.email}</p>
