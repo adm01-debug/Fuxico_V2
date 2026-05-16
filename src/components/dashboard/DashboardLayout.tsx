@@ -10,13 +10,13 @@ import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardS
 import { GlobalSearchDialog, useGlobalSearch } from './GlobalSearchDialog'
 import { CreateTrackingDialog } from './CreateTrackingDialog'
 import { NotificationCenter } from './NotificationCenter'
-// WidgetCustomizer removed - simplified dashboard
 import { ModeToggle } from '@/components/ui/mode-toggle'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { Keyboard, Plus, Search, Settings2 } from 'lucide-react'
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper'
+import { BackButton } from '@/components/ui/back-button'
 import TabSkeleton from './TabSkeleton'
 import { cn } from '@/lib/utils'
 
