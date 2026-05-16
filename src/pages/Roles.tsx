@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { 
-  ArrowLeft, 
   Shield, 
   Users, 
   Plus, 
@@ -18,6 +17,7 @@ import {
   Trash2,
   Edit
 } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 import {
   DropdownMenu,
   DropdownMenuContent,
