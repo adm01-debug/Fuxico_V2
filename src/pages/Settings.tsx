@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1 } from 'lucide-react';
+import { ArrowLeft, Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1, Type } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType } from '@/lib/notification-sound';
