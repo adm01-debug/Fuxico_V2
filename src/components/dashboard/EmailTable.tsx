@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { EmailFiltersComponent, useEmailFilters, filterEmails, type EmailFilters } from "./EmailFilters";
 import { EmailStatusBadge } from "@/components/ui/email-status-badge";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { motion } from "framer-motion";
 
 interface EmailTableProps {
   emails?: TrackedEmail[];
@@ -38,7 +39,9 @@ function EmailRow({
   const status = getEmailStatus(email);
   
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.002, x: 2 }}
+      whileTap={{ scale: 0.998 }}
       onClick={onSelect}
       className={cn(
         "w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left transition-all duration-200 hover:bg-muted/50 hover-lift touch-target",
@@ -125,7 +128,7 @@ function EmailRow({
         {/* Chevron */}
         <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
       </div>
-    </button>
+    </motion.button>
   );
 }
 
@@ -211,10 +214,13 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
               {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                 const email = filteredEmails[virtualRow.index];
                 return (
-                  <div
+                  <motion.div
                     key={virtualRow.key}
                     data-index={virtualRow.index}
                     ref={rowVirtualizer.measureElement}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2, delay: (virtualRow.index % 10) * 0.03 }}
                     style={{
                       position: 'absolute',
                       top: 0,
@@ -228,7 +234,7 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
                       isSelected={selectedId === email.tracking_id}
                       onSelect={() => onSelect(email.tracking_id)}
                     />
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
