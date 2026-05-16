@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, useScroll } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { VARIANTS, TRANSITIONS } from "@/styles/motion-presets";
+// VARIANTS and TRANSITIONS imports removed to fix unused import error
 import {
   HeaderSection, HeroSection, StatsSection, FeaturesSection,
   BeforeAfterSection, HowItWorksSection, BenefitsSection,
