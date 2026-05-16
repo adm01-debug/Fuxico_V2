@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 
 import { toast } from 'sonner';
-import { ArrowLeft, Shield, Key, Save, Loader2, Users } from 'lucide-react';
+import { Shield, Key, Save, Loader2, Users } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreatePermissionDialog, EditPermissionDialog } from './permissions/PermissionFormDialog';
 import { PermissionMatrix } from './permissions/PermissionMatrix';
