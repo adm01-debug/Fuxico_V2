@@ -2062,6 +2062,51 @@ export type Database = {
           },
         ]
       }
+      whatsapp_configs: {
+        Row: {
+          api_key: string | null
+          auto_follow_up: boolean | null
+          business_hours_only: boolean | null
+          created_at: string | null
+          enabled: boolean | null
+          follow_up_delay: number | null
+          follow_up_message: string | null
+          id: string
+          max_retries: number | null
+          phone_number: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          api_key?: string | null
+          auto_follow_up?: boolean | null
+          business_hours_only?: boolean | null
+          created_at?: string | null
+          enabled?: boolean | null
+          follow_up_delay?: number | null
+          follow_up_message?: string | null
+          id?: string
+          max_retries?: number | null
+          phone_number?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          api_key?: string | null
+          auto_follow_up?: boolean | null
+          business_hours_only?: boolean | null
+          created_at?: string | null
+          enabled?: boolean | null
+          follow_up_delay?: number | null
+          follow_up_message?: string | null
+          id?: string
+          max_retries?: number | null
+          phone_number?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       whitelabel_config: {
         Row: {
           created_at: string
