@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, useScroll } from "framer-motion";
+import { Helmet } from "react-helmet-async";
+import { VARIANTS, TRANSITIONS } from "@/styles/motion-presets";
 import {
   HeaderSection, HeroSection, StatsSection, FeaturesSection,
   BeforeAfterSection, HowItWorksSection, BenefitsSection,
@@ -28,12 +30,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
+      <Helmet>
+        <title>FUXICO | Rastreamento de Emails Profissional</title>
+        <meta name="description" content="Saiba exatamente quando seus emails são lidos com a plataforma FUXICO. Inteligência para seu comercial." />
+      </Helmet>
+      
       <OrbBackground />
 
       {/* Progress bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-0.5 gradient-primary z-[60] origin-left"
-        style={{ scaleX: scrollYProgress }}
+        initial={VARIANTS.fadeIn.initial}
+        animate={{ ...VARIANTS.fadeIn.animate, scaleX: scrollYProgress }}
+        transition={TRANSITIONS.default}
       />
 
       <HeaderSection onNavigateAuth={goAuth} />
