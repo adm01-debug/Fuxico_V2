@@ -18,18 +18,7 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { useWhatsAppConfig } from '@/hooks/use-whatsapp-config'
-
-interface WhatsAppConfig {
-  enabled: boolean
-  phoneNumber: string
-  apiKey: string
-  autoFollowUp: boolean
-  followUpDelay: number
-  followUpMessage: string
-  maxRetries: number
-  businessHoursOnly: boolean
-}
+import { useWhatsAppConfig, type WhatsAppConfig } from '@/hooks/use-whatsapp-config'
 
 interface WhatsAppStats {
   messagesSent: number
@@ -39,16 +28,17 @@ interface WhatsAppStats {
 }
 
 export default function WhatsAppIntegrationTab() {
-  const [config, setConfig] = useState<WhatsAppConfig>({
-    enabled: false,
-    phoneNumber: '',
-    apiKey: '',
-    autoFollowUp: true,
-    followUpDelay: 24,
-    followUpMessage: 'Olá! Vi que você ainda não abriu o email que enviei sobre {{assunto}}. Posso ajudar?',
-    maxRetries: 2,
-    businessHoursOnly: true,
-  })
+  const { config: remoteConfig, isLoading, updateConfig, isUpdating } = useWhatsAppConfig()
+  const [localConfig, setLocalConfig] = useState<WhatsAppConfig | null>(null)
+
+  // Sync local state with remote config when it loads
+  useEffect(() => {
+    if (remoteConfig && !localConfig) {
+      setLocalConfig(remoteConfig)
+    }
+  }, [remoteConfig, localConfig])
+
+  const config = localConfig || remoteConfig
 
   const [stats] = useState<WhatsAppStats>({
     messagesSent: 156,
@@ -58,7 +48,17 @@ export default function WhatsAppIntegrationTab() {
   })
 
   const handleSave = () => {
-    toast.success('Configurações do WhatsApp salvas!')
+    if (localConfig) {
+      updateConfig(localConfig)
+    } else {
+      toast.info('Nenhuma alteração para salvar')
+    }
+  }
+
+  const handleChange = (updates: Partial<WhatsAppConfig>) => {
+    if (config) {
+      setLocalConfig({ ...config, ...updates })
+    }
   }
 
   const statsItems = [
@@ -68,22 +68,32 @@ export default function WhatsAppIntegrationTab() {
     { label: 'Respondidas', value: stats.replied, icon: Users, color: 'text-amber-500' },
   ]
 
+  if (isLoading && !localConfig) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!config) return null
+
   const automationRules = [
     { 
       name: 'Follow-up Automático',
       description: 'Enviar WhatsApp quando email não for aberto em 24h',
-      enabled: config.autoFollowUp,
+      enabled: config.auto_follow_up,
       icon: Zap,
     },
     { 
       name: 'Horário Comercial',
       description: 'Enviar apenas entre 08:00 e 18:00',
-      enabled: config.businessHoursOnly,
+      enabled: config.business_hours_only,
       icon: Clock,
     },
     { 
       name: 'Limite de Retentativas',
-      description: `Máximo de ${config.maxRetries} mensagens por contato`,
+      description: `Máximo de ${config.max_retries} mensagens por contato`,
       enabled: true,
       icon: Shield,
     },
@@ -143,7 +153,8 @@ export default function WhatsAppIntegrationTab() {
               <Label>Ativar Integração</Label>
               <Switch
                 checked={config.enabled}
-                onCheckedChange={(checked) => setConfig({ ...config, enabled: checked })}
+                onCheckedChange={(checked) => handleChange({ enabled: checked })}
+                disabled={isUpdating}
               />
             </div>
 
@@ -151,8 +162,9 @@ export default function WhatsAppIntegrationTab() {
               <Label>Número de Telefone</Label>
               <Input
                 placeholder="+55 11 99999-9999"
-                value={config.phoneNumber}
-                onChange={(e) => setConfig({ ...config, phoneNumber: e.target.value })}
+                value={config.phone_number || ''}
+                onChange={(e) => handleChange({ phone_number: e.target.value })}
+                disabled={isUpdating}
               />
             </div>
 
@@ -161,8 +173,9 @@ export default function WhatsAppIntegrationTab() {
               <Input
                 type="password"
                 placeholder="Sua chave da API WhatsApp Business"
-                value={config.apiKey}
-                onChange={(e) => setConfig({ ...config, apiKey: e.target.value })}
+                value={config.api_key || ''}
+                onChange={(e) => handleChange({ api_key: e.target.value })}
+                disabled={isUpdating}
               />
               <p className="text-xs text-muted-foreground">
                 Obtenha sua API Key em business.whatsapp.com
@@ -172,8 +185,9 @@ export default function WhatsAppIntegrationTab() {
             <div className="space-y-2">
               <Label>Delay do Follow-up (horas)</Label>
               <Select 
-                value={String(config.followUpDelay)} 
-                onValueChange={(v) => setConfig({ ...config, followUpDelay: Number(v) })}
+                value={String(config.follow_up_delay)} 
+                onValueChange={(v) => handleChange({ follow_up_delay: Number(v) })}
+                disabled={isUpdating}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -191,19 +205,24 @@ export default function WhatsAppIntegrationTab() {
             <div className="space-y-2">
               <Label>Mensagem de Follow-up</Label>
               <Textarea
-                value={config.followUpMessage}
-                onChange={(e) => setConfig({ ...config, followUpMessage: e.target.value })}
+                value={config.follow_up_message || ''}
+                onChange={(e) => handleChange({ follow_up_message: e.target.value })}
                 rows={3}
                 placeholder="Use {{assunto}} para o assunto do email"
+                disabled={isUpdating}
               />
               <p className="text-xs text-muted-foreground">
                 Variáveis disponíveis: {'{{nome}}'}, {'{{assunto}}'}, {'{{empresa}}'}
               </p>
             </div>
 
-            <Button className="w-full gap-2" onClick={handleSave}>
-              <CheckCircle2 className="h-4 w-4" />
-              Salvar Configurações
+            <Button 
+              className="w-full gap-2" 
+              onClick={handleSave}
+              disabled={isUpdating}
+            >
+              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+              {isUpdating ? 'Salvando...' : 'Salvar Configurações'}
             </Button>
           </CardContent>
         </Card>
@@ -244,7 +263,7 @@ export default function WhatsAppIntegrationTab() {
               <div className="space-y-3">
                 {[
                   { step: '1', label: 'Email enviado', desc: 'Rastreamento ativado' },
-                  { step: '2', label: `Espera ${config.followUpDelay}h`, desc: 'Verifica se foi aberto' },
+                  { step: '2', label: `Espera ${config.follow_up_delay}h`, desc: 'Verifica se foi aberto' },
                   { step: '3', label: 'Não abriu?', desc: 'Envia WhatsApp automático' },
                   { step: '4', label: 'Follow-up enviado', desc: 'Monitora resposta' },
                 ].map((item, i) => (
