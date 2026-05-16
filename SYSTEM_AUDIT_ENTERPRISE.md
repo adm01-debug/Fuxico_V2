@@ -93,7 +93,7 @@ O sistema **FUXICO** passou por uma transformação arquitetural profunda. Origi
 | Hardening de CORS | 🔴 Crítico | ✅ | Somente domínios autorizados e IDs de extensão específicos. |
 | Remoção de unsafe-inline CSP | 🔴 Crítico | ✅ | Headers de segurança sem permissões inseguras. |
 | N+1 em useCampaigns | 🟠 Alto | ✅ | Queries em batch, reduzindo latência em 70%. |
-| Testes E2E (Playwright) | 🟠 Alto | 🔄 | Cobertura total dos caminhos felizes e críticos. |
+| Testes E2E (Playwright) | 🟠 Alto | ✅ | Suíte de testes para fluxos críticos e dashboard (Mocked). |
 | Virtualização de Tabelas Longas | 🟡 Médio | ✅ | Performance > 60fps em listas com >1000 itens (TanStack Virtual). |
 | Integração WhatsApp API | 🟡 Médio | ✅ | Configuração persistente e fluxos de automação (Ready). |
 
