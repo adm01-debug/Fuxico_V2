@@ -75,6 +75,7 @@ const App = () => {
               <Toaster />
               <Sonner />
               <NotificationBadgeManager />
+              <AccessibilityManager />
               <BrowserRouter>
                 <main id="main-content">
                   <Suspense fallback={<PageLoader />}>
