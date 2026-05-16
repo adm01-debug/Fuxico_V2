@@ -21,6 +21,7 @@ export interface UserPreferences {
   notification_volume: number;
   warning_volume: number;
   critical_volume: number;
+  font_size: number;
   created_at: string;
   updated_at: string;
 }
