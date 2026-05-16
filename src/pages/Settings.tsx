@@ -379,6 +379,46 @@ export default function Settings() {
           </CardContent>
         </Card>
 
+        {/* Accessibility Settings */}
+        <Card>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Type className="h-5 w-5 shrink-0" />
+              Acessibilidade
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Personalize a interface para melhor visualização
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="font_size" className="text-sm sm:text-base">Tamanho da Fonte</Label>
+                <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                  {preferences?.font_size ?? 16}px
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-muted-foreground">A</span>
+                <Slider
+                  id="font_size"
+                  value={[preferences?.font_size ?? 16]}
+                  onValueChange={(value) => updatePreferences({ font_size: value[0] })}
+                  min={12}
+                  max={24}
+                  step={1}
+                  className="flex-1"
+                  disabled={isUpdating}
+                />
+                <span className="text-lg text-muted-foreground">A</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Ajuste o tamanho base da fonte para facilitar a leitura. (Padrão: 16px)
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Account Section */}
         <Card>
           <CardHeader className="p-4 sm:p-6">
