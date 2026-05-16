@@ -119,7 +119,7 @@ export default function BenchmarkReportsTab() {
               <SelectItem value="90d">90 dias</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" onClick={handleExport} title="Exportar CSV">
             <Download className="h-4 w-4" />
           </Button>
         </div>
