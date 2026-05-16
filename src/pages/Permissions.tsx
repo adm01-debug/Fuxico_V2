@@ -145,7 +145,7 @@ export default function Permissions() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}><ArrowLeft className="w-5 h-5" /></Button>
+            <BackButton onClick={() => navigate(-1)} />
             <div>
               <h1 className="text-2xl font-bold">Gerenciamento de Permissões</h1>
               <p className="text-muted-foreground">Configure permissões granulares por role</p>
