@@ -221,30 +221,19 @@ export default function DashboardLayout() {
   // Handle tab change with transition animation
   const handleTabChange = useCallback((value: TabId) => {
     if (value === activeTab) return
-    
-    setIsTransitioning(true)
-    
-    setTimeout(() => {
-      setTabHistory(prev => [...prev, value])
-      setActiveTab(value)
-      setTimeout(() => setIsTransitioning(false), 150)
-    }, 100)
+    setTabHistory(prev => [...prev, value])
+    setActiveTab(value)
   }, [activeTab])
 
   const handleBack = useCallback(() => {
     if (tabHistory.length <= 1) return
     
-    setIsTransitioning(true)
+    const newHistory = [...tabHistory]
+    newHistory.pop() // Remove current
+    const prevTab = newHistory[newHistory.length - 1]
     
-    setTimeout(() => {
-      const newHistory = [...tabHistory]
-      newHistory.pop() // Remove current
-      const prevTab = newHistory[newHistory.length - 1]
-      
-      setTabHistory(newHistory)
-      setActiveTab(prevTab)
-      setTimeout(() => setIsTransitioning(false), 150)
-    }, 100)
+    setTabHistory(newHistory)
+    setActiveTab(prevTab)
   }, [tabHistory])
 
   // Keyboard shortcuts for navigation
