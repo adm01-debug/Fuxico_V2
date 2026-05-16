@@ -399,26 +399,28 @@ export default function DashboardLayout() {
           </header>
 
           {/* Main Content with Tab Transition */}
-          <main className="flex-1 p-4 lg:p-6 xl:p-8 pb-20 md:pb-8">
-            <div 
-              className={cn(
-                "transition-all duration-200 ease-out",
-                isTransitioning 
-                  ? "opacity-0 translate-y-2" 
-                  : "opacity-100 translate-y-0"
-              )}
-            >
-              <Suspense fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}>
-                {activeTab === 'home' ? (
-                  <ActiveComponent 
-                    onNavigate={handleTabChange} 
-                    onCreateTracking={handleCreateTracking}
-                  />
-                ) : (
-                  <ActiveComponent />
-                )}
-              </Suspense>
-            </div>
+          <main className="flex-1 p-4 lg:p-6 xl:p-8 pb-20 md:pb-8 overflow-x-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: 10, y: 0 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={{ opacity: 0, x: -10, y: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="w-full"
+              >
+                <Suspense fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}>
+                  {activeTab === 'home' ? (
+                    <ActiveComponent 
+                      onNavigate={handleTabChange} 
+                      onCreateTracking={handleCreateTracking}
+                    />
+                  ) : (
+                    <ActiveComponent />
+                  )}
+                </Suspense>
+              </motion.div>
+            </AnimatePresence>
           </main>
         </SidebarInset>
 
