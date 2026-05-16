@@ -54,6 +54,9 @@ O sistema **FUXICO** passou por uma transformação arquitetural profunda. Origi
 | **Audit Log** | Registro imutável de todas as ações administrativas. | ✅ Implementado | `supabase/functions/log-security-event` |
 | **MFA (Multi-Factor Auth)** | Proteção extra para contas de usuários. | ✅ Implementado | `src/pages/MFAVerify.tsx` |
 | **Rate Limiting Distribuído**| Prevenir abuso e ataques de DoS. | ✅ Implementado | `supabase/functions/check-rate-limit` |
+| **Navegação Inteligente** | Botão voltar contextual e histórico de tabs. | ✅ Implementado | `src/components/ui/back-button.tsx` |
+| **Acessibilidade Dinâmica** | Ajuste de tamanho de fonte e ARIA compliance. | ✅ Implementado | `src/components/AccessibilityManager.tsx` |
+| **Transições Premium** | Animações Framer Motion e Barra de Progresso Top. | ✅ Implementado | `src/components/ui/top-progress-bar.tsx` |
 
 ---
 
