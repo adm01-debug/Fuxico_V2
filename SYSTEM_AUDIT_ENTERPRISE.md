@@ -94,7 +94,7 @@ O sistema **FUXICO** passou por uma transformação arquitetural profunda. Origi
 | Remoção de unsafe-inline CSP | 🔴 Crítico | ✅ | Headers de segurança sem permissões inseguras. |
 | N+1 em useCampaigns | 🟠 Alto | ✅ | Queries em batch, reduzindo latência em 70%. |
 | Testes E2E (Playwright) | 🟠 Alto | 🔄 | Cobertura total dos caminhos felizes e críticos. |
-| Virtualização de Tabelas Longas | 🟡 Médio | ❌ | Performance > 60fps em listas com >1000 itens. |
+| Virtualização de Tabelas Longas | 🟡 Médio | ✅ | Performance > 60fps em listas com >1000 itens (TanStack Virtual). |
 | Integração WhatsApp API | 🟡 Médio | 🔄 | Envio de notificações via provedor oficial (BETA). |
 
 ---
