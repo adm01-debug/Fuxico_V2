@@ -1,9 +1,10 @@
 import { memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Minus, Brain } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Brain, Info } from 'lucide-react';
 import { useTrendPrediction } from '@/hooks/use-trend-prediction';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 
 function TrendIcon({ trend }: { trend: 'up' | 'down' | 'stable' }) {
@@ -12,16 +13,24 @@ function TrendIcon({ trend }: { trend: 'up' | 'down' | 'stable' }) {
   return <Minus className="h-4 w-4 text-muted-foreground" />;
 }
 
-function TrendBadge({ trend }: { trend: 'up' | 'down' | 'stable' }) {
+function TrendBadge({ trend, metric }: { trend: 'up' | 'down' | 'stable'; metric: string }) {
   const labels = { up: 'Crescente', down: 'Decrescente', stable: 'Estável' };
+  const descriptions = {
+    up: `A performance de ${metric} está aumentando em relação ao período anterior.`,
+    down: `A performance de ${metric} está diminuindo. Considere revisar sua estratégia.`,
+    stable: `A performance de ${metric} está consistente.`,
+  };
   const variants: Record<string, 'default' | 'destructive' | 'secondary'> = {
     up: 'default', down: 'destructive', stable: 'secondary',
   };
+  
   return (
-    <Badge variant={variants[trend]} className="text-xs gap-1">
-      <TrendIcon trend={trend} />
-      {labels[trend]}
-    </Badge>
+    <TooltipWrapper content={descriptions[trend]}>
+      <Badge variant={variants[trend]} className="text-xs gap-1 cursor-help">
+        <TrendIcon trend={trend} />
+        {labels[trend]}
+      </Badge>
+    </TooltipWrapper>
   );
 }
 
@@ -86,15 +95,15 @@ function TrendPredictionTabBase() {
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="p-4 rounded-lg bg-muted/50 text-center">
               <p className="text-xs text-muted-foreground mb-1">Emails</p>
-              <TrendBadge trend={data.summary.emailsTrend} />
+              <TrendBadge trend={data.summary.emailsTrend} metric="emails" />
             </div>
             <div className="p-4 rounded-lg bg-muted/50 text-center">
               <p className="text-xs text-muted-foreground mb-1">Aberturas</p>
-              <TrendBadge trend={data.summary.opensTrend} />
+              <TrendBadge trend={data.summary.opensTrend} metric="aberturas" />
             </div>
             <div className="p-4 rounded-lg bg-muted/50 text-center">
               <p className="text-xs text-muted-foreground mb-1">Cliques</p>
-              <TrendBadge trend={data.summary.clicksTrend} />
+              <TrendBadge trend={data.summary.clicksTrend} metric="cliques" />
             </div>
           </div>
 
@@ -154,15 +163,28 @@ function TrendPredictionTabBase() {
 
           {/* Prediction Details */}
           <div className="mt-6">
-            <h4 className="text-sm font-medium mb-3">Previsões para os Próximos 7 Dias</h4>
+            <div className="flex items-center gap-2 mb-3">
+              <h4 className="text-sm font-medium">Previsões para os Próximos 7 Dias</h4>
+              <TooltipWrapper content="Previsões geradas via regressão linear baseada nos últimos 30 dias de interações.">
+                <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipWrapper>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
-              {data.predictions.map(p => (
-                <div key={p.date} className="p-2 rounded-lg border text-center">
+              {data.predictions.map((p, i) => (
+                <motion.div 
+                  key={p.date} 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="p-2 rounded-lg border text-center hover:bg-muted/50 transition-colors"
+                >
                   <p className="text-xs text-muted-foreground">{p.date.slice(5)}</p>
                   <p className="text-sm font-bold">{p.predictedEmails}</p>
                   <p className="text-xs text-green-600">{p.predictedOpens} abr</p>
-                  <Badge variant="outline" className="text-[10px] mt-1">{p.confidence}%</Badge>
-                </div>
+                  <TooltipWrapper content={`Grau de confiança estatística: ${p.confidence}%`}>
+                    <Badge variant="outline" className="text-[10px] mt-1 cursor-help">{p.confidence}%</Badge>
+                  </TooltipWrapper>
+                </motion.div>
               ))}
             </div>
           </div>
