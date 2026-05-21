@@ -239,6 +239,7 @@ export default function Settings() {
                   checked={preferences?.desktop_enabled ?? true}
                   onCheckedChange={(checked) => handleToggle('desktop_enabled', checked)}
                   disabled={isUpdating}
+                  className="shrink-0"
                 />
               </div>
             </div>
@@ -389,6 +390,33 @@ export default function Settings() {
               Personalize a interface para melhor visualização
             </CardDescription>
           </CardHeader>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="font_size" className="text-sm sm:text-base">Tamanho da Fonte</Label>
+                <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                  {preferences?.font_size ?? 16}px
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-muted-foreground">A</span>
+                <Slider
+                  id="font_size"
+                  value={[preferences?.font_size ?? 16]}
+                  onValueChange={(value) => updatePreferences({ font_size: value[0] })}
+                  min={12}
+                  max={24}
+                  step={1}
+                  className="flex-1"
+                  disabled={isUpdating}
+                />
+                <span className="text-lg text-muted-foreground">A</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Ajuste o tamanho base da fonte para facilitar a leitura. (Padrão: 16px)
+              </p>
+            </div>
+          </CardContent>
         </Card>
 
         {/* Google Integration */}
@@ -416,36 +444,6 @@ export default function Settings() {
               >
                 Conectar Gmail Corporativo
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="font_size" className="text-sm sm:text-base">Tamanho da Fonte</Label>
-                <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
-                  {preferences?.font_size ?? 16}px
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-xs text-muted-foreground">A</span>
-                <Slider
-                  id="font_size"
-                  value={[preferences?.font_size ?? 16]}
-                  onValueChange={(value) => updatePreferences({ font_size: value[0] })}
-                  min={12}
-                  max={24}
-                  step={1}
-                  className="flex-1"
-                  disabled={isUpdating}
-                />
-                <span className="text-lg text-muted-foreground">A</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Ajuste o tamanho base da fonte para facilitar a leitura. (Padrão: 16px)
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -498,7 +496,7 @@ export default function Settings() {
         {isUpdating && (
           <div className="fixed bottom-4 right-4 left-4 sm:left-auto bg-primary text-primary-foreground px-4 py-2.5 rounded-lg flex items-center justify-center sm:justify-start gap-2 shadow-lg">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Salvando...</span>
+            <span className="text-sm font-medium">Salvando alterações...</span>
           </div>
         )}
       </div>
