@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
-import { Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1, Type } from 'lucide-react';
+import { Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1, Type, Link2 } from 'lucide-react';
 import { BackButton } from '@/components/ui/back-button';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -387,6 +387,38 @@ export default function Settings() {
             </CardTitle>
             <CardDescription className="text-xs sm:text-sm">
               Personalize a interface para melhor visualização
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Google Integration */}
+        <Card>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Link2 className="h-5 w-5 shrink-0" />
+              Integração Gmail
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Conecte sua conta corporativa para rastrear emails enviados pelo Gmail
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4">
+            <div className="flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground">
+                Ao conectar sua conta, nossa extensão poderá sincronizar automaticamente o rastreamento de emails enviados.
+              </p>
+              <Button 
+                onClick={() => {
+                  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+                  window.location.href = `${supabaseUrl}/functions/v1/gmail-auth?userId=${user?.id}`;
+                }}
+                className="w-full sm:w-auto"
+              >
+                Conectar Gmail Corporativo
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-6">
