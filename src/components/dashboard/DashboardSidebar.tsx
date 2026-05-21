@@ -106,6 +106,7 @@ export type TabId =
   | 'whatsapp'
   | 'benchmark'
   | 'segmentation'
+  | 'tracking_history'
 
 interface MenuItem {
   id: TabId
@@ -182,6 +183,7 @@ function useMenuCategories(): MenuCategory[] {
         { id: 'links', label: 'Links', icon: LinkIcon },
         { id: 'documents', label: 'Documentos', icon: FileText },
         { id: 'scheduling', label: 'Agendamento', icon: Clock },
+        { id: 'tracking_history', label: 'Histórico', icon: Activity },
       ],
     },
     {
