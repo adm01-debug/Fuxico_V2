@@ -48,6 +48,7 @@ const TAB_CATEGORIES: Record<TabId, { category: string; categoryTab?: TabId }> =
   webhooks: { category: 'Integrações', categoryTab: 'integrations' },
   whatsapp: { category: 'Integrações', categoryTab: 'integrations' },
   trends: { category: 'Analytics', categoryTab: 'reports' },
+  tracking_history: { category: 'Rastreamento', categoryTab: 'emails' },
 }
 
 const TAB_LABELS: Record<TabId, string> = {
@@ -84,6 +85,7 @@ const TAB_LABELS: Record<TabId, string> = {
   whatsapp: 'WhatsApp',
   benchmark: 'Benchmark',
   segmentation: 'Segmentação',
+  tracking_history: 'Histórico de Tracking',
 }
 
 export function DashboardBreadcrumbs({

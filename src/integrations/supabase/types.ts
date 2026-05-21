@@ -794,6 +794,13 @@ export type Database = {
             referencedRelation: "tracked_emails"
             referencedColumns: ["tracking_id"]
           },
+          {
+            foreignKeyName: "follow_up_reminders_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "v_tracking_summary"
+            referencedColumns: ["tracking_id"]
+          },
         ]
       }
       fraud_alerts: {
@@ -876,6 +883,42 @@ export type Database = {
           id?: string
           is_active?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      gmail_configurations: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          refresh_token: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          refresh_token?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          refresh_token?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1731,6 +1774,13 @@ export type Database = {
             referencedRelation: "tracked_emails"
             referencedColumns: ["tracking_id"]
           },
+          {
+            foreignKeyName: "tracked_links_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "v_tracking_summary"
+            referencedColumns: ["tracking_id"]
+          },
         ]
       }
       tracking_events: {
@@ -1783,6 +1833,13 @@ export type Database = {
             columns: ["tracking_id"]
             isOneToOne: false
             referencedRelation: "tracked_emails"
+            referencedColumns: ["tracking_id"]
+          },
+          {
+            foreignKeyName: "tracking_events_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "v_tracking_summary"
             referencedColumns: ["tracking_id"]
           },
         ]
@@ -2165,6 +2222,22 @@ export type Database = {
           tracking_id: string | null
           unique_links_clicked: number | null
           unique_opens: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      v_tracking_summary: {
+        Row: {
+          click_count: number | null
+          email_id: string | null
+          last_clicked_at: string | null
+          last_opened_at: string | null
+          open_count: number | null
+          recipient_email: string | null
+          sender_email: string | null
+          sent_at: string | null
+          subject: string | null
+          tracking_id: string | null
           user_id: string | null
         }
         Relationships: []

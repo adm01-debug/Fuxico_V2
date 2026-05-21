@@ -1,10 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { Chrome, Users, Mail, Eye } from "lucide-react";
+import { Globe, Users, Mail, Eye } from "lucide-react";
 import { fadeInUp, staggerContainer, scaleIn } from "./animations";
 
 const steps = [
-  { number: "1", title: "Instale a Extensão", description: "Adicione o FUXICO ao seu Chrome em segundos", icon: Chrome },
+  { number: "1", title: "Instale a Extensão", description: "Adicione o FUXICO ao seu Chrome em segundos", icon: Globe },
   { number: "2", title: "Faça Login", description: "Use sua conta para sincronizar seus dados", icon: Users },
   { number: "3", title: "Envie Emails", description: "O rastreamento é automático e invisível", icon: Mail },
   { number: "4", title: "Acompanhe", description: "Veja quem abriu seus emails em tempo real", icon: Eye }

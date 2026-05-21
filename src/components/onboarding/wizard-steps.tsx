@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
-  Mail, Eye, MousePointerClick, Bell, Chrome, Zap,
+  Mail, Eye, MousePointerClick, Bell, Globe, Zap,
   Check, Sparkles, Rocket, Star, Shield, BarChart3, Trophy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -90,7 +90,7 @@ export function createWizardSteps(
         <div className="space-y-4">
           {[
             { step: 1, title: 'Crie um rastreamento', description: 'Gere um pixel único para cada email', icon: <Mail className="h-5 w-5" />, color: 'from-blue-500 to-blue-600' },
-            { step: 2, title: 'Adicione ao seu email', description: 'Insira o pixel ou use nossa extensão', icon: <Chrome className="h-5 w-5" />, color: 'from-green-500 to-green-600' },
+            { step: 2, title: 'Adicione ao seu email', description: 'Insira o pixel ou use nossa extensão', icon: <Globe className="h-5 w-5" />, color: 'from-green-500 to-green-600' },
             { step: 3, title: 'Receba notificações', description: 'Alertas em tempo real quando abrem', icon: <Bell className="h-5 w-5" />, color: 'from-purple-500 to-purple-600' },
           ].map((item, index) => (
             <motion.div key={item.step} className="flex items-start gap-4 p-4 bg-muted/30 rounded-xl border border-border/50 hover:border-primary/30 transition-all"
@@ -146,7 +146,7 @@ export function createWizardSteps(
       id: 'extension',
       title: 'Extensão do Chrome',
       description: 'Rastreie emails automaticamente no Gmail',
-      icon: <Chrome className="h-8 w-8" />,
+      icon: <Globe className="h-8 w-8" />,
       color: 'from-green-500/20 to-green-500/5',
       content: (
         <div className="space-y-6 text-center">
@@ -155,7 +155,7 @@ export function createWizardSteps(
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-r from-green-400/20 to-blue-500/20 rounded-3xl blur-2xl" />
               <div className="relative h-24 w-24 rounded-2xl bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center shadow-2xl">
-                <Chrome className="h-12 w-12 text-white" />
+                <Globe className="h-12 w-12 text-white" />
               </div>
             </div>
           </motion.div>

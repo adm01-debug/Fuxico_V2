@@ -33,6 +33,7 @@ const Roles = lazy(() => import("./pages/Roles"));
 const TwoFactorAuth = lazy(() => import("./pages/TwoFactorAuth"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const TrackingAnalytics = lazy(() => import("./pages/TrackingAnalytics"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,6 +92,7 @@ const App = () => {
                           <Route path="/permissions" element={<PrivateRoute><Permissions /></PrivateRoute>} />
                           <Route path="/roles" element={<PrivateRoute><Roles /></PrivateRoute>} />
                           <Route path="/two-factor-auth" element={<PrivateRoute><TwoFactorAuth /></PrivateRoute>} />
+                          <Route path="/tracking" element={<PrivateRoute><TrackingAnalytics /></PrivateRoute>} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>
