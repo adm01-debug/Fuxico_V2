@@ -43,6 +43,7 @@ function EmailRow({
       whileHover={{ scale: 1.002, x: 2 }}
       whileTap={{ scale: 0.998 }}
       onClick={onSelect}
+      aria-pressed={isSelected}
       className={cn(
         "w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left transition-all duration-200 hover:bg-muted/50 hover-lift touch-target min-h-[4.5rem]",
         isSelected && "bg-primary/5 border-l-2 border-l-primary",
