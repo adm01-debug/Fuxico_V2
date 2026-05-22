@@ -1,3 +1,5 @@
+import { log } from './logger';
+
 /**
  * Sentry Error Tracking Configuration
  * @module lib/sentry
