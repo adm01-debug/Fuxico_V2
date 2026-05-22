@@ -69,12 +69,11 @@ export default function AuditLogs() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="container mx-auto py-6 space-y-6">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Shield className="w-8 h-8 text-primary" /> Auditoria do Sistema
-          </h1>
+    <div className="container mx-auto space-y-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <Shield className="w-8 h-8 text-primary" /> Auditoria de Segurança
+        </h1>
           <p className="text-muted-foreground">
             Acompanhe tentativas de autenticação, erros de sistema e eventos de segurança.
           </p>
@@ -163,8 +162,7 @@ export default function AuditLogs() {
               </div>
             )}
           </CardContent>
-        </Card>
-      </div>
-    </DashboardLayout>
+      </Card>
+    </div>
   );
 }
