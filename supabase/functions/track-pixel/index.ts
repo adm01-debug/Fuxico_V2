@@ -24,10 +24,17 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
   };
 
   try {
+    // 1. Detect prefetch and other non-user loads
+    const purpose = req.headers.get("purpose") || req.headers.get("x-purpose") || req.headers.get("sec-purpose") || "";
+    if (purpose === "prefetch" || purpose === "preview") {
+      return new Response(TRANSPARENT_GIF, { headers });
+    }
+
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const userAgent = req.headers.get("user-agent") || "";
     
-    const rateLimit = await checkRateLimit(clientIP, "pixel", 200, 60);
+    // 2. Rate limiting (stricter for pixel)
+    const rateLimit = await checkRateLimit(clientIP, "pixel", 50, 60);
     if (!rateLimit.allowed) return new Response(TRANSPARENT_GIF, { headers });
 
     const url = new URL(req.url);
@@ -40,9 +47,24 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
+    // 3. Deduplication: Check if there was an "open" event in the last 60 seconds from same IP/trackingId
+    const oneMinuteAgo = new Date(Date.now() - 60000).toISOString();
+    const { data: recentEvent } = await supabase
+      .from("tracking_events")
+      .select("id")
+      .eq("tracking_id", trackingId)
+      .eq("event_type", "open")
+      .eq("ip_address", clientIP)
+      .gt("created_at", oneMinuteAgo)
+      .maybeSingle();
+
+    if (recentEvent) {
+      return new Response(TRANSPARENT_GIF, { headers });
+    }
+
     const { data: email } = await supabase.from("tracked_emails").select("user_id, sender_email, sender_ip").eq("tracking_id", trackingId).single();
 
-    // Self-open detection: compare client IP with stored sender IP (not email)
+    // Self-open detection
     const isSelfOpen = !!(email?.sender_ip && clientIP === email.sender_ip);
 
     await supabase.from("tracking_events").insert({
@@ -58,3 +80,4 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     return new Response(TRANSPARENT_GIF, { headers: { ...headers, ...corsHeaders } });
   }
 }));
+
