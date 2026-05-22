@@ -142,7 +142,7 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
@@ -182,8 +182,8 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="steps">
-        <TabsList>
+      <Tabs defaultValue="steps" className="w-full">
+        <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden">
           <TabsTrigger value="steps" className="gap-2">
             <Mail className="h-4 w-4" />
             Etapas ({steps.length})

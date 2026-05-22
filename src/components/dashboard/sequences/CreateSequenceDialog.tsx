@@ -65,7 +65,7 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
         </DialogHeader>
         
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto px-1">
             <div className="space-y-2">
               <Label htmlFor="name">Nome da Sequência</Label>
               <Input
