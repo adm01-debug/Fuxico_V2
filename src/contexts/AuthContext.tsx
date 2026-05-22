@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useRef, useCallback, Re
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
+import { log } from '@/lib/logger';
 
 // Session idle timeout: 30 minutes of inactivity
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
@@ -24,15 +25,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const signOut = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      log.error('Error during sign out:', error);
+    }
+  }, []);
+
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     if (user) {
       idleTimerRef.current = setTimeout(async () => {
-        await supabase.auth.signOut();
+        await signOut();
         window.location.href = '/auth?reason=idle';
       }, IDLE_TIMEOUT_MS);
     }
-  }, [user]);
+  }, [user, signOut]);
 
   // Idle detection: reset timer on user activity
   useEffect(() => {
@@ -90,10 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
     return { error };
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
   };
 
   return (

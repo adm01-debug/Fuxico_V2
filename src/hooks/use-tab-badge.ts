@@ -32,7 +32,7 @@ export function useTabBadge(count: number) {
  * Creates a favicon with a notification badge
  * @param count - Number to display in badge
  */
-export function updateFaviconBadge(count: number) {
+export function updateFaviconBadge(count: number, signal?: { aborted: boolean }) {
   const favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
   if (!favicon) return;
 
@@ -49,6 +49,7 @@ export function updateFaviconBadge(count: number) {
   const img = new Image();
   img.crossOrigin = 'anonymous';
   img.onload = () => {
+    if (signal?.aborted) return;
     canvas.width = 32;
     canvas.height = 32;
 
@@ -82,9 +83,11 @@ export function useTabNotificationBadge(count: number) {
   useTabBadge(count);
 
   useEffect(() => {
-    updateFaviconBadge(count);
+    const signal = { aborted: false };
+    updateFaviconBadge(count, signal);
 
     return () => {
+      signal.aborted = true;
       updateFaviconBadge(0);
     };
   }, [count]);
