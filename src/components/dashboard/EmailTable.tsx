@@ -44,7 +44,7 @@ function EmailRow({
       whileTap={{ scale: 0.998 }}
       onClick={onSelect}
       className={cn(
-        "w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left transition-all duration-200 hover:bg-muted/50 hover-lift touch-target",
+        "w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left transition-all duration-200 hover:bg-muted/50 hover-lift touch-target min-h-[4.5rem]",
         isSelected && "bg-primary/5 border-l-2 border-l-primary",
         status === 'bounced' && "bg-email-bounced/5"
       )}
@@ -88,7 +88,7 @@ function EmailRow({
       {/* Stats - Responsive layout */}
       <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
         {/* Opens - Always visible */}
-        <Tooltip>
+        <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
             <div className="flex items-center gap-1 text-sm">
               <Eye className="h-4 w-4 text-muted-foreground" />

@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         window.location.href = '/auth?reason=idle';
       }, IDLE_TIMEOUT_MS);
     }
-  }, [user]);
+  }, [user, signOut]);
 
   // Idle detection: reset timer on user activity
   useEffect(() => {
@@ -92,9 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{

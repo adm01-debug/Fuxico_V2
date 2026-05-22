@@ -268,8 +268,8 @@ const Auth = () => {
               </Link>
               <p className="text-xs text-center text-muted-foreground/60">
                 Ao entrar, você concorda com nossos{' '}
-                <a href="#" className="underline underline-offset-2 hover:text-foreground transition-colors">Termos de Uso</a>{' '}e{' '}
-                <a href="#" className="underline underline-offset-2 hover:text-foreground transition-colors">Política de Privacidade</a>
+                <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">Termos de Uso</Link>{' '}e{' '}
+                <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">Política de Privacidade</Link>
               </p>
             </CardFooter>
           </Card>

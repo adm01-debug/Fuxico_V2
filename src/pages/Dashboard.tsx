@@ -13,11 +13,8 @@ export default function Dashboard() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth', { replace: true })
-    }
-  }, [user, loading, navigate])
+  // Redundant check removed as PrivateRoute handles this logic.
+  // This prevents double redirects and layout flashes.
 
   if (loading) {
     return <DashboardSkeleton />
