@@ -27,8 +27,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     if (user) {
-      idleTimerRef.current = setTimeout(() => {
-        supabase.auth.signOut();
+      idleTimerRef.current = setTimeout(async () => {
+        await supabase.auth.signOut();
+        window.location.href = '/auth?reason=idle';
       }, IDLE_TIMEOUT_MS);
     }
   }, [user]);

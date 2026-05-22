@@ -490,6 +490,7 @@ export const MENU_CATEGORIES = [
     { id: 'links', label: 'Links', icon: LinkIcon },
     { id: 'documents', label: 'Documentos', icon: FileText },
     { id: 'scheduling', label: 'Agendamento', icon: Clock },
+    { id: 'tracking_history', label: 'Histórico', icon: Activity },
   ]},
   { id: 'analytics', label: 'Analytics', icon: PieChart, items: [
     { id: 'reports', label: 'Relatórios', icon: BarChart3 },

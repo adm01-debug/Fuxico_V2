@@ -70,7 +70,7 @@ export function useRealtimeNotifications() {
 
     const { data: email } = await supabase
       .from('tracked_emails')
-      .select('recipient_email, subject, user_id')
+      .select('recipient_email, subject, user_id, tracking_id')
       .eq('tracking_id', trackingId)
       .single();
 
@@ -88,6 +88,25 @@ export function useRealtimeNotifications() {
       
       toast({ title, description });
       
+      // Update internal notification center state
+      try {
+        const stored = localStorage.getItem('notifications');
+        const notifications = stored ? JSON.parse(stored) : [];
+        const newNotif = {
+          id: crypto.randomUUID(),
+          type: 'open',
+          title,
+          message: description,
+          timestamp: new Date().toISOString(),
+          read: false,
+          metadata: { tracking_id: trackingId }
+        };
+        localStorage.setItem('notifications', JSON.stringify([newNotif, ...notifications].slice(0, 50)));
+        window.dispatchEvent(new StorageEvent('local-storage', { key: 'notifications' }));
+      } catch (err) {
+        log.error('Failed to sync notification to storage', err);
+      }
+      
       // Show desktop notification if enabled
       if (preferences?.desktop_enabled) {
         showDesktopNotification(title, description);
@@ -101,7 +120,7 @@ export function useRealtimeNotifications() {
 
     const { data: email } = await supabase
       .from('tracked_emails')
-      .select('recipient_email, subject, user_id')
+      .select('recipient_email, subject, user_id, tracking_id')
       .eq('tracking_id', trackingId)
       .single();
 
@@ -118,6 +137,25 @@ export function useRealtimeNotifications() {
       const description = `${email.recipient_email} clicou em um link`;
       
       toast({ title, description });
+      
+      // Update internal notification center state
+      try {
+        const stored = localStorage.getItem('notifications');
+        const notifications = stored ? JSON.parse(stored) : [];
+        const newNotif = {
+          id: crypto.randomUUID(),
+          type: 'click',
+          title,
+          message: description,
+          timestamp: new Date().toISOString(),
+          read: false,
+          metadata: { tracking_id: trackingId }
+        };
+        localStorage.setItem('notifications', JSON.stringify([newNotif, ...notifications].slice(0, 50)));
+        window.dispatchEvent(new StorageEvent('local-storage', { key: 'notifications' }));
+      } catch (err) {
+        log.error('Failed to sync notification to storage', err);
+      }
       
       // Show desktop notification if enabled
       if (preferences?.desktop_enabled) {
