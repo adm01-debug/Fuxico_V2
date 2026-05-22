@@ -16,7 +16,7 @@ import { CreateReportDialog, metricOptions } from './reports/CreateReportDialog'
 import { Plus } from 'lucide-react';
 
 function ReportsTabBase() {
-  const { reports, isLoading, createReport, toggleEnabled, addRecipient, removeRecipient, deleteReport } = useScheduledReports();
+  const { reports = [], isLoading, createReport, toggleEnabled, addRecipient, removeRecipient, deleteReport } = useScheduledReports();
   const [newRecipient, setNewRecipient] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -110,7 +110,7 @@ function ReportsTabBase() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {reports.length === 0 ? (
+          {(!reports || reports.length === 0) ? (
             <EmptyState type="reports" title="Nenhum relatório agendado"
               description="Configure relatórios automáticos para receber métricas importantes diretamente no seu email."
               action={<Button onClick={() => setIsCreateOpen(true)} className="gap-2"><Plus className="h-4 w-4" />Agendar Relatório</Button>} />
@@ -172,10 +172,10 @@ function ReportsTabBase() {
         <CardHeader><CardTitle className="text-base">Estatísticas Rápidas</CardTitle></CardHeader>
         <CardContent>
           <div className="grid grid-cols-4 gap-4">
-            <div className="text-center"><p className="text-2xl font-bold text-primary">{reports.length}</p><p className="text-xs text-muted-foreground">Relatórios configurados</p></div>
-            <div className="text-center"><p className="text-2xl font-bold text-green-600">{reports.filter(r => r.enabled).length}</p><p className="text-xs text-muted-foreground">Ativos</p></div>
-            <div className="text-center"><p className="text-2xl font-bold">{reports.reduce((acc, r) => acc + r.recipients.length, 0)}</p><p className="text-xs text-muted-foreground">Destinatários</p></div>
-            <div className="text-center"><p className="text-2xl font-bold">{reports.filter(r => r.last_sent_at).length}</p><p className="text-xs text-muted-foreground">Já enviados</p></div>
+            <div className="text-center"><p className="text-2xl font-bold text-primary">{reports?.length || 0}</p><p className="text-xs text-muted-foreground">Relatórios configurados</p></div>
+            <div className="text-center"><p className="text-2xl font-bold text-green-600">{reports?.filter(r => r.enabled).length || 0}</p><p className="text-xs text-muted-foreground">Ativos</p></div>
+            <div className="text-center"><p className="text-2xl font-bold">{reports?.reduce((acc, r) => acc + (r.recipients?.length || 0), 0) || 0}</p><p className="text-xs text-muted-foreground">Destinatários</p></div>
+            <div className="text-center"><p className="text-2xl font-bold">{reports?.filter(r => r.last_sent_at).length || 0}</p><p className="text-xs text-muted-foreground">Já enviados</p></div>
           </div>
         </CardContent>
       </Card>

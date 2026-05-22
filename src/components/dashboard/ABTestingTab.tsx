@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 
 function ABTestingTabBase() {
-  const { tests, isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
+  const { tests = [], isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newTest, setNewTest] = useState({
     name: '',
@@ -172,7 +172,7 @@ function ABTestingTabBase() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {tests.length === 0 ? (
+          {(!tests || tests.length === 0) ? (
             <EmptyState
               type="abtesting"
               title="Nenhum teste A/B criado"
