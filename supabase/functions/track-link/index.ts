@@ -44,11 +44,15 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     }
 
     // 2. Rate limiting
-    const rateLimit = await checkRateLimit(clientIP, "track-link", 30, 60);
-    if (!rateLimit.allowed) return Response.redirect(link.original_url, 302);
+    const rateLimit = await checkRateLimit(clientIP, "track-link", 15, 60); // Reduced from 30 to 15 per minute
+    if (!rateLimit.allowed) {
+      console.warn(`[RateLimit] Link block for IP: ${clientIP}`);
+      return Response.redirect(link.original_url, 302);
+    }
 
-    // 3. Deduplication: Check if there was a "click" event in the last 10 seconds for same link/IP
-    const tenSecondsAgo = new Date(Date.now() - 10000).toISOString();
+    // 3. Robust Deduplication: Check if there was a "click" event in the last 30 seconds for same link/IP/trackingId
+    // Increased from 10s to 30s
+    const dedupeWindow = new Date(Date.now() - 30000).toISOString();
     const { data: recentEvent } = await supabase
       .from("tracking_events")
       .select("id")
@@ -56,7 +60,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       .eq("event_type", "click")
       .eq("ip_address", clientIP)
       .eq("link_url", link.original_url)
-      .gt("created_at", tenSecondsAgo)
+      .gt("created_at", dedupeWindow)
       .maybeSingle();
 
     if (!recentEvent) {

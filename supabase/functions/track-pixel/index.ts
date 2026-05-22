@@ -34,8 +34,11 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     const userAgent = req.headers.get("user-agent") || "";
     
     // 2. Rate limiting (stricter for pixel)
-    const rateLimit = await checkRateLimit(clientIP, "pixel", 50, 60);
-    if (!rateLimit.allowed) return new Response(TRANSPARENT_GIF, { headers });
+    const rateLimit = await checkRateLimit(clientIP, "pixel", 20, 60); // Reduced from 50 to 20 per minute
+    if (!rateLimit.allowed) {
+      console.warn(`[RateLimit] Pixel block for IP: ${clientIP}`);
+      return new Response(TRANSPARENT_GIF, { headers });
+    }
 
     const url = new URL(req.url);
     const trackingId = url.searchParams.get("t");
@@ -47,15 +50,16 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
-    // 3. Deduplication: Check if there was an "open" event in the last 60 seconds from same IP/trackingId
-    const oneMinuteAgo = new Date(Date.now() - 60000).toISOString();
+    // 3. Robust Deduplication: Check if there was an "open" event in the last 5 minutes from same IP/trackingId
+    // Increased from 60s to 300s to handle aggressive mail client pre-fetching and repeat opens
+    const dedupeWindow = new Date(Date.now() - 300000).toISOString();
     const { data: recentEvent } = await supabase
       .from("tracking_events")
       .select("id")
       .eq("tracking_id", trackingId)
       .eq("event_type", "open")
       .eq("ip_address", clientIP)
-      .gt("created_at", oneMinuteAgo)
+      .gt("created_at", dedupeWindow)
       .maybeSingle();
 
     if (recentEvent) {
