@@ -108,18 +108,18 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onBack}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+          <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h2 className="text-2xl font-bold">{sequence.name}</h2>
+          <div className="min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold truncate">{sequence.name}</h2>
             {sequence.description && (
-              <p className="text-muted-foreground">{sequence.description}</p>
+              <p className="text-sm text-muted-foreground truncate">{sequence.description}</p>
             )}
           </div>
-          <Badge variant={status.variant}>{status.label}</Badge>
+          <Badge variant={status.variant} className="shrink-0">{status.label}</Badge>
         </div>
         <div className="flex items-center gap-2">
           {sequence.status !== 'archived' && (
@@ -142,7 +142,7 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
@@ -182,8 +182,8 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="steps">
-        <TabsList>
+      <Tabs defaultValue="steps" className="w-full">
+        <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden">
           <TabsTrigger value="steps" className="gap-2">
             <Mail className="h-4 w-4" />
             Etapas ({steps.length})

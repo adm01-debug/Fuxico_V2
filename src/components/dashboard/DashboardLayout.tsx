@@ -339,8 +339,8 @@ export default function DashboardLayout() {
                 {/* Notification Center */}
                 <NotificationCenter />
 
-                {/* Settings button - Only on Home */}
-                {activeTab === 'home' && (
+                {/* Settings button - Hidden for now or can be moved to sidebar */}
+                {false && activeTab === 'home' && (
                   <TooltipWrapper content="Configurações do dashboard">
                     <Button variant="ghost" size="icon" className="h-10 w-10">
                       <Settings2 className="h-5 w-5" />

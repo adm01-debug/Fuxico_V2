@@ -17,6 +17,8 @@ import { AuthHeader } from '@/components/auth/AuthHeader';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { SignupForm } from '@/components/auth/SignupForm';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const formatLockoutTime = (seconds: number): string => {
   if (seconds < 60) return `${seconds} segundos`;
@@ -43,6 +45,14 @@ const Auth = () => {
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isBreached, setIsBreached] = useState<boolean | null>(null);
+  const [authReason, setAuthReason] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reason') === 'idle') {
+      setAuthReason('Sua sessão expirou por inatividade. Por favor, entre novamente.');
+    }
+  }, []);
 
   const passwordStrength = useMemo(() => {
     const pwRequirements = [
@@ -190,6 +200,13 @@ const Auth = () => {
         <AuthHeader />
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+          {authReason && (
+            <Alert variant="destructive" className="mb-4 bg-destructive/10 border-destructive/20 text-destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Sessão Expirada</AlertTitle>
+              <AlertDescription>{authReason}</AlertDescription>
+            </Alert>
+          )}
           <Card className="backdrop-blur-xl bg-card/80 border-border/50 shadow-2xl">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-xl font-display">Bem-vindo</CardTitle>

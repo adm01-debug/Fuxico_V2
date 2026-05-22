@@ -37,6 +37,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRealtimeNotifications } from '@/hooks/use-realtime-notifications';
 
 interface Notification {
   id: string;
@@ -108,6 +109,9 @@ function NotificationCenterBase() {
   const [showSettings, setShowSettings] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { permission, isSupported, requestPermission, showNotification } = useDesktopNotifications();
+  
+  // Use global realtime notifications hook to ensure consistency
+  useRealtimeNotifications();
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
