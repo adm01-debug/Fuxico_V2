@@ -37,7 +37,7 @@ const mockSentry = {
     return 'mock-event-id';
   },
   captureMessage: (message: string, level: string = 'info') => {
-    console.log(`[Sentry] Message (${level}):`, message);
+    log.info(`[Sentry] Message (${level}):`, { message });
     return 'mock-event-id';
   },
   setUser: (user: SentryUser | null) => {

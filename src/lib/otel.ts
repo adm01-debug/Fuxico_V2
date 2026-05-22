@@ -1,8 +1,10 @@
 // Simplified OpenTelemetry implementation for sandbox
 // In production, this would use @opentelemetry/sdk-trace-web and OTLPTraceExporter
 
+import { log } from './logger';
+
 export const initTracing = () => {
-  console.log("[OTel] Tracing initialized (simulated)");
+  log.info("[OTel] Tracing initialized (simulated)");
 };
 
 export const startSpan = (name: string) => {
@@ -10,7 +12,7 @@ export const startSpan = (name: string) => {
   return {
     end: () => {
       const duration = performance.now() - startTime;
-      console.log(`[OTel Span] ${name} took ${duration.toFixed(2)}ms`);
+      log.debug(`[OTel Span] ${name} took ${duration.toFixed(2)}ms`);
       // Export to metrics if needed
     }
   };
