@@ -182,6 +182,42 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bitrix24_config: {
         Row: {
           auto_create_deals: boolean
@@ -2445,6 +2481,16 @@ export type Database = {
       is_country_allowed: { Args: { _country_code: string }; Returns: boolean }
       is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
       is_ip_whitelisted: { Args: { _ip_address: string }; Returns: boolean }
+      log_audit_event: {
+        Args: {
+          p_description: string
+          p_event_type: string
+          p_metadata?: Json
+          p_severity: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       log_security_event: {
         Args: {
           _description: string

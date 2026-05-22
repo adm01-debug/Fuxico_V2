@@ -31,7 +31,7 @@ const LinksTab = lazy(() => import('@/components/dashboard/LinksTab'))
 const DocumentsTab = lazy(() => import('@/components/dashboard/DocumentsTab'))
 const ReportsTab = lazy(() => import('@/components/dashboard/ReportsTab'))
 const TemplatesTab = lazy(() => import('@/components/dashboard/TemplatesTab'))
-const AuditTab = lazy(() => import('@/components/dashboard/AuditTab'))
+const AuditTab = lazy(() => import('@/pages/AuditLogs'))
 const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'))
 const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'))
 const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
@@ -120,7 +120,7 @@ const TAB_LABELS: Record<TabId, string> = {
   unsubscribe: 'Exclusão',
   sequences: 'Sequências',
   templates: 'Templates',
-  audit: 'Auditoria',
+  audit: 'Segurança',
   users: 'Usuários',
   config: 'Configuração',
   bitrix: 'Bitrix24',
