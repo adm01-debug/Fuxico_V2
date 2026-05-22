@@ -48,7 +48,9 @@ export function updateFaviconBadge(count: number) {
 
   const img = new Image();
   img.crossOrigin = 'anonymous';
+  let isMounted = true;
   img.onload = () => {
+    if (!isMounted) return;
     canvas.width = 32;
     canvas.height = 32;
 
