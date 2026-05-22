@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DashboardLayout } from "@/components/layouts/DashboardLayout";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { AlertCircle, CheckCircle2, Shield, Info, Filter } from "lucide-react";
@@ -134,15 +134,15 @@ export default function AuditLogs() {
                     {filteredLogs.map((log) => (
                       <TableRow key={log.id}>
                         <TableCell className="whitespace-nowrap font-medium">
-                          {format(new Date(log.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}
+                          {log.created_at ? format(new Date(log.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }) : 'N/A'}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
                           {getEventTypeLabel(log.event_type)}
                         </TableCell>
                         <TableCell>
-                          {getSeverityBadge(log.severity)}
+                          {getSeverityBadge(log.severity || 'info')}
                         </TableCell>
-                        <TableCell className="max-w-[300px] truncate" title={log.description}>
+                        <TableCell className="max-w-[300px] truncate" title={log.description || ''}>
                           {log.description}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">
