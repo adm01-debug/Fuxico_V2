@@ -1,0 +1,60 @@
+# Alerts-as-code — import in Sentry / Grafana / BetterStack
+# Every alert has: name, condition, severity, channel, runbook.
+
+alerts:
+  - name: api_p95_latency_high
+    condition: p95(http.request.duration{route="/functions/*"}) > 500ms for 5m
+    severity: warning
+    channel: slack#alerts-warn
+    runbook: docs/RUNBOOK.md#latency
+
+  - name: api_error_rate_critical
+    condition: rate(http.status="5xx") > 1% for 3m
+    severity: critical
+    channel: pagerduty
+    runbook: docs/RUNBOOK.md#5xx-spike
+
+  - name: tracking_ingest_stalled
+    condition: rate(tracking_events_inserted[5m]) == 0 and rate(tracked_emails_created[5m]) > 0
+    severity: critical
+    channel: pagerduty
+    runbook: docs/RUNBOOK.md#tracking-stalled
+
+  - name: bounce_rate_domain_high
+    condition: bounce_rate{domain=~".+"} > 10%
+    severity: warning
+    channel: slack#deliverability
+    runbook: docs/RUNBOOK.md#bounce
+
+  - name: auth_lockouts_spike
+    condition: increase(login_lockouts_total[10m]) > 20
+    severity: critical
+    channel: pagerduty
+    runbook: docs/RUNBOOK.md#auth-attack
+
+  - name: rls_denied_spike
+    condition: increase(pg_rls_denied_total[10m]) > 100
+    severity: critical
+    channel: pagerduty
+    runbook: docs/RUNBOOK.md#rls-breach
+
+  - name: edge_function_cold_start
+    condition: avg(edge_function_cold_start_ms) > 2000 for 15m
+    severity: warning
+    channel: slack#perf
+
+  - name: mv_refresh_lag
+    condition: time() - email_stats_mv_last_refresh > 900
+    severity: warning
+    channel: slack#data
+
+  - name: db_connection_saturation
+    condition: pg_stat_activity_count / pg_settings_max_connections > 0.8
+    severity: critical
+    channel: pagerduty
+
+  - name: budget_burn_rate
+    condition: slo_burn_rate_1h > 14.4  # 2% of 30d in 1h
+    severity: critical
+    channel: pagerduty
+    runbook: docs/SLO.md
