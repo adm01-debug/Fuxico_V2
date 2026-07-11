@@ -1,9 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// Mock virtual do pacote opcional para permitir simular
-// diferentes cenários (ausência / falha / sucesso).
+// Fornece um stub virtual do pacote opcional para os testes.
+// Sem isso, o Vite tenta resolver o módulo em tempo de transform e falha.
 vi.mock('@upstash/redis', () => {
-  throw new Error('module not installed');
+  class Redis {
+    async get(_k: string) { return 'mocked-value'; }
+    async set(_k: string, _v: unknown, _opts?: unknown) { /* noop */ }
+  }
+  return { Redis };
 });
 
 async function loadFresh() {
@@ -30,11 +34,14 @@ describe('upstash-cache › graceful degradation', () => {
     expect(await getCache()).toBeNull();
   });
 
-  it('retorna null quando o pacote @upstash/redis não pode ser carregado', async () => {
+  it('inicializa o cache quando URL e TOKEN estão configurados', async () => {
     vi.stubEnv('VITE_UPSTASH_REDIS_REST_URL', 'https://example.upstash.io');
     vi.stubEnv('VITE_UPSTASH_REDIS_REST_TOKEN', 'token-xyz');
     const { getCache } = await loadFresh();
-    // Sem @upstash/redis disponível o dynamic import falha → cai no catch → null.
-    expect(await getCache()).toBeNull();
+    const cache = await getCache();
+    expect(cache).not.toBeNull();
+    expect(await cache!.get('foo')).toBe('mocked-value');
+    await expect(cache!.set('foo', 'bar', 60)).resolves.toBeUndefined();
+    await expect(cache!.set('foo', 'bar')).resolves.toBeUndefined();
   });
 });
