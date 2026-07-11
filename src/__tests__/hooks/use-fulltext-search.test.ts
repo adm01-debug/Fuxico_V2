@@ -23,7 +23,7 @@ describe('useFulltextSearch - XSS prevention', () => {
   }
 
   it('should escape HTML entities in highlighted text', () => {
-    const result = highlightText('<script>alert("xss")</script>', 'script');
+    const result = highlightText('<script>alert("xss")</script>', 'alert');
     expect(result).not.toContain('<script>');
     expect(result).toContain('&lt;script&gt;');
   });
