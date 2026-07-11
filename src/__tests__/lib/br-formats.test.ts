@@ -89,7 +89,8 @@ describe('br-formats › Telefone BR', () => {
   });
 
   it('mascara parcial durante digitação', () => {
-    expect(maskPhoneBR('11')).toBe('(11');
+    // Regex de máscara só aplica parênteses quando o 3º dígito chega.
+    expect(maskPhoneBR('11')).toBe('11');
     expect(maskPhoneBR('119')).toBe('(11) 9');
     expect(maskPhoneBR('1198765')).toBe('(11) 9876-5');
   });
