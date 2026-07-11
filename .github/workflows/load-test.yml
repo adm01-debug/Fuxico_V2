@@ -1,0 +1,93 @@
+name: Load Test (k6 - tracking endpoints)
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/track-open/**'
+      - 'supabase/functions/track-click/**'
+      - 'tests/load/**'
+      - '.github/workflows/load-test.yml'
+  schedule:
+    # Toda segunda 06:00 UTC — perfil "load" para detectar regressão semanal.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Cenário k6 (smoke|load|stress)'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke
+          - load
+          - stress
+
+jobs:
+  k6:
+    name: k6 - ${{ github.event.inputs.scenario || (github.event_name == 'schedule' && 'load' || 'smoke') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+            --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
+            | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update && sudo apt-get install -y k6
+
+      - name: Executar k6
+        env:
+          BASE_URL: ${{ secrets.LOAD_TEST_BASE_URL }}
+          K6_SCENARIO: ${{ github.event.inputs.scenario || (github.event_name == 'schedule' && 'load' || 'smoke') }}
+        run: |
+          if [ -z "$BASE_URL" ]; then
+            echo "::warning::LOAD_TEST_BASE_URL não configurado; usando fallback público."
+            export BASE_URL="https://blopallcxuotfutblkoe.supabase.co"
+          fi
+          k6 run tests/load/track-endpoints.k6.js --summary-export=tests/load/summary.json
+
+      - name: Upload de resultado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-summary-${{ github.run_id }}
+          path: |
+            tests/load/summary.json
+            tests/load/last-run-summary.json
+          retention-days: 30
+
+      - name: Comentar resumo no PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const s = JSON.parse(fs.readFileSync('tests/load/summary.json', 'utf8'));
+              const p95Open = s.metrics?.track_open_latency?.['p(95)']?.toFixed?.(1) ?? 'n/a';
+              const p95Click = s.metrics?.track_click_latency?.['p(95)']?.toFixed?.(1) ?? 'n/a';
+              const err = ((s.metrics?.tracking_errors?.rate ?? 0) * 100).toFixed(3);
+              const body = [
+                '### 🚀 k6 Load Test',
+                '',
+                `| Métrica | Valor | SLO |`,
+                `|---|---|---|`,
+                `| p95 /track-open | ${p95Open} ms | < 100 ms |`,
+                `| p95 /track-click | ${p95Click} ms | < 150 ms |`,
+                `| Taxa de erro | ${err} % | < 0.5 % |`,
+              ].join('\n');
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            } catch (e) {
+              core.warning(`Falha ao publicar resumo k6: ${e.message}`);
+            }
