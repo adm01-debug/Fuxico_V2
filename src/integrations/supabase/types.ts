@@ -2548,8 +2548,6 @@ export type Database = {
       }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
       update_contact_score: {
         Args: { p_email: string; p_user_id: string }
         Returns: undefined
