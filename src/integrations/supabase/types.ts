@@ -2548,6 +2548,8 @@ export type Database = {
       }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
+      run_retention_cleanup: { Args: never; Returns: undefined }
+      run_tracking_events_retention: { Args: never; Returns: undefined }
       update_contact_score: {
         Args: { p_email: string; p_user_id: string }
         Returns: undefined
