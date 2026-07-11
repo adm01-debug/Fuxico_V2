@@ -175,6 +175,6 @@ describe('DashboardLayout - Features', () => {
   });
 
   it('should support tab transitions', () => {
-    expect(layoutContent).toContain('isTransitioning');
+    expect(layoutContent).toContain('AnimatePresence');
   });
 });
