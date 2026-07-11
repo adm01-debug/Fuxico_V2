@@ -15,6 +15,7 @@ import { PrivateRoute } from "@/components/PrivateRoute";
 import { DashboardSkeleton as PageLoader } from "@/components/ui/skeletons";
 import { initSentry } from "@/lib/sentry";
 import { initTracing } from "@/lib/otel";
+import { RouteTransitions } from "@/components/navigation/RouteTransitions";
 import { initWebVitals } from "@/lib/web-vitals";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -76,27 +77,29 @@ const App = () => {
                   <BrowserRouter>
                     <main id="main-content">
                       <Suspense fallback={<PageLoader />}>
-                        <Routes>
-                          {/* Public routes */}
-                          <Route path="/" element={<Index />} />
-                          <Route path="/auth" element={<Auth />} />
-                          <Route path="/pricing" element={<Pricing />} />
-                          <Route path="/privacy" element={<Privacy />} />
-                          <Route path="/forgot-password" element={<ForgotPassword />} />
-                          <Route path="/reset-password" element={<ResetPassword />} />
-                          <Route path="/verify-email" element={<VerifyEmail />} />
-                          <Route path="/mfa-verify" element={<MFAVerify />} />
-                          {/* Protected routes - require authentication */}
-                          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                          <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-                          <Route path="/security" element={<PrivateRoute><Security /></PrivateRoute>} />
-                          <Route path="/permissions" element={<PrivateRoute><Permissions /></PrivateRoute>} />
-                          <Route path="/roles" element={<PrivateRoute><Roles /></PrivateRoute>} />
-                          <Route path="/two-factor-auth" element={<PrivateRoute><TwoFactorAuth /></PrivateRoute>} />
-                          <Route path="/tracking" element={<PrivateRoute><TrackingAnalytics /></PrivateRoute>} />
-                          <Route path="/audit" element={<PrivateRoute><AuditLogs /></PrivateRoute>} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
+                        <RouteTransitions>
+                          <Routes>
+                            {/* Public routes */}
+                            <Route path="/" element={<Index />} />
+                            <Route path="/auth" element={<Auth />} />
+                            <Route path="/pricing" element={<Pricing />} />
+                            <Route path="/privacy" element={<Privacy />} />
+                            <Route path="/forgot-password" element={<ForgotPassword />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
+                            <Route path="/verify-email" element={<VerifyEmail />} />
+                            <Route path="/mfa-verify" element={<MFAVerify />} />
+                            {/* Protected routes - require authentication */}
+                            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+                            <Route path="/security" element={<PrivateRoute><Security /></PrivateRoute>} />
+                            <Route path="/permissions" element={<PrivateRoute><Permissions /></PrivateRoute>} />
+                            <Route path="/roles" element={<PrivateRoute><Roles /></PrivateRoute>} />
+                            <Route path="/two-factor-auth" element={<PrivateRoute><TwoFactorAuth /></PrivateRoute>} />
+                            <Route path="/tracking" element={<PrivateRoute><TrackingAnalytics /></PrivateRoute>} />
+                            <Route path="/audit" element={<PrivateRoute><AuditLogs /></PrivateRoute>} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </RouteTransitions>
                       </Suspense>
                     </main>
                   </BrowserRouter>

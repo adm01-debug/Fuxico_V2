@@ -347,6 +347,7 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           created_at?: string
@@ -356,6 +357,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           created_at?: string
@@ -365,6 +367,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -648,6 +651,7 @@ export type Database = {
           trigger_type: string
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           created_at?: string
@@ -662,6 +666,7 @@ export type Database = {
           trigger_type?: string
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           created_at?: string
@@ -676,6 +681,7 @@ export type Database = {
           trigger_type?: string
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -690,6 +696,7 @@ export type Database = {
           updated_at: string
           usage_count: number
           user_id: string
+          version: number
         }
         Insert: {
           body: string
@@ -701,6 +708,7 @@ export type Database = {
           updated_at?: string
           usage_count?: number
           user_id: string
+          version?: number
         }
         Update: {
           body?: string
@@ -712,6 +720,7 @@ export type Database = {
           updated_at?: string
           usage_count?: number
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -1729,6 +1738,7 @@ export type Database = {
           subject: string | null
           tracking_id: string
           user_id: string | null
+          version: number
         }
         Insert: {
           bounce_detected_at?: string | null
@@ -1744,6 +1754,7 @@ export type Database = {
           subject?: string | null
           tracking_id: string
           user_id?: string | null
+          version?: number
         }
         Update: {
           bounce_detected_at?: string | null
@@ -1759,6 +1770,7 @@ export type Database = {
           subject?: string | null
           tracking_id?: string
           user_id?: string | null
+          version?: number
         }
         Relationships: [
           {

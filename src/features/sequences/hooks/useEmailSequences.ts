@@ -82,7 +82,7 @@ export function useEmailSequences() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as EmailSequence[];
+      return data as unknown as EmailSequence[];
     },
     enabled: !!user?.id,
   });
@@ -107,7 +107,7 @@ export function useSequenceDetail(sequenceId: string | undefined) {
       if (enrollmentsResult.error) throw enrollmentsResult.error;
 
       return {
-        sequence: sequenceResult.data as EmailSequence,
+        sequence: sequenceResult.data as unknown as EmailSequence,
         steps: stepsResult.data as SequenceStep[],
         enrollments: enrollmentsResult.data as SequenceEnrollment[],
       };
@@ -136,7 +136,7 @@ export function useCreateSequence() {
         .single();
 
       if (error) throw error;
-      return sequence as EmailSequence;
+      return sequence as unknown as EmailSequence;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['email-sequences'] });
@@ -161,7 +161,7 @@ export function useUpdateSequence() {
         .single();
 
       if (error) throw error;
-      return sequence as EmailSequence;
+      return sequence as unknown as EmailSequence;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['email-sequences'] });
