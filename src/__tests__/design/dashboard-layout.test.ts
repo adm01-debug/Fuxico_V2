@@ -51,7 +51,7 @@ describe('DashboardLayout - Tab Labels', () => {
     unsubscribe: 'Exclusão',
     sequences: 'Sequências',
     templates: 'Templates',
-    audit: 'Auditoria',
+    audit: 'Segurança',
     users: 'Usuários',
     webhooks: 'Webhooks',
     trends: 'Tendências',
@@ -175,6 +175,6 @@ describe('DashboardLayout - Features', () => {
   });
 
   it('should support tab transitions', () => {
-    expect(layoutContent).toContain('isTransitioning');
+    expect(layoutContent).toContain('AnimatePresence');
   });
 });

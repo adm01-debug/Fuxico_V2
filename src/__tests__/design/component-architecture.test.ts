@@ -109,56 +109,68 @@ describe('Dashboard Components', () => {
 
 describe('Security Components', () => {
   const securityComponents = [
-    'security/SecurityDashboard.tsx',
-    'security/ActiveSessionsList.tsx',
-    'security/BlockedIPsPanel.tsx',
-    'security/IPWhitelistPanel.tsx',
-    'security/MFASettingsPanel.tsx',
-    'security/SecurityAlertsList.tsx',
-    'security/SecurityEventsList.tsx',
-    'security/SecurityOverviewCards.tsx',
+    'SecurityDashboard.tsx',
+    'ActiveSessionsList.tsx',
+    'BlockedIPsPanel.tsx',
+    'IPWhitelistPanel.tsx',
+    'MFASettingsPanel.tsx',
+    'SecurityAlertsList.tsx',
+    'SecurityEventsList.tsx',
+    'SecurityOverviewCards.tsx',
   ];
 
   securityComponents.forEach(comp => {
-    it(`should have ${comp}`, () => {
-      const exists = fs.existsSync(path.resolve(__dirname, '../../components/', comp));
+    it(`should have features/security/components/${comp}`, () => {
+      const exists = fs.existsSync(path.resolve(__dirname, '../../features/security/components/', comp));
       expect(exists).toBe(true);
     });
   });
 });
 
 describe('Hooks Architecture', () => {
-  const requiredHooks = [
-    'hooks/use-tracking.ts',
-    'hooks/use-saved-filters.ts',
-    'hooks/use-debounced-value.ts',
-    'hooks/use-local-storage.ts',
-    'hooks/use-online-status.ts',
-    'hooks/use-media-query.ts',
-    'hooks/use-keyboard-navigation.ts',
-    'hooks/use-realtime-notifications.ts',
-    'hooks/use-bounce-alerts.ts',
-    'hooks/use-lead-scoring.ts',
-    'hooks/use-campaigns.ts',
-    'hooks/use-feature-flags.ts',
-    'hooks/use-geo-stats.ts',
-    'hooks/use-deliverability.ts',
-    'hooks/use-tracked-links.ts',
-    'hooks/use-tracked-documents.ts',
-    'hooks/use-ab-tests.ts',
-    'hooks/use-webhook.ts',
-    'hooks/use-user-roles.ts',
-    'hooks/use-fulltext-search.ts',
-    'hooks/use-trend-prediction.ts',
-    'hooks/use-virtual-list.ts',
-    'hooks/use-tab-badge.ts',
-    'hooks/use-desktop-notifications.ts',
-    'hooks/use-prefetch-route.ts',
+  // Feature-based hooks live under src/features/<domain>/hooks/
+  const featureHooks: Array<[string, string]> = [
+    ['features/tracking/hooks', 'use-tracking.ts'],
+    ['features/security/hooks', 'use-user-roles.ts'],
   ];
 
-  requiredHooks.forEach(hook => {
-    it(`should have ${hook}`, () => {
-      const exists = fs.existsSync(path.resolve(__dirname, '../../', hook));
+  // Cross-cutting hooks remain under src/hooks/
+  const sharedHooks = [
+    'use-saved-filters.ts',
+    'use-debounced-value.ts',
+    'use-local-storage.ts',
+    'use-online-status.ts',
+    'use-media-query.ts',
+    'use-keyboard-navigation.ts',
+    'use-realtime-notifications.ts',
+    'use-bounce-alerts.ts',
+    'use-lead-scoring.ts',
+    'use-campaigns.ts',
+    'use-feature-flags.ts',
+    'use-geo-stats.ts',
+    'use-deliverability.ts',
+    'use-tracked-links.ts',
+    'use-tracked-documents.ts',
+    'use-ab-tests.ts',
+    'use-webhook.ts',
+    'use-fulltext-search.ts',
+    'use-trend-prediction.ts',
+    'use-virtual-list.ts',
+    'use-tab-badge.ts',
+    'use-desktop-notifications.ts',
+    'use-prefetch-route.ts',
+  ];
+
+  featureHooks.forEach(([dir, file]) => {
+    it(`should have ${dir}/${file}`, () => {
+      const exists = fs.existsSync(path.resolve(__dirname, '../../', dir, file));
+      expect(exists).toBe(true);
+    });
+  });
+
+  sharedHooks.forEach(hook => {
+    it(`should have hooks/${hook}`, () => {
+      const exists = fs.existsSync(path.resolve(__dirname, '../../hooks/', hook));
       expect(exists).toBe(true);
     });
   });
