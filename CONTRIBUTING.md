@@ -1,96 +1,42 @@
-# Guia de Contribuição
+# CONTRIBUTING — FUXICO
 
-Obrigado por considerar contribuir com o FUXICO! 🎉
+## Code Review SLA
 
-## 📋 Como Contribuir
+| Prioridade | Primeira resposta | Merge target |
+|------------|-------------------|---------------|
+| 🔴 Hotfix (P0) | 30 min | 2 horas |
+| 🟠 P1 (bloqueia release) | 4 horas | 24 horas |
+| 🟡 P2 (feature normal) | 1 dia útil | 3 dias úteis |
+| 🟢 P3 (nice-to-have) | 3 dias úteis | 1 semana |
 
-### 1. Fork e Clone
+## Definition of Done
 
-```bash
-git clone https://github.com/SEU-USUARIO/fuxico.git
-cd fuxico
-npm install
-```
+- [ ] Testes unitários e de integração passando (`bun run test`)
+- [ ] `bun run typecheck` e `bun run lint` sem erros
+- [ ] Cobertura ≥ 80% (SonarJS)
+- [ ] Migrations com RLS + GRANTS explícitos
+- [ ] Documentação atualizada (README, ADR se decisão arquitetural)
+- [ ] Screenshots ou vídeo em PRs de UI
 
-### 2. Crie uma Branch
+## Hotfix Procedure
 
-```bash
-git checkout -b feature/minha-feature
-# ou
-git checkout -b fix/meu-bugfix
-```
+1. **Detecção**: alerta Sentry / usuário / monitoramento aciona P0.
+2. **Branch**: `hotfix/<slug>` a partir de `main` (nunca a partir de `develop`).
+3. **Correção mínima**: aplicar o menor patch possível — nada de refactor.
+4. **Teste obrigatório**: incluir teste regressivo que reproduza o bug ANTES do fix.
+5. **PR expedito**: revisor sênior + owner de módulo assinam em até 30 min.
+6. **Deploy imediato**: após merge, Deploy Ops promove para produção.
+7. **Postmortem**: 24h após incidente, seguindo `docs/POSTMORTEM_TEMPLATE.md`.
+8. **Retro**: incluir no runbook (`docs/RUNBOOK.md`) se pattern novo.
 
-### 3. Faça suas Alterações
+## Postmortem Cultura Mensal
 
-- Siga os padrões de código existentes
-- Adicione testes para novas funcionalidades
-- Atualize a documentação se necessário
+- Toda 1ª sexta do mês: revisão dos incidentes do mês anterior.
+- Ação: pelo menos 1 melhoria estrutural extraída de cada incidente.
+- Documento: `docs/postmortems/YYYY-MM-DD-<slug>.md`.
 
-### 4. Commit
+## Convenções
 
-Usamos [Conventional Commits](https://www.conventionalcommits.org/):
-
-```bash
-git commit -m "feat: adicionar nova funcionalidade"
-git commit -m "fix: corrigir bug no rastreamento"
-git commit -m "docs: atualizar README"
-git commit -m "test: adicionar testes para hook"
-git commit -m "chore: atualizar dependências"
-```
-
-### 5. Push e Pull Request
-
-```bash
-git push origin feature/minha-feature
-```
-
-Abra um Pull Request no GitHub.
-
-## 🧪 Testes
-
-```bash
-# Rodar todos os testes
-npm run test
-
-# Testes com cobertura
-npm run test:coverage
-
-# Testes E2E
-npm run test:e2e
-```
-
-## 📁 Estrutura do Projeto
-
-```
-src/
-├── components/    # Componentes React
-├── hooks/         # Hooks customizados
-├── lib/           # Utilitários
-├── pages/         # Páginas
-└── __tests__/     # Testes
-```
-
-## 🔍 Code Review
-
-- PRs precisam de pelo menos 1 aprovação
-- CI deve passar (lint, testes)
-- Cobertura de testes deve ser mantida
-
-## 📝 Padrões de Código
-
-- TypeScript strict mode
-- ESLint + Prettier
-- Componentes funcionais com hooks
-- Naming: camelCase para funções, PascalCase para componentes
-
-## 🐛 Reportar Bugs
-
-Use as [Issues](https://github.com/adm01-debug/fuxico/issues) com o template de bug.
-
-## 💡 Sugerir Features
-
-Abra uma [Discussion](https://github.com/adm01-debug/fuxico/discussions) primeiro.
-
----
-
-Dúvidas? Abra uma issue ou discussion!
+- Commits: [Conventional Commits](https://www.conventionalcommits.org/)
+- Branches: `feat/`, `fix/`, `hotfix/`, `chore/`, `docs/`, `refactor/`
+- Nunca commit direto em `main` — apenas via PR aprovado.
