@@ -1,597 +1,233 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
-  title: FUXICO API
+  title: FUXICO Edge Functions API
+  version: "2.0.0"
   description: |
-    API REST do sistema FUXICO para rastreamento de emails.
-    
-    ## Autenticação
-    
-    A API usa JWT Bearer tokens do Supabase Auth. Inclua o token no header:
-    ```
-    Authorization: Bearer <seu_token_jwt>
-    ```
-    
-    ## Rate Limiting
-    
-    - Endpoints públicos: 100 req/min por IP
-    - Endpoints autenticados: 60 req/min por usuário
-    
-    Headers de resposta incluem:
-    - `X-RateLimit-Limit`: Limite da janela
-    - `X-RateLimit-Remaining`: Requisições restantes
-    - `X-RateLimit-Reset`: Timestamp de reset (Unix)
-    
-  version: 1.0.0
-  contact:
-    name: FUXICO Support
-    email: suporte@fuxico.app
-  license:
-    name: Proprietary
-    
+    Documentação completa das 28 Edge Functions expostas pelo FUXICO.
+    Todas as rotas retornam JSON exceto `track-pixel` (image/gif) e
+    `track-link`/`track-standalone-link` (302 redirect).
+
+    **Autenticação**: funções internas exigem `Authorization: Bearer <supabase-anon-key>`
+    + validação JWT em código. Funções públicas (tracking) são anonymous.
+
+    **CORS**: origem restrita à lista em `_shared/cors.ts`.
+
+    **Rate limit**: 60 rpm por IP nas funções internas; 500 rpm nos endpoints
+    de tracking com dedupe.
+
 servers:
-  - url: https://npjfwzzapbtcguoupozd.supabase.co/functions/v1
-    description: Produção
-  - url: http://localhost:54321/functions/v1
-    description: Desenvolvimento Local
+  - url: https://{project-ref}.supabase.co/functions/v1
+    variables:
+      project-ref:
+        default: blopallcxuotfutblkoe
 
-tags:
-  - name: Tracking
-    description: Criação e consulta de trackings de email
-  - name: Events
-    description: Registro de eventos (aberturas, cliques)
-  - name: Documents
-    description: Rastreamento de documentos
-  - name: Bitrix24
-    description: Integração com CRM Bitrix24
-  - name: Webhooks
-    description: Disparo de webhooks externos
-
-paths:
-  /create-tracking:
-    post:
-      tags: [Tracking]
-      summary: Criar novo tracking de email
-      description: |
-        Cria um novo tracking para monitorar aberturas e cliques de um email.
-        Retorna o tracking_id e URLs para pixel e links.
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateTrackingRequest'
-            example:
-              recipientEmail: "cliente@empresa.com"
-              subject: "Proposta Comercial - Q1 2025"
-              senderEmail: "vendas@minhaempresa.com"
-              metadata:
-                campaign: "q1-2025"
-                template: "proposta-padrao"
-      responses:
-        '201':
-          description: Tracking criado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateTrackingResponse'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '429':
-          $ref: '#/components/responses/RateLimitExceeded'
-
-  /get-tracking-stats:
-    get:
-      tags: [Tracking]
-      summary: Listar emails com estatísticas
-      description: |
-        Retorna lista paginada de emails rastreados com estatísticas agregadas.
-        Suporta paginação por offset ou cursor.
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 50
-          description: Quantidade de registros por página
-        - name: offset
-          in: query
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-          description: Offset para paginação
-        - name: cursor_date
-          in: query
-          schema:
-            type: string
-            format: date-time
-          description: Cursor para paginação (created_at do último item)
-        - name: delivery_status
-          in: query
-          schema:
-            type: string
-            enum: [pending, delivered, bounced, failed]
-          description: Filtrar por status de entrega
-        - name: search
-          in: query
-          schema:
-            type: string
-            maxLength: 100
-          description: Busca por email ou assunto
-        - name: date_from
-          in: query
-          schema:
-            type: string
-            format: date-time
-          description: Data inicial do filtro
-        - name: date_to
-          in: query
-          schema:
-            type: string
-            format: date-time
-          description: Data final do filtro
-      responses:
-        '200':
-          description: Lista de emails com estatísticas
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TrackingStatsResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '429':
-          $ref: '#/components/responses/RateLimitExceeded'
-
-  /track-pixel:
-    get:
-      tags: [Events]
-      summary: Registrar abertura de email
-      description: |
-        Endpoint chamado automaticamente quando o pixel de rastreamento é carregado.
-        Retorna uma imagem GIF 1x1 transparente.
-        
-        **Nota**: Este endpoint não requer autenticação pois é chamado por clientes de email.
-      parameters:
-        - name: id
-          in: query
-          required: true
-          schema:
-            type: string
-          description: tracking_id do email
-      responses:
-        '200':
-          description: Imagem GIF 1x1 transparente
-          content:
-            image/gif:
-              schema:
-                type: string
-                format: binary
-        '400':
-          description: tracking_id não fornecido
-
-  /track-link:
-    get:
-      tags: [Events]
-      summary: Registrar clique em link
-      description: |
-        Registra o clique e redireciona para a URL original.
-        
-        **Nota**: Este endpoint não requer autenticação.
-      parameters:
-        - name: id
-          in: query
-          required: true
-          schema:
-            type: string
-          description: ID do link rastreado
-      responses:
-        '302':
-          description: Redirecionamento para URL original
-          headers:
-            Location:
-              schema:
-                type: string
-              description: URL de destino
-        '404':
-          description: Link não encontrado
-
-  /track-document:
-    post:
-      tags: [Documents]
-      summary: Registrar visualização de documento
-      description: Registra eventos de visualização, download ou compartilhamento de documentos.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TrackDocumentRequest'
-      responses:
-        '200':
-          description: Evento registrado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  eventId:
-                    type: string
-        '400':
-          $ref: '#/components/responses/ValidationError'
-
-  /report-bounce:
-    post:
-      tags: [Events]
-      summary: Reportar bounce de email
-      description: Registra quando um email não foi entregue (bounce hard ou soft).
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ReportBounceRequest'
-      responses:
-        '200':
-          description: Bounce registrado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-        '400':
-          $ref: '#/components/responses/ValidationError'
-
-  /bitrix24-sync:
-    post:
-      tags: [Bitrix24]
-      summary: Sincronizar com Bitrix24
-      description: |
-        Sincroniza contatos, atividades ou deals com o Bitrix24 CRM.
-        Requer configuração prévia do webhook no painel de configurações.
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Bitrix24SyncRequest'
-      responses:
-        '200':
-          description: Sincronização realizada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Bitrix24SyncResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-
-  /webhook-dispatch:
-    post:
-      tags: [Webhooks]
-      summary: Disparar webhook externo
-      description: |
-        Envia evento para webhook configurado (n8n, Zapier, etc).
-        Suporta assinatura HMAC-SHA256 para validação.
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/WebhookDispatchRequest'
-      responses:
-        '200':
-          description: Webhook enviado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  webhookId:
-                    type: string
-                  statusCode:
-                    type: integer
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /geo-lookup:
-    get:
-      tags: [Events]
-      summary: Consultar geolocalização de IP
-      description: Retorna informações de localização baseadas no IP.
-      parameters:
-        - name: ip
-          in: query
-          required: true
-          schema:
-            type: string
-          description: Endereço IP para consulta
-      responses:
-        '200':
-          description: Dados de geolocalização
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GeoLookupResponse'
+security:
+  - bearerAuth: []
 
 components:
   securitySchemes:
-    BearerAuth:
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Token JWT do Supabase Auth
 
   schemas:
-    CreateTrackingRequest:
-      type: object
-      required:
-        - recipientEmail
-      properties:
-        recipientEmail:
-          type: string
-          format: email
-          description: Email do destinatário
-        subject:
-          type: string
-          maxLength: 500
-          description: Assunto do email
-        senderEmail:
-          type: string
-          format: email
-          description: Email do remetente
-        metadata:
-          type: object
-          additionalProperties: true
-          description: Dados adicionais customizados
-
-    CreateTrackingResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        trackingId:
-          type: string
-          description: ID único do tracking
-        pixelUrl:
-          type: string
-          format: uri
-          description: URL do pixel para inserir no email
-        links:
-          type: array
-          items:
-            type: object
-            properties:
-              originalUrl:
-                type: string
-              trackedUrl:
-                type: string
-
-    TrackingStatsResponse:
-      type: object
-      properties:
-        emails:
-          type: array
-          items:
-            $ref: '#/components/schemas/EmailWithStats'
-        hasMore:
-          type: boolean
-        total:
-          type: integer
-
-    EmailWithStats:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        trackingId:
-          type: string
-        recipientEmail:
-          type: string
-        subject:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        deliveryStatus:
-          type: string
-          enum: [pending, delivered, bounced, failed]
-        opens:
-          type: integer
-        clicks:
-          type: integer
-        uniqueOpens:
-          type: integer
-        firstOpenedAt:
-          type: string
-          format: date-time
-          nullable: true
-        lastOpenedAt:
-          type: string
-          format: date-time
-          nullable: true
-
-    TrackDocumentRequest:
-      type: object
-      required:
-        - documentId
-      properties:
-        documentId:
-          type: string
-        action:
-          type: string
-          enum: [view, download, print, share]
-          default: view
-        page:
-          type: integer
-          minimum: 1
-        duration:
-          type: number
-          description: Tempo de visualização em segundos
-
-    ReportBounceRequest:
-      type: object
-      required:
-        - trackingId
-        - bounceType
-      properties:
-        trackingId:
-          type: string
-        bounceType:
-          type: string
-          enum: [hard, soft, complaint, unknown]
-        bounceReason:
-          type: string
-        originalRecipient:
-          type: string
-          format: email
-
-    Bitrix24SyncRequest:
-      type: object
-      required:
-        - action
-      properties:
-        action:
-          type: string
-          enum: [sync_contact, register_activity, create_deal]
-        data:
-          type: object
-          additionalProperties: true
-
-    Bitrix24SyncResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        entityId:
-          type: string
-        message:
-          type: string
-
-    WebhookDispatchRequest:
-      type: object
-      required:
-        - event
-        - webhookUrl
-        - payload
-      properties:
-        event:
-          type: string
-          enum: [email.opened, email.clicked, email.bounced, document.viewed, link.clicked]
-        webhookUrl:
-          type: string
-          format: uri
-        payload:
-          type: object
-          additionalProperties: true
-        secret:
-          type: string
-          description: Secret para assinatura HMAC
-
-    GeoLookupResponse:
-      type: object
-      properties:
-        ip:
-          type: string
-        country:
-          type: string
-        countryCode:
-          type: string
-        region:
-          type: string
-        city:
-          type: string
-        latitude:
-          type: number
-        longitude:
-          type: number
-        timezone:
-          type: string
-        isp:
-          type: string
-
     Error:
       type: object
+      required: [error]
       properties:
-        error:
-          type: string
-        message:
-          type: string
-        details:
-          type: array
-          items:
-            type: object
-            properties:
-              path:
-                type: string
-              message:
-                type: string
+        error: { type: string }
+        message: { type: string }
+        details: { type: object }
 
-  responses:
-    ValidationError:
-      description: Erro de validação nos dados enviados
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: "VALIDATION_ERROR"
-            message: "Invalid input data"
-            details:
-              - path: "recipientEmail"
-                message: "Email inválido"
+    TrackingId:
+      type: string
+      pattern: '^[A-Za-z0-9_-]{8,64}$'
 
-    Unauthorized:
-      description: Token de autenticação inválido ou ausente
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: "UNAUTHORIZED"
-            message: "Token inválido ou expirado"
+    CreateTrackingBody:
+      type: object
+      required: [recipient_email, subject]
+      properties:
+        recipient_email: { type: string, format: email }
+        sender_email: { type: string, format: email }
+        subject: { type: string, maxLength: 500 }
+        metadata:
+          type: object
+          additionalProperties: false
+          maxProperties: 20
 
-    RateLimitExceeded:
-      description: Limite de requisições excedido
-      headers:
-        X-RateLimit-Limit:
-          schema:
-            type: integer
-        X-RateLimit-Remaining:
-          schema:
-            type: integer
-        X-RateLimit-Reset:
-          schema:
-            type: integer
-        Retry-After:
-          schema:
-            type: integer
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            error: "RATE_LIMIT_EXCEEDED"
-            message: "Too many requests"
-            retryAfter: 45
+paths:
+  /track-pixel:
+    get:
+      summary: Pixel tracking (image/gif 1x1)
+      tags: [Tracking (Public)]
+      security: []
+      parameters:
+        - in: query
+          name: tid
+          required: true
+          schema: { $ref: '#/components/schemas/TrackingId' }
+      responses:
+        "200":
+          description: GIF 1x1 transparente
+          content: { image/gif: {} }
+        "429":
+          description: Rate limit
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  /track-link:
+    get:
+      summary: Redirect rastreado
+      tags: [Tracking (Public)]
+      security: []
+      parameters:
+        - in: query
+          name: tid
+          required: true
+          schema: { $ref: '#/components/schemas/TrackingId' }
+        - in: query
+          name: url
+          required: true
+          schema: { type: string, format: uri }
+      responses:
+        "302":
+          description: Redirect para URL destino
+        "400":
+          description: URL bloqueada (SSRF/allow-list)
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  /track-document:
+    get:
+      summary: Registro de visualização de documento
+      tags: [Tracking (Public)]
+      security: []
+      parameters:
+        - { in: query, name: doc_id, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: OK }
+
+  /track-standalone-link:
+    get:
+      summary: Redirect rastreado avulso
+      tags: [Tracking (Public)]
+      security: []
+      parameters:
+        - { in: query, name: sid, required: true, schema: { type: string } }
+      responses:
+        "302": { description: Redirect }
+
+  /track-beacon:
+    post:
+      summary: Beacon de sessão (navigator.sendBeacon)
+      tags: [Tracking (Public)]
+      security: []
+      responses:
+        "204": { description: No content }
+
+  /unsubscribe:
+    get:
+      summary: Descadastro de destinatário
+      tags: [Compliance (Public)]
+      security: []
+      parameters:
+        - { in: query, name: token, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Confirmação HTML }
+
+  /create-tracking:
+    post:
+      summary: Cria registro de e-mail rastreado
+      tags: [Tracking Internal]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTrackingBody' }
+      responses:
+        "201":
+          description: Criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tracking_id: { $ref: '#/components/schemas/TrackingId' }
+                  pixel_url: { type: string, format: uri }
+
+  /get-tracking-stats:
+    get:
+      summary: Estatísticas agregadas por usuário
+      tags: [Analytics]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_emails: { type: integer }
+                  open_rate: { type: number }
+                  click_rate: { type: number }
+                  bounce_rate: { type: number }
+
+  /ai-insights:
+    post:
+      summary: Insights gerados por LLM (Lovable AI)
+      tags: [AI]
+      responses:
+        "200": { description: JSON com insights }
+
+  /suggest-subject:
+    post:
+      summary: Sugestão de assunto por IA
+      tags: [AI]
+      responses:
+        "200": { description: array de sugestões }
+
+  /process-sequences:
+    post:
+      summary: Worker de processamento de sequências
+      tags: [Automation]
+      security:
+        - bearerAuth: []
+      responses:
+        "200": { description: contagem de passos processados }
+
+  /send-batch-emails:
+    post:
+      summary: Envio em lote (Resend)
+      tags: [Email]
+      responses:
+        "202": { description: Aceito para envio }
+
+  /send-mail-merge: { post: { tags: [Email], summary: Envio com mail-merge, responses: { "202": { description: Aceito } } } }
+  /send-mass-email: { post: { tags: [Email], summary: Envio em massa, responses: { "202": { description: Aceito } } } }
+  /send-signature-request: { post: { tags: [Email], summary: Solicitação de assinatura, responses: { "202": { description: Aceito } } } }
+  /send-push-notification: { post: { tags: [Notifications], summary: Push notification, responses: { "202": { description: Aceito } } } }
+  /report-bounce: { post: { tags: [Deliverability], summary: Webhook de bounce, responses: { "200": { description: OK } } } }
+  /check-deliverability: { get: { tags: [Deliverability], summary: Verifica SPF/DKIM/DMARC, responses: { "200": { description: OK } } } }
+  /log-email-activity: { post: { tags: [Audit], summary: Log de atividade, responses: { "200": { description: OK } } } }
+  /log-security-event: { post: { tags: [Audit], summary: Log de evento de segurança, responses: { "200": { description: OK } } } }
+  /bitrix24-sync: { post: { tags: [CRM], summary: Sincroniza com Bitrix24, responses: { "200": { description: OK } } } }
+  /geo-lookup: { get: { tags: [Analytics], summary: Geolocalização por IP, responses: { "200": { description: OK } } } }
+  /get-config: { get: { tags: [Config], summary: Config pública do usuário, responses: { "200": { description: OK } } } }
+  /health-check:
+    get:
+      summary: Healthcheck com métricas RED/USE
+      tags: [Ops]
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok, degraded, down] }
+                  latency_ms: { type: number }
+                  db_ok: { type: boolean }
+  /create-watermarked-pdf: { post: { tags: [Documents], summary: PDF com watermark, responses: { "200": { description: PDF } } } }
+  /generate-signed-document: { post: { tags: [Documents], summary: Documento assinado, responses: { "200": { description: PDF } } } }
+  /generate-delivery-certificate: { post: { tags: [Documents], summary: Certificado de entrega, responses: { "200": { description: PDF } } } }
