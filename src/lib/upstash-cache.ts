@@ -15,7 +15,8 @@ export async function getCache() {
   if (!url || !token) return null;
 
   try {
-    const { Redis } = await import("@upstash/redis");
+    // @ts-expect-error — opcional; instalar `@upstash/redis` quando cache Redis for habilitado
+    const { Redis } = await import(/* @vite-ignore */ "@upstash/redis");
     const client = new Redis({ url, token });
     cache = {
       get: (k) => client.get(k),
