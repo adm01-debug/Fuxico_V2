@@ -109,19 +109,19 @@ describe('Dashboard Components', () => {
 
 describe('Security Components', () => {
   const securityComponents = [
-    'security/SecurityDashboard.tsx',
-    'security/ActiveSessionsList.tsx',
-    'security/BlockedIPsPanel.tsx',
-    'security/IPWhitelistPanel.tsx',
-    'security/MFASettingsPanel.tsx',
-    'security/SecurityAlertsList.tsx',
-    'security/SecurityEventsList.tsx',
-    'security/SecurityOverviewCards.tsx',
+    'SecurityDashboard.tsx',
+    'ActiveSessionsList.tsx',
+    'BlockedIPsPanel.tsx',
+    'IPWhitelistPanel.tsx',
+    'MFASettingsPanel.tsx',
+    'SecurityAlertsList.tsx',
+    'SecurityEventsList.tsx',
+    'SecurityOverviewCards.tsx',
   ];
 
   securityComponents.forEach(comp => {
-    it(`should have ${comp}`, () => {
-      const exists = fs.existsSync(path.resolve(__dirname, '../../components/', comp));
+    it(`should have features/security/components/${comp}`, () => {
+      const exists = fs.existsSync(path.resolve(__dirname, '../../features/security/components/', comp));
       expect(exists).toBe(true);
     });
   });
