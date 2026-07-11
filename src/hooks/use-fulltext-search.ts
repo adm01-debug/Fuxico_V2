@@ -83,6 +83,9 @@ export function useFulltextSearch({
     if (!debouncedTerm || debouncedTerm.length < minChars) {
       return [{ text, highlighted: false }];
     }
+    if (text === '') {
+      return [{ text: '', highlighted: false }];
+    }
 
     const escapedTerm = debouncedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedTerm})`, 'gi');
@@ -90,7 +93,7 @@ export function useFulltextSearch({
 
     return parts.filter(Boolean).map(part => ({
       text: part,
-      highlighted: regex.test(part) && (regex.lastIndex = 0, true),
+      highlighted: new RegExp(`^${escapedTerm}$`, 'i').test(part),
     }));
   }, [debouncedTerm, minChars]);
 
