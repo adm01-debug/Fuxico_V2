@@ -15,9 +15,14 @@ export async function getCache() {
   if (!url || !token) return null;
 
   try {
-    // @ts-expect-error — opcional; instalar `@upstash/redis` quando cache Redis for habilitado
-    const { Redis } = await import(/* @vite-ignore */ "@upstash/redis");
-    const client = new Redis({ url, token });
+    // Concatenação evita análise estática do Vite — o pacote é opcional e
+    // pode não estar instalado. Runtime resolve em produção quando ativado.
+    const pkgName = ["@upstash", "redis"].join("/");
+    const mod: { Redis: new (cfg: { url: string; token: string }) => {
+      get: (k: string) => Promise<unknown>;
+      set: (k: string, v: unknown, opts?: { ex?: number }) => Promise<unknown>;
+    } } = await import(/* @vite-ignore */ pkgName);
+    const client = new mod.Redis({ url, token });
     cache = {
       get: (k) => client.get(k),
       set: async (k, v, ttl) => {
