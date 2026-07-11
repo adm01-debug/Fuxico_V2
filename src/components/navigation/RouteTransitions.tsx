@@ -1,25 +1,26 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
-import type { ReactNode } from "react";
-import { useAccessibility } from "@/contexts/AccessibilityContext";
+import { useEffect, useState, type ReactNode } from "react";
 
 interface RouteTransitionsProps {
   children: ReactNode;
 }
 
 /**
- * Aplica transições suaves entre rotas. Respeita `prefers-reduced-motion`
- * e o toggle de acessibilidade do usuário.
+ * Aplica transições suaves entre rotas. Respeita `prefers-reduced-motion`.
  */
 export function RouteTransitions({ children }: RouteTransitionsProps) {
   const location = useLocation();
-  let reducedMotion = false;
-  try {
-    // Contexto pode não estar disponível em testes.
-    reducedMotion = useAccessibility()?.reducedMotion ?? false;
-  } catch {
-    reducedMotion = false;
-  }
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
 
   if (reducedMotion) {
     return <>{children}</>;
