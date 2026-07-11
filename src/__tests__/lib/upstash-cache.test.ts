@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// Isola módulo para resetar o singleton entre testes
+// Mock virtual do pacote opcional para permitir simular
+// diferentes cenários (ausência / falha / sucesso).
+vi.mock('@upstash/redis', () => {
+  throw new Error('module not installed');
+});
+
 async function loadFresh() {
   vi.resetModules();
   return await import('@/lib/upstash-cache');
@@ -15,8 +20,7 @@ describe('upstash-cache › graceful degradation', () => {
     vi.stubEnv('VITE_UPSTASH_REDIS_REST_URL', '');
     vi.stubEnv('VITE_UPSTASH_REDIS_REST_TOKEN', '');
     const { getCache } = await loadFresh();
-    const cache = await getCache();
-    expect(cache).toBeNull();
+    expect(await getCache()).toBeNull();
   });
 
   it('retorna null quando apenas URL está definida', async () => {
@@ -26,12 +30,11 @@ describe('upstash-cache › graceful degradation', () => {
     expect(await getCache()).toBeNull();
   });
 
-  it('retorna null quando o pacote @upstash/redis não está instalado', async () => {
+  it('retorna null quando o pacote @upstash/redis não pode ser carregado', async () => {
     vi.stubEnv('VITE_UPSTASH_REDIS_REST_URL', 'https://example.upstash.io');
     vi.stubEnv('VITE_UPSTASH_REDIS_REST_TOKEN', 'token-xyz');
     const { getCache } = await loadFresh();
-    // Sem @upstash/redis instalado o dynamic import falha → cai no catch → null.
-    const cache = await getCache();
-    expect(cache).toBeNull();
+    // Sem @upstash/redis disponível o dynamic import falha → cai no catch → null.
+    expect(await getCache()).toBeNull();
   });
 });
