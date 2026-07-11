@@ -1,0 +1,5 @@
+supabase_org_id    = "REPLACE_ME"
+supabase_region    = "sa-east-1"
+db_password        = "USE_TF_VAR_ENV"
+cloudflare_zone_id = "REPLACE_ME"
+github_repo        = "fuxico"

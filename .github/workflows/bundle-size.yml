@@ -1,0 +1,16 @@
+name: Bundle Size
+
+on:
+  pull_request:
+    paths: ["src/**", "package.json", "vite.config.ts", "bundlesize.config.json"]
+
+jobs:
+  size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - name: Enforce bundlesize thresholds
+        run: bunx bundlesize --config bundlesize.config.json
