@@ -12,6 +12,7 @@ describe('useFulltextSearch - XSS prevention', () => {
 
   function getHighlightSegments(text: string, term: string, minChars: number = 2) {
     if (!term || term.length < minChars) return [{ text, highlighted: false }];
+    if (text === '') return [{ text: '', highlighted: false }];
     const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedTerm})`, 'gi');
     const parts = text.split(regex);
