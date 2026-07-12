@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { adminRpc } from '@/lib/admin-rpc';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,11 +48,7 @@ export default function AdminObservability() {
 
   const opsDashboard = useQuery({
     queryKey: ['admin_ops_dashboard', refreshKey],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('admin_ops_dashboard');
-      if (error) throw error;
-      return data as any;
-    },
+    queryFn: () => adminRpc<any>('admin_ops_dashboard'),
     enabled: !!isAdmin,
     staleTime: 30_000,
   });
@@ -69,22 +66,14 @@ export default function AdminObservability() {
 
   const bloat = useQuery({
     queryKey: ['admin_table_bloat', refreshKey],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('admin_table_bloat');
-      if (error) throw error;
-      return (data ?? []) as any[];
-    },
+    queryFn: () => adminRpc<any[]>('admin_table_bloat'),
     enabled: !!isAdmin,
     staleTime: 60_000,
   });
 
   const regressions = useQuery({
     queryKey: ['admin_query_regressions', refreshKey],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('admin_query_regressions', { _threshold_pct: 50 });
-      if (error) throw error;
-      return (data ?? []) as any[];
-    },
+    queryFn: () => adminRpc<any[]>('admin_query_regressions', { _threshold_pct: 50 }),
     enabled: !!isAdmin,
     staleTime: 60_000,
   });
