@@ -26,7 +26,8 @@ const BLOCKED_HOSTNAMES = [
   'localhost',
   'metadata.google.internal',
   'metadata.google',
-  '169.254.169.254' // eslint-disable-line sonarjs/no-hardcoded-ip -- AWS metadata IP is well-known SSRF vector,                 // AWS/GCP metadata
+  // eslint-disable-next-line sonarjs/no-hardcoded-ip -- AWS/GCP metadata IP is a well-known SSRF vector we must block
+  '169.254.169.254',
   '[::1]',
 ];
 
