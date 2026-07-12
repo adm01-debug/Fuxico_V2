@@ -4651,6 +4651,7 @@ export type Database = {
       }
     }
     Functions: {
+      admin_alert_sanity_check: { Args: never; Returns: Json }
       admin_blocking_queries: {
         Args: never
         Returns: {
