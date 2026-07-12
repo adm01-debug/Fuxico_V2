@@ -116,6 +116,33 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_dispatch_log: {
+        Row: {
+          channel: string
+          dispatched_at: string
+          error_message: string | null
+          id: string
+          security_event_id: string
+          status: string
+        }
+        Insert: {
+          channel: string
+          dispatched_at?: string
+          error_message?: string | null
+          id?: string
+          security_event_id: string
+          status: string
+        }
+        Update: {
+          channel?: string
+          dispatched_at?: string
+          error_message?: string | null
+          id?: string
+          security_event_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       alert_thresholds: {
         Row: {
           bounce_rate_critical: number | null
