@@ -4502,6 +4502,18 @@ export type Database = {
       }
     }
     Functions: {
+      admin_index_usage: {
+        Args: never
+        Returns: {
+          idx_scan: number
+          idx_tup_fetch: number
+          idx_tup_read: number
+          index_size: string
+          indexname: string
+          schemaname: string
+          tablename: string
+        }[]
+      }
       calculate_domain_deliverability: {
         Args: { p_user_id: string }
         Returns: {
