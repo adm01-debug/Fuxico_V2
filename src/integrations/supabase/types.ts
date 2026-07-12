@@ -1380,6 +1380,57 @@ export type Database = {
         }
         Relationships: []
       }
+      index_drop_impact_analysis: {
+        Row: {
+          baseline_captured_at: string | null
+          baseline_total_cost: number | null
+          created_at: string
+          id: string
+          index_name: string
+          notes: string | null
+          post_captured_at: string | null
+          post_total_cost: number | null
+          queries: Json
+          schema_name: string
+          status: string
+          table_name: string
+          updated_at: string
+          verdict: string | null
+        }
+        Insert: {
+          baseline_captured_at?: string | null
+          baseline_total_cost?: number | null
+          created_at?: string
+          id?: string
+          index_name: string
+          notes?: string | null
+          post_captured_at?: string | null
+          post_total_cost?: number | null
+          queries?: Json
+          schema_name?: string
+          status?: string
+          table_name: string
+          updated_at?: string
+          verdict?: string | null
+        }
+        Update: {
+          baseline_captured_at?: string | null
+          baseline_total_cost?: number | null
+          created_at?: string
+          id?: string
+          index_name?: string
+          notes?: string | null
+          post_captured_at?: string | null
+          post_total_cost?: number | null
+          queries?: Json
+          schema_name?: string
+          status?: string
+          table_name?: string
+          updated_at?: string
+          verdict?: string | null
+        }
+        Relationships: []
+      }
       index_usage_snapshots: {
         Row: {
           created_at: string
@@ -3274,6 +3325,7 @@ export type Database = {
           dry_run: boolean
           forced: boolean
           id: string
+          impact_analysis_id: string | null
           index_definition: string
           index_name: string
           index_size_bytes: number | null
@@ -3292,6 +3344,7 @@ export type Database = {
           dry_run?: boolean
           forced?: boolean
           id?: string
+          impact_analysis_id?: string | null
           index_definition: string
           index_name: string
           index_size_bytes?: number | null
@@ -3310,6 +3363,7 @@ export type Database = {
           dry_run?: boolean
           forced?: boolean
           id?: string
+          impact_analysis_id?: string | null
           index_definition?: string
           index_name?: string
           index_size_bytes?: number | null
@@ -3322,7 +3376,15 @@ export type Database = {
           updated_at?: string
           verdict?: Json
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "stale_index_drops_impact_analysis_id_fkey"
+            columns: ["impact_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "index_drop_impact_analysis"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       standalone_tracked_links: {
         Row: {
@@ -4795,15 +4857,26 @@ export type Database = {
           violations: number
         }[]
       }
-      admin_execute_index_drop: {
-        Args: {
-          _dry_run?: boolean
-          _force?: boolean
-          _index_name: string
-          _requested_by?: string
-        }
-        Returns: Json
-      }
+      admin_execute_index_drop:
+        | {
+            Args: {
+              _dry_run?: boolean
+              _force?: boolean
+              _index_name: string
+              _requested_by?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _capture_baseline?: boolean
+              _dry_run?: boolean
+              _force?: boolean
+              _index_name: string
+              _requested_by?: string
+            }
+            Returns: Json
+          }
       admin_index_ranking: {
         Args: { _limit?: number; _period_days?: number }
         Returns: {
@@ -4911,6 +4984,11 @@ export type Database = {
         }[]
       }
       alert_query_regressions: { Args: never; Returns: number }
+      analyze_index_post_drop: { Args: { _analysis_id: string }; Returns: Json }
+      analyze_index_pre_drop: {
+        Args: { _index_name: string; _top_n?: number }
+        Returns: Json
+      }
       calculate_domain_deliverability: {
         Args: { p_user_id: string }
         Returns: {
