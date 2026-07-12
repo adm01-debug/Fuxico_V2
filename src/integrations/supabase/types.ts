@@ -829,21 +829,7 @@ export type Database = {
             foreignKeyName: "follow_up_reminders_tracking_id_fkey"
             columns: ["tracking_id"]
             isOneToOne: false
-            referencedRelation: "email_stats_mv"
-            referencedColumns: ["tracking_id"]
-          },
-          {
-            foreignKeyName: "follow_up_reminders_tracking_id_fkey"
-            columns: ["tracking_id"]
-            isOneToOne: false
             referencedRelation: "tracked_emails"
-            referencedColumns: ["tracking_id"]
-          },
-          {
-            foreignKeyName: "follow_up_reminders_tracking_id_fkey"
-            columns: ["tracking_id"]
-            isOneToOne: false
-            referencedRelation: "v_tracking_summary"
             referencedColumns: ["tracking_id"]
           },
         ]
@@ -1812,21 +1798,7 @@ export type Database = {
             foreignKeyName: "tracked_links_tracking_id_fkey"
             columns: ["tracking_id"]
             isOneToOne: false
-            referencedRelation: "email_stats_mv"
-            referencedColumns: ["tracking_id"]
-          },
-          {
-            foreignKeyName: "tracked_links_tracking_id_fkey"
-            columns: ["tracking_id"]
-            isOneToOne: false
             referencedRelation: "tracked_emails"
-            referencedColumns: ["tracking_id"]
-          },
-          {
-            foreignKeyName: "tracked_links_tracking_id_fkey"
-            columns: ["tracking_id"]
-            isOneToOne: false
-            referencedRelation: "v_tracking_summary"
             referencedColumns: ["tracking_id"]
           },
         ]
@@ -1873,24 +1845,361 @@ export type Database = {
             foreignKeyName: "tracking_events_tracking_id_fkey"
             columns: ["tracking_id"]
             isOneToOne: false
-            referencedRelation: "email_stats_mv"
-            referencedColumns: ["tracking_id"]
-          },
-          {
-            foreignKeyName: "tracking_events_tracking_id_fkey"
-            columns: ["tracking_id"]
-            isOneToOne: false
             referencedRelation: "tracked_emails"
             referencedColumns: ["tracking_id"]
           },
-          {
-            foreignKeyName: "tracking_events_tracking_id_fkey"
-            columns: ["tracking_id"]
-            isOneToOne: false
-            referencedRelation: "v_tracking_summary"
-            referencedColumns: ["tracking_id"]
-          },
         ]
+      }
+      tracking_events_2026_06: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events_2026_07: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events_2026_08: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events_2026_09: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events_2026_10: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events_2026_11: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events_2026_12: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events_2027_01: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tracking_events_default: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          is_self_open: boolean | null
+          link_url: string | null
+          metadata: Json | null
+          referer: string | null
+          tracking_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          is_self_open?: boolean | null
+          link_url?: string | null
+          metadata?: Json | null
+          referer?: string | null
+          tracking_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
       }
       unsubscribed_emails: {
         Row: {
@@ -2250,46 +2559,7 @@ export type Database = {
       }
     }
     Views: {
-      email_stats_mv: {
-        Row: {
-          bounce_detected_at: string | null
-          bounce_reason: string | null
-          bounce_type: string | null
-          click_count: number | null
-          created_at: string | null
-          delivery_status: string | null
-          first_opened_at: string | null
-          id: string | null
-          last_opened_at: string | null
-          metadata: Json | null
-          open_count: number | null
-          recipient_email: string | null
-          sender_email: string | null
-          subject: string | null
-          total_link_clicks: number | null
-          tracking_id: string | null
-          unique_links_clicked: number | null
-          unique_opens: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
-      v_tracking_summary: {
-        Row: {
-          click_count: number | null
-          email_id: string | null
-          last_clicked_at: string | null
-          last_opened_at: string | null
-          open_count: number | null
-          recipient_email: string | null
-          sender_email: string | null
-          sent_at: string | null
-          subject: string | null
-          tracking_id: string | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       calculate_domain_deliverability: {
@@ -2357,6 +2627,10 @@ export type Database = {
           _user_id: string
         }
         Returns: string
+      }
+      ensure_tracking_events_partition: {
+        Args: { target_month: string }
+        Returns: undefined
       }
       get_due_reminders: {
         Args: never

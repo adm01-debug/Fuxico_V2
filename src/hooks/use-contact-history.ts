@@ -53,16 +53,22 @@ export function useContactHistory(email: string | null) {
       if (!user) throw new Error('Not authenticated');
 
       // Fetch all emails sent to this contact
-      const { data: emails, error: emailsError } = await supabase
-        .from('email_stats_mv')
-        .select('id, tracking_id, subject, created_at, delivery_status, open_count, click_count')
+      const { data: emailsRaw, error: emailsError } = await supabase
+        .from('tracked_emails')
+        .select('id, tracking_id, subject, created_at, delivery_status')
         .eq('user_id', user.id)
         .eq('recipient_email', email)
         .order('created_at', { ascending: false });
 
       if (emailsError) throw emailsError;
 
-      const trackingIds = (emails?.map(e => e.tracking_id).filter((id): id is string => id !== null)) || [];
+      const emails = (emailsRaw ?? []).map(e => ({
+        ...e,
+        open_count: 0 as number | null,
+        click_count: 0 as number | null,
+      }));
+
+      const trackingIds = emails.map(e => e.tracking_id).filter((id): id is string => id !== null);
 
       // Fetch all events for these emails
       let events: ContactEvent[] = [];
@@ -81,7 +87,7 @@ export function useContactHistory(email: string | null) {
       const timeline: ContactHistoryItem[] = [];
 
       // Add email sent events
-      emails?.forEach(email => {
+      emails.forEach(email => {
         timeline.push({
           id: `sent-${email.id}`,
           type: 'email_sent',
@@ -103,7 +109,7 @@ export function useContactHistory(email: string | null) {
 
       // Add open/click events
       events.forEach(event => {
-        const email = emails?.find(e => e.tracking_id === event.tracking_id);
+        const email = emails.find(e => e.tracking_id === event.tracking_id);
         timeline.push({
           id: event.id,
           type: event.event_type === 'open' ? 'email_open' : 'link_click',
