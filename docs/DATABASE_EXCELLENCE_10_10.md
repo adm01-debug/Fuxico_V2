@@ -107,3 +107,13 @@ Todos os jobs são idempotentes (unschedule prévio antes de recriar).
 - **Índices parciais** para pendentes: `notification_history` (não lidas), `follow_up_reminders` (pending), `scheduled_emails` (pending) — reduzem 80-95% do tamanho.
 - **`admin_index_usage()`** — admin-only, expõe `idx_scan`, `idx_tup_read`, `idx_tup_fetch` e tamanho para caçar índices ociosos.
 - `ANALYZE` propagado nas 7 tabelas afetadas.
+
+## Onda 11 — Integridade de dados + invariantes
+
+- **CHECK constraints** com validação regex/enum para blindar contra dados corrompidos:
+  - Email format em `tracked_emails.recipient_email` / `sender_email`
+  - Enums de status em `tracked_emails.delivery_status`, `sequence_enrollments.status`, `scheduled_emails.status`, `campaigns.status`, `follow_up_reminders.status`
+  - `contact_scores.engagement_score BETWEEN 0 AND 100`
+  - `sequence_enrollments.current_step >= 0`
+- Todas adicionadas como `NOT VALID` e validadas em background — zero downtime.
+- **`admin_data_integrity_check()`** — retorna violações em 6 invariantes de negócio (emails inválidos, órfãos, rows no `_default` partition, scores fora do range, agendamentos travados). Admin-only.
