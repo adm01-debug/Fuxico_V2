@@ -117,3 +117,10 @@ Todos os jobs são idempotentes (unschedule prévio antes de recriar).
   - `sequence_enrollments.current_step >= 0`
 - Todas adicionadas como `NOT VALID` e validadas em background — zero downtime.
 - **`admin_data_integrity_check()`** — retorna violações em 6 invariantes de negócio (emails inválidos, órfãos, rows no `_default` partition, scores fora do range, agendamentos travados). Admin-only.
+
+## Onda 12 — Audit trail automático em tabelas sensíveis
+
+- **`audit_sensitive_change()`** — trigger genérico `AFTER INSERT/UPDATE/DELETE` que registra `actor` (auth.uid), `action` (TG_OP), `resource_type` (TG_TABLE_NAME), `resource_id` e `metadata` com `{old, new, schema}` em `audit_logs` (particionada mensalmente).
+- **Fail-safe:** exceção interna do trigger nunca bloqueia o write de negócio (WHEN OTHERS → RETURN).
+- Aplicado a 12 tabelas de alto risco: `user_roles`, `role_permissions`, `permissions`, `gmail_configurations`, `webhook_configs`, `bitrix24_config`, `whatsapp_configs`, `feature_flags`, `blocked_ips`, `geo_whitelist`, `ip_whitelist`, `whitelabel_config`.
+- Toda alteração de permissão, integração ou lista de bloqueio fica com trilha imutável quem/quando/antes/depois.
