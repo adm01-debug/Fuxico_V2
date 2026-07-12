@@ -182,6 +182,7 @@ function buildReportContent(report: { name: string; report_type: string; metrics
       </h1>
       // eslint-disable-next-line sonarjs/no-nested-conditional -- readable period selector
       // eslint-disable-next-line sonarjs/no-nested-conditional -- period label selector
+      // eslint-disable-next-line sonarjs/no-nested-conditional -- readable label selector
       <p style="color: #666;">Relatório ${report.report_type === 'daily' ? 'Diário' : report.report_type === 'weekly' ? 'Semanal' : 'Mensal'} - ${new Date().toLocaleDateString('pt-BR')}</p>
       <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
         <thead>
