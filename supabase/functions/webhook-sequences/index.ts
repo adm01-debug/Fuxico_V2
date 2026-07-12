@@ -271,3 +271,128 @@ async function moveToNextStep(
     })
     .eq('id', enrollment.id);
 }
+
+// ============================================================================
+// Enrollment processing extraído do loop principal para reduzir complexidade
+// cognitiva. Retorna 'processed' | 'skipped' | 'completed'.
+// ============================================================================
+type ProcessOutcome = 'processed' | 'skipped' | 'completed';
+
+async function processEnrollment(
+  supabase: SupabaseClient,
+  enrollment: SequenceEnrollment,
+): Promise<ProcessOutcome> {
+  const seq = await fetchActiveSequence(supabase, enrollment.sequence_id);
+  if (!seq) return 'skipped';
+  if (!isWithinSendWindow(seq.settings)) return 'skipped';
+
+  const nextStepOrder = enrollment.current_step + 1;
+  const step = await fetchStep(supabase, enrollment.sequence_id, nextStepOrder);
+  if (!step) {
+    await markCompleted(supabase, enrollment);
+    return 'completed';
+  }
+
+  if (await shouldSkipByTrigger(supabase, enrollment, step)) {
+    await moveToNextStep(supabase, enrollment, step, enrollment.sequence_id);
+    return 'skipped';
+  }
+
+  await executeStep(supabase, enrollment, step);
+  await moveToNextStep(supabase, enrollment, step, enrollment.sequence_id);
+  return 'processed';
+}
+
+async function fetchActiveSequence(
+  supabase: SupabaseClient,
+  sequenceId: string,
+): Promise<EmailSequence | null> {
+  const { data, error } = await supabase
+    .from('email_sequences')
+    .select('*')
+    .eq('id', sequenceId)
+    .single();
+  if (error || !data || (data as EmailSequence).status !== 'active') return null;
+  return data as EmailSequence;
+}
+
+function isWithinSendWindow(settings: EmailSequence['settings']): boolean {
+  const now = new Date();
+  const hour = now.getHours();
+  if (hour < settings.send_hours_start || hour >= settings.send_hours_end) return false;
+  const day = now.getDay();
+  if (!settings.send_on_weekends && (day === 0 || day === 6)) return false;
+  return true;
+}
+
+async function fetchStep(
+  supabase: SupabaseClient,
+  sequenceId: string,
+  order: number,
+): Promise<SequenceStep | null> {
+  const { data, error } = await supabase
+    .from('sequence_steps')
+    .select('*')
+    .eq('sequence_id', sequenceId)
+    .eq('step_order', order)
+    .eq('is_active', true)
+    .single();
+  if (error || !data) return null;
+  return data as SequenceStep;
+}
+
+async function markCompleted(
+  supabase: SupabaseClient,
+  enrollment: SequenceEnrollment,
+): Promise<void> {
+  await supabase
+    .from('sequence_enrollments')
+    .update({ status: 'completed', completed_at: new Date().toISOString() })
+    .eq('id', enrollment.id);
+  await supabase.rpc('increment_sequence_completed', { seq_id: enrollment.sequence_id });
+}
+
+async function shouldSkipByTrigger(
+  supabase: SupabaseClient,
+  enrollment: SequenceEnrollment,
+  step: SequenceStep,
+): Promise<boolean> {
+  if (enrollment.current_step <= 0) return false;
+  const { data } = await supabase
+    .from('sequence_step_executions')
+    .select('*')
+    .eq('enrollment_id', enrollment.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+  if (!data) return false;
+  return evaluateTriggerCondition(step.trigger_condition, data as StepExecution);
+}
+
+async function executeStep(
+  supabase: SupabaseClient,
+  enrollment: SequenceEnrollment,
+  step: SequenceStep,
+): Promise<void> {
+  const subject = replaceVariables(step.subject, enrollment);
+  const trackingId = crypto.randomUUID();
+  await supabase.from('tracked_emails').insert({
+    tracking_id: trackingId,
+    user_id: enrollment.user_id,
+    recipient_email: enrollment.contact_email,
+    subject,
+    metadata: {
+      sequence_id: enrollment.sequence_id,
+      step_id: step.id,
+      enrollment_id: enrollment.id,
+      step_order: step.step_order,
+    },
+  });
+  await supabase.from('sequence_step_executions').insert({
+    enrollment_id: enrollment.id,
+    step_id: step.id,
+    tracking_id: trackingId,
+    status: 'sent',
+    sent_at: new Date().toISOString(),
+  });
+}
