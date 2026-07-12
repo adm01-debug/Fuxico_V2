@@ -14,8 +14,6 @@ const ZapierSchema = CommonZapierSchema;
 
 Deno.serve(publicHandler(async (req, corsHeaders) => {
   try {
-
-  try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "zapier", 100, 60);
     if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);

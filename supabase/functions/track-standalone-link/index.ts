@@ -9,8 +9,6 @@ const StandaloneLinkSchema = CommonStandaloneLinkSchema;
 
 Deno.serve(publicHandler(async (req, corsHeaders) => {
   try {
-
-  try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const userAgent = req.headers.get("user-agent") || "";
     const rateLimit = await checkRateLimit(clientIP, "standalone", 100, 60);

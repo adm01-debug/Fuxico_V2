@@ -9,8 +9,6 @@ const DomainSchema = CommonDomainSchema;
 
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   try {
-
-  try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
     const rateLimit = await checkRateLimit(clientIP, "verify-domain", 10, 60);
     if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
