@@ -4502,6 +4502,14 @@ export type Database = {
       }
     }
     Functions: {
+      admin_data_integrity_check: {
+        Args: never
+        Returns: {
+          check_name: string
+          severity: string
+          violations: number
+        }[]
+      }
       admin_index_usage: {
         Args: never
         Returns: {
