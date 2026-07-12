@@ -1380,6 +1380,45 @@ export type Database = {
         }
         Relationships: []
       }
+      index_usage_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          idx_scan: number
+          idx_tup_fetch: number
+          idx_tup_read: number
+          index_name: string
+          index_size_bytes: number
+          schema_name: string
+          snapshot_at: string
+          table_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idx_scan: number
+          idx_tup_fetch: number
+          idx_tup_read: number
+          index_name: string
+          index_size_bytes: number
+          schema_name: string
+          snapshot_at?: string
+          table_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idx_scan?: number
+          idx_tup_fetch?: number
+          idx_tup_read?: number
+          index_name?: string
+          index_size_bytes?: number
+          schema_name?: string
+          snapshot_at?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
       ip_whitelist: {
         Row: {
           added_by: string | null
@@ -4740,6 +4779,19 @@ export type Database = {
         Args: { _failure_id: string }
         Returns: Json
       }
+      admin_stale_indexes: {
+        Args: { _days?: number }
+        Returns: {
+          current_scans: number
+          first_seen: string
+          index_name: string
+          index_size: string
+          last_seen: string
+          scans_delta: number
+          schema_name: string
+          table_name: string
+        }[]
+      }
       admin_table_bloat: {
         Args: never
         Returns: {
@@ -4768,6 +4820,7 @@ export type Database = {
           total_sent: number
         }[]
       }
+      capture_index_usage_snapshot: { Args: never; Returns: number }
       capture_query_performance_snapshot: { Args: never; Returns: number }
       check_bounce_alerts: {
         Args: { p_user_id: string }
