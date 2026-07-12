@@ -4683,6 +4683,19 @@ export type Database = {
           tablename: string
         }[]
       }
+      admin_list_cron_failures: {
+        Args: { _limit?: number }
+        Returns: {
+          attempts: number
+          created_at: string
+          error_message: string
+          id: string
+          job_name: string
+          replayed_at: string
+          status_code: number
+          url: string
+        }[]
+      }
       admin_ops_dashboard: { Args: never; Returns: Json }
       admin_query_regressions: {
         Args: { _threshold_pct?: number }
@@ -4694,6 +4707,10 @@ export type Database = {
           queryid: number
           regression_pct: number
         }[]
+      }
+      admin_replay_cron_failure: {
+        Args: { _failure_id: string }
+        Returns: Json
       }
       admin_table_bloat: {
         Args: never

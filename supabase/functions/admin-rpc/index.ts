@@ -19,6 +19,8 @@ const ALLOWED = new Set([
   "admin_blocking_queries",
   "admin_table_bloat",
   "admin_query_regressions",
+  "admin_list_cron_failures",
+  "admin_replay_cron_failure",
   "reset_slow_query_stats",
   "db_health_check",
 ]);
