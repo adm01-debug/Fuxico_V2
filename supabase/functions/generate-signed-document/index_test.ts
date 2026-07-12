@@ -19,5 +19,5 @@ Deno.test("generate-signed-document handler - unauthorized", async () => {
   try {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status, 401);
-  } catch (e) { }
+  } catch (_e) { }
 });

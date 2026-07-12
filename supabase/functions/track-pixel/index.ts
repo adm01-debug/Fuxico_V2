@@ -80,7 +80,7 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     });
 
     return new Response(TRANSPARENT_GIF, { headers });
-  } catch (error) {
+  } catch (_error) {
     return new Response(TRANSPARENT_GIF, { headers: { ...headers, ...corsHeaders } });
   }
 }));

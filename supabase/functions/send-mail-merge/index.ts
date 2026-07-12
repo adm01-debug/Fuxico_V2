@@ -1,6 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { protectedHandler } from '../_shared/security-middleware.ts';
@@ -43,7 +42,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
-    const { templateId, recipients, subject, trackingEnabled, scheduledAt } = validation.data;
+    const { templateId, recipients, _subject, trackingEnabled, scheduledAt } = validation.data;
 
     const { data: template } = await supabase.from("email_templates").select("*").eq("id", templateId).eq("user_id", user.id).single();
     if (!template) return secureErrorResponse("Template not found", 404, corsHeaders);
@@ -67,7 +66,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       totalRecipients: recipients.length,
       status: scheduledAt ? "scheduled" : "processing"
     }, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }

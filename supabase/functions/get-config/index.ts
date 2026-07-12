@@ -1,5 +1,4 @@
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { publicHandler } from '../_shared/security-middleware.ts';
@@ -51,7 +50,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     }
 
     return secureJsonResponse(config, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }

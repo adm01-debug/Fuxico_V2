@@ -1,6 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { protectedHandler } from '../_shared/security-middleware.ts';
@@ -29,7 +27,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     // SECURITY: Use full UUID for verification token (128 bits of entropy)
     // Previously used only 8 chars (32 bits) which is brute-forceable
     const verificationToken = `fuxico-verify-${crypto.randomUUID()}`;
-    const verificationRecord = verificationType === "dns" ? `TXT _fuxico.${domain} = ${verificationToken}` : `/${verificationToken}.txt`;
+    const _verificationRecord = verificationType === "dns" ? `TXT _fuxico.${domain} = ${verificationToken}` : `/${verificationToken}.txt`;
 
     await supabase.from("custom_domains").upsert({
       user_id: user.id,
@@ -49,7 +47,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
         : `Upload file to: https://${domain}/${verificationToken}.txt`,
       token: verificationToken
     }, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }));

@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { CommonVoteSchema } from "../_shared/schemas.ts";
@@ -56,7 +55,7 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     });
 
     return secureJsonResponse({ success: true, voteId }, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }));

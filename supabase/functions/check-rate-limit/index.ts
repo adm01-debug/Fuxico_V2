@@ -4,7 +4,6 @@
 // =============================================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
 import { protectedHandler } from "../_shared/security-middleware.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";

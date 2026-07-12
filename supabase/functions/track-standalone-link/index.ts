@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureErrorResponse } from "../_shared/security-headers.ts";
 import { CommonStandaloneLinkSchema } from "../_shared/schemas.ts";
@@ -40,7 +39,7 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     await supabase.from("standalone_tracked_links").update({ click_count: (link.click_count || 0) + 1 }).eq("id", link.id);
 
     return Response.redirect(link.destination_url, 302);
-  } catch (error) {
+  } catch (_error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }));

@@ -86,7 +86,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     }
 
     return Response.redirect(link.original_url, 302);
-  } catch (error) {
+  } catch (_error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }

@@ -1,6 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { sanitizeEmailHtml } from "../_shared/html-sanitizer.ts";
@@ -44,7 +43,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
-    const { emails, templateId, scheduledAt, priority } = validation.data;
+    const { emails, _templateId, scheduledAt, priority } = validation.data;
 
     const batchId = crypto.randomUUID();
     const results = emails.map((email, index) => ({
@@ -72,7 +71,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       status: scheduledAt ? "scheduled" : "processing",
       results
     }, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }

@@ -1,11 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { getCorsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 import { protectedHandler } from '../_shared/security-middleware.ts'
-import { validateIPAccess } from '../_shared/ip-whitelist.ts'
 import { CommonAiInsightsSchema } from '../_shared/schemas.ts'
 
 const log = createLogger('ai-insights')

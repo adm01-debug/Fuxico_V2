@@ -12,5 +12,5 @@ Deno.test("track-beacon handler - unauthorized", async () => {
     const res = await handler(req, corsHeaders);
     // Beacons are usually public, but we test validation
     assertEquals(res.status === 200 || res.status === 400, true);
-  } catch (e) { }
+  } catch (_e) { }
 });
