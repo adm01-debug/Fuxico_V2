@@ -43,7 +43,6 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
-    const { emails, _templateId, scheduledAt, priority } = validation.data;
 
     const batchId = crypto.randomUUID();
     const results = emails.map((email, index) => ({

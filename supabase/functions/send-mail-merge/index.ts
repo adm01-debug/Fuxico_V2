@@ -42,7 +42,6 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
-    const { templateId, recipients, _subject, trackingEnabled, scheduledAt } = validation.data;
 
     const { data: template } = await supabase.from("email_templates").select("*").eq("id", templateId).eq("user_id", user.id).single();
     if (!template) return secureErrorResponse("Template not found", 404, corsHeaders);

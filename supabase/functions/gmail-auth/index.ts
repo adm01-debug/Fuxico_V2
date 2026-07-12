@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
     if (!userId) return new Response("Missing userId", { status: 400, headers: corsHeaders });
 
     const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    authUrl.searchParams.set("client_id", GOOGLE_CLIENT_ID!);
+    authUrl.searchParams.set("client_id", (GOOGLE_CLIENT_ID ?? ''));
     authUrl.searchParams.set("redirect_uri", REDIRECT_URI);
     authUrl.searchParams.set("response_type", "code");
     authUrl.searchParams.set("scope", "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email");
@@ -37,8 +37,8 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         code,
-        client_id: GOOGLE_CLIENT_ID!,
-        client_secret: GOOGLE_CLIENT_SECRET!,
+        client_id: (GOOGLE_CLIENT_ID ?? ''),
+        client_secret: (GOOGLE_CLIENT_SECRET ?? ''),
         redirect_uri: REDIRECT_URI,
         grant_type: "authorization_code",
       }),

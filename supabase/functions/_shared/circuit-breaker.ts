@@ -36,7 +36,7 @@ function getCircuit(name: string): CircuitEntry {
       lastSuccess: Date.now(),
     });
   }
-  return circuits.get(name)!;
+  return circuits.get(name) as CircuitBreaker;
 }
 
 /**

@@ -195,8 +195,6 @@ Deno.serve(async (req) => {
 
         // Replace variables in subject and body, then sanitize HTML
         const subject = replaceVariables(stepData.subject, enrollment);
-        const _body = sanitizeEmailHtml(replaceVariables(stepData.body, enrollment));
-
         // Create tracking for this email
         const trackingId = crypto.randomUUID();
         

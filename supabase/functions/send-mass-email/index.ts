@@ -45,8 +45,6 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     const { subject, htmlBody: rawHtmlBody, recipients, trackOpens, trackClicks, campaignId } = validation.data;
 
     // SECURITY: Sanitize HTML to prevent script injection in emails
-    const _htmlBody = sanitizeEmailHtml(rawHtmlBody);
-
     const campaignJobId = crypto.randomUUID();
     
     await supabase.from("mass_email_campaigns").insert({
