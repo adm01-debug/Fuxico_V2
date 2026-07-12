@@ -86,3 +86,15 @@ Cada onda é uma migration isolada. Falha em qualquer passo reverte apenas aquel
 ```bash
 pg_prove -d "$SUPABASE_DB_URL" supabase/tests/rls/*.test.sql
 ```
+
+## Onda 9 — Automação com pg_cron
+
+Manutenção 100% automatizada:
+
+- **`fuxico-ensure-future-partitions`** (diário 02:00 UTC) — chama `ensure_future_partitions()` que provisiona partições dos próximos 3 meses para `tracking_events`, `webhook_logs`, `audit_logs`, `login_attempts`, `rate_limit_logs`, `security_events`. Elimina risco de INSERTs caírem no `_default`.
+- **`fuxico-retention-cleanup`** (diário 03:00 UTC) — `run_retention_cleanup()` para dropar partições antigas.
+- **`fuxico-tracking-events-retention`** (diário 03:30 UTC) — retenção específica de `tracking_events` (180d).
+- **`fuxico-refresh-email-stats-mv`** (a cada 5 min) — `refresh_email_stats_mv()` com fallback (CONCURRENTLY → normal) para manter dashboards frescos sem lock.
+- **`fuxico-cleanup-webauthn-challenges`** (a cada hora) — `cleanup_expired_challenges()`.
+
+Todos os jobs são idempotentes (unschedule prévio antes de recriar).
