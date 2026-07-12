@@ -78,6 +78,23 @@ export default function AdminObservability() {
     staleTime: 60_000,
   });
 
+  const dlq = useQuery({
+    queryKey: ['admin_list_cron_failures', refreshKey],
+    queryFn: () => adminRpc<any[]>('admin_list_cron_failures', { _limit: 50 }),
+    enabled: !!isAdmin,
+    staleTime: 30_000,
+  });
+
+  const handleReplay = async (id: string) => {
+    try {
+      await adminRpc('admin_replay_cron_failure', { _failure_id: id });
+      toast.success('Falha reenfileirada para reprocessamento');
+      dlq.refetch();
+    } catch (e) {
+      toast.error(`Falha ao reprocessar: ${e instanceof Error ? e.message : 'erro'}`);
+    }
+  };
+
   if (checkingAdmin || !isAdmin) {
     return (
       <div className="container mx-auto p-6 space-y-4">
