@@ -34,6 +34,7 @@ export function sanitizeLlmInput(input: string): string {
   sanitized = sanitized.substring(0, 2000);
 
   // Remove control characters that could confuse tokenizers
+  // eslint-disable-next-line no-control-regex -- intentional strip of control chars from LLM input
   sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
   // Escape common prompt delimiters

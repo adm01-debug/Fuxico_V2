@@ -18,6 +18,7 @@ const FollowUpSchema = z.object({
   language: z.enum(['pt-BR', 'en', 'es']).default('pt-BR')
 });
 
+// eslint-disable-next-line sonarjs/cognitive-complexity -- orchestration handler; branches are linear guard checks
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
   
@@ -165,6 +166,7 @@ Retorne APENAS um JSON válido no formato:
     const content = data.choices?.[0]?.message?.content || "";
 
     // Parse the JSON response
+    // eslint-disable-next-line sonarjs/slow-regex -- bounded AI response payload (<200 chars logged)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       log.error("Failed to parse AI response", { content: content.substring(0, 200) });

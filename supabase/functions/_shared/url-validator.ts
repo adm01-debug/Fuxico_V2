@@ -82,11 +82,7 @@ export function isWebhookUrlSafe(urlString: string): boolean {
 
     // Em producao, exigir HTTPS para webhooks
     const isProduction = Deno.env.get('ENVIRONMENT') === 'production';
-    if (isProduction && url.protocol !== 'https:') {
-      return false;
-    }
-
-    return true;
+    return !(isProduction && url.protocol !== 'https:');
   } catch {
     return false;
   }

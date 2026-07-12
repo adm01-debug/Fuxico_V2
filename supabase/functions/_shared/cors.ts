@@ -25,6 +25,7 @@ export const ALLOWED_ORIGINS: string[] = [
 const ALLOWED_DOMAIN_PATTERNS: RegExp[] = [
   /^https:\/\/[a-z0-9-]+\.supabase\.co$/,
   /^https:\/\/[a-z0-9-]+\.lovable\.app$/,
+  // eslint-disable-next-line sonarjs/slow-regex -- origin host pattern; bounded by URL host length
   /^https:\/\/[a-z0-9-]+--[a-z0-9-]+\.lovable\.dev$/,
 ];
 

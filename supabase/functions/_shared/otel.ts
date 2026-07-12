@@ -1,6 +1,6 @@
 // Shared OTel utilities for Deno Edge Functions
 
-export const traceFunction = async (name: string, context: any, fn: Function) => {
+export const traceFunction = async (name: string, context: unknown, fn: () => unknown | Promise<unknown>) => {
   const start = Date.now();
   try {
     return await fn();

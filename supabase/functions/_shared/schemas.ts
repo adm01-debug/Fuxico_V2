@@ -81,6 +81,7 @@ export const CommonDomainSchema = z.object({
 export const CommonWatermarkSchema = z.object({
   documentId: z.string().uuid(),
   watermarkText: z.string().min(1).max(200).transform(text =>
+    // eslint-disable-next-line sonarjs/slow-regex, no-control-regex -- intentional control-char strip on 200-char bounded input
     text.replace(/<[^>]*>/g, '').replace(/[\x00-\x1F\x7F]/g, '').trim()
   ),
   position: z.enum(["center", "diagonal", "footer"]).default("diagonal"),
