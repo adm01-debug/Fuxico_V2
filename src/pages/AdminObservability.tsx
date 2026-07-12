@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Activity, Database, Clock, AlertTriangle, Gauge, RefreshCw, Server, TrendingDown } from 'lucide-react';
+import { Activity, Database, Clock, AlertTriangle, Gauge, RefreshCw, Server, TrendingDown, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 
 type Severity = 'ok' | 'warning' | 'critical';
