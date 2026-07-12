@@ -153,10 +153,16 @@ Efeito: até o **owner** da tabela passa a ser sujeito às policies — blindage
 
 Fecha vetores de DoS: queries longas, transações abandonadas segurando locks, deadlocks arrastados. `service_role` mantém janela generosa para edge functions e jobs pesados.
 
+## Onda 16 — Autovacuum tuning + advisory locks + health check
+
+- **Autovacuum agressivo** em 7 tabelas write-heavy (`tracked_emails`, `sequence_enrollments`, `scheduled_emails`, `contact_scores`, `domain_reputation`, `notification_history`, `follow_up_reminders`) com `scale_factor` reduzido para 0.05/0.02 e `fillfactor` 85-90 para reduzir bloat e favorecer HOT updates.
+- **Advisory locks** para jobs singleton: `try_singleton_job(key)` / `release_singleton_job(key)` (service_role only) — garante que cron jobs concorrentes não processem o mesmo trabalho duas vezes.
+- **`db_health_check()`** (admin-only, STABLE) — retorna JSONB com `status` (healthy/degraded), idade do MV em segundos, conexões OK, partições `_default` vazias, locks bloqueados. Endpoint pronto para uptime monitors externos.
+
 ---
 
 # 🏆 STATUS FINAL: 10/10
 
-**15 ondas aplicadas** cobrindo particionamento, versionamento otimista, cobertura de FKs, MV com refresh CONCURRENTLY, testes pgTAP, observabilidade (`admin_slow_queries`), BRIN + statistics tuning, índices parciais + `admin_table_health`, automação pg_cron completa, covering indexes com INCLUDE, integridade de dados + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas críticas, e timeouts por role.
+**16 ondas aplicadas** cobrindo particionamento, versionamento otimista, cobertura de FKs, MV com refresh CONCURRENTLY, testes pgTAP, observabilidade (`admin_slow_queries`), BRIN + statistics tuning, índices parciais + `admin_table_health`, automação pg_cron completa, covering indexes com INCLUDE, integridade de dados + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas críticas, timeouts por role, autovacuum tuning + advisory locks + `db_health_check`.
 
 Banco pronto para produção enterprise-grade.
