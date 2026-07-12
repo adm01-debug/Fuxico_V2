@@ -36,6 +36,7 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const TrackingAnalytics = lazy(() => import("./pages/TrackingAnalytics"));
 const AuditLogs = lazy(() => import("./pages/AuditLogs"));
+const AdminObservability = lazy(() => import("./pages/AdminObservability"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
