@@ -50,6 +50,12 @@ Auditoria com `pg_constraint` × `pg_index`: **0 FKs sem índice** (todas cobert
 - Função `public.reset_slow_query_stats()` restrita a admin para zerar estatísticas após deploys/otimizações
 - GRANTs restritos: `authenticated` apenas; `anon` bloqueado
 
+### Onda 7 — BRIN indexes + statistics tuning
+- **Índices BRIN** em `created_at` de todas as partições append-only (`webhook_logs`, `audit_logs`, `rate_limit_logs`, `security_events`, `login_attempts`, `tracking_events`) — ~1000× menor que btree e ideal para range scans temporais.
+- **`pages_per_range=32`** ajustado para granularidade fina em dashboards.
+- **Statistics target elevado** (500-1000) em colunas de alta cardinalidade: `tracked_emails.tracking_id`, `.user_id`, `.recipient_email`, `sequence_enrollments.sequence_id`, `.user_id`, `campaigns.user_id`, `email_sequences.user_id`, `contact_scores.user_id`, `domain_reputation.user_id` — planner amostra mais valores e escolhe planos melhores em joins.
+- `ANALYZE` executado para propagar estatísticas imediatamente.
+
 ## Métricas de excelência
 
 | Dimensão            | Antes | Depois |
