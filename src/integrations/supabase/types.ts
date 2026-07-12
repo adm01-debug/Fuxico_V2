@@ -4443,6 +4443,15 @@ export type Database = {
       }
     }
     Views: {
+      admin_partition_coverage: {
+        Row: {
+          coverage_until: string | null
+          future_partitions: number | null
+          parent_table: unknown
+          partitions: number | null
+        }
+        Relationships: []
+      }
       admin_slow_queries: {
         Row: {
           cache_hit_ratio_pct: number | null
@@ -4522,6 +4531,7 @@ export type Database = {
           tablename: string
         }[]
       }
+      admin_ops_dashboard: { Args: never; Returns: Json }
       calculate_domain_deliverability: {
         Args: { p_user_id: string }
         Returns: {
