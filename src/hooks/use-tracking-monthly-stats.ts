@@ -32,7 +32,8 @@ export function useTrackingMonthlyStats(months: number = 12) {
     queryFn: async (): Promise<MonthlyTrackingStat[]> => {
       if (!user) return [];
 
-      const { data, error } = await supabase.rpc("get_tracking_monthly_stats", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase.rpc as any)("get_tracking_monthly_stats", {
         _user_id: user.id,
         _months: months,
       });
