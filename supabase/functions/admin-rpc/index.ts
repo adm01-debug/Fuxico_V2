@@ -31,6 +31,9 @@ const ALLOWED = new Set([
   "admin_index_usage_trend",
   "admin_index_ranking",
   "admin_index_usage_by_table",
+  "analyze_index_pre_drop",
+  "analyze_index_post_drop",
+  "check_stagnant_indexes",
 ]);
 
 interface RpcBody {
