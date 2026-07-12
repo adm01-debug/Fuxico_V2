@@ -42,7 +42,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
-    const { subject, htmlBody: rawHtmlBody, recipients, trackOpens, trackClicks, campaignId } = validation.data;
+    const { subject, recipients, trackOpens, trackClicks, campaignId } = validation.data;
 
     // SECURITY: Sanitize HTML to prevent script injection in emails
     const campaignJobId = crypto.randomUUID();
