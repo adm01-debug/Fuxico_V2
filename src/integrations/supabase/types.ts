@@ -4598,6 +4598,7 @@ export type Database = {
         }
         Returns: string
       }
+      db_health_check: { Args: never; Returns: Json }
       ensure_audit_logs_partition: {
         Args: { target_month: string }
         Returns: undefined
@@ -4812,10 +4813,12 @@ export type Database = {
         Returns: string
       }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
+      release_singleton_job: { Args: { _job_key: string }; Returns: undefined }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       reset_slow_query_stats: { Args: never; Returns: undefined }
       run_retention_cleanup: { Args: never; Returns: undefined }
       run_tracking_events_retention: { Args: never; Returns: undefined }
+      try_singleton_job: { Args: { _job_key: string }; Returns: boolean }
       update_contact_score: {
         Args: { p_email: string; p_user_id: string }
         Returns: undefined
