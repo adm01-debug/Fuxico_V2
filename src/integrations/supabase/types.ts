@@ -3267,6 +3267,63 @@ export type Database = {
           },
         ]
       }
+      stale_index_drops: {
+        Row: {
+          created_at: string
+          dropped_at: string | null
+          dry_run: boolean
+          forced: boolean
+          id: string
+          index_definition: string
+          index_name: string
+          index_size_bytes: number | null
+          reason: string | null
+          requested_by: string | null
+          restored_at: string | null
+          schema_name: string
+          status: string
+          table_name: string
+          updated_at: string
+          verdict: Json
+        }
+        Insert: {
+          created_at?: string
+          dropped_at?: string | null
+          dry_run?: boolean
+          forced?: boolean
+          id?: string
+          index_definition: string
+          index_name: string
+          index_size_bytes?: number | null
+          reason?: string | null
+          requested_by?: string | null
+          restored_at?: string | null
+          schema_name?: string
+          status: string
+          table_name: string
+          updated_at?: string
+          verdict?: Json
+        }
+        Update: {
+          created_at?: string
+          dropped_at?: string | null
+          dry_run?: boolean
+          forced?: boolean
+          id?: string
+          index_definition?: string
+          index_name?: string
+          index_size_bytes?: number | null
+          reason?: string | null
+          requested_by?: string | null
+          restored_at?: string | null
+          schema_name?: string
+          status?: string
+          table_name?: string
+          updated_at?: string
+          verdict?: Json
+        }
+        Relationships: []
+      }
       standalone_tracked_links: {
         Row: {
           click_count: number | null
@@ -4738,6 +4795,15 @@ export type Database = {
           violations: number
         }[]
       }
+      admin_execute_index_drop: {
+        Args: {
+          _dry_run?: boolean
+          _force?: boolean
+          _index_name: string
+          _requested_by?: string
+        }
+        Returns: Json
+      }
       admin_index_usage: {
         Args: never
         Returns: {
@@ -4764,6 +4830,7 @@ export type Database = {
         }[]
       }
       admin_ops_dashboard: { Args: never; Returns: Json }
+      admin_preview_index_drop: { Args: { _index_name: string }; Returns: Json }
       admin_query_regressions: {
         Args: { _threshold_pct?: number }
         Returns: {
@@ -4777,6 +4844,10 @@ export type Database = {
       }
       admin_replay_cron_failure: {
         Args: { _failure_id: string }
+        Returns: Json
+      }
+      admin_restore_dropped_index: {
+        Args: { _drop_id: string; _requested_by?: string }
         Returns: Json
       }
       admin_stale_indexes: {
