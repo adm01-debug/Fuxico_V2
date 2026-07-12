@@ -4572,6 +4572,7 @@ export type Database = {
         Args: { target_month: string }
         Returns: undefined
       }
+      ensure_future_partitions: { Args: never; Returns: undefined }
       ensure_login_attempts_partition: {
         Args: { target_month: string }
         Returns: undefined
