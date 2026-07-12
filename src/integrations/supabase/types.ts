@@ -4910,6 +4910,15 @@ export type Database = {
           lockout_until: string
         }[]
       }
+      get_tracking_monthly_stats: {
+        Args: { _months?: number; _user_id: string }
+        Returns: {
+          distinct_ips: number
+          event_count: number
+          event_type: string
+          month: string
+        }[]
+      }
       get_user_permissions: {
         Args: { _user_id: string }
         Returns: {
