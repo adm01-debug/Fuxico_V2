@@ -4804,6 +4804,18 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_index_ranking: {
+        Args: { _limit?: number; _period_days?: number }
+        Returns: {
+          classification: string
+          current_size_bytes: number
+          index_name: string
+          period_scans: number
+          rank_position: number
+          schema_name: string
+          table_name: string
+        }[]
+      }
       admin_index_usage: {
         Args: never
         Returns: {
@@ -4814,6 +4826,28 @@ export type Database = {
           indexname: string
           schemaname: string
           tablename: string
+        }[]
+      }
+      admin_index_usage_by_table: {
+        Args: { _period_days?: number }
+        Returns: {
+          cold_indexes: number
+          index_count: number
+          schema_name: string
+          table_name: string
+          total_scans: number
+          total_size_bytes: number
+        }[]
+      }
+      admin_index_usage_trend: {
+        Args: { _days?: number; _limit?: number }
+        Returns: {
+          avg_size_bytes: number
+          bucket_date: string
+          index_name: string
+          scans_delta: number
+          table_name: string
+          total_scans: number
         }[]
       }
       admin_list_cron_failures: {
