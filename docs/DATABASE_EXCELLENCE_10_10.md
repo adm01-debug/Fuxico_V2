@@ -98,3 +98,12 @@ Manutenção 100% automatizada:
 - **`fuxico-cleanup-webauthn-challenges`** (a cada hora) — `cleanup_expired_challenges()`.
 
 Todos os jobs são idempotentes (unschedule prévio antes de recriar).
+
+## Onda 10 — Covering indexes + hot-path composites
+
+- **`idx_tracked_emails_user_created_covering`** — `(user_id, created_at DESC) INCLUDE (tracking_id, recipient_email, subject, delivery_status)` habilita **index-only scan** para listagens do dashboard (zero heap fetch).
+- **`idx_sequence_enrollments_seq_status`** — cobre `(sequence_id, status)` + colunas de exibição.
+- **`idx_link_click_events_link_created`**, **`idx_contact_scores_user_score`** — ordenação por engagement/data direto do índice.
+- **Índices parciais** para pendentes: `notification_history` (não lidas), `follow_up_reminders` (pending), `scheduled_emails` (pending) — reduzem 80-95% do tamanho.
+- **`admin_index_usage()`** — admin-only, expõe `idx_scan`, `idx_tup_read`, `idx_tup_fetch` e tamanho para caçar índices ociosos.
+- `ANALYZE` propagado nas 7 tabelas afetadas.
