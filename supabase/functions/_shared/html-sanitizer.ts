@@ -62,6 +62,7 @@ export function sanitizeHtml(html: string): string {
   sanitized = sanitized.replace(/expression\s*\(/gi, 'expr-blocked(');
 
   // Remove url() with javascript: in styles
+  // eslint-disable-next-line sonarjs/slow-regex -- bounded HTML input; policy is defense-in-depth
   sanitized = sanitized.replace(/url\s*\(\s*["']?\s*javascript:/gi, 'url(blocked:');
 
   // Remove <object>, <embed>, <applet>, <iframe>, <form>, <input>, <button>, <textarea>, <select>

@@ -119,6 +119,7 @@ function generateBackupCodes(count = 10): string[] {
 }
 // eslint-disable-next-line sonarjs/cognitive-complexity -- orchestration handler; branches are linear guard checks
 
+// eslint-disable-next-line sonarjs/cognitive-complexity -- TOTP verify with time-drift windows
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   // Rate limiting - TOTP is security-critical, limit to 5 attempts per minute
   const clientIP = getClientIP(req.headers);
