@@ -136,3 +136,9 @@ Todos os jobs são idempotentes (unschedule prévio antes de recriar).
 - **`admin_partition_coverage`** view — por tabela particionada mostra `partitions`, `future_partitions` e `coverage_until` — permite alarmar quando cobertura futura < 30 dias.
 
 Ambos admin-only via `has_role(auth.uid(), 'admin')`, `security_invoker=true` na view, e `EXECUTE` explícito na função.
+
+## Onda 14 — FORCE RLS em tabelas críticas
+
+`ALTER TABLE ... FORCE ROW LEVEL SECURITY` aplicado a 20 tabelas sensíveis (permissões, integrações, MFA, WebAuthn, tokens, sessões, lockouts, listas de bloqueio, whitelabel, feature flags, thresholds de alerta).
+
+Efeito: até o **owner** da tabela passa a ser sujeito às policies — blindagem contra bypass acidental por funções `SECURITY DEFINER` que rodam como owner e contra futuros scripts admin que se conectem com o role dono das tabelas. Roles `authenticated`/`anon` já eram sempre filtrados; a mudança só endurece o modelo.
