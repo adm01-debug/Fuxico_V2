@@ -175,15 +175,17 @@ function buildReportContent(report: { name: string; report_type: string; metrics
     }
   }).join("");
 
+  const periodLabel =
+    report.report_type === 'daily' ? 'Diário'
+    : report.report_type === 'weekly' ? 'Semanal'
+    : 'Mensal';
+
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <h1 style="color: #333; border-bottom: 2px solid #6366f1; padding-bottom: 10px;">
         📊 ${report.name}
       </h1>
-      // eslint-disable-next-line sonarjs/no-nested-conditional -- readable period selector
-      // eslint-disable-next-line sonarjs/no-nested-conditional -- period label selector
-      // eslint-disable-next-line sonarjs/no-nested-conditional -- readable label selector
-      <p style="color: #666;">Relatório ${report.report_type === 'daily' ? 'Diário' : report.report_type === 'weekly' ? 'Semanal' : 'Mensal'} - ${new Date().toLocaleDateString('pt-BR')}</p>
+      <p style="color: #666;">Relatório ${periodLabel} - ${new Date().toLocaleDateString('pt-BR')}</p>
       <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
         <thead>
           <tr style="background: #f8f9fa;">
