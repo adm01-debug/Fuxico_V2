@@ -176,14 +176,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    for (const [userId, stats] of Object.entries(processedByUser)) {
-      await logExecution(supabase, userId, stats.errors === 0, {
-        processed: stats.processed,
-        errors: stats.errors,
-        enrollments_due: dueEnrollments.filter((e) => e.user_id === userId).length,
-        message: buildMessage(stats.processed, stats.errors),
-      });
-    }
+    await logResultsPerUser(supabase, processedByUser, dueEnrollments as SequenceEnrollment[]);
 
     return jsonResponse(
       {
@@ -196,30 +189,31 @@ Deno.serve(async (req) => {
       200,
       corsHeaders,
     );
-
-    return new Response(JSON.stringify({ 
-      success: true, 
-      processed: processedCount,
-      errors: errorCount,
-      message: `Processed ${processedCount} enrollments with ${errorCount} errors`,
-      timestamp: new Date().toISOString()
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-
   } catch (error) {
     console.error('Error in webhook-sequences:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: errorMessage,
-      timestamp: new Date().toISOString()
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return jsonResponse(
+      { success: false, error: errorMessage, timestamp: new Date().toISOString() },
+      500,
+      corsHeaders,
+    );
   }
 });
+
+async function logResultsPerUser(
+  supabase: SupabaseClient,
+  processedByUser: Record<string, { processed: number; errors: number }>,
+  dueEnrollments: SequenceEnrollment[],
+): Promise<void> {
+  for (const [userId, stats] of Object.entries(processedByUser)) {
+    await logExecution(supabase, userId, stats.errors === 0, {
+      processed: stats.processed,
+      errors: stats.errors,
+      enrollments_due: dueEnrollments.filter((e) => e.user_id === userId).length,
+      message: buildMessage(stats.processed, stats.errors),
+    });
+  }
+}
 
 function evaluateTriggerCondition(condition: string, prevExecution: StepExecution): boolean {
   switch (condition) {
