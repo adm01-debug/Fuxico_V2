@@ -175,10 +175,8 @@ function buildReportContent(report: { name: string; report_type: string; metrics
     }
   }).join("");
 
-  const periodLabel =
-    report.report_type === 'daily' ? 'Diário'
-    : report.report_type === 'weekly' ? 'Semanal'
-    : 'Mensal';
+  const PERIOD_LABELS: Record<string, string> = { daily: 'Diário', weekly: 'Semanal', monthly: 'Mensal' };
+  const periodLabel = PERIOD_LABELS[report.report_type] ?? 'Mensal';
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
