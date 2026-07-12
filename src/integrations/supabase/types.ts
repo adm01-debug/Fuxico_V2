@@ -4443,6 +4443,15 @@ export type Database = {
       }
     }
     Views: {
+      admin_cache_hit_ratio: {
+        Row: {
+          cache_type: string | null
+          hit_ratio_pct: number | null
+          hits: number | null
+          reads: number | null
+        }
+        Relationships: []
+      }
       admin_partition_coverage: {
         Row: {
           coverage_until: string | null
@@ -4511,6 +4520,18 @@ export type Database = {
       }
     }
     Functions: {
+      admin_blocking_queries: {
+        Args: never
+        Returns: {
+          blocked_pid: number
+          blocked_query: string
+          blocked_user: string
+          blocking_pid: number
+          blocking_query: string
+          blocking_user: string
+          waited_seconds: number
+        }[]
+      }
       admin_data_integrity_check: {
         Args: never
         Returns: {
@@ -4532,6 +4553,19 @@ export type Database = {
         }[]
       }
       admin_ops_dashboard: { Args: never; Returns: Json }
+      admin_table_bloat: {
+        Args: never
+        Returns: {
+          bloat_ratio_pct: number
+          bloat_size: string
+          dead_rows: number
+          live_rows: number
+          schema_name: string
+          table_name: string
+          table_size: string
+          total_size: string
+        }[]
+      }
       calculate_domain_deliverability: {
         Args: { p_user_id: string }
         Returns: {
