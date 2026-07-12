@@ -788,6 +788,51 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_job_failures: {
+        Row: {
+          attempts: number
+          created_at: string
+          error_message: string | null
+          http_status: number | null
+          id: string
+          job_name: string
+          request_body: Json | null
+          request_headers: Json
+          request_url: string
+          resolved_at: string | null
+          resolved_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error_message?: string | null
+          http_status?: number | null
+          id?: string
+          job_name: string
+          request_body?: Json | null
+          request_headers?: Json
+          request_url: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error_message?: string | null
+          http_status?: number | null
+          id?: string
+          job_name?: string
+          request_body?: Json | null
+          request_headers?: Json
+          request_url?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       deliverability_logs: {
         Row: {
           created_at: string
@@ -4949,10 +4994,15 @@ export type Database = {
       }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
       release_singleton_job: { Args: { _job_key: string }; Returns: undefined }
+      replay_cron_failure: { Args: { _failure_id: string }; Returns: number }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       reset_slow_query_stats: { Args: never; Returns: undefined }
       run_retention_cleanup: { Args: never; Returns: undefined }
       run_tracking_events_retention: { Args: never; Returns: undefined }
+      safe_http_post: {
+        Args: { _body: Json; _headers: Json; _job_name: string; _url: string }
+        Returns: number
+      }
       try_singleton_job: { Args: { _job_key: string }; Returns: boolean }
       update_contact_score: {
         Args: { p_email: string; p_user_id: string }
