@@ -10,11 +10,12 @@ const log = createLogger('get-tracking-stats');
 
 const StatsQuerySchema = z.object({
   limit: z.number().int().min(1).max(500).default(100),
-  offset: z.number().int().min(0).default(0),
-  cursor: z.string().datetime().optional(),
+  lastId: z.string().uuid().optional(),
+  lastTimestamp: z.string().datetime().optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-  status: z.enum(["all", "opened", "clicked", "bounced"]).default("all")
+  status: z.enum(["all", "opened", "clicked", "bounced"]).default("all"),
+  search: z.string().max(200).optional(),
 });
 
 export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
@@ -38,11 +39,12 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     const url = new URL(req.url);
     const params = {
       limit: parseInt(url.searchParams.get("limit") || "100"),
-      offset: parseInt(url.searchParams.get("offset") || "0"),
-      cursor: url.searchParams.get("cursor") || undefined,
+      lastId: url.searchParams.get("lastId") || undefined,
+      lastTimestamp: url.searchParams.get("lastTimestamp") || undefined,
       startDate: url.searchParams.get("startDate") || undefined,
       endDate: url.searchParams.get("endDate") || undefined,
-      status: url.searchParams.get("status") || "all"
+      status: url.searchParams.get("status") || "all",
+      search: url.searchParams.get("search") || undefined,
     };
 
     const validation = StatsQuerySchema.safeParse(params);
@@ -50,13 +52,17 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
-    const { limit, offset, cursor } = validation.data;
+    const { limit, lastId, lastTimestamp, startDate, endDate, status, search } = validation.data;
 
     const { data, error } = await supabase.rpc("get_emails_with_stats", {
       p_user_id: user.id,
       p_limit: limit,
-      p_offset: offset,
-      p_cursor_date: cursor || null
+      p_last_id: lastId ?? null,
+      p_last_timestamp: lastTimestamp ?? null,
+      p_status: status === "all" ? null : status,
+      p_search: search ?? null,
+      p_start_date: startDate ?? null,
+      p_end_date: endDate ?? null,
     });
 
     if (error) {
@@ -64,11 +70,14 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse("Database error", 500, corsHeaders);
     }
 
-    const nextCursor = data && data.length === limit ? data[data.length - 1].created_at : null;
+    const last = data && data.length === limit ? data[data.length - 1] : null;
+    const nextCursor = last
+      ? { lastId: last.id, lastTimestamp: last.created_at }
+      : null;
 
     return secureJsonResponse({
       emails: data || [],
-      pagination: { limit, offset, nextCursor, hasMore: !!nextCursor }
+      pagination: { limit, nextCursor, hasMore: !!nextCursor }
     }, corsHeaders);
   } catch (error) {
     log.error('Internal error', error);
