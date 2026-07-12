@@ -4954,6 +4954,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_stagnant_indexes: {
+        Args: { _min_days?: number; _min_size_mb?: number }
+        Returns: Json
+      }
       cleanup_expired_challenges: { Args: never; Returns: undefined }
       create_bounce_alert: {
         Args: {
