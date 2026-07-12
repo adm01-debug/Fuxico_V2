@@ -4457,6 +4457,25 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_table_health: {
+        Row: {
+          autovacuum_count: number | null
+          dead_rows: number | null
+          dead_tuple_pct: number | null
+          last_analyze: string | null
+          last_autoanalyze: string | null
+          last_autovacuum: string | null
+          last_vacuum: string | null
+          live_rows: number | null
+          rows_modified_since_analyze: number | null
+          schemaname: unknown
+          table_name: unknown
+          total_size: string | null
+          total_size_bytes: number | null
+          vacuum_count: number | null
+        }
+        Relationships: []
+      }
       email_stats_mv: {
         Row: {
           bounce_detected_at: string | null

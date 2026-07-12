@@ -56,6 +56,16 @@ Auditoria com `pg_constraint` × `pg_index`: **0 FKs sem índice** (todas cobert
 - **Statistics target elevado** (500-1000) em colunas de alta cardinalidade: `tracked_emails.tracking_id`, `.user_id`, `.recipient_email`, `sequence_enrollments.sequence_id`, `.user_id`, `campaigns.user_id`, `email_sequences.user_id`, `contact_scores.user_id`, `domain_reputation.user_id` — planner amostra mais valores e escolhe planos melhores em joins.
 - `ANALYZE` executado para propagar estatísticas imediatamente.
 
+### Onda 8 — Índices parciais + `admin_table_health`
+- **Índices parciais** para queries quentes de dashboard (redução de 80-95% no tamanho de índice):
+  - `scheduled_emails` WHERE `status='pending'`
+  - `sequence_enrollments` WHERE `status='active'`
+  - `campaigns` WHERE `status='active'`
+  - `follow_up_reminders` WHERE `status='pending'`
+  - `bounce_alerts` WHERE `resolved_at IS NULL`
+  - `webhook_configs` WHERE `is_active=true`
+- **View `admin_table_health`** (`security_invoker`, admin-only): expõe `n_live_tup`, `n_dead_tup`, `dead_tuple_pct`, `last_vacuum`, `last_autovacuum`, `last_analyze`, `total_size` e `rows_modified_since_analyze` — visibilidade em tempo real de bloat e recência de manutenção.
+
 ## Métricas de excelência
 
 | Dimensão            | Antes | Depois |
