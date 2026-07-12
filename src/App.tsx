@@ -98,6 +98,7 @@ const App = () => {
                             <Route path="/two-factor-auth" element={<PrivateRoute><TwoFactorAuth /></PrivateRoute>} />
                             <Route path="/tracking" element={<PrivateRoute><TrackingAnalytics /></PrivateRoute>} />
                             <Route path="/audit" element={<PrivateRoute><AuditLogs /></PrivateRoute>} />
+                            <Route path="/admin/observability" element={<PrivateRoute><AdminObservability /></PrivateRoute>} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </RouteTransitions>
