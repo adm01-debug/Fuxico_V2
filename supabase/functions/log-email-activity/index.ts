@@ -1,13 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { getCorsHeaders } from '../_shared/cors.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { protectedHandler } from '../_shared/security-middleware.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts"
 import { CommonEmailAuditSchema } from '../_shared/schemas.ts'
 
-const log = createLogger('log-email-activity')
+const _log = createLogger('log-email-activity')
 const logSchema = CommonEmailAuditSchema
 
 export const handler = async (req: Request, corsHeaders: Record<string, string>) => {

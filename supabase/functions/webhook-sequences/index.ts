@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
     console.log(`Found ${dueEnrollments?.length || 0} enrollments due for processing`);
 
     // Get unique user IDs from enrollments for logging
-    const userIds = [...new Set(dueEnrollments?.map(e => e.user_id) || [])];
+    const _userIds = [...new Set(dueEnrollments?.map(e => e.user_id) || [])];
 
     if (!dueEnrollments || dueEnrollments.length === 0) {
       // Log for all users who have active sequences
@@ -253,7 +253,7 @@ Deno.serve(async (req) => {
 
         // Replace variables in subject and body
         const subject = replaceVariables(stepData.subject, enrollment);
-        const body = replaceVariables(stepData.body, enrollment);
+        const _body = replaceVariables(stepData.body, enrollment);
 
         // Create tracking for this email
         const trackingId = crypto.randomUUID();

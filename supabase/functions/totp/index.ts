@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
 import { createLogger } from '../_shared/logger.ts';
 import { protectedHandler } from '../_shared/security-middleware.ts';

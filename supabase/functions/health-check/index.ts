@@ -1,6 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { publicHandler } from '../_shared/security-middleware.ts';
 
@@ -57,7 +56,8 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     };
 
     return secureJsonResponse(response, allHealthy ? 200 : 503, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse({ status: "unhealthy", error: "Health check failed" }, 503, corsHeaders);
   }
 }

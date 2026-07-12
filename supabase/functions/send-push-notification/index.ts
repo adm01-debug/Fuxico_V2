@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { CommonPushSchema } from "../_shared/schemas.ts";
@@ -44,7 +43,8 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     await supabase.from("push_notifications").insert({ id: notificationId, user_id: userId, title, body: notifBody, icon, url, data, sent_by: user.id });
 
     return secureJsonResponse({ success: true, notificationId }, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }

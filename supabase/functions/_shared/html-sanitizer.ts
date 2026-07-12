@@ -8,7 +8,7 @@
  * Tags HTML permitidas em emails.
  * Baseado nas tags comumente suportadas por clientes de email.
  */
-const ALLOWED_TAGS = new Set([
+const _ALLOWED_TAGS = new Set([
   'a', 'b', 'br', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
   'hr', 'i', 'img', 'li', 'ol', 'p', 'span', 'strong', 'table',
   'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul', 'blockquote',
@@ -18,7 +18,7 @@ const ALLOWED_TAGS = new Set([
 /**
  * Atributos permitidos por tag.
  */
-const ALLOWED_ATTRIBUTES: Record<string, Set<string>> = {
+const _ALLOWED_ATTRIBUTES: Record<string, Set<string>> = {
   '*': new Set(['style', 'class', 'id', 'dir', 'lang', 'title']),
   'a': new Set(['href', 'target', 'rel']),
   'img': new Set(['src', 'alt', 'width', 'height']),
@@ -31,7 +31,7 @@ const ALLOWED_ATTRIBUTES: Record<string, Set<string>> = {
 /**
  * Protocolos permitidos em atributos href/src.
  */
-const ALLOWED_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
+const _ALLOWED_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
 
 /**
  * Remove tags de script, event handlers, e conteudo perigoso de HTML.

@@ -14,5 +14,7 @@ Deno.test("log-email-activity handler - unauthorized", async () => {
   try {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status, 401);
-  } catch (e) { }
+  } catch (_e) {
+    console.error("caught:", _e);
+    }
 });

@@ -4,7 +4,6 @@
 // =============================================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
 import { protectedHandler } from "../_shared/security-middleware.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
@@ -80,7 +79,7 @@ Deno.serve(protectedHandler(async (req: Request, corsHeaders: Record<string, str
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error: unknown) {
+  } catch (_error: unknown) {
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

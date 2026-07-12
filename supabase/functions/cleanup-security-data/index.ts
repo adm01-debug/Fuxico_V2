@@ -4,7 +4,6 @@
 // =============================================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
 import { protectedHandler } from "../_shared/security-middleware.ts";
 
@@ -116,7 +115,7 @@ Deno.serve(protectedHandler(async (req: Request, corsHeaders: Record<string, str
     });
 
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const _errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,

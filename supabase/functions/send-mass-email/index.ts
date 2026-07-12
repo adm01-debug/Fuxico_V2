@@ -1,6 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { getCorsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { sanitizeEmailHtml } from "../_shared/html-sanitizer.ts";
@@ -46,7 +45,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     const { subject, htmlBody: rawHtmlBody, recipients, trackOpens, trackClicks, campaignId } = validation.data;
 
     // SECURITY: Sanitize HTML to prevent script injection in emails
-    const htmlBody = sanitizeEmailHtml(rawHtmlBody);
+    const _htmlBody = sanitizeEmailHtml(rawHtmlBody);
 
     const campaignJobId = crypto.randomUUID();
     
@@ -67,7 +66,8 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       totalRecipients: recipients.length,
       estimatedDeliveryTime: Math.ceil(recipients.length / 100) + " minutes"
     }, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }

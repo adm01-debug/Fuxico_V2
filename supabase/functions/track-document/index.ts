@@ -57,7 +57,8 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     });
 
     return secureJsonResponse({ success: true }, corsHeaders);
-  } catch (error) {
+  } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }
