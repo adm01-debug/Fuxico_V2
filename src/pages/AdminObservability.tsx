@@ -468,6 +468,9 @@ export default function AdminObservability() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dashboard de uso de índices */}
+      <IndexUsageDashboard />
     </div>
   );
 }
