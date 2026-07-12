@@ -351,6 +351,69 @@ export default function AdminObservability() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dead Letter Queue — Falhas de cron */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5" /> Dead Letter Queue (cron)
+          </CardTitle>
+          <CardDescription>
+            Falhas de execução HTTP dos cron jobs. Use "Reprocessar" para reenfileirar manualmente.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {dlq.isLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : !dlq.data || dlq.data.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhuma falha registrada. 🎉</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Job</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Tentativas</TableHead>
+                    <TableHead>Erro</TableHead>
+                    <TableHead>Quando</TableHead>
+                    <TableHead>Ação</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {dlq.data.map((f: any) => (
+                    <TableRow key={f.id}>
+                      <TableCell className="font-mono text-xs">{f.job_name}</TableCell>
+                      <TableCell>
+                        <Badge variant={f.status_code && f.status_code < 500 ? 'secondary' : 'destructive'}>
+                          {f.status_code ?? 'ERR'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{f.attempts}</TableCell>
+                      <TableCell className="max-w-md truncate text-xs" title={f.error_message}>
+                        {f.error_message ?? '—'}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {new Date(f.created_at).toLocaleString('pt-BR')}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={!!f.replayed_at}
+                          onClick={() => handleReplay(f.id)}
+                        >
+                          {f.replayed_at ? 'Reprocessado' : 'Reprocessar'}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
