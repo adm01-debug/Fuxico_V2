@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-import { sanitizeEmailHtml } from "../_shared/html-sanitizer.ts";
+
 import { protectedHandler } from '../_shared/security-middleware.ts';
 
 const MassEmailSchema = z.object({
