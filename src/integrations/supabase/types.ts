@@ -1174,6 +1174,13 @@ export type Database = {
             foreignKeyName: "follow_up_reminders_tracking_id_fkey"
             columns: ["tracking_id"]
             isOneToOne: false
+            referencedRelation: "email_stats_mv"
+            referencedColumns: ["tracking_id"]
+          },
+          {
+            foreignKeyName: "follow_up_reminders_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
             referencedRelation: "tracked_emails"
             referencedColumns: ["tracking_id"]
           },
@@ -3271,6 +3278,13 @@ export type Database = {
             foreignKeyName: "tracked_links_tracking_id_fkey"
             columns: ["tracking_id"]
             isOneToOne: false
+            referencedRelation: "email_stats_mv"
+            referencedColumns: ["tracking_id"]
+          },
+          {
+            foreignKeyName: "tracked_links_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
             referencedRelation: "tracked_emails"
             referencedColumns: ["tracking_id"]
           },
@@ -3314,6 +3328,13 @@ export type Database = {
           user_agent?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tracking_events_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "email_stats_mv"
+            referencedColumns: ["tracking_id"]
+          },
           {
             foreignKeyName: "tracking_events_tracking_id_fkey"
             columns: ["tracking_id"]
@@ -4422,7 +4443,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      email_stats_mv: {
+        Row: {
+          bounce_detected_at: string | null
+          bounce_reason: string | null
+          bounce_type: string | null
+          click_count: number | null
+          created_at: string | null
+          delivery_status: string | null
+          first_opened_at: string | null
+          id: string | null
+          last_opened_at: string | null
+          metadata: Json | null
+          open_count: number | null
+          recipient_email: string | null
+          sender_email: string | null
+          subject: string | null
+          total_link_clicks: number | null
+          tracking_id: string | null
+          unique_links_clicked: number | null
+          unique_opens: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_domain_deliverability: {
