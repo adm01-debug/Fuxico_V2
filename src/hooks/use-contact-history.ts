@@ -87,7 +87,7 @@ export function useContactHistory(email: string | null) {
       const timeline: ContactHistoryItem[] = [];
 
       // Add email sent events
-      emails?.forEach(email => {
+      emails.forEach(email => {
         timeline.push({
           id: `sent-${email.id}`,
           type: 'email_sent',
@@ -109,7 +109,7 @@ export function useContactHistory(email: string | null) {
 
       // Add open/click events
       events.forEach(event => {
-        const email = emails?.find(e => e.tracking_id === event.tracking_id);
+        const email = emails.find(e => e.tracking_id === event.tracking_id);
         timeline.push({
           id: event.id,
           type: event.event_type === 'open' ? 'email_open' : 'link_click',
