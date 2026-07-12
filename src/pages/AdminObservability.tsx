@@ -106,7 +106,7 @@ export default function AdminObservability() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <BackButton />
+          <BackButton onClick={() => navigate('/dashboard')} />
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Activity className="w-6 h-6 text-primary" />
