@@ -79,7 +79,7 @@ Deno.serve(protectedHandler(async (req: Request, corsHeaders: Record<string, str
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (_error: unknown) {
+  } catch {
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
