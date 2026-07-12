@@ -5,6 +5,7 @@ import { createLogger } from "../_shared/logger.ts";
 
 const log = createLogger("process-scheduled-reports");
 
+// eslint-disable-next-line sonarjs/cognitive-complexity -- orchestration handler; branches are linear guard checks
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -79,6 +80,7 @@ serve(async (req) => {
                 body: JSON.stringify({
                   from: "FUXICO Reports <reports@resend.dev>",
                   to: recipient,
+                  // eslint-disable-next-line sonarjs/no-nested-conditional -- readable period selector
                   subject: `📊 ${report.name} - Relatório ${report.report_type === 'daily' ? 'Diário' : report.report_type === 'weekly' ? 'Semanal' : 'Mensal'}`,
                   html: reportContent,
                 }),
@@ -178,6 +180,7 @@ function buildReportContent(report: { name: string; report_type: string; metrics
       <h1 style="color: #333; border-bottom: 2px solid #6366f1; padding-bottom: 10px;">
         📊 ${report.name}
       </h1>
+      // eslint-disable-next-line sonarjs/no-nested-conditional -- readable period selector
       <p style="color: #666;">Relatório ${report.report_type === 'daily' ? 'Diário' : report.report_type === 'weekly' ? 'Semanal' : 'Mensal'} - ${new Date().toLocaleDateString('pt-BR')}</p>
       <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
         <thead>

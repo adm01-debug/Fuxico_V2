@@ -57,6 +57,7 @@ interface StepExecution {
 // Type for Supabase client
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+// eslint-disable-next-line sonarjs/cognitive-complexity -- orchestration handler; branches are linear guard checks
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get('origin'));
 

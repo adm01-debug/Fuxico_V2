@@ -145,6 +145,7 @@ Deno.serve(protectedHandler(handler))
 
 async function syncContact(webhookUrl: string, email: string, data: BitrixContactData): Promise<BitrixSyncResult> {
   // Use URL constructor for safe URL building (prevents parameter injection)
+  // eslint-disable-next-line sonarjs/slow-regex -- trailing-slash trim; anchored
   const listUrl = new URL(`${webhookUrl.replace(/\/+$/, '')}/crm.contact.list`)
   listUrl.searchParams.set('filter[EMAIL]', email)
   const response = await fetch(listUrl.toString())

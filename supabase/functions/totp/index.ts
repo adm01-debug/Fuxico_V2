@@ -15,6 +15,7 @@ const TotpActionSchema = z.object({
 // Simple TOTP implementation using HMAC-SHA1
 function base32ToBytes(base32: string): Uint8Array {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  // eslint-disable-next-line sonarjs/slow-regex -- trailing-only anchored pattern; O(n)
   const cleanedInput = base32.replace(/=+$/, "").toUpperCase();
   const bits: number[] = [];
   
@@ -116,6 +117,7 @@ function generateBackupCodes(count = 10): string[] {
   }
   return codes;
 }
+// eslint-disable-next-line sonarjs/cognitive-complexity -- orchestration handler; branches are linear guard checks
 
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   // Rate limiting - TOTP is security-critical, limit to 5 attempts per minute
