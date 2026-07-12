@@ -36,6 +36,7 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const TrackingAnalytics = lazy(() => import("./pages/TrackingAnalytics"));
 const AuditLogs = lazy(() => import("./pages/AuditLogs"));
+const AdminObservability = lazy(() => import("./pages/AdminObservability"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -97,6 +98,7 @@ const App = () => {
                             <Route path="/two-factor-auth" element={<PrivateRoute><TwoFactorAuth /></PrivateRoute>} />
                             <Route path="/tracking" element={<PrivateRoute><TrackingAnalytics /></PrivateRoute>} />
                             <Route path="/audit" element={<PrivateRoute><AuditLogs /></PrivateRoute>} />
+                            <Route path="/admin/observability" element={<PrivateRoute><AdminObservability /></PrivateRoute>} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </RouteTransitions>
