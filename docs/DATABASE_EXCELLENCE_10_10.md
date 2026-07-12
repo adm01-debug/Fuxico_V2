@@ -44,6 +44,12 @@ Auditoria com `pg_constraint` × `pg_index`: **0 FKs sem índice** (todas cobert
 - `supabase/tests/rls/partitioning-and-versioning.test.sql` — 28 asserções pgTAP validando particionamento, version columns, EXCLUDE constraints, MV e job de refresh
 - Este documento (`docs/DATABASE_EXCELLENCE_10_10.md`)
 
+### Onda 6 — Observabilidade de queries (`admin_slow_queries`)
+- Extensão `pg_stat_statements` habilitada
+- View `public.admin_slow_queries` com `security_invoker=true` + filtro `has_role(auth.uid(), 'admin')` no WHERE — admins veem top 200 queries por `mean_exec_time`, incluindo `cache_hit_ratio_pct`, `stddev_exec_ms` e `rows`
+- Função `public.reset_slow_query_stats()` restrita a admin para zerar estatísticas após deploys/otimizações
+- GRANTs restritos: `authenticated` apenas; `anon` bloqueado
+
 ## Métricas de excelência
 
 | Dimensão            | Antes | Depois |
