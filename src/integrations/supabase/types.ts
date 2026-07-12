@@ -4649,6 +4649,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tracking_events_monthly_agg: {
+        Row: {
+          distinct_ips: number | null
+          event_count: number | null
+          event_type: string | null
+          first_event_at: string | null
+          last_event_at: string | null
+          month: string | null
+          tracking_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_events_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "email_stats_mv"
+            referencedColumns: ["tracking_id"]
+          },
+          {
+            foreignKeyName: "tracking_events_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_emails"
+            referencedColumns: ["tracking_id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_alert_sanity_check: { Args: never; Returns: Json }
@@ -4977,6 +5004,7 @@ export type Database = {
         Returns: string
       }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
+      refresh_tracking_events_monthly_agg: { Args: never; Returns: undefined }
       release_singleton_job: { Args: { _job_key: string }; Returns: undefined }
       replay_cron_failure: { Args: { _failure_id: string }; Returns: number }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
