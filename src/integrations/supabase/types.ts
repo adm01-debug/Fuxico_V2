@@ -2476,6 +2476,384 @@ export type Database = {
           },
         ]
       }
+      webhook_logs_2026_06: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs_2026_07: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs_2026_08: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs_2026_09: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs_2026_10: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs_2026_11: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs_2026_12: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs_2027_01: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
+      webhook_logs_default: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          success: boolean
+          tracking_id: string | null
+          user_id: string
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id: string
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          success?: boolean
+          tracking_id?: string | null
+          user_id?: string
+          webhook_id?: string | null
+        }
+        Relationships: []
+      }
       whatsapp_configs: {
         Row: {
           api_key: string | null
@@ -2629,6 +3007,10 @@ export type Database = {
         Returns: string
       }
       ensure_tracking_events_partition: {
+        Args: { target_month: string }
+        Returns: undefined
+      }
+      ensure_webhook_logs_partition: {
         Args: { target_month: string }
         Returns: undefined
       }
