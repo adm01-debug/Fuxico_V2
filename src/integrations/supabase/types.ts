@@ -1379,6 +1379,306 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts_2026_05: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_2026_06: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_2026_07: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_2026_08: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_2026_09: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_2026_10: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_2026_11: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_2026_12: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_2027_01: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      login_attempts_default: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       login_lockouts: {
         Row: {
           created_at: string
@@ -1634,6 +1934,456 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_logs_2026_05: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_2026_06: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_2026_07: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_2026_08: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_2026_09: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_2026_10: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_2026_11: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_2026_12: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_2027_01: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      rate_limit_logs_default: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          is_blocked: boolean | null
+          request_count: number
+          user_agent: string | null
+          user_id: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end: string
+          window_start?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean | null
+          request_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           created_at: string
@@ -1757,6 +2507,366 @@ export type Database = {
         Relationships: []
       }
       security_events: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2026_05: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2026_06: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2026_07: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2026_08: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2026_09: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2026_10: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2026_11: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2026_12: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_2027_01: {
+        Row: {
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_events_default: {
         Row: {
           created_at: string
           description: string
@@ -3331,6 +4441,18 @@ export type Database = {
         Returns: string
       }
       ensure_audit_logs_partition: {
+        Args: { target_month: string }
+        Returns: undefined
+      }
+      ensure_login_attempts_partition: {
+        Args: { target_month: string }
+        Returns: undefined
+      }
+      ensure_rate_limit_logs_partition: {
+        Args: { target_month: string }
+        Returns: undefined
+      }
+      ensure_security_events_partition: {
         Args: { target_month: string }
         Returns: undefined
       }
