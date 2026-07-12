@@ -33,6 +33,7 @@ export type Database = {
           variant_b_opens: number
           variant_b_sends: number
           variant_b_subject: string
+          version: number
           winner: string | null
         }
         Insert: {
@@ -53,6 +54,7 @@ export type Database = {
           variant_b_opens?: number
           variant_b_sends?: number
           variant_b_subject: string
+          version?: number
           winner?: string | null
         }
         Update: {
@@ -73,6 +75,7 @@ export type Database = {
           variant_b_opens?: number
           variant_b_sends?: number
           variant_b_subject?: string
+          version?: number
           winner?: string | null
         }
         Relationships: []
@@ -123,6 +126,7 @@ export type Database = {
           low_open_rate: number | null
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           bounce_rate_critical?: number | null
@@ -133,6 +137,7 @@ export type Database = {
           low_open_rate?: number | null
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           bounce_rate_critical?: number | null
@@ -143,6 +148,7 @@ export type Database = {
           low_open_rate?: number | null
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -155,6 +161,7 @@ export type Database = {
           internal_domains: string[]
           timezone: string
           updated_at: string
+          version: number
           volume_threshold_daily: number
           volume_threshold_hourly: number
         }
@@ -166,6 +173,7 @@ export type Database = {
           internal_domains?: string[]
           timezone?: string
           updated_at?: string
+          version?: number
           volume_threshold_daily?: number
           volume_threshold_hourly?: number
         }
@@ -177,6 +185,7 @@ export type Database = {
           internal_domains?: string[]
           timezone?: string
           updated_at?: string
+          version?: number
           volume_threshold_daily?: number
           volume_threshold_hourly?: number
         }
@@ -555,6 +564,7 @@ export type Database = {
           send_notifications: boolean
           updated_at: string
           user_id: string
+          version: number
           webhook_url: string | null
         }
         Insert: {
@@ -569,6 +579,7 @@ export type Database = {
           send_notifications?: boolean
           updated_at?: string
           user_id: string
+          version?: number
           webhook_url?: string | null
         }
         Update: {
@@ -583,6 +594,7 @@ export type Database = {
           send_notifications?: boolean
           updated_at?: string
           user_id?: string
+          version?: number
           webhook_url?: string | null
         }
         Relationships: []
@@ -711,6 +723,7 @@ export type Database = {
           unique_opens: number | null
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           created_at?: string
@@ -727,6 +740,7 @@ export type Database = {
           unique_opens?: number | null
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           created_at?: string
@@ -743,6 +757,7 @@ export type Database = {
           unique_opens?: number | null
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -877,6 +892,7 @@ export type Database = {
           total_sent: number | null
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           bounce_rate?: number | null
@@ -895,6 +911,7 @@ export type Database = {
           total_sent?: number | null
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           bounce_rate?: number | null
@@ -913,6 +930,7 @@ export type Database = {
           total_sent?: number | null
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -1090,6 +1108,7 @@ export type Database = {
           name: string
           percentage: number | null
           updated_at: string
+          version: number
         }
         Insert: {
           conditions?: Json | null
@@ -1102,6 +1121,7 @@ export type Database = {
           name: string
           percentage?: number | null
           updated_at?: string
+          version?: number
         }
         Update: {
           conditions?: Json | null
@@ -1114,6 +1134,7 @@ export type Database = {
           name?: string
           percentage?: number | null
           updated_at?: string
+          version?: number
         }
         Relationships: []
       }
@@ -1252,6 +1273,7 @@ export type Database = {
           refresh_token: string | null
           updated_at: string | null
           user_id: string
+          version: number
         }
         Insert: {
           access_token?: string | null
@@ -1263,6 +1285,7 @@ export type Database = {
           refresh_token?: string | null
           updated_at?: string | null
           user_id: string
+          version?: number
         }
         Update: {
           access_token?: string | null
@@ -1274,6 +1297,7 @@ export type Database = {
           refresh_token?: string | null
           updated_at?: string | null
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -1724,6 +1748,7 @@ export type Database = {
           totp_secret: string | null
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           backup_codes?: string[] | null
@@ -1736,6 +1761,7 @@ export type Database = {
           totp_secret?: string | null
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           backup_codes?: string[] | null
@@ -1748,6 +1774,7 @@ export type Database = {
           totp_secret?: string | null
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -2428,6 +2455,7 @@ export type Database = {
           tracking_id: string | null
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           body?: string | null
@@ -2443,6 +2471,7 @@ export type Database = {
           tracking_id?: string | null
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           body?: string | null
@@ -2458,6 +2487,7 @@ export type Database = {
           tracking_id?: string | null
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -2917,6 +2947,7 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           completed_at?: string | null
@@ -2932,6 +2963,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           completed_at?: string | null
@@ -2947,6 +2979,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: [
           {
@@ -3031,6 +3064,7 @@ export type Database = {
           subject: string
           trigger_condition: string | null
           updated_at: string
+          version: number
         }
         Insert: {
           body: string
@@ -3044,6 +3078,7 @@ export type Database = {
           subject: string
           trigger_condition?: string | null
           updated_at?: string
+          version?: number
         }
         Update: {
           body?: string
@@ -3057,6 +3092,7 @@ export type Database = {
           subject?: string
           trigger_condition?: string | null
           updated_at?: string
+          version?: number
         }
         Relationships: [
           {
@@ -3114,6 +3150,7 @@ export type Database = {
           recipient_email: string | null
           recipient_name: string | null
           user_id: string
+          version: number
         }
         Insert: {
           created_at?: string
@@ -3127,6 +3164,7 @@ export type Database = {
           recipient_email?: string | null
           recipient_name?: string | null
           user_id: string
+          version?: number
         }
         Update: {
           created_at?: string
@@ -3140,6 +3178,7 @@ export type Database = {
           recipient_email?: string | null
           recipient_name?: string | null
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -3688,6 +3727,7 @@ export type Database = {
           sound_enabled: boolean
           updated_at: string
           user_id: string
+          version: number
           warning_volume: number | null
         }
         Insert: {
@@ -3709,6 +3749,7 @@ export type Database = {
           sound_enabled?: boolean
           updated_at?: string
           user_id: string
+          version?: number
           warning_volume?: number | null
         }
         Update: {
@@ -3730,6 +3771,7 @@ export type Database = {
           sound_enabled?: boolean
           updated_at?: string
           user_id?: string
+          version?: number
           warning_volume?: number | null
         }
         Relationships: []
@@ -3837,6 +3879,7 @@ export type Database = {
           updated_at: string
           url: string
           user_id: string
+          version: number
         }
         Insert: {
           created_at?: string
@@ -3847,6 +3890,7 @@ export type Database = {
           updated_at?: string
           url: string
           user_id: string
+          version?: number
         }
         Update: {
           created_at?: string
@@ -3857,6 +3901,7 @@ export type Database = {
           updated_at?: string
           url?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -4302,6 +4347,7 @@ export type Database = {
           phone_number: string | null
           updated_at: string | null
           user_id: string
+          version: number
         }
         Insert: {
           api_key?: string | null
@@ -4316,6 +4362,7 @@ export type Database = {
           phone_number?: string | null
           updated_at?: string | null
           user_id: string
+          version?: number
         }
         Update: {
           api_key?: string | null
@@ -4330,6 +4377,7 @@ export type Database = {
           phone_number?: string | null
           updated_at?: string | null
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -4344,6 +4392,7 @@ export type Database = {
           tracking_brand: string | null
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           created_at?: string
@@ -4355,6 +4404,7 @@ export type Database = {
           tracking_brand?: string | null
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           created_at?: string
@@ -4366,6 +4416,7 @@ export type Database = {
           tracking_brand?: string | null
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: []
       }
