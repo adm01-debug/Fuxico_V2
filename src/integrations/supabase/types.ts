@@ -4622,6 +4622,7 @@ export type Database = {
           total_size: string
         }[]
       }
+      alert_query_regressions: { Args: never; Returns: number }
       calculate_domain_deliverability: {
         Args: { p_user_id: string }
         Returns: {
@@ -4881,6 +4882,7 @@ export type Database = {
         }
         Returns: string
       }
+      monitor_table_bloat: { Args: never; Returns: number }
       recalculate_all_contact_scores: {
         Args: { p_user_id: string }
         Returns: number
