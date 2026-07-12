@@ -9,5 +9,7 @@ Deno.test("get-config handler - basic", async () => {
   try {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status, 200);
-  } catch (_e) { }
+  } catch (_e) {
+    console.error("caught:", _e);
+    }
 });

@@ -40,6 +40,7 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
 
     return Response.redirect(link.destination_url, 302);
   } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }));

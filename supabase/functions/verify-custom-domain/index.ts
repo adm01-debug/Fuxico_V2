@@ -48,6 +48,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
       token: verificationToken
     }, corsHeaders);
   } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }));

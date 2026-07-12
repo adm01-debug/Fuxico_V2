@@ -57,6 +57,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
 
     return secureJsonResponse(response, allHealthy ? 200 : 503, corsHeaders);
   } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse({ status: "unhealthy", error: "Health check failed" }, 503, corsHeaders);
   }
 }

@@ -11,5 +11,7 @@ Deno.test("report-bounce handler - validation", async () => {
   try {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status, 400);
-  } catch (_e) { }
+  } catch (_e) {
+    console.error("caught:", _e);
+    }
 });

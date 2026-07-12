@@ -56,6 +56,7 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
 
     return secureJsonResponse({ success: true, voteId }, corsHeaders);
   } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }));

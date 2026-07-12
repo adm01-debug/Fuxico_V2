@@ -67,6 +67,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       estimatedDeliveryTime: Math.ceil(recipients.length / 100) + " minutes"
     }, corsHeaders);
   } catch (_error) {
+    console.error("caught:", _error);
     return secureErrorResponse("Internal error", 500, corsHeaders);
   }
 }

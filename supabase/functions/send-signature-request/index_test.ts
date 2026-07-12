@@ -17,5 +17,7 @@ Deno.test("send-signature-request handler - unauthorized", async () => {
   try {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status, 401);
-  } catch (_e) { }
+  } catch (_e) {
+    console.error("caught:", _e);
+    }
 });
