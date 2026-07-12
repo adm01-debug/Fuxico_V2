@@ -155,14 +155,20 @@ Fecha vetores de DoS: queries longas, transações abandonadas segurando locks, 
 
 ## Onda 16 — Autovacuum tuning + advisory locks + health check
 
-- **Autovacuum agressivo** em 7 tabelas write-heavy (`tracked_emails`, `sequence_enrollments`, `scheduled_emails`, `contact_scores`, `domain_reputation`, `notification_history`, `follow_up_reminders`) com `scale_factor` reduzido para 0.05/0.02 e `fillfactor` 85-90 para reduzir bloat e favorecer HOT updates.
-- **Advisory locks** para jobs singleton: `try_singleton_job(key)` / `release_singleton_job(key)` (service_role only) — garante que cron jobs concorrentes não processem o mesmo trabalho duas vezes.
-- **`db_health_check()`** (admin-only, STABLE) — retorna JSONB com `status` (healthy/degraded), idade do MV em segundos, conexões OK, partições `_default` vazias, locks bloqueados. Endpoint pronto para uptime monitors externos.
+- **Autovacuum agressivo** em 7 tabelas write-heavy com `scale_factor` 0.05/0.02 e `fillfactor` 85-90.
+- **Advisory locks** `try_singleton_job` / `release_singleton_job` (service_role only) para blindar cron jobs concorrentes.
+- **`db_health_check()`** admin-only para uptime monitors externos.
+
+## Onda 17 — Bloat estimator + cache hit ratio + blocking queries
+
+- **`admin_table_bloat()`** — top 50 tabelas por `n_dead_tup`, com `bloat_ratio_pct`, `total_size`, `table_size` e estimativa de bytes desperdiçados. Guia decisões de `VACUUM FULL` / `pg_repack`.
+- **`admin_cache_hit_ratio` view** — hit ratio de heap e índice (meta > 99% em OLTP). Alerta precoce de undersized shared_buffers.
+- **`admin_blocking_queries()`** — sessões em `wait_event_type = 'Lock'` com PID do bloqueador, queries de ambos os lados e `waited_seconds` — diagnóstico de deadlock/contention em 1 chamada.
 
 ---
 
 # 🏆 STATUS FINAL: 10/10
 
-**16 ondas aplicadas** cobrindo particionamento, versionamento otimista, cobertura de FKs, MV com refresh CONCURRENTLY, testes pgTAP, observabilidade (`admin_slow_queries`), BRIN + statistics tuning, índices parciais + `admin_table_health`, automação pg_cron completa, covering indexes com INCLUDE, integridade de dados + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas críticas, timeouts por role, autovacuum tuning + advisory locks + `db_health_check`.
+**17 ondas aplicadas** cobrindo particionamento, versionamento otimista, cobertura de FKs, MV com refresh CONCURRENTLY, testes pgTAP, `admin_slow_queries`, BRIN + statistics tuning, índices parciais + `admin_table_health`, automação pg_cron, covering indexes com INCLUDE, integridade de dados + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas críticas, timeouts por role, autovacuum tuning + advisory locks + `db_health_check`, e bloat/cache/blocking observability.
 
 Banco pronto para produção enterprise-grade.
