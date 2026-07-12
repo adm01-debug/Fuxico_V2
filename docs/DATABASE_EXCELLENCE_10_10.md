@@ -172,13 +172,23 @@ Fecha vetores de DoS: queries longas, transações abandonadas segurando locks, 
 
 ## Onda 19 — Alertas automáticos de regressão e bloat
 
-- **`alert_query_regressions()`** — cron horário `fuxico-alert-query-regressions` (`10 * * * *`) escreve em `security_events` quando queries degradam ≥ 100% vs baseline 24h. Severidade escala: `medium` (≥100%), `high` (≥200%), `critical` (≥500%). Deduplicação por `queryid` em janela de 1h.
-- **`monitor_table_bloat()`** — cron diário `fuxico-monitor-table-bloat` (`15 4 * * *`) registra `security_events` quando qualquer tabela com > 10k rows ultrapassa 30% de dead tuples. Severidade `high` a partir de 60%. Deduplicação por tabela em janela de 24h.
+- `alert_query_regressions()` — cron horário registra `security_events` quando queries degradam ≥ 100%. Severidade escala: medium/high/critical.
+- `monitor_table_bloat()` — cron diário alerta quando tabelas > 10k rows passam de 30% dead tuples.
+
+## Onda 20 — Cron watchdog + status consolidado
+
+- **`monitor_cron_jobs()`** — cron `fuxico-monitor-cron-jobs` (a cada 30min) fiscaliza todos os jobs `fuxico-*`:
+  - Job com última execução `failed` → `security_events` severidade `high`
+  - Job stale (horário sem rodar há > 90min; diário há > 26h) → severidade `medium`
+  - Deduplicação por `jobname` em janela de 6h
+- **View `admin_cron_status`** — snapshot de todos os jobs com status, duração, mensagem e contagem de falhas nas últimas 24h.
+
+Watchdog fecha o loop: se algum monitor cair, o meta-monitor detecta e alerta.
 
 ---
 
 # 🏆 STATUS FINAL: 10/10
 
-**19 ondas aplicadas** — particionamento mensal, versionamento otimista, cobertura de FKs, MV CONCURRENTLY, pgTAP, `admin_slow_queries`, BRIN + statistics, índices parciais + `admin_table_health`, pg_cron completo, covering indexes com INCLUDE, integridade + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas, timeouts por role, autovacuum + advisory locks + `db_health_check`, bloat/cache/blocking observability, histórico de performance, e alertas automáticos de regressão + bloat.
+**20 ondas aplicadas** — particionamento mensal, versionamento otimista, cobertura de FKs, MV CONCURRENTLY, pgTAP, `admin_slow_queries`, BRIN + statistics, índices parciais + `admin_table_health`, pg_cron completo, covering indexes com INCLUDE, integridade + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas, timeouts por role, autovacuum + advisory locks + `db_health_check`, bloat/cache/blocking observability, histórico de performance, auto-alertas de regressão/bloat, e cron watchdog + status consolidado.
 
-Banco pronto para produção enterprise-grade — auto-observável, auto-alertante, auto-mantido.
+Banco pronto para produção enterprise-grade — auto-observável, auto-alertante, auto-mantido e com self-monitoring recursivo.
