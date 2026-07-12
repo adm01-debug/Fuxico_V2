@@ -1923,6 +1923,51 @@ export type Database = {
         }
         Relationships: []
       }
+      query_performance_snapshots: {
+        Row: {
+          cache_hit_ratio_pct: number | null
+          calls: number
+          created_at: string
+          id: string
+          max_exec_ms: number
+          mean_exec_ms: number
+          query_text: string
+          queryid: number | null
+          rows: number | null
+          snapshot_at: string
+          stddev_exec_ms: number | null
+          total_exec_ms: number
+        }
+        Insert: {
+          cache_hit_ratio_pct?: number | null
+          calls: number
+          created_at?: string
+          id?: string
+          max_exec_ms: number
+          mean_exec_ms: number
+          query_text: string
+          queryid?: number | null
+          rows?: number | null
+          snapshot_at?: string
+          stddev_exec_ms?: number | null
+          total_exec_ms: number
+        }
+        Update: {
+          cache_hit_ratio_pct?: number | null
+          calls?: number
+          created_at?: string
+          id?: string
+          max_exec_ms?: number
+          mean_exec_ms?: number
+          query_text?: string
+          queryid?: number | null
+          rows?: number | null
+          snapshot_at?: string
+          stddev_exec_ms?: number | null
+          total_exec_ms?: number
+        }
+        Relationships: []
+      }
       rate_limit_logs: {
         Row: {
           city: string | null
@@ -4553,6 +4598,17 @@ export type Database = {
         }[]
       }
       admin_ops_dashboard: { Args: never; Returns: Json }
+      admin_query_regressions: {
+        Args: { _threshold_pct?: number }
+        Returns: {
+          baseline_mean_ms: number
+          current_calls: number
+          current_mean_ms: number
+          query_text: string
+          queryid: number
+          regression_pct: number
+        }[]
+      }
       admin_table_bloat: {
         Args: never
         Returns: {
@@ -4580,6 +4636,7 @@ export type Database = {
           total_sent: number
         }[]
       }
+      capture_query_performance_snapshot: { Args: never; Returns: number }
       check_bounce_alerts: {
         Args: { p_user_id: string }
         Returns: {

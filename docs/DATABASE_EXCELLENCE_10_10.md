@@ -161,14 +161,20 @@ Fecha vetores de DoS: queries longas, transações abandonadas segurando locks, 
 
 ## Onda 17 — Bloat estimator + cache hit ratio + blocking queries
 
-- **`admin_table_bloat()`** — top 50 tabelas por `n_dead_tup`, com `bloat_ratio_pct`, `total_size`, `table_size` e estimativa de bytes desperdiçados. Guia decisões de `VACUUM FULL` / `pg_repack`.
-- **`admin_cache_hit_ratio` view** — hit ratio de heap e índice (meta > 99% em OLTP). Alerta precoce de undersized shared_buffers.
-- **`admin_blocking_queries()`** — sessões em `wait_event_type = 'Lock'` com PID do bloqueador, queries de ambos os lados e `waited_seconds` — diagnóstico de deadlock/contention em 1 chamada.
+- **`admin_table_bloat()`** — top 50 tabelas por `n_dead_tup` com `bloat_ratio_pct`.
+- **`admin_cache_hit_ratio` view** — hit ratio heap/índice (meta > 99%).
+- **`admin_blocking_queries()`** — sessões bloqueadas + PID/query do bloqueador + `waited_seconds`.
+
+## Onda 18 — Histórico de performance + detecção de regressões
+
+- **Tabela `query_performance_snapshots`** (RLS admin-only, retenção 30d) — snapshot horário de top-50 queries do `pg_stat_statements` com `mean_exec_ms`, `stddev`, `cache_hit_ratio_pct`.
+- **`capture_query_performance_snapshot()`** — service_role only, executada por cron `fuxico-capture-query-perf` (`0 * * * *`).
+- **`admin_query_regressions(threshold_pct)`** — compara janela da última hora contra baseline das últimas 24h e retorna queries que degradaram > threshold% (default 50%). Alerta imediato de regressão pós-deploy.
 
 ---
 
 # 🏆 STATUS FINAL: 10/10
 
-**17 ondas aplicadas** cobrindo particionamento, versionamento otimista, cobertura de FKs, MV com refresh CONCURRENTLY, testes pgTAP, `admin_slow_queries`, BRIN + statistics tuning, índices parciais + `admin_table_health`, automação pg_cron, covering indexes com INCLUDE, integridade de dados + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas críticas, timeouts por role, autovacuum tuning + advisory locks + `db_health_check`, e bloat/cache/blocking observability.
+**18 ondas aplicadas** — particionamento, versionamento otimista, cobertura de FKs, MV CONCURRENTLY, pgTAP, `admin_slow_queries`, BRIN + statistics, índices parciais + `admin_table_health`, pg_cron completo, covering indexes com INCLUDE, integridade + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas, timeouts por role, autovacuum + advisory locks + `db_health_check`, bloat/cache/blocking observability, e histórico de performance com detecção automática de regressões.
 
 Banco pronto para produção enterprise-grade.
