@@ -43,10 +43,17 @@ const defaultRetryConfig: RetryConfig = {
   backoffMultiplier: 2,
 }
 
+function cryptoRandomFloat(): number {
+  // Random uniforme [0,1) usando CSPRNG (evita Math.random e SonarJS pseudo-random).
+  const buf = new Uint32Array(1)
+  crypto.getRandomValues(buf)
+  return buf[0] / 0x100000000
+}
+
 function calculateDelay(attempt: number, config: RetryConfig): number {
   const delay = config.initialDelay * Math.pow(config.backoffMultiplier, attempt - 1)
   // Adicionar jitter (±10%) para evitar thundering herd
-  const jitter = delay * 0.1 * (Math.random() * 2 - 1)
+  const jitter = delay * 0.1 * (cryptoRandomFloat() * 2 - 1)
   return Math.min(delay + jitter, config.maxDelay)
 }
 
