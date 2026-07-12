@@ -124,3 +124,15 @@ Todos os jobs são idempotentes (unschedule prévio antes de recriar).
 - **Fail-safe:** exceção interna do trigger nunca bloqueia o write de negócio (WHEN OTHERS → RETURN).
 - Aplicado a 12 tabelas de alto risco: `user_roles`, `role_permissions`, `permissions`, `gmail_configurations`, `webhook_configs`, `bitrix24_config`, `whatsapp_configs`, `feature_flags`, `blocked_ips`, `geo_whitelist`, `ip_whitelist`, `whitelabel_config`.
 - Toda alteração de permissão, integração ou lista de bloqueio fica com trilha imutável quem/quando/antes/depois.
+
+## Onda 13 — Dashboard operacional consolidado
+
+- **`admin_ops_dashboard()`** — retorna JSONB único com visão 360° do banco:
+  - Tamanho total + top 10 tabelas por bytes
+  - Conexões: active/idle/idle_in_tx/total
+  - Últimas execuções dos jobs `fuxico-*` (status, timestamps, mensagem)
+  - Frescor do MV `email_stats_mv`
+  - Contagem de rows nos `_default` partitions (alerta de partição faltante)
+- **`admin_partition_coverage`** view — por tabela particionada mostra `partitions`, `future_partitions` e `coverage_until` — permite alarmar quando cobertura futura < 30 dias.
+
+Ambos admin-only via `has_role(auth.uid(), 'admin')`, `security_invoker=true` na view, e `EXECUTE` explícito na função.
