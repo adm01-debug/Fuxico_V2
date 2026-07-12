@@ -85,6 +85,13 @@ export default function AdminObservability() {
     staleTime: 30_000,
   });
 
+  const sanity = useQuery({
+    queryKey: ['admin_alert_sanity_check', refreshKey],
+    queryFn: () => adminRpc<any>('admin_alert_sanity_check'),
+    enabled: !!isAdmin,
+    staleTime: 30_000,
+  });
+
   const handleReplay = async (id: string) => {
     try {
       await adminRpc('admin_replay_cron_failure', { _failure_id: id });
