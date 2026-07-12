@@ -27,8 +27,6 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
     // SECURITY: Use full UUID for verification token (128 bits of entropy)
     // Previously used only 8 chars (32 bits) which is brute-forceable
     const verificationToken = `fuxico-verify-${crypto.randomUUID()}`;
-    const _verificationRecord = verificationType === "dns" ? `TXT _fuxico.${domain} = ${verificationToken}` : `/${verificationToken}.txt`;
-
     await supabase.from("custom_domains").upsert({
       user_id: user.id,
       domain,

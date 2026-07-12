@@ -15,7 +15,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
   if (!rateLimitResult.allowed) return secureJsonResponse({ error: 'Rate limit exceeded' }, 429, corsHeaders)
 
   try {
-    const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', { global: { headers: { Authorization: req.headers.get('Authorization')! } } })
+    const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } })
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
     if (authError || !user) return secureJsonResponse({ error: 'Unauthorized' }, 401, corsHeaders)
 

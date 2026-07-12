@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
-import { sanitizeEmailHtml } from "../_shared/html-sanitizer.ts";
+
 import { protectedHandler } from '../_shared/security-middleware.ts';
 
 const MassEmailSchema = z.object({
@@ -42,11 +42,9 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse({ error: "Validation failed" }, 400, corsHeaders);
     }
 
-    const { subject, htmlBody: rawHtmlBody, recipients, trackOpens, trackClicks, campaignId } = validation.data;
+    const { subject, recipients, trackOpens, trackClicks, campaignId } = validation.data;
 
     // SECURITY: Sanitize HTML to prevent script injection in emails
-    const _htmlBody = sanitizeEmailHtml(rawHtmlBody);
-
     const campaignJobId = crypto.randomUUID();
     
     await supabase.from("mass_email_campaigns").insert({

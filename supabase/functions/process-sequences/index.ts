@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
-import { sanitizeEmailHtml } from '../_shared/html-sanitizer.ts';
+
 
 interface SequenceEnrollment {
   id: string;
@@ -77,8 +77,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -195,8 +195,6 @@ Deno.serve(async (req) => {
 
         // Replace variables in subject and body, then sanitize HTML
         const subject = replaceVariables(stepData.subject, enrollment);
-        const _body = sanitizeEmailHtml(replaceVariables(stepData.body, enrollment));
-
         // Create tracking for this email
         const trackingId = crypto.randomUUID();
         

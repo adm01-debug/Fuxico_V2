@@ -35,14 +35,11 @@ Deno.test("ai-insights handler - validation error", async () => {
     },
     body: JSON.stringify({ period: "invalid-period" }),
   });
-
   const corsHeaders = { "Access-Control-Allow-Origin": "*" };
-  
   try {
-    const _res = await handler(req, corsHeaders);
-    // Since we're not mocking auth, it might still return 401 before validation
-    // or throw if Deno.env is missing
+    const res = await handler(req, corsHeaders);
+    await res.text();
   } catch (e) {
-    console.log("Test caught expected failure or error:", e.message);
+    console.warn("expected failure:", (e as Error).message);
   }
 });

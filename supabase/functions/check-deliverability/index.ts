@@ -106,7 +106,7 @@ async function checkDNSRecords(domain: string) {
       result.dns.spf = txtRecords.some((r: string[]) => 
         r.some((txt: string) => txt.startsWith("v=spf1"))
       );
-    } catch { }
+    } catch { /* noop */ }
 
     for (const selector of ["default", "google", "mail", "selector1", "selector2"]) {
       try {
@@ -115,7 +115,7 @@ async function checkDNSRecords(domain: string) {
           result.dns.dkim = true;
           break;
         }
-      } catch { }
+      } catch { /* noop */ }
     }
 
     try {
@@ -123,7 +123,7 @@ async function checkDNSRecords(domain: string) {
       result.dns.dmarc = dmarcRecords.some((r: string[]) =>
         r.some((txt: string) => txt.startsWith("v=DMARC1"))
       );
-    } catch { }
+    } catch { /* noop */ }
   } catch (error) {
     log.error('DNS check error', error);
   }
@@ -173,7 +173,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     try {
       const text = await req.text();
       if (text) body = JSON.parse(text);
-    } catch { }
+    } catch { /* noop */ }
 
     if (!body || !body.email) {
       const adminSupabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");

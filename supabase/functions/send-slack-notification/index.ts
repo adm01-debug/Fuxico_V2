@@ -198,6 +198,7 @@ const formatTeamsMessage = (eventType: string, data: NotificationEventData): Tea
 
   return {
     '@type': 'MessageCard',
+    // eslint-disable-next-line sonarjs/no-clear-text-protocols -- Slack legacy URL
     '@context': 'http://schema.org/extensions',
     themeColor: color,
     summary: `${label}: ${data.recipientEmail}`,
