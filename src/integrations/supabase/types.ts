@@ -4497,6 +4497,20 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_cron_status: {
+        Row: {
+          active: boolean | null
+          failures_24h: number | null
+          jobname: string | null
+          last_duration_sec: number | null
+          last_end: string | null
+          last_message: string | null
+          last_start: string | null
+          last_status: string | null
+          schedule: string | null
+        }
+        Relationships: []
+      }
       admin_partition_coverage: {
         Row: {
           coverage_until: string | null
@@ -4882,6 +4896,7 @@ export type Database = {
         }
         Returns: string
       }
+      monitor_cron_jobs: { Args: never; Returns: number }
       monitor_table_bloat: { Args: never; Returns: number }
       recalculate_all_contact_scores: {
         Args: { p_user_id: string }
