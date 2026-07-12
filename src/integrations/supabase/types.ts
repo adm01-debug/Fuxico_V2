@@ -4443,6 +4443,20 @@ export type Database = {
       }
     }
     Views: {
+      admin_slow_queries: {
+        Row: {
+          cache_hit_ratio_pct: number | null
+          calls: number | null
+          max_exec_ms: number | null
+          mean_exec_ms: number | null
+          query: string | null
+          queryid: number | null
+          rows: number | null
+          stddev_exec_ms: number | null
+          total_exec_ms: number | null
+        }
+        Relationships: []
+      }
       email_stats_mv: {
         Row: {
           bounce_detected_at: string | null
@@ -4749,6 +4763,7 @@ export type Database = {
       }
       refresh_email_stats_mv: { Args: never; Returns: undefined }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
+      reset_slow_query_stats: { Args: never; Returns: undefined }
       run_retention_cleanup: { Args: never; Returns: undefined }
       run_tracking_events_retention: { Args: never; Returns: undefined }
       update_contact_score: {
