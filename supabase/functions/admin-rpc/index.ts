@@ -24,6 +24,10 @@ const ALLOWED = new Set([
   "admin_alert_sanity_check",
   "reset_slow_query_stats",
   "db_health_check",
+  "admin_stale_indexes",
+  "admin_preview_index_drop",
+  "admin_execute_index_drop",
+  "admin_restore_dropped_index",
 ]);
 
 interface RpcBody {
