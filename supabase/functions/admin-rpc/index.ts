@@ -52,9 +52,9 @@ Deno.serve(async (req) => {
       return json({ error: "missing_authorization" }, 401);
     }
 
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-    const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? '';
+    const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? '';
+    const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? '';
 
     // 1) Verifica JWT com o cliente anon
     const anonClient = createClient(SUPABASE_URL, ANON_KEY, {

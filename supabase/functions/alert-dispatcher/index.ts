@@ -6,8 +6,8 @@ import { secureJsonResponse, secureErrorResponse } from "../_shared/security-hea
 
 const log = createLogger("alert-dispatcher");
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? '';
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? '';
 const SLACK_WEBHOOK_URL = Deno.env.get("ALERT_SLACK_WEBHOOK_URL") ?? "";
 const LOOKBACK_MINUTES = Number(Deno.env.get("ALERT_LOOKBACK_MINUTES") ?? "60");
 const MAX_EVENTS = Number(Deno.env.get("ALERT_MAX_EVENTS") ?? "50");
