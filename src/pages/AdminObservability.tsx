@@ -186,6 +186,52 @@ export default function AdminObservability() {
         </Card>
       </div>
 
+      {/* Sanity Check */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5" /> Sanity Check (24h)
+          </CardTitle>
+          <CardDescription>
+            Saúde consolidada de alertas, fila DLQ e envios agendados travados.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {sanity.isLoading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              {[
+                { label: 'Alertas enviados', value: sanity.data?.alerts_last_24h?.sent ?? 0, ok: 0 },
+                { label: 'Alertas pulados', value: sanity.data?.alerts_last_24h?.skipped ?? 0, ok: 0 },
+                { label: 'Alertas falharam', value: sanity.data?.alerts_last_24h?.failed ?? 0, ok: 0 },
+                { label: 'DLQ pendente', value: sanity.data?.cron_dlq_pending ?? 0, ok: 0 },
+                { label: 'Envios travados', value: sanity.data?.stuck_scheduled_emails ?? 0, ok: 0 },
+              ].map((m) => {
+                const n = Number(m.value);
+                const sev: Severity =
+                  m.label === 'Alertas enviados'
+                    ? 'ok'
+                    : n === 0
+                    ? 'ok'
+                    : n < 5
+                    ? 'warning'
+                    : 'critical';
+                return (
+                  <div key={m.label} className="rounded-md border p-3">
+                    <div className="text-xs text-muted-foreground">{m.label}</div>
+                    <div className="mt-1 flex items-center justify-between">
+                      <span className="text-xl font-semibold">{n}</span>
+                      {sevBadge(sev)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Cron Jobs */}
       <Card>
         <CardHeader>
