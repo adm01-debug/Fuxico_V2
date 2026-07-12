@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Activity, Database, Clock, AlertTriangle, Gauge, RefreshCw, Server, TrendingDown, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
+import { IndexUsageDashboard } from '@/components/admin/IndexUsageDashboard';
 
 type Severity = 'ok' | 'warning' | 'critical';
 
@@ -467,6 +468,9 @@ export default function AdminObservability() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dashboard de uso de índices */}
+      <IndexUsageDashboard />
     </div>
   );
 }

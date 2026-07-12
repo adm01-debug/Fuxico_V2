@@ -28,6 +28,9 @@ const ALLOWED = new Set([
   "admin_preview_index_drop",
   "admin_execute_index_drop",
   "admin_restore_dropped_index",
+  "admin_index_usage_trend",
+  "admin_index_ranking",
+  "admin_index_usage_by_table",
 ]);
 
 interface RpcBody {
