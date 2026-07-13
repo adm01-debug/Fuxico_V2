@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- structured logging / background job / test diagnostics */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
 

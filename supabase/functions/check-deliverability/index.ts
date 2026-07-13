@@ -170,7 +170,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureJsonResponse(blacklistResult, corsHeaders);
     }
 
-    let body: any = {};
+    let body: Record<string, unknown> = {};
     try {
       const text = await req.text();
       if (text) body = JSON.parse(text);

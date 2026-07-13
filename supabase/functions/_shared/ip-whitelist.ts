@@ -21,11 +21,12 @@ const DEFAULT_WHITELIST = [
  */
 export function isIPAllowed(req: Request): boolean {
   const clientIP = getClientIP(req.headers);
-  const envWhitelist = (typeof (globalThis as any).Deno !== 'undefined' ? (globalThis as any).Deno.env.get('ALLOWED_IPS') : null)?.split(',') || [];
+  const denoGlobal = (globalThis as { Deno?: { env: { get(key: string): string | undefined } } }).Deno;
+  const envWhitelist = (denoGlobal ? denoGlobal.env.get('ALLOWED_IPS') : null)?.split(',') || [];
   const whitelist = [...DEFAULT_WHITELIST, ...envWhitelist];
   
   // Se for ambiente de desenvolvimento e o IP for local, permitir
-  if (typeof (globalThis as any).Deno !== 'undefined' && (globalThis as any).Deno.env.get('ENVIRONMENT') !== 'production' && (clientIP === '127.0.0.1' || clientIP === '::1' || clientIP === 'unknown')) {
+  if (denoGlobal && denoGlobal.env.get('ENVIRONMENT') !== 'production' && (clientIP === '127.0.0.1' || clientIP === '::1' || clientIP === 'unknown')) {
     return true;
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- structured logging / background job / test diagnostics */
 // =============================================================================
 // FUXICO - Deno Logger for Edge Functions
 // Arquivo: supabase/functions/_shared/logger.ts

@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- structured logging / background job / test diagnostics */
 import { assertEquals } from "https://deno.land/std@0.203.0/assert/mod.ts";
 import { handler } from "./index.ts";
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- structured logging / background job / test diagnostics */
 // Shared OTel utilities for Deno Edge Functions
 
 export const traceFunction = async (name: string, context: unknown, fn: () => unknown | Promise<unknown>) => {

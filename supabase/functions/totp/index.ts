@@ -117,7 +117,8 @@ function generateBackupCodes(count = 10): string[] {
   }
   return codes;
 }
-// eslint-disable-next-line sonarjs/cognitive-complexity -- orchestration handler; branches are linear guard checks
+
+
 
 // eslint-disable-next-line sonarjs/cognitive-complexity -- TOTP verify with time-drift windows
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
