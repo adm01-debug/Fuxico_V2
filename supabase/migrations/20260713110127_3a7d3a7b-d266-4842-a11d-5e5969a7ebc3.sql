@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS public.idx_user_preferences_user_id;
