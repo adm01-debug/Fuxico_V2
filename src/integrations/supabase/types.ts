@@ -20,7 +20,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          recipient_email: string
+          recipient_email: string | null
           started_at: string | null
           status: string
           updated_at: string
@@ -41,7 +41,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          recipient_email: string
+          recipient_email?: string | null
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -62,7 +62,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
-          recipient_email?: string
+          recipient_email?: string | null
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -2617,7 +2617,7 @@ export type Database = {
           metadata: Json | null
           recipient_email: string
           scheduled_at: string
-          sender_email: string
+          sender_email: string | null
           sent_at: string | null
           status: string
           subject: string
@@ -2633,7 +2633,7 @@ export type Database = {
           metadata?: Json | null
           recipient_email: string
           scheduled_at: string
-          sender_email: string
+          sender_email?: string | null
           sent_at?: string | null
           status?: string
           subject: string
@@ -2649,7 +2649,7 @@ export type Database = {
           metadata?: Json | null
           recipient_email?: string
           scheduled_at?: string
-          sender_email?: string
+          sender_email?: string | null
           sent_at?: string | null
           status?: string
           subject?: string
@@ -3384,7 +3384,7 @@ export type Database = {
           file_path: string
           file_size: number | null
           id: string
-          recipient_email: string
+          recipient_email: string | null
           recipient_name: string | null
           user_id: string
           version: number
@@ -3398,7 +3398,7 @@ export type Database = {
           file_path: string
           file_size?: number | null
           id?: string
-          recipient_email: string
+          recipient_email?: string | null
           recipient_name?: string | null
           user_id: string
           version?: number
@@ -3412,7 +3412,7 @@ export type Database = {
           file_path?: string
           file_size?: number | null
           id?: string
-          recipient_email?: string
+          recipient_email?: string | null
           recipient_name?: string | null
           user_id?: string
           version?: number
