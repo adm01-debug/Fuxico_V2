@@ -20,7 +20,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          recipient_email: string | null
+          recipient_email: string
           started_at: string | null
           status: string
           updated_at: string
@@ -41,7 +41,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          recipient_email?: string | null
+          recipient_email: string
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -62,7 +62,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
-          recipient_email?: string | null
+          recipient_email?: string
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -1014,8 +1014,8 @@ export type Database = {
           id: string
           is_external: boolean | null
           metadata: Json | null
-          recipient_email: string | null
-          sender_email: string | null
+          recipient_email: string
+          sender_email: string
           subject: string | null
           timestamp: string
           user_email: string
@@ -1028,8 +1028,8 @@ export type Database = {
           id?: string
           is_external?: boolean | null
           metadata?: Json | null
-          recipient_email?: string | null
-          sender_email?: string | null
+          recipient_email: string
+          sender_email: string
           subject?: string | null
           timestamp?: string
           user_email: string
@@ -1042,8 +1042,8 @@ export type Database = {
           id?: string
           is_external?: boolean | null
           metadata?: Json | null
-          recipient_email?: string | null
-          sender_email?: string | null
+          recipient_email?: string
+          sender_email?: string
           subject?: string | null
           timestamp?: string
           user_email?: string
@@ -2617,7 +2617,7 @@ export type Database = {
           metadata: Json | null
           recipient_email: string
           scheduled_at: string
-          sender_email: string | null
+          sender_email: string
           sent_at: string | null
           status: string
           subject: string
@@ -2633,7 +2633,7 @@ export type Database = {
           metadata?: Json | null
           recipient_email: string
           scheduled_at: string
-          sender_email?: string | null
+          sender_email: string
           sent_at?: string | null
           status?: string
           subject: string
@@ -2649,7 +2649,7 @@ export type Database = {
           metadata?: Json | null
           recipient_email?: string
           scheduled_at?: string
-          sender_email?: string | null
+          sender_email?: string
           sent_at?: string | null
           status?: string
           subject?: string
@@ -3384,7 +3384,7 @@ export type Database = {
           file_path: string
           file_size: number | null
           id: string
-          recipient_email: string | null
+          recipient_email: string
           recipient_name: string | null
           user_id: string
           version: number
@@ -3398,7 +3398,7 @@ export type Database = {
           file_path: string
           file_size?: number | null
           id?: string
-          recipient_email?: string | null
+          recipient_email: string
           recipient_name?: string | null
           user_id: string
           version?: number
@@ -3412,7 +3412,7 @@ export type Database = {
           file_path?: string
           file_size?: number | null
           id?: string
-          recipient_email?: string | null
+          recipient_email?: string
           recipient_name?: string | null
           user_id?: string
           version?: number
@@ -3430,10 +3430,10 @@ export type Database = {
           id: string
           metadata: Json | null
           recipient_email: string
-          sender_email: string | null
+          sender_email: string
           subject: string | null
           tracking_id: string
-          user_id: string | null
+          user_id: string
           version: number
         }
         Insert: {
@@ -3446,10 +3446,10 @@ export type Database = {
           id?: string
           metadata?: Json | null
           recipient_email: string
-          sender_email?: string | null
+          sender_email: string
           subject?: string | null
           tracking_id: string
-          user_id?: string | null
+          user_id: string
           version?: number
         }
         Update: {
@@ -3462,10 +3462,10 @@ export type Database = {
           id?: string
           metadata?: Json | null
           recipient_email?: string
-          sender_email?: string | null
+          sender_email?: string
           subject?: string | null
           tracking_id?: string
-          user_id?: string | null
+          user_id?: string
           version?: number
         }
         Relationships: [
