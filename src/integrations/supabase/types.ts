@@ -2175,51 +2175,6 @@ export type Database = {
         }
         Relationships: []
       }
-      rate_limit_logs_2026_05: {
-        Row: {
-          city: string | null
-          country: string | null
-          created_at: string
-          endpoint: string
-          id: string
-          ip_address: string
-          is_blocked: boolean | null
-          request_count: number
-          user_agent: string | null
-          user_id: string | null
-          window_end: string
-          window_start: string
-        }
-        Insert: {
-          city?: string | null
-          country?: string | null
-          created_at?: string
-          endpoint: string
-          id?: string
-          ip_address: string
-          is_blocked?: boolean | null
-          request_count?: number
-          user_agent?: string | null
-          user_id?: string | null
-          window_end: string
-          window_start?: string
-        }
-        Update: {
-          city?: string | null
-          country?: string | null
-          created_at?: string
-          endpoint?: string
-          id?: string
-          ip_address?: string
-          is_blocked?: boolean | null
-          request_count?: number
-          user_agent?: string | null
-          user_id?: string | null
-          window_end?: string
-          window_start?: string
-        }
-        Relationships: []
-      }
       rate_limit_logs_2026_06: {
         Row: {
           city: string | null
