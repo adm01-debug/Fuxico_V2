@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS idx_stale_index_drops_impact_analysis_id ON public.stale_index_drops(impact_analysis_id);
+CREATE INDEX IF NOT EXISTS idx_stale_index_drops_requested_by ON public.stale_index_drops(requested_by);
