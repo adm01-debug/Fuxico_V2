@@ -12,7 +12,7 @@ export const ALLOWED_ORIGINS: string[] = [
   'https://www.fuxico.app',
   'https://fuxico.lovable.app',
   // Development origins - remove in production or gate behind env var
-  ...(typeof (globalThis as { Deno?: { env: { get(key: string): string | undefined } } }).Deno !== 'undefined' && (globalThis as { Deno: { env: { get(key: string): string | undefined } } }).Deno.env.get('ENVIRONMENT') !== 'production' ? [
+  ...(typeof (globalThis as unknown as { Deno?: { env: { get(key: string): string | undefined } } }).Deno !== 'undefined' && (globalThis as unknown as { Deno: { env: { get(key: string): string | undefined } } }).Deno.env.get('ENVIRONMENT') !== 'production' ? [
     'http://localhost:5173',
     'http://localhost:3000',
     'http://localhost:8080',

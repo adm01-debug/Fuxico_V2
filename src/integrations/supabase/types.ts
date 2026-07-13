@@ -1014,8 +1014,8 @@ export type Database = {
           id: string
           is_external: boolean | null
           metadata: Json | null
-          recipient_email: string | null
-          sender_email: string | null
+          recipient_email: string
+          sender_email: string
           subject: string | null
           timestamp: string
           user_email: string
@@ -1028,8 +1028,8 @@ export type Database = {
           id?: string
           is_external?: boolean | null
           metadata?: Json | null
-          recipient_email?: string | null
-          sender_email?: string | null
+          recipient_email: string
+          sender_email: string
           subject?: string | null
           timestamp?: string
           user_email: string
@@ -1042,8 +1042,8 @@ export type Database = {
           id?: string
           is_external?: boolean | null
           metadata?: Json | null
-          recipient_email?: string | null
-          sender_email?: string | null
+          recipient_email?: string
+          sender_email?: string
           subject?: string | null
           timestamp?: string
           user_email?: string
@@ -3430,10 +3430,10 @@ export type Database = {
           id: string
           metadata: Json | null
           recipient_email: string
-          sender_email: string | null
+          sender_email: string
           subject: string | null
           tracking_id: string
-          user_id: string | null
+          user_id: string
           version: number
         }
         Insert: {
@@ -3446,10 +3446,10 @@ export type Database = {
           id?: string
           metadata?: Json | null
           recipient_email: string
-          sender_email?: string | null
+          sender_email: string
           subject?: string | null
           tracking_id: string
-          user_id?: string | null
+          user_id: string
           version?: number
         }
         Update: {
@@ -3462,10 +3462,10 @@ export type Database = {
           id?: string
           metadata?: Json | null
           recipient_email?: string
-          sender_email?: string | null
+          sender_email?: string
           subject?: string | null
           tracking_id?: string
-          user_id?: string | null
+          user_id?: string
           version?: number
         }
         Relationships: [
