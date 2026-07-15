@@ -4832,6 +4832,21 @@ export type Database = {
             }
             Returns: Json
           }
+      admin_index_advisor: {
+        Args: { min_seq_scans?: number }
+        Returns: {
+          avg_tuples_per_scan: number
+          idx_scan: number
+          n_live_tup: number
+          recommendation: string
+          schema_name: string
+          seq_scan: number
+          seq_scan_ratio_pct: number
+          seq_tup_read: number
+          table_name: string
+          table_size: string
+        }[]
+      }
       admin_index_ranking: {
         Args: { _limit?: number; _period_days?: number }
         Returns: {
