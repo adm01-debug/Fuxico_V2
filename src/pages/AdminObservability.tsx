@@ -470,6 +470,9 @@ export default function AdminObservability() {
         </CardContent>
       </Card>
 
+      {/* Index Advisor */}
+      <IndexAdvisorPanel />
+
       {/* Dashboard de uso de índices */}
       <IndexUsageDashboard />
     </div>
