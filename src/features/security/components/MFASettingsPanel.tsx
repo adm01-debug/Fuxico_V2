@@ -51,11 +51,12 @@ export function MFASettingsPanel() {
         });
       if (error) throw error;
 
-      await supabase.rpc('log_security_event', {
-        _user_id: user?.id ?? '',
-        _event_type: 'mfa_enabled',
-        _severity: 'info',
-        _description: 'MFA foi ativado na conta',
+      await supabase.functions.invoke('log-security-event', {
+        body: {
+          event_type: 'mfa_enabled',
+          severity: 'info',
+          description: 'MFA foi ativado na conta',
+        },
       });
 
       return backupCodes;
@@ -82,11 +83,12 @@ export function MFASettingsPanel() {
         .eq('user_id', user?.id ?? '');
       if (error) throw error;
 
-      await supabase.rpc('log_security_event', {
-        _user_id: user?.id ?? '',
-        _event_type: 'mfa_disabled',
-        _severity: 'warning',
-        _description: 'MFA foi desativado na conta',
+      await supabase.functions.invoke('log-security-event', {
+        body: {
+          event_type: 'mfa_disabled',
+          severity: 'warning',
+          description: 'MFA foi desativado na conta',
+        },
       });
     },
     onSuccess: () => {
@@ -111,11 +113,12 @@ export function MFASettingsPanel() {
         .eq('user_id', user?.id ?? '');
       if (error) throw error;
 
-      await supabase.rpc('log_security_event', {
-        _user_id: user?.id ?? '',
-        _event_type: 'backup_codes_regenerated',
-        _severity: 'info',
-        _description: 'Códigos de backup foram regenerados',
+      await supabase.functions.invoke('log-security-event', {
+        body: {
+          event_type: 'backup_codes_regenerated',
+          severity: 'info',
+          description: 'Códigos de backup foram regenerados',
+        },
       });
 
       return backupCodes;
