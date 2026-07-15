@@ -394,7 +394,7 @@ export function useRefreshStats() {
   return {
     refresh: async () => {
       try {
-        await supabase.rpc('refresh_email_stats_mv')
+        await supabase.functions.invoke('refresh-stats')
         queryClient.invalidateQueries({ queryKey: ['tracked-emails'] })
         queryClient.invalidateQueries({ queryKey: ['tracking-stats'] })
         queryClient.invalidateQueries({ queryKey: ['engagement-metrics'] })
