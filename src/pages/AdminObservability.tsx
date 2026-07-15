@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Activity, Database, Clock, AlertTriangle, Gauge, RefreshCw, Server, TrendingDown, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 import { IndexUsageDashboard } from '@/components/admin/IndexUsageDashboard';
+import { IndexAdvisorPanel } from '@/components/admin/IndexAdvisorPanel';
 
 type Severity = 'ok' | 'warning' | 'critical';
 
@@ -468,6 +469,9 @@ export default function AdminObservability() {
           )}
         </CardContent>
       </Card>
+
+      {/* Index Advisor */}
+      <IndexAdvisorPanel />
 
       {/* Dashboard de uso de índices */}
       <IndexUsageDashboard />

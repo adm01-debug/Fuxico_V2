@@ -1380,6 +1380,36 @@ export type Database = {
         }
         Relationships: []
       }
+      index_advisor_runs: {
+        Row: {
+          created_at: string
+          details: Json
+          high_count: number
+          id: string
+          medium_count: number
+          ran_at: string
+          triggered_by: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          high_count?: number
+          id?: string
+          medium_count?: number
+          ran_at?: string
+          triggered_by?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          high_count?: number
+          id?: string
+          medium_count?: number
+          ran_at?: string
+          triggered_by?: string
+        }
+        Relationships: []
+      }
       index_drop_impact_analysis: {
         Row: {
           baseline_captured_at: string | null
@@ -4906,6 +4936,17 @@ export type Database = {
           url: string
         }[]
       }
+      admin_list_index_advisor_runs: {
+        Args: { _limit?: number }
+        Returns: {
+          details: Json
+          high_count: number
+          id: string
+          medium_count: number
+          ran_at: string
+          triggered_by: string
+        }[]
+      }
       admin_ops_dashboard: { Args: never; Returns: Json }
       admin_preview_index_drop: { Args: { _index_name: string }; Returns: Json }
       admin_query_regressions: {
@@ -4927,6 +4968,7 @@ export type Database = {
         Args: { _drop_id: string; _requested_by?: string }
         Returns: Json
       }
+      admin_run_index_advisor: { Args: never; Returns: Json }
       admin_stale_indexes: {
         Args: { _days?: number }
         Returns: {
@@ -5228,7 +5270,9 @@ export type Database = {
       replay_cron_failure: { Args: { _failure_id: string }; Returns: number }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       reset_slow_query_stats: { Args: never; Returns: undefined }
-      run_index_advisor_check: { Args: never; Returns: Json }
+      run_index_advisor_check:
+        | { Args: never; Returns: Json }
+        | { Args: { _triggered_by?: string }; Returns: Json }
       run_proactive_maintenance: { Args: never; Returns: Json }
       run_retention_cleanup: { Args: never; Returns: undefined }
       run_tracking_events_retention: { Args: never; Returns: undefined }
