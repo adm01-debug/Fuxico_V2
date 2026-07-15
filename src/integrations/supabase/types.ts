@@ -5228,6 +5228,7 @@ export type Database = {
       replay_cron_failure: { Args: { _failure_id: string }; Returns: number }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       reset_slow_query_stats: { Args: never; Returns: undefined }
+      run_index_advisor_check: { Args: never; Returns: Json }
       run_proactive_maintenance: { Args: never; Returns: Json }
       run_retention_cleanup: { Args: never; Returns: undefined }
       run_tracking_events_retention: { Args: never; Returns: undefined }
