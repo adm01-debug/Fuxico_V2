@@ -4834,6 +4834,7 @@ export type Database = {
           waited_seconds: number
         }[]
       }
+      admin_cleanup_index_advisor_runs: { Args: never; Returns: Json }
       admin_data_integrity_check: {
         Args: never
         Returns: {
@@ -5049,6 +5050,13 @@ export type Database = {
         Returns: Json
       }
       cleanup_expired_challenges: { Args: never; Returns: undefined }
+      cleanup_old_index_advisor_runs: {
+        Args: never
+        Returns: {
+          cutoff: string
+          deleted_count: number
+        }[]
+      }
       create_bounce_alert: {
         Args: {
           _alert_type?: string
