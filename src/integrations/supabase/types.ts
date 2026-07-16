@@ -4924,6 +4924,7 @@ export type Database = {
           total_scans: number
         }[]
       }
+      admin_last_index_advisor_cleanup: { Args: never; Returns: Json }
       admin_list_cron_failures: {
         Args: { _limit?: number }
         Returns: {
@@ -5050,13 +5051,7 @@ export type Database = {
         Returns: Json
       }
       cleanup_expired_challenges: { Args: never; Returns: undefined }
-      cleanup_old_index_advisor_runs: {
-        Args: never
-        Returns: {
-          cutoff: string
-          deleted_count: number
-        }[]
-      }
+      cleanup_old_index_advisor_runs: { Args: never; Returns: Json }
       create_bounce_alert: {
         Args: {
           _alert_type?: string
