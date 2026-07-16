@@ -5,7 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Lightbulb, Play } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Lightbulb, Play, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 type Run = {
@@ -24,12 +35,20 @@ type Run = {
   }>;
 };
 
+type LastCleanup = { ran_at: string; deleted_count: number } | null;
+
 export function IndexAdvisorPanel() {
   const qc = useQueryClient();
 
   const runs = useQuery({
     queryKey: ['admin_list_index_advisor_runs'],
     queryFn: () => adminRpc<Run[]>('admin_list_index_advisor_runs', { _limit: 20 }),
+    staleTime: 60_000,
+  });
+
+  const lastCleanup = useQuery({
+    queryKey: ['admin_last_index_advisor_cleanup'],
+    queryFn: () => adminRpc<LastCleanup>('admin_last_index_advisor_cleanup'),
     staleTime: 60_000,
   });
 
@@ -46,7 +65,28 @@ export function IndexAdvisorPanel() {
     },
   });
 
+  const cleanup = useMutation({
+    mutationFn: () =>
+      adminRpc<{ deleted_count: number; cutoff: string }>('admin_cleanup_index_advisor_runs'),
+    onSuccess: (data) => {
+      if (data.deleted_count > 0) {
+        toast.success(`Histórico limpo: ${data.deleted_count} registro(s) removido(s)`);
+      } else {
+        toast.info('Nada a limpar — nenhum registro com mais de 90 dias');
+      }
+      qc.invalidateQueries({ queryKey: ['admin_list_index_advisor_runs'] });
+      qc.invalidateQueries({ queryKey: ['admin_last_index_advisor_cleanup'] });
+    },
+    onError: (e: unknown) => {
+      toast.error(`Falha na limpeza: ${e instanceof Error ? e.message : 'erro'}`);
+    },
+  });
+
   const latest = runs.data?.[0];
+  const hasRuns = !!runs.data && runs.data.length > 0;
+  const cleanupLabel = lastCleanup.data
+    ? `Última limpeza: ${new Date(lastCleanup.data.ran_at).toLocaleString('pt-BR')} · ${lastCleanup.data.deleted_count} removidos`
+    : 'Última limpeza: nunca';
 
   return (
     <Card>
@@ -58,21 +98,52 @@ export function IndexAdvisorPanel() {
           <CardDescription>
             Recomendações diárias de índices baseadas em uso de seq scan. Cron: 03:15 UTC.
           </CardDescription>
+          <div className="text-xs text-muted-foreground mt-2">{cleanupLabel}</div>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={runNow.isPending}
-          onClick={() => runNow.mutate()}
-        >
-          <Play className="w-4 h-4 mr-2" />
-          {runNow.isPending ? 'Executando...' : 'Executar agora'}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={runNow.isPending}
+            onClick={() => runNow.mutate()}
+          >
+            <Play className="w-4 h-4 mr-2" />
+            {runNow.isPending ? 'Executando...' : 'Executar agora'}
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={cleanup.isPending || !hasRuns}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {cleanup.isPending ? 'Limpando...' : 'Limpar histórico >90d'}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Limpar histórico do Index Advisor</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação remove permanentemente todas as execuções com mais de 90 dias.
+                  A limpeza automática já roda todo domingo às 04:00 UTC — use este botão
+                  apenas se precisar antecipar. Nenhum dado recente é afetado.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={() => cleanup.mutate()}>
+                  Confirmar limpeza
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {runs.isLoading ? (
           <Skeleton className="h-40 w-full" />
-        ) : !runs.data || runs.data.length === 0 ? (
+        ) : !hasRuns ? (
           <p className="text-sm text-muted-foreground text-center py-6">
             Nenhuma execução registrada ainda. Clique em "Executar agora" para gerar o primeiro relatório.
           </p>
@@ -116,7 +187,7 @@ export function IndexAdvisorPanel() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {runs.data.map((r) => (
+                  {runs.data!.map((r) => (
                     <TableRow key={r.id}>
                       <TableCell className="text-xs text-muted-foreground">
                         {new Date(r.ran_at).toLocaleString('pt-BR')}
