@@ -34,6 +34,10 @@ const ALLOWED = new Set([
   "analyze_index_pre_drop",
   "analyze_index_post_drop",
   "check_stagnant_indexes",
+  "admin_list_index_advisor_runs",
+  "admin_run_index_advisor",
+  "admin_cleanup_index_advisor_runs",
+  "admin_last_index_advisor_cleanup",
 ]);
 
 interface RpcBody {
