@@ -4864,6 +4864,7 @@ export type Database = {
     }
     Functions: {
       admin_alert_sanity_check: { Args: never; Returns: Json }
+      admin_auto_promote_ab_winners: { Args: never; Returns: Json }
       admin_blocking_queries: {
         Args: never
         Returns: {
@@ -5306,6 +5307,10 @@ export type Database = {
           recipient_email: string
           score_level: string
         }[]
+      }
+      promote_ab_winner: {
+        Args: { _test_id: string; _winner: string }
+        Returns: Json
       }
       recalculate_all_contact_scores: {
         Args: { p_user_id: string }
