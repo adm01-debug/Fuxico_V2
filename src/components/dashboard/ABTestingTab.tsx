@@ -8,11 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail, Target } from 'lucide-react';
+import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail, Target, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useABTests } from '@/hooks/use-ab-tests';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ABTestResultsDialog } from './ABTestResultsDialog';
 
 function ABTestingTabBase() {
   const { tests = [], isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
