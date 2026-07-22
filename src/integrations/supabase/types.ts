@@ -1036,6 +1036,54 @@ export type Database = {
         }
         Relationships: []
       }
+      dsar_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          deadline_at: string
+          download_expires_at: string | null
+          download_url: string | null
+          export_path: string | null
+          id: string
+          notes: string | null
+          request_type: string
+          requested_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          deadline_at?: string
+          download_expires_at?: string | null
+          download_url?: string | null
+          export_path?: string | null
+          id?: string
+          notes?: string | null
+          request_type?: string
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          deadline_at?: string
+          download_expires_at?: string | null
+          download_url?: string | null
+          export_path?: string | null
+          id?: string
+          notes?: string | null
+          request_type?: string
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_audit_logs: {
         Row: {
           created_at: string
@@ -5217,6 +5265,7 @@ export type Database = {
         Args: { _code: string; _user_id: string }
         Returns: boolean
       }
+      count_dsar_sla_misses: { Args: never; Returns: number }
       create_bounce_alert: {
         Args: {
           _alert_type?: string
