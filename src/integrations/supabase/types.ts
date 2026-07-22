@@ -1521,6 +1521,27 @@ export type Database = {
         }
         Relationships: []
       }
+      internal_config: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       ip_whitelist: {
         Row: {
           added_by: string | null
@@ -1953,6 +1974,30 @@ export type Database = {
           last_failed_at?: string | null
           lockout_until?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      mfa_backup_codes: {
+        Row: {
+          code_hash: string
+          created_at: string
+          id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -4207,6 +4252,24 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_idempotency: {
+        Row: {
+          first_seen_at: string
+          idempotency_key: string
+          webhook_id: string
+        }
+        Insert: {
+          first_seen_at?: string
+          idempotency_key: string
+          webhook_id: string
+        }
+        Update: {
+          first_seen_at?: string
+          idempotency_key?: string
+          webhook_id?: string
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           created_at: string
@@ -4843,6 +4906,7 @@ export type Database = {
     }
     Functions: {
       admin_alert_sanity_check: { Args: never; Returns: Json }
+      admin_auto_promote_ab_winners: { Args: never; Returns: Json }
       admin_blocking_queries: {
         Args: never
         Returns: {
@@ -4884,6 +4948,13 @@ export type Database = {
             }
             Returns: Json
           }
+      admin_find_orphan_pii: {
+        Args: never
+        Returns: {
+          orphan_count: number
+          source_table: string
+        }[]
+      }
       admin_index_advisor: {
         Args: { min_seq_scans?: number }
         Returns: {
@@ -4987,6 +5058,7 @@ export type Database = {
         Args: { _failure_id: string }
         Returns: Json
       }
+      admin_report_orphan_pii: { Args: never; Returns: Json }
       admin_restore_dropped_index: {
         Args: { _drop_id: string; _requested_by?: string }
         Returns: Json
@@ -5005,6 +5077,7 @@ export type Database = {
           table_name: string
         }[]
       }
+      admin_system_health_score: { Args: never; Returns: Json }
       admin_table_bloat: {
         Args: never
         Returns: {
@@ -5074,6 +5147,11 @@ export type Database = {
       }
       cleanup_expired_challenges: { Args: never; Returns: undefined }
       cleanup_old_index_advisor_runs: { Args: never; Returns: Json }
+      cleanup_webhook_idempotency: { Args: never; Returns: number }
+      consume_mfa_backup_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: boolean
+      }
       create_bounce_alert: {
         Args: {
           _alert_type?: string
@@ -5124,6 +5202,7 @@ export type Database = {
         Args: { target_month: string }
         Returns: undefined
       }
+      generate_mfa_backup_codes: { Args: never; Returns: string[] }
       get_due_reminders: {
         Args: never
         Returns: {
@@ -5241,6 +5320,7 @@ export type Database = {
         Args: { seq_id: string }
         Returns: undefined
       }
+      internal_get_config: { Args: { _key: string }; Returns: string }
       is_country_allowed: { Args: { _country_code: string }; Returns: boolean }
       is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
       is_ip_whitelisted: { Args: { _ip_address: string }; Returns: boolean }
@@ -5285,6 +5365,10 @@ export type Database = {
           score_level: string
         }[]
       }
+      promote_ab_winner: {
+        Args: { _test_id: string; _winner: string }
+        Returns: Json
+      }
       recalculate_all_contact_scores: {
         Args: { p_user_id: string }
         Returns: number
@@ -5322,6 +5406,10 @@ export type Database = {
       safe_http_post: {
         Args: { _body: Json; _headers: Json; _job_name: string; _url: string }
         Returns: number
+      }
+      try_claim_webhook_idempotency: {
+        Args: { _key: string; _webhook_id: string }
+        Returns: boolean
       }
       try_singleton_job: { Args: { _job_key: string }; Returns: boolean }
       update_contact_score: {

@@ -8,15 +8,18 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail, Target } from 'lucide-react';
+import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail, Target, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useABTests } from '@/hooks/use-ab-tests';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ABTestResultsDialog } from './ABTestResultsDialog';
 
 function ABTestingTabBase() {
   const { tests = [], isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [resultsTestId, setResultsTestId] = useState<string | null>(null);
+  const resultsTest = tests.find(t => t.id === resultsTestId) ?? null;
   const [newTest, setNewTest] = useState({
     name: '',
     variant_a_subject: '',
@@ -341,6 +344,14 @@ function ABTestingTabBase() {
                         )}
                         <Button
                           size="sm"
+                          variant="outline"
+                          onClick={() => setResultsTestId(test.id)}
+                          title="Ver resultados estatísticos"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
                           variant="ghost"
                           onClick={() => deleteTest.mutate(test.id)}
                         >
@@ -348,6 +359,7 @@ function ABTestingTabBase() {
                         </Button>
                       </div>
                     </div>
+
 
                     {/* Variantes comparison */}
                     <div className="grid md:grid-cols-2 gap-4">
@@ -466,8 +478,15 @@ function ABTestingTabBase() {
           </div>
         </CardContent>
       </Card>
+
+      <ABTestResultsDialog
+        test={resultsTest as never}
+        open={!!resultsTestId}
+        onOpenChange={(o) => !o && setResultsTestId(null)}
+      />
     </div>
   );
+
 }
 
 export const ABTestingTab = memo(ABTestingTabBase);
