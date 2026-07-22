@@ -4252,6 +4252,24 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_idempotency: {
+        Row: {
+          first_seen_at: string
+          idempotency_key: string
+          webhook_id: string
+        }
+        Insert: {
+          first_seen_at?: string
+          idempotency_key: string
+          webhook_id: string
+        }
+        Update: {
+          first_seen_at?: string
+          idempotency_key?: string
+          webhook_id?: string
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           created_at: string
@@ -5128,6 +5146,7 @@ export type Database = {
       }
       cleanup_expired_challenges: { Args: never; Returns: undefined }
       cleanup_old_index_advisor_runs: { Args: never; Returns: Json }
+      cleanup_webhook_idempotency: { Args: never; Returns: number }
       consume_mfa_backup_code: {
         Args: { _code: string; _user_id: string }
         Returns: boolean
@@ -5386,6 +5405,10 @@ export type Database = {
       safe_http_post: {
         Args: { _body: Json; _headers: Json; _job_name: string; _url: string }
         Returns: number
+      }
+      try_claim_webhook_idempotency: {
+        Args: { _key: string; _webhook_id: string }
+        Returns: boolean
       }
       try_singleton_job: { Args: { _job_key: string }; Returns: boolean }
       update_contact_score: {
