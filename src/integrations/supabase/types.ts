@@ -16,67 +16,88 @@ export type Database = {
     Tables: {
       ab_tests: {
         Row: {
+          auto_promote: boolean
           completed_at: string | null
           created_at: string
+          holdout_percent: number
           id: string
+          min_sample_size: number
           name: string
           recipient_email: string | null
+          segment_filters: Json
           started_at: string | null
           status: string
           updated_at: string
           user_id: string
+          variant_a_body: string | null
           variant_a_clicks: number
           variant_a_opens: number
           variant_a_sends: number
           variant_a_subject: string
+          variant_b_body: string | null
           variant_b_clicks: number
           variant_b_opens: number
           variant_b_sends: number
           variant_b_subject: string
           version: number
           winner: string | null
+          winner_promoted_at: string | null
         }
         Insert: {
+          auto_promote?: boolean
           completed_at?: string | null
           created_at?: string
+          holdout_percent?: number
           id?: string
+          min_sample_size?: number
           name: string
           recipient_email?: string | null
+          segment_filters?: Json
           started_at?: string | null
           status?: string
           updated_at?: string
           user_id: string
+          variant_a_body?: string | null
           variant_a_clicks?: number
           variant_a_opens?: number
           variant_a_sends?: number
           variant_a_subject: string
+          variant_b_body?: string | null
           variant_b_clicks?: number
           variant_b_opens?: number
           variant_b_sends?: number
           variant_b_subject: string
           version?: number
           winner?: string | null
+          winner_promoted_at?: string | null
         }
         Update: {
+          auto_promote?: boolean
           completed_at?: string | null
           created_at?: string
+          holdout_percent?: number
           id?: string
+          min_sample_size?: number
           name?: string
           recipient_email?: string | null
+          segment_filters?: Json
           started_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string
+          variant_a_body?: string | null
           variant_a_clicks?: number
           variant_a_opens?: number
           variant_a_sends?: number
           variant_a_subject?: string
+          variant_b_body?: string | null
           variant_b_clicks?: number
           variant_b_opens?: number
           variant_b_sends?: number
           variant_b_subject?: string
           version?: number
           winner?: string | null
+          winner_promoted_at?: string | null
         }
         Relationships: []
       }
@@ -5003,6 +5024,7 @@ export type Database = {
         Args: { _index_name: string; _top_n?: number }
         Returns: Json
       }
+      auto_promote_ab_winners: { Args: never; Returns: Json }
       calculate_domain_deliverability: {
         Args: { p_user_id: string }
         Returns: {
@@ -5205,6 +5227,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_ab_metrics: {
+        Args: {
+          p_clicks?: number
+          p_id: string
+          p_opens?: number
+          p_sends?: number
+          p_variant: string
+        }
+        Returns: undefined
+      }
       increment_sequence_completed: {
         Args: { seq_id: string }
         Returns: undefined
@@ -5245,6 +5277,14 @@ export type Database = {
       }
       monitor_cron_jobs: { Args: never; Returns: number }
       monitor_table_bloat: { Args: never; Returns: number }
+      preview_ab_segment: {
+        Args: { p_filters?: Json; p_user_id: string }
+        Returns: {
+          engagement_score: number
+          recipient_email: string
+          score_level: string
+        }[]
+      }
       recalculate_all_contact_scores: {
         Args: { p_user_id: string }
         Returns: number
