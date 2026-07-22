@@ -471,6 +471,9 @@ export default function AdminObservability() {
         </CardContent>
       </Card>
 
+      {/* Health Score global */}
+      <SystemHealthScoreCard />
+
       {/* Index Advisor */}
       <IndexAdvisorPanel />
 
@@ -479,3 +482,4 @@ export default function AdminObservability() {
     </div>
   );
 }
+
