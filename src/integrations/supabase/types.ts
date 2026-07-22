@@ -5077,6 +5077,7 @@ export type Database = {
           table_name: string
         }[]
       }
+      admin_system_health_score: { Args: never; Returns: Json }
       admin_table_bloat: {
         Args: never
         Returns: {
