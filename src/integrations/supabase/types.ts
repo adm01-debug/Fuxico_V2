@@ -4930,6 +4930,13 @@ export type Database = {
             }
             Returns: Json
           }
+      admin_find_orphan_pii: {
+        Args: never
+        Returns: {
+          orphan_count: number
+          source_table: string
+        }[]
+      }
       admin_index_advisor: {
         Args: { min_seq_scans?: number }
         Returns: {
@@ -5033,6 +5040,7 @@ export type Database = {
         Args: { _failure_id: string }
         Returns: Json
       }
+      admin_report_orphan_pii: { Args: never; Returns: Json }
       admin_restore_dropped_index: {
         Args: { _drop_id: string; _requested_by?: string }
         Returns: Json
