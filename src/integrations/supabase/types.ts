@@ -5195,6 +5195,10 @@ export type Database = {
       cleanup_expired_challenges: { Args: never; Returns: undefined }
       cleanup_old_index_advisor_runs: { Args: never; Returns: Json }
       cleanup_webhook_idempotency: { Args: never; Returns: number }
+      compute_adaptive_limit: {
+        Args: { _base_limit: number; _ip: string; _user_id: string }
+        Returns: number
+      }
       consume_mfa_backup_code: {
         Args: { _code: string; _user_id: string }
         Returns: boolean
