@@ -14,6 +14,7 @@ import { Activity, Database, Clock, AlertTriangle, Gauge, RefreshCw, Server, Tre
 import { toast } from 'sonner';
 import { IndexUsageDashboard } from '@/components/admin/IndexUsageDashboard';
 import { IndexAdvisorPanel } from '@/components/admin/IndexAdvisorPanel';
+import { SystemHealthScoreCard } from '@/components/admin/SystemHealthScoreCard';
 
 type Severity = 'ok' | 'warning' | 'critical';
 
