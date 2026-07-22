@@ -316,6 +316,16 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
       error: response.ok ? null : responseBody,
     })
 
+    // Onda 96 — Atualiza estado do circuit breaker
+    await supabaseAdmin.rpc('wcb_record_result', {
+      _webhook_id: config.id,
+      _success: response.ok,
+      _failure_threshold: 5,
+      _failure_window_seconds: 300,
+    })
+
+
+
     log.info('Webhook dispatch completed', {
       success: response.ok,
       status: response.status,
