@@ -101,11 +101,11 @@ export function useABTests() {
           variant_a_body: testData.variant_a_body ?? null,
           variant_b_body: testData.variant_b_body ?? null,
           recipient_email: testData.recipient_email || null,
-          segment_filters: testData.segment_filters ?? {},
+          segment_filters: (testData.segment_filters ?? {}) as never,
           holdout_percent: testData.holdout_percent ?? 10,
           auto_promote: testData.auto_promote ?? true,
           min_sample_size: testData.min_sample_size ?? 30,
-        })
+        } as never)
         .select()
         .single();
       
