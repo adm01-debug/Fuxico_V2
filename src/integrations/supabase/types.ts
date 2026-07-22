@@ -1977,6 +1977,30 @@ export type Database = {
         }
         Relationships: []
       }
+      mfa_backup_codes: {
+        Row: {
+          code_hash: string
+          created_at: string
+          id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       mfa_settings: {
         Row: {
           backup_codes: string[] | null
@@ -5096,6 +5120,10 @@ export type Database = {
       }
       cleanup_expired_challenges: { Args: never; Returns: undefined }
       cleanup_old_index_advisor_runs: { Args: never; Returns: Json }
+      consume_mfa_backup_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: boolean
+      }
       create_bounce_alert: {
         Args: {
           _alert_type?: string
@@ -5146,6 +5174,7 @@ export type Database = {
         Args: { target_month: string }
         Returns: undefined
       }
+      generate_mfa_backup_codes: { Args: never; Returns: string[] }
       get_due_reminders: {
         Args: never
         Returns: {
