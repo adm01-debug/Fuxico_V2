@@ -21,7 +21,13 @@ function ABTestingTabBase() {
     name: '',
     variant_a_subject: '',
     variant_b_subject: '',
+    variant_a_body: '',
+    variant_b_body: '',
     recipient_email: '',
+    min_score: 0,
+    last_open_days: 0,
+    min_sample_size: 30,
+    auto_promote: true,
   });
 
   const handleCreateTest = async () => {
@@ -30,8 +36,25 @@ function ABTestingTabBase() {
       return;
     }
 
-    await createTest.mutateAsync(newTest);
-    setNewTest({ name: '', variant_a_subject: '', variant_b_subject: '', recipient_email: '' });
+    await createTest.mutateAsync({
+      name: newTest.name,
+      variant_a_subject: newTest.variant_a_subject,
+      variant_b_subject: newTest.variant_b_subject,
+      variant_a_body: newTest.variant_a_body || undefined,
+      variant_b_body: newTest.variant_b_body || undefined,
+      recipient_email: newTest.recipient_email || undefined,
+      min_sample_size: newTest.min_sample_size,
+      auto_promote: newTest.auto_promote,
+      segment_filters: {
+        ...(newTest.min_score > 0 ? { min_score: newTest.min_score } : {}),
+        ...(newTest.last_open_days > 0 ? { last_open_days: newTest.last_open_days } : {}),
+      },
+    });
+    setNewTest({
+      name: '', variant_a_subject: '', variant_b_subject: '',
+      variant_a_body: '', variant_b_body: '', recipient_email: '',
+      min_score: 0, last_open_days: 0, min_sample_size: 30, auto_promote: true,
+    });
     setIsCreateOpen(false);
   };
 
