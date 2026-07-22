@@ -813,6 +813,7 @@ export type Database = {
         Row: {
           attempts: number
           created_at: string
+          duration_ms: number | null
           error_message: string | null
           http_status: number | null
           id: string
@@ -822,11 +823,13 @@ export type Database = {
           request_url: string
           resolved_at: string | null
           resolved_by: string | null
+          status: string
           updated_at: string
         }
         Insert: {
           attempts?: number
           created_at?: string
+          duration_ms?: number | null
           error_message?: string | null
           http_status?: number | null
           id?: string
@@ -836,11 +839,13 @@ export type Database = {
           request_url: string
           resolved_at?: string | null
           resolved_by?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
           attempts?: number
           created_at?: string
+          duration_ms?: number | null
           error_message?: string | null
           http_status?: number | null
           id?: string
@@ -850,6 +855,7 @@ export type Database = {
           request_url?: string
           resolved_at?: string | null
           resolved_by?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -5438,6 +5444,7 @@ export type Database = {
       replay_cron_failure: { Args: { _failure_id: string }; Returns: number }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       reset_slow_query_stats: { Args: never; Returns: undefined }
+      run_cron_job: { Args: { _job_name: string; _sql: string }; Returns: Json }
       run_index_advisor_check:
         | { Args: never; Returns: Json }
         | { Args: { _triggered_by?: string }; Returns: Json }
