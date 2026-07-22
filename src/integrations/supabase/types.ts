@@ -4216,6 +4216,47 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_circuit_state: {
+        Row: {
+          consecutive_failures: number
+          last_failure_at: string | null
+          last_success_at: string | null
+          next_probe_at: string | null
+          opened_at: string | null
+          state: string
+          updated_at: string
+          webhook_id: string
+        }
+        Insert: {
+          consecutive_failures?: number
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          next_probe_at?: string | null
+          opened_at?: string | null
+          state?: string
+          updated_at?: string
+          webhook_id: string
+        }
+        Update: {
+          consecutive_failures?: number
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          next_probe_at?: string | null
+          opened_at?: string | null
+          state?: string
+          updated_at?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_circuit_state_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: true
+            referencedRelation: "webhook_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_configs: {
         Row: {
           created_at: string
@@ -5425,6 +5466,19 @@ export type Database = {
           type: string
           user_id: string
         }[]
+      }
+      wcb_can_dispatch: {
+        Args: { _cooldown_seconds?: number; _webhook_id: string }
+        Returns: boolean
+      }
+      wcb_record_result: {
+        Args: {
+          _failure_threshold?: number
+          _failure_window_seconds?: number
+          _success: boolean
+          _webhook_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
