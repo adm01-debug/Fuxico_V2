@@ -212,6 +212,27 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
       )
     }
 
+    // Onda 94 — Idempotência: descarta entregas duplicadas
+    const pl = (payload ?? {}) as Record<string, unknown>
+    const idemBase = (pl.idempotencyKey as string | undefined)
+      ?? (pl.tracking_id ? `${eventType}:${pl.tracking_id}` : undefined)
+      ?? (pl.id ? `${eventType}:${pl.id}` : undefined)
+    if (idemBase) {
+      const { data: claimed } = await supabaseAdmin.rpc('try_claim_webhook_idempotency', {
+        _webhook_id: config.id,
+        _key: idemBase,
+      })
+      if (claimed === false) {
+        log.info('Duplicate webhook dispatch skipped', { userId, eventType, idemBase })
+        return secureJsonResponse(
+          { skipped: true, reason: 'duplicate_idempotency_key' },
+          200,
+          corsHeaders
+        )
+      }
+    }
+
+
     // Preparar payload do webhook
     const webhookPayload = {
       event: eventType,
