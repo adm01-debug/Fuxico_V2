@@ -167,6 +167,75 @@ function ABTestingTabBase() {
                     />
                   </div>
 
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>Corpo A (opcional)</Label>
+                      <Textarea
+                        rows={3}
+                        placeholder="HTML/texto da variante A"
+                        value={newTest.variant_a_body}
+                        onChange={e => setNewTest(prev => ({ ...prev, variant_a_body: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Corpo B (opcional)</Label>
+                      <Textarea
+                        rows={3}
+                        placeholder="HTML/texto da variante B"
+                        value={newTest.variant_b_body}
+                        onChange={e => setNewTest(prev => ({ ...prev, variant_b_body: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 rounded-lg border p-3">
+                    <Label className="flex items-center gap-2">
+                      <Target className="h-4 w-4" />
+                      Segmentação comportamental (opcional)
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Score mínimo (0-100)</Label>
+                        <Input
+                          type="number" min={0} max={100}
+                          value={newTest.min_score}
+                          onChange={e => setNewTest(prev => ({ ...prev, min_score: Number(e.target.value) }))}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Abriu nos últimos (dias)</Label>
+                        <Input
+                          type="number" min={0} max={365}
+                          value={newTest.last_open_days}
+                          onChange={e => setNewTest(prev => ({ ...prev, last_open_days: Number(e.target.value) }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>Amostra mínima por variante</Label>
+                      <Input
+                        type="number" min={10} max={10000}
+                        value={newTest.min_sample_size}
+                        onChange={e => setNewTest(prev => ({ ...prev, min_sample_size: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Promover vencedor automaticamente</Label>
+                      <div className="flex items-center gap-2 h-10">
+                        <Switch
+                          checked={newTest.auto_promote}
+                          onCheckedChange={v => setNewTest(prev => ({ ...prev, auto_promote: v }))}
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          Z-test 95% de confiança
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
                       <Mail className="h-4 w-4" />
