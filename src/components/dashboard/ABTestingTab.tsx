@@ -344,6 +344,14 @@ function ABTestingTabBase() {
                         )}
                         <Button
                           size="sm"
+                          variant="outline"
+                          onClick={() => setResultsTestId(test.id)}
+                          title="Ver resultados estatísticos"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
                           variant="ghost"
                           onClick={() => deleteTest.mutate(test.id)}
                         >
@@ -351,6 +359,7 @@ function ABTestingTabBase() {
                         </Button>
                       </div>
                     </div>
+
 
                     {/* Variantes comparison */}
                     <div className="grid md:grid-cols-2 gap-4">
