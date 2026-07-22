@@ -26,6 +26,7 @@ export type Database = {
           recipient_email: string | null
           segment_filters: Json
           started_at: string | null
+          stat_method: string
           status: string
           updated_at: string
           user_id: string
@@ -54,6 +55,7 @@ export type Database = {
           recipient_email?: string | null
           segment_filters?: Json
           started_at?: string | null
+          stat_method?: string
           status?: string
           updated_at?: string
           user_id: string
@@ -82,6 +84,7 @@ export type Database = {
           recipient_email?: string | null
           segment_filters?: Json
           started_at?: string | null
+          stat_method?: string
           status?: string
           updated_at?: string
           user_id?: string
@@ -5198,6 +5201,17 @@ export type Database = {
       compute_adaptive_limit: {
         Args: { _base_limit: number; _ip: string; _user_id: string }
         Returns: number
+      }
+      compute_sprt_boundary: {
+        Args: {
+          _alpha?: number
+          _n_a: number
+          _n_b: number
+          _tau2?: number
+          _x_a: number
+          _x_b: number
+        }
+        Returns: Json
       }
       consume_mfa_backup_code: {
         Args: { _code: string; _user_id: string }
