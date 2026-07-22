@@ -34,14 +34,13 @@ function SystemHealthScoreCardBase() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    // @ts-expect-error nova RPC ainda não presente nos types gerados
     const { data: result, error } = await supabase.rpc('admin_system_health_score');
     setLoading(false);
     if (error) {
       toast.error('Falha ao carregar health score', { description: error.message });
       return;
     }
-    setData(result as HealthResult);
+    setData(result as unknown as HealthResult);
   }, []);
 
   useEffect(() => { load(); }, [load]);
