@@ -16,6 +16,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
+export interface SegmentFilters {
+  min_score?: number;
+  score_levels?: string[];
+  last_open_days?: number;
+}
+
 export interface ABTest {
   id: string;
   user_id: string;
@@ -23,6 +29,8 @@ export interface ABTest {
   status: 'draft' | 'running' | 'completed' | 'paused';
   variant_a_subject: string;
   variant_b_subject: string;
+  variant_a_body: string | null;
+  variant_b_body: string | null;
   variant_a_sends: number;
   variant_b_sends: number;
   variant_a_opens: number;
@@ -31,6 +39,11 @@ export interface ABTest {
   variant_b_clicks: number;
   winner: 'A' | 'B' | null;
   recipient_email: string | null;
+  segment_filters: SegmentFilters;
+  holdout_percent: number;
+  auto_promote: boolean;
+  min_sample_size: number;
+  winner_promoted_at: string | null;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
@@ -41,8 +54,15 @@ export interface CreateABTestData {
   name: string;
   variant_a_subject: string;
   variant_b_subject: string;
+  variant_a_body?: string;
+  variant_b_body?: string;
   recipient_email?: string;
+  segment_filters?: SegmentFilters;
+  holdout_percent?: number;
+  auto_promote?: boolean;
+  min_sample_size?: number;
 }
+
 
 export function useABTests() {
   const { user } = useAuth();
@@ -78,8 +98,14 @@ export function useABTests() {
           name: testData.name,
           variant_a_subject: testData.variant_a_subject,
           variant_b_subject: testData.variant_b_subject,
+          variant_a_body: testData.variant_a_body ?? null,
+          variant_b_body: testData.variant_b_body ?? null,
           recipient_email: testData.recipient_email || null,
-        })
+          segment_filters: (testData.segment_filters ?? {}) as never,
+          holdout_percent: testData.holdout_percent ?? 10,
+          auto_promote: testData.auto_promote ?? true,
+          min_sample_size: testData.min_sample_size ?? 30,
+        } as never)
         .select()
         .single();
       

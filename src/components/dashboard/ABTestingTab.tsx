@@ -2,11 +2,13 @@ import { useState, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail } from 'lucide-react';
+import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { useABTests } from '@/hooks/use-ab-tests';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,7 +21,13 @@ function ABTestingTabBase() {
     name: '',
     variant_a_subject: '',
     variant_b_subject: '',
+    variant_a_body: '',
+    variant_b_body: '',
     recipient_email: '',
+    min_score: 0,
+    last_open_days: 0,
+    min_sample_size: 30,
+    auto_promote: true,
   });
 
   const handleCreateTest = async () => {
@@ -28,8 +36,25 @@ function ABTestingTabBase() {
       return;
     }
 
-    await createTest.mutateAsync(newTest);
-    setNewTest({ name: '', variant_a_subject: '', variant_b_subject: '', recipient_email: '' });
+    await createTest.mutateAsync({
+      name: newTest.name,
+      variant_a_subject: newTest.variant_a_subject,
+      variant_b_subject: newTest.variant_b_subject,
+      variant_a_body: newTest.variant_a_body || undefined,
+      variant_b_body: newTest.variant_b_body || undefined,
+      recipient_email: newTest.recipient_email || undefined,
+      min_sample_size: newTest.min_sample_size,
+      auto_promote: newTest.auto_promote,
+      segment_filters: {
+        ...(newTest.min_score > 0 ? { min_score: newTest.min_score } : {}),
+        ...(newTest.last_open_days > 0 ? { last_open_days: newTest.last_open_days } : {}),
+      },
+    });
+    setNewTest({
+      name: '', variant_a_subject: '', variant_b_subject: '',
+      variant_a_body: '', variant_b_body: '', recipient_email: '',
+      min_score: 0, last_open_days: 0, min_sample_size: 30, auto_promote: true,
+    });
     setIsCreateOpen(false);
   };
 
@@ -140,6 +165,75 @@ function ABTestingTabBase() {
                       value={newTest.variant_b_subject}
                       onChange={e => setNewTest(prev => ({ ...prev, variant_b_subject: e.target.value }))}
                     />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>Corpo A (opcional)</Label>
+                      <Textarea
+                        rows={3}
+                        placeholder="HTML/texto da variante A"
+                        value={newTest.variant_a_body}
+                        onChange={e => setNewTest(prev => ({ ...prev, variant_a_body: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Corpo B (opcional)</Label>
+                      <Textarea
+                        rows={3}
+                        placeholder="HTML/texto da variante B"
+                        value={newTest.variant_b_body}
+                        onChange={e => setNewTest(prev => ({ ...prev, variant_b_body: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 rounded-lg border p-3">
+                    <Label className="flex items-center gap-2">
+                      <Target className="h-4 w-4" />
+                      Segmentação comportamental (opcional)
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Score mínimo (0-100)</Label>
+                        <Input
+                          type="number" min={0} max={100}
+                          value={newTest.min_score}
+                          onChange={e => setNewTest(prev => ({ ...prev, min_score: Number(e.target.value) }))}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Abriu nos últimos (dias)</Label>
+                        <Input
+                          type="number" min={0} max={365}
+                          value={newTest.last_open_days}
+                          onChange={e => setNewTest(prev => ({ ...prev, last_open_days: Number(e.target.value) }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>Amostra mínima por variante</Label>
+                      <Input
+                        type="number" min={10} max={10000}
+                        value={newTest.min_sample_size}
+                        onChange={e => setNewTest(prev => ({ ...prev, min_sample_size: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Promover vencedor automaticamente</Label>
+                      <div className="flex items-center gap-2 h-10">
+                        <Switch
+                          checked={newTest.auto_promote}
+                          onCheckedChange={v => setNewTest(prev => ({ ...prev, auto_promote: v }))}
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          Z-test 95% de confiança
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
