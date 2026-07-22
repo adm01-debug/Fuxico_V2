@@ -232,6 +232,22 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
       }
     }
 
+    // Onda 96 — Circuit breaker: bloqueia disparo se webhook estiver em falha
+    const { data: canDispatch } = await supabaseAdmin.rpc('wcb_can_dispatch', {
+      _webhook_id: config.id,
+      _cooldown_seconds: 600,
+    })
+    if (canDispatch === false) {
+      log.warn('Webhook dispatch blocked by circuit breaker', { userId, webhookId: config.id })
+      return secureJsonResponse(
+        { skipped: true, reason: 'circuit_open' },
+        200,
+        corsHeaders
+      )
+    }
+
+
+
 
     // Preparar payload do webhook
     const webhookPayload = {
