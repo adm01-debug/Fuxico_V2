@@ -124,16 +124,18 @@ async function dispatchTest(admin: ReturnType<typeof createClient>, test: ABTest
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const authHeader = req.headers.get("authorization") ?? "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  if (!authHeader.includes(serviceKey) || !serviceKey) {
+  const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", serviceKey);
+
+  // Autoriza somente cron interno (token compartilhado guardado em internal_config)
+  const providedToken = req.headers.get("x-cron-token") ?? "";
+  const { data: expected } = await admin.rpc("internal_get_config", { _key: "ab_dispatch_cron_token" });
+  if (!expected || providedToken !== expected) {
     return new Response(JSON.stringify({ error: "forbidden" }), {
       status: 403,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-
-  const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", serviceKey);
 
   const { data: tests, error } = await admin
     .from("ab_tests")
