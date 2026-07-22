@@ -98,7 +98,13 @@ export function useABTests() {
           name: testData.name,
           variant_a_subject: testData.variant_a_subject,
           variant_b_subject: testData.variant_b_subject,
+          variant_a_body: testData.variant_a_body ?? null,
+          variant_b_body: testData.variant_b_body ?? null,
           recipient_email: testData.recipient_email || null,
+          segment_filters: testData.segment_filters ?? {},
+          holdout_percent: testData.holdout_percent ?? 10,
+          auto_promote: testData.auto_promote ?? true,
+          min_sample_size: testData.min_sample_size ?? 30,
         })
         .select()
         .single();
