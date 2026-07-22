@@ -2858,6 +2858,24 @@ export type Database = {
         }
         Relationships: []
       }
+      schema_snapshots: {
+        Row: {
+          captured_at: string
+          id: string
+          snapshot: Json
+        }
+        Insert: {
+          captured_at?: string
+          id?: string
+          snapshot: Json
+        }
+        Update: {
+          captured_at?: string
+          id?: string
+          snapshot?: Json
+        }
+        Relationships: []
+      }
       security_events: {
         Row: {
           created_at: string
@@ -5026,6 +5044,7 @@ export type Database = {
           violations: number
         }[]
       }
+      admin_detect_schema_drift: { Args: never; Returns: Json }
       admin_execute_index_drop:
         | {
             Args: {
@@ -5522,6 +5541,7 @@ export type Database = {
         Args: { _body: Json; _headers: Json; _job_name: string; _url: string }
         Returns: number
       }
+      snapshot_schema: { Args: never; Returns: string }
       try_claim_webhook_idempotency: {
         Args: { _key: string; _webhook_id: string }
         Returns: boolean
