@@ -18,6 +18,8 @@ import { ABTestResultsDialog } from './ABTestResultsDialog';
 function ABTestingTabBase() {
   const { tests = [], isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [resultsTestId, setResultsTestId] = useState<string | null>(null);
+  const resultsTest = tests.find(t => t.id === resultsTestId) ?? null;
   const [newTest, setNewTest] = useState({
     name: '',
     variant_a_subject: '',
