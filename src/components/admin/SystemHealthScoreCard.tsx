@@ -22,11 +22,15 @@ function gradeColor(grade: string) {
 
 const LABELS: Record<string, string> = {
   cron_failures_24h: 'Falhas de cron (24h)',
+  cron_failures_7d: 'Falhas de cron (7d)',
   critical_events_24h: 'Alertas críticos (24h)',
+  circuits_open: 'Webhooks em circuit open',
+  dsar_sla_misses: 'DSAR fora do prazo',
   bloat_alerts_24h: 'Tabelas com bloat (24h)',
   query_regressions_24h: 'Regressões de query (24h)',
   advisor_high_last_run: 'Índices críticos (advisor)',
 };
+
 
 function SystemHealthScoreCardBase() {
   const [data, setData] = useState<HealthResult | null>(null);

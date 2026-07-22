@@ -26,6 +26,7 @@ export type Database = {
           recipient_email: string | null
           segment_filters: Json
           started_at: string | null
+          stat_method: string
           status: string
           updated_at: string
           user_id: string
@@ -54,6 +55,7 @@ export type Database = {
           recipient_email?: string | null
           segment_filters?: Json
           started_at?: string | null
+          stat_method?: string
           status?: string
           updated_at?: string
           user_id: string
@@ -82,6 +84,7 @@ export type Database = {
           recipient_email?: string | null
           segment_filters?: Json
           started_at?: string | null
+          stat_method?: string
           status?: string
           updated_at?: string
           user_id?: string
@@ -813,6 +816,7 @@ export type Database = {
         Row: {
           attempts: number
           created_at: string
+          duration_ms: number | null
           error_message: string | null
           http_status: number | null
           id: string
@@ -822,11 +826,13 @@ export type Database = {
           request_url: string
           resolved_at: string | null
           resolved_by: string | null
+          status: string
           updated_at: string
         }
         Insert: {
           attempts?: number
           created_at?: string
+          duration_ms?: number | null
           error_message?: string | null
           http_status?: number | null
           id?: string
@@ -836,11 +842,13 @@ export type Database = {
           request_url: string
           resolved_at?: string | null
           resolved_by?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
           attempts?: number
           created_at?: string
+          duration_ms?: number | null
           error_message?: string | null
           http_status?: number | null
           id?: string
@@ -850,6 +858,7 @@ export type Database = {
           request_url?: string
           resolved_at?: string | null
           resolved_by?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -1024,6 +1033,54 @@ export type Database = {
           updated_at?: string
           user_id?: string
           version?: number
+        }
+        Relationships: []
+      }
+      dsar_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          deadline_at: string
+          download_expires_at: string | null
+          download_url: string | null
+          export_path: string | null
+          id: string
+          notes: string | null
+          request_type: string
+          requested_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          deadline_at?: string
+          download_expires_at?: string | null
+          download_url?: string | null
+          export_path?: string | null
+          id?: string
+          notes?: string | null
+          request_type?: string
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          deadline_at?: string
+          download_expires_at?: string | null
+          download_url?: string | null
+          export_path?: string | null
+          id?: string
+          notes?: string | null
+          request_type?: string
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2801,6 +2858,24 @@ export type Database = {
         }
         Relationships: []
       }
+      schema_snapshots: {
+        Row: {
+          captured_at: string
+          id: string
+          snapshot: Json
+        }
+        Insert: {
+          captured_at?: string
+          id?: string
+          snapshot: Json
+        }
+        Update: {
+          captured_at?: string
+          id?: string
+          snapshot?: Json
+        }
+        Relationships: []
+      }
       security_events: {
         Row: {
           created_at: string
@@ -4216,6 +4291,47 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_circuit_state: {
+        Row: {
+          consecutive_failures: number
+          last_failure_at: string | null
+          last_success_at: string | null
+          next_probe_at: string | null
+          opened_at: string | null
+          state: string
+          updated_at: string
+          webhook_id: string
+        }
+        Insert: {
+          consecutive_failures?: number
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          next_probe_at?: string | null
+          opened_at?: string | null
+          state?: string
+          updated_at?: string
+          webhook_id: string
+        }
+        Update: {
+          consecutive_failures?: number
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          next_probe_at?: string | null
+          opened_at?: string | null
+          state?: string
+          updated_at?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_circuit_state_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: true
+            referencedRelation: "webhook_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_configs: {
         Row: {
           created_at: string
@@ -4928,6 +5044,7 @@ export type Database = {
           violations: number
         }[]
       }
+      admin_detect_schema_drift: { Args: never; Returns: Json }
       admin_execute_index_drop:
         | {
             Args: {
@@ -5148,10 +5265,26 @@ export type Database = {
       cleanup_expired_challenges: { Args: never; Returns: undefined }
       cleanup_old_index_advisor_runs: { Args: never; Returns: Json }
       cleanup_webhook_idempotency: { Args: never; Returns: number }
+      compute_adaptive_limit: {
+        Args: { _base_limit: number; _ip: string; _user_id: string }
+        Returns: number
+      }
+      compute_sprt_boundary: {
+        Args: {
+          _alpha?: number
+          _n_a: number
+          _n_b: number
+          _tau2?: number
+          _x_a: number
+          _x_b: number
+        }
+        Returns: Json
+      }
       consume_mfa_backup_code: {
         Args: { _code: string; _user_id: string }
         Returns: boolean
       }
+      count_dsar_sla_misses: { Args: never; Returns: number }
       create_bounce_alert: {
         Args: {
           _alert_type?: string
@@ -5397,6 +5530,7 @@ export type Database = {
       replay_cron_failure: { Args: { _failure_id: string }; Returns: number }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       reset_slow_query_stats: { Args: never; Returns: undefined }
+      run_cron_job: { Args: { _job_name: string; _sql: string }; Returns: Json }
       run_index_advisor_check:
         | { Args: never; Returns: Json }
         | { Args: { _triggered_by?: string }; Returns: Json }
@@ -5407,6 +5541,7 @@ export type Database = {
         Args: { _body: Json; _headers: Json; _job_name: string; _url: string }
         Returns: number
       }
+      snapshot_schema: { Args: never; Returns: string }
       try_claim_webhook_idempotency: {
         Args: { _key: string; _webhook_id: string }
         Returns: boolean
@@ -5425,6 +5560,19 @@ export type Database = {
           type: string
           user_id: string
         }[]
+      }
+      wcb_can_dispatch: {
+        Args: { _cooldown_seconds?: number; _webhook_id: string }
+        Returns: boolean
+      }
+      wcb_record_result: {
+        Args: {
+          _failure_threshold?: number
+          _failure_window_seconds?: number
+          _success: boolean
+          _webhook_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
