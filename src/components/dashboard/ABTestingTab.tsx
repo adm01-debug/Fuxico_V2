@@ -478,8 +478,15 @@ function ABTestingTabBase() {
           </div>
         </CardContent>
       </Card>
+
+      <ABTestResultsDialog
+        test={resultsTest as never}
+        open={!!resultsTestId}
+        onOpenChange={(o) => !o && setResultsTestId(null)}
+      />
     </div>
   );
+
 }
 
 export const ABTestingTab = memo(ABTestingTabBase);
