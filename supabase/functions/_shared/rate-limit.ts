@@ -98,6 +98,35 @@ export async function checkRateLimit(
 }
 
 /**
+ * Onda 98 — Rate limit adaptativo. Ajusta o limite com base na reputação
+ * (segurança do IP + engajamento do usuário) via RPC `compute_adaptive_limit`.
+ * Fallback silencioso para o base limit em caso de erro do banco.
+ */
+export async function checkAdaptiveRateLimit(
+  identifier: string,
+  endpoint: string,
+  baseLimit: number,
+  windowSeconds: number,
+  ctx: { ip?: string; userId?: string; supabase?: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }> } },
+): Promise<RateLimitResult> {
+  let effectiveLimit = baseLimit;
+  if (ctx.supabase) {
+    try {
+      const { data } = await ctx.supabase.rpc('compute_adaptive_limit', {
+        _ip: ctx.ip ?? null,
+        _user_id: ctx.userId ?? null,
+        _base_limit: baseLimit,
+      });
+      if (typeof data === 'number' && data > 0) effectiveLimit = data;
+    } catch (_e) {
+      // Fallback silencioso ao base limit
+    }
+  }
+  return checkRateLimit(identifier, endpoint, effectiveLimit, windowSeconds);
+}
+
+
+/**
  * Extrai IP do cliente de headers da requisição
  */
 export function getClientIP(headers: Headers): string {
