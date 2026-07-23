@@ -4865,6 +4865,62 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_retry_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          event_type: string
+          id: string
+          last_error: string | null
+          max_attempts: number
+          next_attempt_at: string
+          payload: Json
+          source_log_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          webhook_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_attempt_at?: string
+          payload: Json
+          source_log_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          webhook_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_attempt_at?: string
+          payload?: Json
+          source_log_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_retry_queue_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_configs: {
         Row: {
           api_key: string | null
@@ -5584,6 +5640,10 @@ export type Database = {
       refresh_tracking_events_monthly_agg: { Args: never; Returns: undefined }
       release_singleton_job: { Args: { _job_key: string }; Returns: undefined }
       replay_cron_failure: { Args: { _failure_id: string }; Returns: number }
+      replay_failed_webhooks: {
+        Args: { _limit?: number; _webhook_id: string }
+        Returns: Json
+      }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       reset_slow_query_stats: { Args: never; Returns: undefined }
       run_cron_job: { Args: { _job_name: string; _sql: string }; Returns: Json }
