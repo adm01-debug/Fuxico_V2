@@ -1,7 +1,8 @@
 // =============================================================================
-// FUXICO - DSAR Export (LGPD Art. 19) — Onda 103
-// Gera JSON com todos os dados PII do titular e envia para o bucket privado
-// `dsar-exports`, retornando URL assinada (24h). Fallback inline se <2MB.
+// FUXICO - DSAR Export (LGPD Art. 19) — Ondas 103 + 111
+// Onda 103: JSON com dados PII → bucket privado `dsar-exports` + URL assinada 24h.
+// Onda 111: Re-geração automática de URL assinada quando expira (POST {action:"refresh", dsar_id}).
+//           SHA-256 checksum salvo em `dsar_requests.notes` para integridade.
 // =============================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
@@ -13,14 +14,18 @@ const corsHeaders = {
 
 const INLINE_THRESHOLD_BYTES = 2 * 1024 * 1024 // 2MB
 const SIGNED_URL_TTL_SECONDS = 24 * 3600
+const MAX_REFRESH_WINDOW_DAYS = 30 // Onda 111 — não re-emitir URL após 30 dias do request original
+
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', bytes)
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   const authHeader = req.headers.get('Authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
-    return json({ error: 'Unauthorized' }, 401)
-  }
+  if (!authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
 
   const userClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
@@ -37,7 +42,54 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
 
-  // Create request record
+  // Parse body — supports {action:"refresh", dsar_id} for Onda 111 URL renewal
+  let body: { action?: string; dsar_id?: string } = {}
+  try { body = await req.json() } catch { /* empty body → default export */ }
+
+  // ==========================================================================
+  // Onda 111 — REFRESH: re-emitir signed URL de export existente
+  // ==========================================================================
+  if (body.action === 'refresh' && body.dsar_id) {
+    const { data: existing, error: fetchErr } = await admin
+      .from('dsar_requests')
+      .select('id, user_id, status, export_path, created_at')
+      .eq('id', body.dsar_id)
+      .eq('user_id', userId) // isolamento — só dono pode renovar
+      .single()
+
+    if (fetchErr || !existing) return json({ error: 'not_found' }, 404)
+    if (existing.status !== 'completed') return json({ error: 'not_ready' }, 409)
+    if (!existing.export_path || existing.export_path.startsWith('inline:')) {
+      return json({ error: 'inline_export_no_refresh' }, 400)
+    }
+
+    const ageDays = (Date.now() - new Date(existing.created_at).getTime()) / 86400000
+    if (ageDays > MAX_REFRESH_WINDOW_DAYS) {
+      return json({ error: 'export_expired', message: 'Solicite nova exportação.' }, 410)
+    }
+
+    const { data: signed, error: signErr } = await admin.storage
+      .from('dsar-exports')
+      .createSignedUrl(existing.export_path, SIGNED_URL_TTL_SECONDS)
+    if (signErr || !signed) return json({ error: 'sign_failed' }, 500)
+
+    const newExpiresAt = new Date(Date.now() + SIGNED_URL_TTL_SECONDS * 1000).toISOString()
+    await admin.from('dsar_requests')
+      .update({ download_expires_at: newExpiresAt })
+      .eq('id', existing.id)
+
+    return json({
+      dsar_id: existing.id,
+      mode: 'storage',
+      download_url: signed.signedUrl,
+      expires_at: newExpiresAt,
+      refreshed: true,
+    })
+  }
+
+  // ==========================================================================
+  // Default: gerar novo export
+  // ==========================================================================
   const { data: dsar, error: dsarErr } = await admin
     .from('dsar_requests')
     .insert({ user_id: userId, request_type: 'export', status: 'processing' })
@@ -46,7 +98,6 @@ Deno.serve(async (req) => {
   if (dsarErr) return json({ error: dsarErr.message }, 500)
 
   try {
-    // Aggregate PII from relevant tables
     const [emails, scores, seq, prefs, audit] = await Promise.all([
       admin.from('tracked_emails').select('*').eq('user_id', userId),
       admin.from('contact_scores').select('*').eq('user_id', userId),
@@ -66,28 +117,25 @@ Deno.serve(async (req) => {
 
     const serialized = JSON.stringify(payload)
     const bytes = new TextEncoder().encode(serialized)
+    const checksum = await sha256Hex(bytes) // Onda 111 — integridade
     const expiresAt = new Date(Date.now() + SIGNED_URL_TTL_SECONDS * 1000).toISOString()
 
-    // Small payloads: return inline for backwards compatibility
     if (bytes.byteLength <= INLINE_THRESHOLD_BYTES) {
       await admin.from('dsar_requests').update({
         status: 'completed',
         completed_at: new Date().toISOString(),
         download_expires_at: expiresAt,
         export_path: `inline:${dsar.id}`,
+        notes: `sha256=${checksum}`,
       }).eq('id', dsar.id)
 
-      return json({ dsar_id: dsar.id, mode: 'inline', data: payload })
+      return json({ dsar_id: dsar.id, mode: 'inline', data: payload, checksum })
     }
 
-    // Large payloads: upload to private bucket and return signed URL
     const objectPath = `${userId}/${dsar.id}.json`
     const { error: uploadErr } = await admin.storage
       .from('dsar-exports')
-      .upload(objectPath, bytes, {
-        contentType: 'application/json',
-        upsert: true,
-      })
+      .upload(objectPath, bytes, { contentType: 'application/json', upsert: true })
     if (uploadErr) throw uploadErr
 
     const { data: signed, error: signErr } = await admin.storage
@@ -100,6 +148,7 @@ Deno.serve(async (req) => {
       completed_at: new Date().toISOString(),
       download_expires_at: expiresAt,
       export_path: objectPath,
+      notes: `sha256=${checksum}`,
     }).eq('id', dsar.id)
 
     return json({
@@ -108,6 +157,7 @@ Deno.serve(async (req) => {
       download_url: signed.signedUrl,
       expires_at: expiresAt,
       size_bytes: bytes.byteLength,
+      checksum,
     })
   } catch (e) {
     await admin.from('dsar_requests').update({
