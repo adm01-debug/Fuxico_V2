@@ -127,6 +127,8 @@ export function CriticalAlertsPanel() {
   const [dispatch, setDispatch] = useState<string>("all");
   const [refreshKey, setRefreshKey] = useState(0);
   const [selected, setSelected] = useState<AlertRow | null>(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
 
   const severities =
     severity === "all"
@@ -147,6 +149,8 @@ export function CriticalAlertsPanel() {
       eventType,
       severity,
       dispatch,
+      page,
+      pageSize,
       refreshKey,
     ],
     queryFn: () =>
@@ -155,24 +159,46 @@ export function CriticalAlertsPanel() {
         _event_types: eventType.trim() ? [eventType.trim()] : null,
         _severities: severities,
         _dispatch_status: dispatch === "all" ? null : dispatch,
-        _limit: 200,
-        _offset: 0,
+        _limit: pageSize,
+        _offset: page * pageSize,
       }),
     staleTime: 30_000,
   });
 
   const total = alerts.data?.[0]?.total_count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  const handleExportCsv = (): void => {
-    const rows = alerts.data ?? [];
-    if (rows.length === 0) {
+  const handleExportCsv = async (): Promise<void> => {
+    const HARD_CAP = 5000;
+    const cap = Math.min(total, HARD_CAP);
+    if (cap === 0) {
       toast.warning("Nada para exportar no filtro atual.");
       return;
     }
-    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    const filename = `critical-alerts_${hours}h_${stamp}.csv`;
-    downloadCsv(filename, toCsv(rows));
-    toast.success(`Exportado: ${rows.length} evento(s) → ${filename}`);
+    try {
+      const chunkSize = 500;
+      const acc: AlertRow[] = [];
+      for (let offset = 0; offset < cap; offset += chunkSize) {
+        const limit = Math.min(chunkSize, cap - offset);
+        const rows = await adminRpc<AlertRow[]>("admin_list_critical_alerts", {
+          _hours: hours,
+          _event_types: eventType.trim() ? [eventType.trim()] : null,
+          _severities: severities,
+          _dispatch_status: dispatch === "all" ? null : dispatch,
+          _limit: limit,
+          _offset: offset,
+        });
+        acc.push(...rows);
+        if (rows.length < limit) break;
+      }
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      const filename = `critical-alerts_${hours}h_${stamp}.csv`;
+      downloadCsv(filename, toCsv(acc));
+      const truncated = total > HARD_CAP ? ` (truncado em ${HARD_CAP} de ${total})` : "";
+      toast.success(`Exportado: ${acc.length} evento(s) → ${filename}${truncated}`);
+    } catch (e) {
+      toast.error(`Falha na exportação: ${e instanceof Error ? e.message : "erro"}`);
+    }
   };
 
   return (
