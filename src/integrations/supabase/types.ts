@@ -5772,6 +5772,7 @@ export type Database = {
         }
         Returns: string
       }
+      monitor_archive_and_webhook_health: { Args: never; Returns: Json }
       monitor_cron_jobs: { Args: never; Returns: number }
       monitor_table_bloat: { Args: never; Returns: number }
       preview_ab_segment: {
