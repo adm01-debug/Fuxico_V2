@@ -5377,6 +5377,40 @@ export type Database = {
           webhook_url: string
         }[]
       }
+      admin_webhook_failure_rates: {
+        Args: never
+        Returns: {
+          failure_24h: number
+          failure_7d: number
+          failure_rate_24h: number
+          failure_rate_7d: number
+          is_active: boolean
+          last_failure_at: string
+          last_success_at: string
+          success_24h: number
+          success_7d: number
+          total_24h: number
+          total_7d: number
+          webhook_id: string
+          webhook_url: string
+        }[]
+      }
+      admin_webhook_retry_history: {
+        Args: { _limit?: number }
+        Returns: {
+          attempts: number
+          created_at: string
+          event_type: string
+          id: string
+          last_error: string
+          max_attempts: number
+          next_attempt_at: string
+          status: string
+          updated_at: string
+          webhook_id: string
+          webhook_url: string
+        }[]
+      }
       alert_query_regressions: { Args: never; Returns: number }
       analyze_index_post_drop: { Args: { _analysis_id: string }; Returns: Json }
       analyze_index_pre_drop: {
