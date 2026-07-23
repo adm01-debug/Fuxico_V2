@@ -127,6 +127,8 @@ export function CriticalAlertsPanel() {
   const [dispatch, setDispatch] = useState<string>("all");
   const [refreshKey, setRefreshKey] = useState(0);
   const [selected, setSelected] = useState<AlertRow | null>(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
 
   const severities =
     severity === "all"
@@ -147,6 +149,8 @@ export function CriticalAlertsPanel() {
       eventType,
       severity,
       dispatch,
+      page,
+      pageSize,
       refreshKey,
     ],
     queryFn: () =>
@@ -155,24 +159,46 @@ export function CriticalAlertsPanel() {
         _event_types: eventType.trim() ? [eventType.trim()] : null,
         _severities: severities,
         _dispatch_status: dispatch === "all" ? null : dispatch,
-        _limit: 200,
-        _offset: 0,
+        _limit: pageSize,
+        _offset: page * pageSize,
       }),
     staleTime: 30_000,
   });
 
   const total = alerts.data?.[0]?.total_count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  const handleExportCsv = (): void => {
-    const rows = alerts.data ?? [];
-    if (rows.length === 0) {
+  const handleExportCsv = async (): Promise<void> => {
+    const HARD_CAP = 5000;
+    const cap = Math.min(total, HARD_CAP);
+    if (cap === 0) {
       toast.warning("Nada para exportar no filtro atual.");
       return;
     }
-    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    const filename = `critical-alerts_${hours}h_${stamp}.csv`;
-    downloadCsv(filename, toCsv(rows));
-    toast.success(`Exportado: ${rows.length} evento(s) → ${filename}`);
+    try {
+      const chunkSize = 500;
+      const acc: AlertRow[] = [];
+      for (let offset = 0; offset < cap; offset += chunkSize) {
+        const limit = Math.min(chunkSize, cap - offset);
+        const rows = await adminRpc<AlertRow[]>("admin_list_critical_alerts", {
+          _hours: hours,
+          _event_types: eventType.trim() ? [eventType.trim()] : null,
+          _severities: severities,
+          _dispatch_status: dispatch === "all" ? null : dispatch,
+          _limit: limit,
+          _offset: offset,
+        });
+        acc.push(...rows);
+        if (rows.length < limit) break;
+      }
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      const filename = `critical-alerts_${hours}h_${stamp}.csv`;
+      downloadCsv(filename, toCsv(acc));
+      const truncated = total > HARD_CAP ? ` (truncado em ${HARD_CAP} de ${total})` : "";
+      toast.success(`Exportado: ${acc.length} evento(s) → ${filename}${truncated}`);
+    } catch (e) {
+      toast.error(`Falha na exportação: ${e instanceof Error ? e.message : "erro"}`);
+    }
   };
 
   return (
@@ -222,9 +248,10 @@ export function CriticalAlertsPanel() {
               min={1}
               max={720}
               value={hours}
-              onChange={(e) =>
-                setHours(Math.max(1, Number(e.target.value) || 72))
-              }
+              onChange={(e) => {
+                setHours(Math.max(1, Number(e.target.value) || 72));
+                setPage(0);
+              }}
             />
           </div>
           <div>
@@ -234,14 +261,23 @@ export function CriticalAlertsPanel() {
             <Input
               placeholder="ex: archive_verification_spike"
               value={eventType}
-              onChange={(e) => setEventType(e.target.value)}
+              onChange={(e) => {
+                setEventType(e.target.value);
+                setPage(0);
+              }}
             />
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">
               Severidade
             </label>
-            <Select value={severity} onValueChange={setSeverity}>
+            <Select
+              value={severity}
+              onValueChange={(v) => {
+                setSeverity(v);
+                setPage(0);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -258,7 +294,13 @@ export function CriticalAlertsPanel() {
             <label className="text-xs text-muted-foreground mb-1 block">
               Despacho
             </label>
-            <Select value={dispatch} onValueChange={setDispatch}>
+            <Select
+              value={dispatch}
+              onValueChange={(v) => {
+                setDispatch(v);
+                setPage(0);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -405,6 +447,70 @@ export function CriticalAlertsPanel() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+
+          {/* Paginação server-side */}
+          {total > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 mt-3 text-xs">
+              <div className="text-muted-foreground">
+                Página <span className="font-semibold text-foreground">{page + 1}</span> de{" "}
+                <span className="font-semibold text-foreground">{totalPages}</span> —{" "}
+                mostrando {page * pageSize + 1}–
+                {Math.min(total, page * pageSize + (alerts.data?.length ?? 0))} de {total}
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-muted-foreground">Por página:</label>
+                <Select
+                  value={String(pageSize)}
+                  onValueChange={(v) => {
+                    setPageSize(Number(v));
+                    setPage(0);
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page === 0 || alerts.isFetching}
+                  onClick={() => setPage(0)}
+                >
+                  «
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page === 0 || alerts.isFetching}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                >
+                  ‹ Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page + 1 >= totalPages || alerts.isFetching}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Próxima ›
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page + 1 >= totalPages || alerts.isFetching}
+                  onClick={() => setPage(totalPages - 1)}
+                >
+                  »
+                </Button>
+              </div>
             </div>
           )}
         </div>
