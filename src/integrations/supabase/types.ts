@@ -5289,6 +5289,27 @@ export type Database = {
         Returns: Json
       }
       admin_rls_canary: { Args: never; Returns: Json }
+      admin_rls_canary_full: {
+        Args: never
+        Returns: {
+          detail: string
+          operation: string
+          passed: boolean
+          target: string
+          test_type: string
+        }[]
+      }
+      admin_rls_canary_write: {
+        Args: never
+        Returns: {
+          actual: string
+          detail: string
+          expected: string
+          operation: string
+          passed: boolean
+          table_name: string
+        }[]
+      }
       admin_run_index_advisor: { Args: never; Returns: Json }
       admin_signing_key_status: { Args: never; Returns: Json }
       admin_stale_indexes: {
