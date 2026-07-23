@@ -491,6 +491,10 @@ export default function AdminObservability() {
       {/* Histórico de retries */}
       <WebhookRetryHistoryTable />
 
+      {/* Alertas críticos consolidados */}
+      <CriticalAlertsPanel />
+
+
 
       {/* Index Advisor */}
       <IndexAdvisorPanel />
