@@ -2145,6 +2145,48 @@ export type Database = {
         }
         Relationships: []
       }
+      partition_archive_log: {
+        Row: {
+          archive_path: string
+          archived_at: string
+          dropped_at: string | null
+          error: string | null
+          id: string
+          metadata: Json
+          parent_table: string
+          partition_name: string
+          row_count: number
+          size_bytes: number
+          status: string
+        }
+        Insert: {
+          archive_path: string
+          archived_at?: string
+          dropped_at?: string | null
+          error?: string | null
+          id?: string
+          metadata?: Json
+          parent_table: string
+          partition_name: string
+          row_count?: number
+          size_bytes?: number
+          status?: string
+        }
+        Update: {
+          archive_path?: string
+          archived_at?: string
+          dropped_at?: string | null
+          error?: string | null
+          id?: string
+          metadata?: Json
+          parent_table?: string
+          partition_name?: string
+          row_count?: number
+          size_bytes?: number
+          status?: string
+        }
+        Relationships: []
+      }
       password_reset_requests: {
         Row: {
           created_at: string
@@ -5221,6 +5263,10 @@ export type Database = {
       analyze_index_post_drop: { Args: { _analysis_id: string }; Returns: Json }
       analyze_index_pre_drop: {
         Args: { _index_name: string; _top_n?: number }
+        Returns: Json
+      }
+      archive_partition_before_drop: {
+        Args: { _dry_run?: boolean; _parent_table: string; _partition: string }
         Returns: Json
       }
       auto_promote_ab_winners: { Args: never; Returns: Json }
