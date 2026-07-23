@@ -5266,6 +5266,7 @@ export type Database = {
         }[]
       }
       admin_ops_dashboard: { Args: never; Returns: Json }
+      admin_pool_stats: { Args: never; Returns: Json }
       admin_preview_index_drop: { Args: { _index_name: string }; Returns: Json }
       admin_query_regressions: {
         Args: { _threshold_pct?: number }
@@ -5289,6 +5290,7 @@ export type Database = {
       }
       admin_rls_canary: { Args: never; Returns: Json }
       admin_run_index_advisor: { Args: never; Returns: Json }
+      admin_signing_key_status: { Args: never; Returns: Json }
       admin_stale_indexes: {
         Args: { _days?: number }
         Returns: {
