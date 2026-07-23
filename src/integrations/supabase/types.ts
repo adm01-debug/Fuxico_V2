@@ -2149,6 +2149,7 @@ export type Database = {
         Row: {
           archive_path: string
           archived_at: string
+          checksum_sha256: string | null
           dropped_at: string | null
           error: string | null
           id: string
@@ -2158,10 +2159,13 @@ export type Database = {
           row_count: number
           size_bytes: number
           status: string
+          verification_status: string | null
+          verified_at: string | null
         }
         Insert: {
           archive_path: string
           archived_at?: string
+          checksum_sha256?: string | null
           dropped_at?: string | null
           error?: string | null
           id?: string
@@ -2171,10 +2175,13 @@ export type Database = {
           row_count?: number
           size_bytes?: number
           status?: string
+          verification_status?: string | null
+          verified_at?: string | null
         }
         Update: {
           archive_path?: string
           archived_at?: string
+          checksum_sha256?: string | null
           dropped_at?: string | null
           error?: string | null
           id?: string
@@ -2184,6 +2191,8 @@ export type Database = {
           row_count?: number
           size_bytes?: number
           status?: string
+          verification_status?: string | null
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -5312,6 +5321,15 @@ export type Database = {
       }
       admin_run_index_advisor: { Args: never; Returns: Json }
       admin_signing_key_status: { Args: never; Returns: Json }
+      admin_stale_archive_verifications: {
+        Args: never
+        Returns: {
+          age_hours: number
+          archive_id: string
+          archived_at: string
+          partition_name: string
+        }[]
+      }
       admin_stale_indexes: {
         Args: { _days?: number }
         Returns: {
@@ -5709,6 +5727,19 @@ export type Database = {
       }
       use_password_reset_token: { Args: { _token: string }; Returns: string }
       verify_email_token: { Args: { _token: string }; Returns: boolean }
+      verify_partition_archive: {
+        Args: {
+          _archive_id: string
+          _checksum_sha256: string
+          _object_exists: boolean
+          _row_count: number
+        }
+        Returns: {
+          archive_id: string
+          message: string
+          status: string
+        }[]
+      }
       verify_webauthn_challenge: {
         Args: { _challenge: string }
         Returns: {
