@@ -5293,6 +5293,10 @@ export type Database = {
         Returns: Json
       }
       admin_report_orphan_pii: { Args: never; Returns: Json }
+      admin_reset_webhook_circuit: {
+        Args: { _webhook_id: string }
+        Returns: Json
+      }
       admin_restore_dropped_index: {
         Args: { _drop_id: string; _requested_by?: string }
         Returns: Json
@@ -5355,6 +5359,22 @@ export type Database = {
           table_name: string
           table_size: string
           total_size: string
+        }[]
+      }
+      admin_webhook_circuit_dashboard: {
+        Args: never
+        Returns: {
+          consecutive_failures: number
+          last_failure_at: string
+          last_success_at: string
+          next_probe_at: string
+          opened_at: string
+          owner_user_id: string
+          state: string
+          updated_at: string
+          webhook_id: string
+          webhook_name: string
+          webhook_url: string
         }[]
       }
       alert_query_regressions: { Args: never; Returns: number }
