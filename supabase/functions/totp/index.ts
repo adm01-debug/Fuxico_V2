@@ -300,12 +300,22 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
           );
         }
 
-        const normalizedCode = code.toUpperCase().replace(/\s/g, "");
-        const codeIndex = settings.backup_codes.findIndex(
-          (c: string) => c.replace(/-/g, "") === normalizedCode.replace(/-/g, "")
-        );
+        const normalizedCode = code.toUpperCase().replace(/[\s-]/g, "");
+
+        // Onda 109 — Constant-time comparison across ALL backup codes.
+        // Always iterates the full list; XOR-accumulated byte diffs prevent
+        // early-exit timing signals. Only the first matching index is kept.
+        let codeIndex = -1;
+        for (let i = 0; i < settings.backup_codes.length; i++) {
+          const candidate = (settings.backup_codes[i] as string).replace(/-/g, "");
+          const equal = constantTimeEq(candidate, normalizedCode);
+          if (equal && codeIndex === -1) codeIndex = i;
+        }
 
         if (codeIndex === -1) {
+          // Uniform 50-150ms delay so failure timing does not leak length/position.
+          const jitter = 50 + Math.floor((crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000) * 100);
+          await new Promise((r) => setTimeout(r, jitter));
           return new Response(
             JSON.stringify({ error: "Invalid backup code", valid: false }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
