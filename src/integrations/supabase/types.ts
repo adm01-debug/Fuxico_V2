@@ -5376,6 +5376,18 @@ export type Database = {
         Args: { _min_days?: number; _min_size_mb?: number }
         Returns: Json
       }
+      claim_webhook_retries: {
+        Args: { p_batch_size?: number }
+        Returns: {
+          attempts: number
+          event_type: string
+          id: string
+          max_attempts: number
+          payload: Json
+          user_id: string
+          webhook_id: string
+        }[]
+      }
       cleanup_expired_challenges: { Args: never; Returns: undefined }
       cleanup_old_index_advisor_runs: { Args: never; Returns: Json }
       cleanup_webhook_idempotency: { Args: never; Returns: number }
@@ -5448,6 +5460,10 @@ export type Database = {
       }
       ensure_webhook_logs_partition: {
         Args: { target_month: string }
+        Returns: undefined
+      }
+      finalize_webhook_retry: {
+        Args: { p_error?: string; p_id: string; p_success: boolean }
         Returns: undefined
       }
       generate_mfa_backup_codes: { Args: never; Returns: string[] }
