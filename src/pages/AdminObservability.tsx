@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { IndexUsageDashboard } from '@/components/admin/IndexUsageDashboard';
 import { IndexAdvisorPanel } from '@/components/admin/IndexAdvisorPanel';
 import { SystemHealthScoreCard } from '@/components/admin/SystemHealthScoreCard';
+import { HealthScoreSnapshotHistory } from '@/components/admin/HealthScoreSnapshotHistory';
 import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashboard';
 import { WebhookFailureRatesTable } from '@/components/admin/WebhookFailureRatesTable';
 import { WebhookRetryHistoryTable } from '@/components/admin/WebhookRetryHistoryTable';
@@ -476,6 +477,9 @@ export default function AdminObservability() {
 
       {/* Health Score global */}
       <SystemHealthScoreCard />
+
+      {/* Auditoria — snapshots do Health Score */}
+      <HealthScoreSnapshotHistory />
 
       {/* Circuit breakers de webhooks */}
       <WebhookCircuitDashboard />
