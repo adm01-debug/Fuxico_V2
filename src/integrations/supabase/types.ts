@@ -5287,6 +5287,7 @@ export type Database = {
         Args: { _drop_id: string; _requested_by?: string }
         Returns: Json
       }
+      admin_rls_canary: { Args: never; Returns: Json }
       admin_run_index_advisor: { Args: never; Returns: Json }
       admin_stale_indexes: {
         Args: { _days?: number }
