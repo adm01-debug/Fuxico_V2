@@ -21,7 +21,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertTriangle, Filter, RefreshCw } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AlertTriangle, Download, Filter, RefreshCw, Search } from "lucide-react";
+import { toast } from "sonner";
 
 type AlertRow = {
   id: string;
@@ -63,12 +71,62 @@ const DISPATCH_STYLES: Record<string, string> = {
   skipped: "bg-muted text-muted-foreground border-border",
 };
 
+const CSV_COLUMNS: Array<{ key: keyof AlertRow; label: string }> = [
+  { key: "created_at", label: "created_at" },
+  { key: "event_type", label: "event_type" },
+  { key: "severity", label: "severity" },
+  { key: "description", label: "description" },
+  { key: "dispatch_status", label: "dispatch_status" },
+  { key: "dispatched_at", label: "dispatched_at" },
+  { key: "admin_count", label: "admin_count" },
+  { key: "channels", label: "channels" },
+  { key: "error_message", label: "error_message" },
+  { key: "id", label: "id" },
+  { key: "metadata", label: "metadata" },
+];
+
+// CSV injection guard: prefixa fórmulas com apóstrofo
+function sanitizeCsvCell(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  let s = typeof value === "string" ? value : JSON.stringify(value);
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/[",\n\r]/.test(s)) s = `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function toCsv(rows: AlertRow[]): string {
+  const header = CSV_COLUMNS.map((c) => c.label).join(",");
+  const body = rows
+    .map((r) =>
+      CSV_COLUMNS.map((c) => {
+        const v = r[c.key];
+        if (Array.isArray(v)) return sanitizeCsvCell(v.join("|"));
+        return sanitizeCsvCell(v);
+      }).join(","),
+    )
+    .join("\n");
+  return `${header}\n${body}\n`;
+}
+
+function downloadCsv(filename: string, csv: string): void {
+  const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export function CriticalAlertsPanel() {
   const [hours, setHours] = useState<number>(72);
   const [eventType, setEventType] = useState<string>("");
   const [severity, setSeverity] = useState<string>("all");
   const [dispatch, setDispatch] = useState<string>("all");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selected, setSelected] = useState<AlertRow | null>(null);
 
   const severities =
     severity === "all"
@@ -105,6 +163,18 @@ export function CriticalAlertsPanel() {
 
   const total = alerts.data?.[0]?.total_count ?? 0;
 
+  const handleExportCsv = (): void => {
+    const rows = alerts.data ?? [];
+    if (rows.length === 0) {
+      toast.warning("Nada para exportar no filtro atual.");
+      return;
+    }
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const filename = `critical-alerts_${hours}h_${stamp}.csv`;
+    downloadCsv(filename, toCsv(rows));
+    toast.success(`Exportado: ${rows.length} evento(s) → ${filename}`);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -119,14 +189,25 @@ export function CriticalAlertsPanel() {
               (arquivos, webhooks e afins).
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setRefreshKey((k) => k + 1)}
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Atualizar
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCsv}
+              disabled={alerts.isLoading || (alerts.data ?? []).length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Exportar CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setRefreshKey((k) => k + 1)}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Atualizar
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -276,11 +357,16 @@ export function CriticalAlertsPanel() {
                     <TableHead>Descrição</TableHead>
                     <TableHead>Despacho</TableHead>
                     <TableHead className="text-right">Admins</TableHead>
+                    <TableHead className="w-8" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {(alerts.data ?? []).map((a) => (
-                    <TableRow key={a.id}>
+                    <TableRow
+                      key={a.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => setSelected(a)}
+                    >
                       <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                         {new Date(a.created_at).toLocaleString("pt-BR")}
                       </TableCell>
@@ -312,6 +398,9 @@ export function CriticalAlertsPanel() {
                       <TableCell className="text-right">
                         {a.admin_count}
                       </TableCell>
+                      <TableCell className="text-right">
+                        <Search className="w-3.5 h-3.5 text-muted-foreground" />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -320,6 +409,103 @@ export function CriticalAlertsPanel() {
           )}
         </div>
       </CardContent>
+
+      {/* Drill-down: detalhes + JSON viewer */}
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-destructive" />
+              Detalhe do alerta
+            </DialogTitle>
+            <DialogDescription>
+              Inspeção completa do evento e do payload de metadata.
+            </DialogDescription>
+          </DialogHeader>
+          {selected && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Tipo" value={selected.event_type} mono />
+                <Field label="Severidade" value={selected.severity} />
+                <Field
+                  label="Quando"
+                  value={new Date(selected.created_at).toLocaleString("pt-BR")}
+                />
+                <Field label="Despacho" value={selected.dispatch_status} />
+                <Field
+                  label="Despachado em"
+                  value={
+                    selected.dispatched_at
+                      ? new Date(selected.dispatched_at).toLocaleString("pt-BR")
+                      : "—"
+                  }
+                />
+                <Field label="Admins notificados" value={String(selected.admin_count)} />
+                <Field
+                  label="Canais"
+                  value={selected.channels?.length ? selected.channels.join(", ") : "—"}
+                />
+                <Field label="ID" value={selected.id} mono />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Descrição</div>
+                <div className="rounded-md border p-2 bg-muted/30 text-sm whitespace-pre-wrap break-words">
+                  {selected.description}
+                </div>
+              </div>
+              {selected.error_message && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Erro de despacho
+                  </div>
+                  <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2 text-xs font-mono whitespace-pre-wrap break-words">
+                    {selected.error_message}
+                  </div>
+                </div>
+              )}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-xs text-muted-foreground">Metadata (JSON)</div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard
+                        .writeText(JSON.stringify(selected.metadata ?? {}, null, 2))
+                        .then(() => toast.success("Metadata copiado."))
+                        .catch(() => toast.error("Falha ao copiar."));
+                    }}
+                  >
+                    Copiar
+                  </Button>
+                </div>
+                <pre className="rounded-md border bg-muted/40 p-3 text-xs font-mono overflow-x-auto max-h-80">
+{JSON.stringify(selected.metadata ?? {}, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
+  );
+}
+
+function Field({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className={mono ? "font-mono text-xs break-all" : "text-sm break-words"}>
+        {value}
+      </div>
+    </div>
   );
 }
