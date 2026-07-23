@@ -16,6 +16,8 @@ import { IndexUsageDashboard } from '@/components/admin/IndexUsageDashboard';
 import { IndexAdvisorPanel } from '@/components/admin/IndexAdvisorPanel';
 import { SystemHealthScoreCard } from '@/components/admin/SystemHealthScoreCard';
 import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashboard';
+import { WebhookFailureRatesTable } from '@/components/admin/WebhookFailureRatesTable';
+import { WebhookRetryHistoryTable } from '@/components/admin/WebhookRetryHistoryTable';
 
 type Severity = 'ok' | 'warning' | 'critical';
 
@@ -477,6 +479,13 @@ export default function AdminObservability() {
 
       {/* Circuit breakers de webhooks */}
       <WebhookCircuitDashboard />
+
+      {/* Taxas de falha por webhook (24h/7d) */}
+      <WebhookFailureRatesTable />
+
+      {/* Histórico de retries */}
+      <WebhookRetryHistoryTable />
+
 
       {/* Index Advisor */}
       <IndexAdvisorPanel />
