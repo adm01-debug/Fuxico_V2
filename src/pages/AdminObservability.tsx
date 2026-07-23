@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { IndexUsageDashboard } from '@/components/admin/IndexUsageDashboard';
 import { IndexAdvisorPanel } from '@/components/admin/IndexAdvisorPanel';
 import { SystemHealthScoreCard } from '@/components/admin/SystemHealthScoreCard';
+import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashboard';
 
 type Severity = 'ok' | 'warning' | 'critical';
 
@@ -473,6 +474,9 @@ export default function AdminObservability() {
 
       {/* Health Score global */}
       <SystemHealthScoreCard />
+
+      {/* Circuit breakers de webhooks */}
+      <WebhookCircuitDashboard />
 
       {/* Index Advisor */}
       <IndexAdvisorPanel />

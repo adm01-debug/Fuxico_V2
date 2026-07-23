@@ -38,6 +38,8 @@ const ALLOWED = new Set([
   "admin_run_index_advisor",
   "admin_cleanup_index_advisor_runs",
   "admin_last_index_advisor_cleanup",
+  "admin_webhook_circuit_dashboard",
+  "admin_reset_webhook_circuit",
 ]);
 
 interface RpcBody {
