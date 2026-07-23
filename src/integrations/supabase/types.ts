@@ -1467,6 +1467,36 @@ export type Database = {
         }
         Relationships: []
       }
+      health_score_snapshots: {
+        Row: {
+          breakdown: Json
+          captured_by: string | null
+          created_at: string
+          grade: string
+          id: string
+          score: number
+          source: string
+        }
+        Insert: {
+          breakdown?: Json
+          captured_by?: string | null
+          created_at?: string
+          grade: string
+          id?: string
+          score: number
+          source?: string
+        }
+        Update: {
+          breakdown?: Json
+          captured_by?: string | null
+          created_at?: string
+          grade?: string
+          id?: string
+          score?: number
+          source?: string
+        }
+        Relationships: []
+      }
       index_advisor_runs: {
         Row: {
           created_at: string
@@ -5151,6 +5181,24 @@ export type Database = {
           waited_seconds: number
         }[]
       }
+      admin_capture_health_score_snapshot: {
+        Args: { _source?: string }
+        Returns: {
+          breakdown: Json
+          captured_by: string | null
+          created_at: string
+          grade: string
+          id: string
+          score: number
+          source: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "health_score_snapshots"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       admin_cleanup_index_advisor_runs: { Args: never; Returns: Json }
       admin_data_integrity_check: {
         Args: never
@@ -5261,6 +5309,18 @@ export type Database = {
           replayed_at: string
           status_code: number
           url: string
+        }[]
+      }
+      admin_list_health_score_snapshots: {
+        Args: { _limit?: number }
+        Returns: {
+          breakdown: Json
+          captured_by: string
+          created_at: string
+          grade: string
+          id: string
+          score: number
+          source: string
         }[]
       }
       admin_list_index_advisor_runs: {
