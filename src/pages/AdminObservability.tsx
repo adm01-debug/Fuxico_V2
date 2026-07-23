@@ -480,6 +480,13 @@ export default function AdminObservability() {
       {/* Circuit breakers de webhooks */}
       <WebhookCircuitDashboard />
 
+      {/* Taxas de falha por webhook (24h/7d) */}
+      <WebhookFailureRatesTable />
+
+      {/* Histórico de retries */}
+      <WebhookRetryHistoryTable />
+
+
       {/* Index Advisor */}
       <IndexAdvisorPanel />
 
