@@ -142,25 +142,34 @@ export type Database = {
       }
       alert_dispatch_log: {
         Row: {
+          admin_count: number | null
           channel: string
+          channels: string[] | null
           dispatched_at: string
           error_message: string | null
+          event_id: string | null
           id: string
           security_event_id: string
           status: string
         }
         Insert: {
+          admin_count?: number | null
           channel: string
+          channels?: string[] | null
           dispatched_at?: string
           error_message?: string | null
+          event_id?: string | null
           id?: string
           security_event_id: string
           status: string
         }
         Update: {
+          admin_count?: number | null
           channel?: string
+          channels?: string[] | null
           dispatched_at?: string
           error_message?: string | null
+          event_id?: string | null
           id?: string
           security_event_id?: string
           status?: string
@@ -5310,6 +5319,7 @@ export type Database = {
         Returns: string
       }
       db_health_check: { Args: never; Returns: Json }
+      dispatch_critical_alerts: { Args: never; Returns: Json }
       ensure_audit_logs_partition: {
         Args: { target_month: string }
         Returns: undefined
