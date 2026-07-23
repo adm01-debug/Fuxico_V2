@@ -29,6 +29,10 @@ const LABELS: Record<string, string> = {
   bloat_alerts_24h: 'Tabelas com bloat (24h)',
   query_regressions_24h: 'Regressões de query (24h)',
   advisor_high_last_run: 'Índices críticos (advisor)',
+  retry_queue_depth: 'Fila de reenvio de webhooks',
+  rls_canary_failures_24h: 'Falhas do canário RLS (24h)',
+  pool_utilization_pct: 'Uso do pool (%)',
+  signing_key_age_days: 'Idade da signing key (dias)',
 };
 
 

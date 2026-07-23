@@ -142,25 +142,34 @@ export type Database = {
       }
       alert_dispatch_log: {
         Row: {
+          admin_count: number | null
           channel: string
+          channels: string[] | null
           dispatched_at: string
           error_message: string | null
+          event_id: string | null
           id: string
           security_event_id: string
           status: string
         }
         Insert: {
+          admin_count?: number | null
           channel: string
+          channels?: string[] | null
           dispatched_at?: string
           error_message?: string | null
+          event_id?: string | null
           id?: string
           security_event_id: string
           status: string
         }
         Update: {
+          admin_count?: number | null
           channel?: string
+          channels?: string[] | null
           dispatched_at?: string
           error_message?: string | null
+          event_id?: string | null
           id?: string
           security_event_id?: string
           status?: string
@@ -2133,6 +2142,48 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      partition_archive_log: {
+        Row: {
+          archive_path: string
+          archived_at: string
+          dropped_at: string | null
+          error: string | null
+          id: string
+          metadata: Json
+          parent_table: string
+          partition_name: string
+          row_count: number
+          size_bytes: number
+          status: string
+        }
+        Insert: {
+          archive_path: string
+          archived_at?: string
+          dropped_at?: string | null
+          error?: string | null
+          id?: string
+          metadata?: Json
+          parent_table: string
+          partition_name: string
+          row_count?: number
+          size_bytes?: number
+          status?: string
+        }
+        Update: {
+          archive_path?: string
+          archived_at?: string
+          dropped_at?: string | null
+          error?: string | null
+          id?: string
+          metadata?: Json
+          parent_table?: string
+          partition_name?: string
+          row_count?: number
+          size_bytes?: number
+          status?: string
         }
         Relationships: []
       }
@@ -4814,6 +4865,62 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_retry_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          event_type: string
+          id: string
+          last_error: string | null
+          max_attempts: number
+          next_attempt_at: string
+          payload: Json
+          source_log_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          webhook_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_attempt_at?: string
+          payload: Json
+          source_log_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          webhook_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_attempt_at?: string
+          payload?: Json
+          source_log_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_retry_queue_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_configs: {
         Row: {
           api_key: string | null
@@ -5159,6 +5266,7 @@ export type Database = {
         }[]
       }
       admin_ops_dashboard: { Args: never; Returns: Json }
+      admin_pool_stats: { Args: never; Returns: Json }
       admin_preview_index_drop: { Args: { _index_name: string }; Returns: Json }
       admin_query_regressions: {
         Args: { _threshold_pct?: number }
@@ -5180,7 +5288,9 @@ export type Database = {
         Args: { _drop_id: string; _requested_by?: string }
         Returns: Json
       }
+      admin_rls_canary: { Args: never; Returns: Json }
       admin_run_index_advisor: { Args: never; Returns: Json }
+      admin_signing_key_status: { Args: never; Returns: Json }
       admin_stale_indexes: {
         Args: { _days?: number }
         Returns: {
@@ -5212,6 +5322,10 @@ export type Database = {
       analyze_index_post_drop: { Args: { _analysis_id: string }; Returns: Json }
       analyze_index_pre_drop: {
         Args: { _index_name: string; _top_n?: number }
+        Returns: Json
+      }
+      archive_partition_before_drop: {
+        Args: { _dry_run?: boolean; _parent_table: string; _partition: string }
         Returns: Json
       }
       auto_promote_ab_winners: { Args: never; Returns: Json }
@@ -5310,6 +5424,7 @@ export type Database = {
         Returns: string
       }
       db_health_check: { Args: never; Returns: Json }
+      dispatch_critical_alerts: { Args: never; Returns: Json }
       ensure_audit_logs_partition: {
         Args: { target_month: string }
         Returns: undefined
@@ -5528,6 +5643,10 @@ export type Database = {
       refresh_tracking_events_monthly_agg: { Args: never; Returns: undefined }
       release_singleton_job: { Args: { _job_key: string }; Returns: undefined }
       replay_cron_failure: { Args: { _failure_id: string }; Returns: number }
+      replay_failed_webhooks: {
+        Args: { _limit?: number; _webhook_id: string }
+        Returns: Json
+      }
       reset_login_lockout: { Args: { _email: string }; Returns: undefined }
       reset_slow_query_stats: { Args: never; Returns: undefined }
       run_cron_job: { Args: { _job_name: string; _sql: string }; Returns: Json }
