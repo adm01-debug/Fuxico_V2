@@ -16,6 +16,8 @@ import { IndexUsageDashboard } from '@/components/admin/IndexUsageDashboard';
 import { IndexAdvisorPanel } from '@/components/admin/IndexAdvisorPanel';
 import { SystemHealthScoreCard } from '@/components/admin/SystemHealthScoreCard';
 import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashboard';
+import { WebhookFailureRatesTable } from '@/components/admin/WebhookFailureRatesTable';
+import { WebhookRetryHistoryTable } from '@/components/admin/WebhookRetryHistoryTable';
 
 type Severity = 'ok' | 'warning' | 'critical';
 
