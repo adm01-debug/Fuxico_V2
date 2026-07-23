@@ -478,6 +478,9 @@ export default function AdminObservability() {
       {/* Health Score global */}
       <SystemHealthScoreCard />
 
+      {/* Auditoria — snapshots do Health Score */}
+      <HealthScoreSnapshotHistory />
+
       {/* Circuit breakers de webhooks */}
       <WebhookCircuitDashboard />
 
