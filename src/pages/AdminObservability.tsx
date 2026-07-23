@@ -19,6 +19,7 @@ import { HealthScoreSnapshotHistory } from '@/components/admin/HealthScoreSnapsh
 import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashboard';
 import { WebhookFailureRatesTable } from '@/components/admin/WebhookFailureRatesTable';
 import { WebhookRetryHistoryTable } from '@/components/admin/WebhookRetryHistoryTable';
+import { CriticalAlertsPanel } from '@/components/admin/CriticalAlertsPanel';
 
 type Severity = 'ok' | 'warning' | 'critical';
 
