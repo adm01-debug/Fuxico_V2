@@ -248,9 +248,10 @@ export function CriticalAlertsPanel() {
               min={1}
               max={720}
               value={hours}
-              onChange={(e) =>
-                setHours(Math.max(1, Number(e.target.value) || 72))
-              }
+              onChange={(e) => {
+                setHours(Math.max(1, Number(e.target.value) || 72));
+                setPage(0);
+              }}
             />
           </div>
           <div>
@@ -260,14 +261,23 @@ export function CriticalAlertsPanel() {
             <Input
               placeholder="ex: archive_verification_spike"
               value={eventType}
-              onChange={(e) => setEventType(e.target.value)}
+              onChange={(e) => {
+                setEventType(e.target.value);
+                setPage(0);
+              }}
             />
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">
               Severidade
             </label>
-            <Select value={severity} onValueChange={setSeverity}>
+            <Select
+              value={severity}
+              onValueChange={(v) => {
+                setSeverity(v);
+                setPage(0);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -284,7 +294,13 @@ export function CriticalAlertsPanel() {
             <label className="text-xs text-muted-foreground mb-1 block">
               Despacho
             </label>
-            <Select value={dispatch} onValueChange={setDispatch}>
+            <Select
+              value={dispatch}
+              onValueChange={(v) => {
+                setDispatch(v);
+                setPage(0);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
