@@ -1,6 +1,7 @@
 // =============================================================================
-// FUXICO - DSAR Export (LGPD Art. 19)
-// Gera JSON com todos os dados PII do titular solicitante.
+// FUXICO - DSAR Export (LGPD Art. 19) — Onda 103
+// Gera JSON com todos os dados PII do titular e envia para o bucket privado
+// `dsar-exports`, retornando URL assinada (24h). Fallback inline se <2MB.
 // =============================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
@@ -9,6 +10,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
+
+const INLINE_THRESHOLD_BYTES = 2 * 1024 * 1024 // 2MB
+const SIGNED_URL_TTL_SECONDS = 24 * 3600
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
@@ -60,14 +64,51 @@ Deno.serve(async (req) => {
       email_audit_logs: audit.data ?? [],
     }
 
+    const serialized = JSON.stringify(payload)
+    const bytes = new TextEncoder().encode(serialized)
+    const expiresAt = new Date(Date.now() + SIGNED_URL_TTL_SECONDS * 1000).toISOString()
+
+    // Small payloads: return inline for backwards compatibility
+    if (bytes.byteLength <= INLINE_THRESHOLD_BYTES) {
+      await admin.from('dsar_requests').update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        download_expires_at: expiresAt,
+        export_path: `inline:${dsar.id}`,
+      }).eq('id', dsar.id)
+
+      return json({ dsar_id: dsar.id, mode: 'inline', data: payload })
+    }
+
+    // Large payloads: upload to private bucket and return signed URL
+    const objectPath = `${userId}/${dsar.id}.json`
+    const { error: uploadErr } = await admin.storage
+      .from('dsar-exports')
+      .upload(objectPath, bytes, {
+        contentType: 'application/json',
+        upsert: true,
+      })
+    if (uploadErr) throw uploadErr
+
+    const { data: signed, error: signErr } = await admin.storage
+      .from('dsar-exports')
+      .createSignedUrl(objectPath, SIGNED_URL_TTL_SECONDS)
+    if (signErr || !signed) throw signErr ?? new Error('signed_url_failed')
+
     await admin.from('dsar_requests').update({
       status: 'completed',
       completed_at: new Date().toISOString(),
-      download_expires_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-      export_path: `inline:${dsar.id}`,
+      download_expires_at: expiresAt,
+      export_path: objectPath,
     }).eq('id', dsar.id)
 
-    return json({ dsar_id: dsar.id, data: payload })
+    return json({
+      dsar_id: dsar.id,
+      mode: 'storage',
+      download_url: signed.signedUrl,
+      expires_at: expiresAt,
+      size_bytes: bytes.byteLength,
+    })
   } catch (e) {
     await admin.from('dsar_requests').update({
       status: 'failed',
