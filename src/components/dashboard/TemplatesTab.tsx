@@ -12,12 +12,15 @@ import { toast } from 'sonner';
 import { useEmailTemplates } from '@/hooks/use-email-templates';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
+import { createTracking } from '@/features/tracking/lib/tracking-api';
+import { extractTrackableLinks, injectTracking } from '@/features/tracking/lib/render-tracking';
 
 function TemplatesTabBase() {
   const { templates, isLoading, createTemplate, deleteTemplate, incrementUsage } = useEmailTemplates();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof templates[0] | null>(null);
+  const [isPreparing, setIsPreparing] = useState<string | null>(null);
   const [newTemplate, setNewTemplate] = useState({
     name: '',
     subject: '',
@@ -26,14 +29,47 @@ function TemplatesTabBase() {
   });
 
   const handleCopyTemplate = async (template: typeof templates[0]) => {
-    const pixelHtml = `\n\n<!-- FUXICO Tracking Pixel - Será inserido automaticamente -->`;
-    const bodyWithPixel = template.body + pixelHtml;
-    
-    await navigator.clipboard.writeText(bodyWithPixel);
-    incrementUsage.mutate(template.id);
-    toast.success('Template copiado!', {
-      description: 'O pixel de tracking será inserido automaticamente ao enviar.',
-    });
+    setIsPreparing(template.id);
+    try {
+      // Solicita o destinatário para criar tracking end-to-end.
+      const recipient = window.prompt(
+        'E-mail do destinatário (para gerar pixel + links de tracking):',
+        '',
+      )?.trim();
+      if (!recipient) {
+        setIsPreparing(null);
+        return;
+      }
+
+      const links = extractTrackableLinks(template.body);
+      const tracking = await createTracking({
+        recipientEmail: recipient,
+        subject: template.subject,
+        links,
+        metadata: { template_id: template.id, source: 'templates-tab' },
+      });
+
+      const linkMap: Record<string, string> = {};
+      for (const w of tracking.wrappedLinks) linkMap[w.original] = w.linkId;
+
+      const baseUrl = window.location.origin;
+      const bodyWithTracking = injectTracking(template.body, {
+        trackingId: tracking.trackingId,
+        baseUrl,
+        linkMap,
+      });
+
+      await navigator.clipboard.writeText(bodyWithTracking);
+      incrementUsage.mutate(template.id);
+      toast.success('Template copiado com tracking pronto!', {
+        description: `Pixel /api/public/track/open.gif + ${links.length} link(s) reescrito(s).`,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Falha ao preparar tracking';
+      toast.error('Não foi possível preparar o template', { description: message });
+    } finally {
+      setIsPreparing(null);
+    }
   };
 
   const handleCreateTemplate = async () => {
@@ -206,8 +242,18 @@ function TemplatesTabBase() {
                           <Button variant="ghost" size="icon" onClick={() => handlePreview(template)}>
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleCopyTemplate(template)}>
-                            <Copy className="h-4 w-4" />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleCopyTemplate(template)}
+                            disabled={isPreparing === template.id}
+                            aria-label="Copiar com tracking"
+                          >
+                            {isPreparing === template.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
                           </Button>
                           <Button 
                             variant="ghost" 
