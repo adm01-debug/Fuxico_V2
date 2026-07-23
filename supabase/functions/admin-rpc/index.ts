@@ -44,6 +44,8 @@ const ALLOWED = new Set([
   "admin_webhook_retry_history",
   "admin_capture_health_score_snapshot",
   "admin_list_health_score_snapshots",
+  "admin_list_critical_alerts",
+  "admin_critical_alerts_summary",
 ]);
 
 interface RpcBody {

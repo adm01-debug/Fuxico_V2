@@ -5200,6 +5200,18 @@ export type Database = {
         }
       }
       admin_cleanup_index_advisor_runs: { Args: never; Returns: Json }
+      admin_critical_alerts_summary: {
+        Args: { _hours?: number }
+        Returns: {
+          event_type: string
+          failed: number
+          last_seen: string
+          pending: number
+          sent: number
+          severity: string
+          total: number
+        }[]
+      }
       admin_data_integrity_check: {
         Args: never
         Returns: {
@@ -5298,6 +5310,30 @@ export type Database = {
         }[]
       }
       admin_last_index_advisor_cleanup: { Args: never; Returns: Json }
+      admin_list_critical_alerts: {
+        Args: {
+          _dispatch_status?: string
+          _event_types?: string[]
+          _hours?: number
+          _limit?: number
+          _offset?: number
+          _severities?: string[]
+        }
+        Returns: {
+          admin_count: number
+          channels: string[]
+          created_at: string
+          description: string
+          dispatch_status: string
+          dispatched_at: string
+          error_message: string
+          event_type: string
+          id: string
+          metadata: Json
+          severity: string
+          total_count: number
+        }[]
+      }
       admin_list_cron_failures: {
         Args: { _limit?: number }
         Returns: {
