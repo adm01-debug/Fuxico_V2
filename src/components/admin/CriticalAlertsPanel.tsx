@@ -449,6 +449,70 @@ export function CriticalAlertsPanel() {
               </Table>
             </div>
           )}
+
+          {/* Paginação server-side */}
+          {total > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 mt-3 text-xs">
+              <div className="text-muted-foreground">
+                Página <span className="font-semibold text-foreground">{page + 1}</span> de{" "}
+                <span className="font-semibold text-foreground">{totalPages}</span> —{" "}
+                mostrando {page * pageSize + 1}–
+                {Math.min(total, page * pageSize + (alerts.data?.length ?? 0))} de {total}
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-muted-foreground">Por página:</label>
+                <Select
+                  value={String(pageSize)}
+                  onValueChange={(v) => {
+                    setPageSize(Number(v));
+                    setPage(0);
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page === 0 || alerts.isFetching}
+                  onClick={() => setPage(0)}
+                >
+                  «
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page === 0 || alerts.isFetching}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                >
+                  ‹ Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page + 1 >= totalPages || alerts.isFetching}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Próxima ›
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page + 1 >= totalPages || alerts.isFetching}
+                  onClick={() => setPage(totalPages - 1)}
+                >
+                  »
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
 
