@@ -155,7 +155,7 @@ function NotificationBadge({ count, variant = 'default' }: { count: number | 'ne
           variant === 'destructive' && "animate-pulse"
         )}
       >
-        {matchFirst([
+        {matchFirst<React.ReactNode>([
   [isNew, () => ('NEW')],
   [isBeta, () => ('BETA')],
 ], () => (count))}
