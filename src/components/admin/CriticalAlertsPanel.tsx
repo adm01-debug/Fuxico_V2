@@ -255,7 +255,6 @@ export function CriticalAlertsPanel() {
   // Sincroniza mudanças externas da URL (voltar/avançar, link compartilhado)
   useEffect(() => {
     setSearchInput((prev) => (prev === search ? prev : search));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   const severities =
