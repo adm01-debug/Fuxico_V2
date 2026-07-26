@@ -15,7 +15,7 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
-vi.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/hooks/use-auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, session: {}, loading: false }),
 }));
 

@@ -32,7 +32,7 @@ vi.mock('react-router-dom', () => ({
   Navigate: ({ to }: { to: string }) => <div data-testid="navigate" data-to={to} />,
 }));
 
-vi.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/hooks/use-auth', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   useAuth: () => ({ user: null, session: null, loading: false }),
 }));
