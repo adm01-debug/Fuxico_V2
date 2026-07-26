@@ -30,7 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AlertTriangle, Download, Filter, RefreshCw, Search } from "lucide-react";
+import { AlertTriangle, Download, Filter, Link2, RefreshCw, Search } from "lucide-react";
 import { toast } from "sonner";
 
 type AlertRow = {
