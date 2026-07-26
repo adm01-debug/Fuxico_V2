@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { adminRpc } from "@/lib/admin-rpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AlertTriangle, Download, Filter, RefreshCw, Search } from "lucide-react";
+import { AlertTriangle, Download, Filter, Link2, RefreshCw, Search } from "lucide-react";
 import { toast } from "sonner";
 
 type AlertRow = {
@@ -153,23 +155,9 @@ function parseQuery(raw: string): ParsedQuery {
   return out;
 }
 
-function fieldText(row: AlertRow, field: string): string {
-  const v = row[field as keyof AlertRow];
-  if (v === null || v === undefined) return "";
-  if (Array.isArray(v)) return v.join(" ");
-  return typeof v === "string" ? v : JSON.stringify(v);
-}
 
-function rowHaystack(row: AlertRow): string {
-  return SEARCHABLE_FIELDS.map((f) => fieldText(row, f)).join(" \u0000 ").toLowerCase();
-}
 
-function matchesQuery(row: AlertRow, q: ParsedQuery): boolean {
-  const hay = rowHaystack(row);
-  if (q.exclude.some((t) => hay.includes(t))) return false;
-  if (!q.include.every((t) => hay.includes(t))) return false;
-  return q.fields.every((f) => fieldText(row, f.field).toLowerCase().includes(f.value));
-}
+
 
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -212,15 +200,63 @@ function downloadCsv(filename: string, csv: string): void {
 }
 
 export function CriticalAlertsPanel() {
-  const [hours, setHours] = useState<number>(72);
-  const [eventType, setEventType] = useState<string>("");
-  const [severity, setSeverity] = useState<string>("all");
-  const [dispatch, setDispatch] = useState<string>("all");
+  // Estado persistido na URL para permitir compartilhamento de filtros
+  const [params, setParams] = useSearchParams();
+
+  const hours = Math.max(1, Number(params.get("h")) || 72);
+  const eventType = params.get("type") ?? "";
+  const severity = params.get("sev") ?? "all";
+  const dispatch = params.get("disp") ?? "all";
+  const page = Math.max(0, Number(params.get("page")) || 0);
+  const pageSize = [25, 50, 100, 200].includes(Number(params.get("size")))
+    ? Number(params.get("size"))
+    : 50;
+  const search = params.get("q") ?? "";
+
   const [refreshKey, setRefreshKey] = useState(0);
   const [selected, setSelected] = useState<AlertRow | null>(null);
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(50);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearch = useDebouncedValue(searchInput, 400);
+
+  /** Atualiza a URL preservando os demais parâmetros; reseta página em mudanças de filtro. */
+  const patchParams = useCallback(
+    (patch: Record<string, string | null>, resetPage = true): void => {
+      setParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          for (const [k, v] of Object.entries(patch)) {
+            if (v === null || v === "") next.delete(k);
+            else next.set(k, v);
+          }
+          if (resetPage && !("page" in patch)) next.delete("page");
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setParams],
+  );
+
+  const setHours = (v: number) => patchParams({ h: String(v) });
+  const setEventType = (v: string) => patchParams({ type: v });
+  const setSeverity = (v: string) => patchParams({ sev: v === "all" ? null : v });
+  const setDispatch = (v: string) => patchParams({ disp: v === "all" ? null : v });
+  const setPage = (v: number) => patchParams({ page: v === 0 ? null : String(v) }, false);
+  const setPageSize = (v: number) => patchParams({ size: v === 50 ? null : String(v) });
+
+  // Sincroniza a busca (debounced) para a URL
+  useEffect(() => {
+    if (debouncedSearch !== search) {
+      patchParams({ q: debouncedSearch || null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  // Sincroniza mudanças externas da URL (voltar/avançar, link compartilhado)
+  useEffect(() => {
+    setSearchInput((prev) => (prev === search ? prev : search));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const severities =
     severity === "all"
@@ -228,9 +264,12 @@ export function CriticalAlertsPanel() {
       : [severity];
 
   const summary = useQuery({
-    queryKey: ["admin_critical_alerts_summary", hours, refreshKey],
+    queryKey: ["admin_critical_alerts_summary", hours, search, refreshKey],
     queryFn: () =>
-      adminRpc<SummaryRow[]>("admin_critical_alerts_summary", { _hours: hours }),
+      adminRpc<SummaryRow[]>("admin_critical_alerts_summary", {
+        _hours: hours,
+        _search: search.trim() || null,
+      }),
     staleTime: 30_000,
   });
 
@@ -241,6 +280,7 @@ export function CriticalAlertsPanel() {
       eventType,
       severity,
       dispatch,
+      search,
       page,
       pageSize,
       refreshKey,
@@ -251,6 +291,7 @@ export function CriticalAlertsPanel() {
         _event_types: eventType.trim() ? [eventType.trim()] : null,
         _severities: severities,
         _dispatch_status: dispatch === "all" ? null : dispatch,
+        _search: search.trim() || null,
         _limit: pageSize,
         _offset: page * pageSize,
       }),
@@ -260,18 +301,13 @@ export function CriticalAlertsPanel() {
   const total = alerts.data?.[0]?.total_count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  // Busca avançada (client-side, sobre a página carregada)
+  // A filtragem é server-side; o parser local serve apenas para destacar os termos
   const parsed = useMemo(() => parseQuery(search), [search]);
   const highlightTerms = useMemo(
     () => [...parsed.include, ...parsed.fields.map((f) => f.value)],
     [parsed],
   );
-  const rows = alerts.data ?? [];
-  const visibleRows = useMemo(
-    () =>
-      search.trim() ? rows.filter((r) => matchesQuery(r, parsed)) : rows,
-    [rows, parsed, search],
-  );
+  const visibleRows = alerts.data ?? [];
 
   /** Trecho do metadata que casa com a busca, para exibir inline. */
   const metaSnippet = (row: AlertRow): string | null => {
@@ -305,6 +341,7 @@ export function CriticalAlertsPanel() {
           _event_types: eventType.trim() ? [eventType.trim()] : null,
           _severities: severities,
           _dispatch_status: dispatch === "all" ? null : dispatch,
+          _search: search.trim() || null,
           _limit: limit,
           _offset: offset,
         });
@@ -344,6 +381,19 @@ export function CriticalAlertsPanel() {
             >
               <Download className="w-4 h-4 mr-2" />
               Exportar CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(window.location.href)
+                  .then(() => toast.success("Link com os filtros copiado."))
+                  .catch(() => toast.error("Falha ao copiar o link."));
+              }}
+            >
+              <Link2 className="w-4 h-4 mr-2" />
+              Copiar link
             </Button>
             <Button
               variant="outline"
@@ -443,11 +493,11 @@ export function CriticalAlertsPanel() {
           <div className="flex gap-2">
             <Input
               placeholder={`ex: timeout  "dead letter"  metadata:webhook_id  -skipped`}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
             />
-            {search && (
-              <Button variant="outline" size="sm" onClick={() => setSearch("")}>
+            {searchInput && (
+              <Button variant="outline" size="sm" onClick={() => setSearchInput("")}>
                 Limpar
               </Button>
             )}
@@ -455,7 +505,8 @@ export function CriticalAlertsPanel() {
           <p className="text-[11px] text-muted-foreground mt-1">
             Suporta termos livres, "frases exatas", <code>campo:valor</code> (id, event_type,
             severity, description, dispatch_status, error_message, metadata, channels) e
-            exclusão com <code>-termo</code>. Aplica-se aos eventos da página atual.
+            exclusão com <code>-termo</code>. Executada no servidor (índices GIN/trigram),
+            varrendo todos os eventos do período — não apenas a página atual.
           </p>
         </div>
 
@@ -527,7 +578,7 @@ export function CriticalAlertsPanel() {
             Eventos ({total} no filtro atual)
             {search.trim() && (
               <span className="ml-2 font-normal text-muted-foreground">
-                — {visibleRows.length} correspondência(s) nesta página
+                — busca aplicada em todo o período ({total} correspondência(s))
               </span>
             )}
           </h3>
@@ -536,7 +587,7 @@ export function CriticalAlertsPanel() {
           ) : visibleRows.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
               {search.trim()
-                ? "Nenhum evento desta página casa com a busca."
+                ? "Nenhum evento casa com a busca no período selecionado."
                 : "Nada encontrado para os filtros escolhidos."}
             </p>
           ) : (
@@ -648,7 +699,7 @@ export function CriticalAlertsPanel() {
                   variant="outline"
                   size="sm"
                   disabled={page === 0 || alerts.isFetching}
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  onClick={() => setPage(Math.max(0, page - 1))}
                 >
                   ‹ Anterior
                 </Button>
@@ -656,7 +707,7 @@ export function CriticalAlertsPanel() {
                   variant="outline"
                   size="sm"
                   disabled={page + 1 >= totalPages || alerts.isFetching}
-                  onClick={() => setPage((p) => p + 1)}
+                  onClick={() => setPage(page + 1)}
                 >
                   Próxima ›
                 </Button>
