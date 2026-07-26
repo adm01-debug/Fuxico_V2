@@ -12,6 +12,12 @@ const searchDialogContent = fs.readFileSync(
   'utf-8'
 );
 
+// O hook de atalhos vive em módulo próprio (requisito de Fast Refresh).
+const searchHookContent = fs.readFileSync(
+  path.resolve(__dirname, '../../hooks/use-global-search.ts'),
+  'utf-8'
+);
+
 describe('GlobalSearchDialog - Navigation Items', () => {
   const requiredTabs = [
     'home', 'emails', 'links', 'documents', 'scheduling',
@@ -94,12 +100,12 @@ describe('GlobalSearchDialog - Quick Actions', () => {
 
 describe('GlobalSearchDialog - Keyboard Shortcuts', () => {
   it('should support Alt+F shortcut', () => {
-    expect(searchDialogContent).toContain("e.altKey && e.key.toLowerCase() === 'f'");
+    expect(searchHookContent).toContain("e.altKey && e.key.toLowerCase() === 'f'");
   });
 
   it('should support Cmd/Ctrl+K shortcut', () => {
-    expect(searchDialogContent).toContain("e.metaKey || e.ctrlKey");
-    expect(searchDialogContent).toContain("e.key.toLowerCase() === 'k'");
+    expect(searchHookContent).toContain("e.metaKey || e.ctrlKey");
+    expect(searchHookContent).toContain("e.key.toLowerCase() === 'k'");
   });
 });
 
