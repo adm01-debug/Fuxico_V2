@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { adminRpc } from "@/lib/admin-rpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -212,15 +214,63 @@ function downloadCsv(filename: string, csv: string): void {
 }
 
 export function CriticalAlertsPanel() {
-  const [hours, setHours] = useState<number>(72);
-  const [eventType, setEventType] = useState<string>("");
-  const [severity, setSeverity] = useState<string>("all");
-  const [dispatch, setDispatch] = useState<string>("all");
+  // Estado persistido na URL para permitir compartilhamento de filtros
+  const [params, setParams] = useSearchParams();
+
+  const hours = Math.max(1, Number(params.get("h")) || 72);
+  const eventType = params.get("type") ?? "";
+  const severity = params.get("sev") ?? "all";
+  const dispatch = params.get("disp") ?? "all";
+  const page = Math.max(0, Number(params.get("page")) || 0);
+  const pageSize = [25, 50, 100, 200].includes(Number(params.get("size")))
+    ? Number(params.get("size"))
+    : 50;
+  const search = params.get("q") ?? "";
+
   const [refreshKey, setRefreshKey] = useState(0);
   const [selected, setSelected] = useState<AlertRow | null>(null);
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(50);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearch = useDebouncedValue(searchInput, 400);
+
+  /** Atualiza a URL preservando os demais parâmetros; reseta página em mudanças de filtro. */
+  const patchParams = useCallback(
+    (patch: Record<string, string | null>, resetPage = true): void => {
+      setParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          for (const [k, v] of Object.entries(patch)) {
+            if (v === null || v === "") next.delete(k);
+            else next.set(k, v);
+          }
+          if (resetPage && !("page" in patch)) next.delete("page");
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setParams],
+  );
+
+  const setHours = (v: number) => patchParams({ h: String(v) });
+  const setEventType = (v: string) => patchParams({ type: v });
+  const setSeverity = (v: string) => patchParams({ sev: v === "all" ? null : v });
+  const setDispatch = (v: string) => patchParams({ disp: v === "all" ? null : v });
+  const setPage = (v: number) => patchParams({ page: v === 0 ? null : String(v) }, false);
+  const setPageSize = (v: number) => patchParams({ size: v === 50 ? null : String(v) });
+
+  // Sincroniza a busca (debounced) para a URL
+  useEffect(() => {
+    if (debouncedSearch !== search) {
+      patchParams({ q: debouncedSearch || null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  // Sincroniza mudanças externas da URL (voltar/avançar, link compartilhado)
+  useEffect(() => {
+    setSearchInput((prev) => (prev === search ? prev : search));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const severities =
     severity === "all"
@@ -228,9 +278,12 @@ export function CriticalAlertsPanel() {
       : [severity];
 
   const summary = useQuery({
-    queryKey: ["admin_critical_alerts_summary", hours, refreshKey],
+    queryKey: ["admin_critical_alerts_summary", hours, search, refreshKey],
     queryFn: () =>
-      adminRpc<SummaryRow[]>("admin_critical_alerts_summary", { _hours: hours }),
+      adminRpc<SummaryRow[]>("admin_critical_alerts_summary", {
+        _hours: hours,
+        _search: search.trim() || null,
+      }),
     staleTime: 30_000,
   });
 
@@ -241,6 +294,7 @@ export function CriticalAlertsPanel() {
       eventType,
       severity,
       dispatch,
+      search,
       page,
       pageSize,
       refreshKey,
@@ -251,6 +305,7 @@ export function CriticalAlertsPanel() {
         _event_types: eventType.trim() ? [eventType.trim()] : null,
         _severities: severities,
         _dispatch_status: dispatch === "all" ? null : dispatch,
+        _search: search.trim() || null,
         _limit: pageSize,
         _offset: page * pageSize,
       }),
@@ -260,18 +315,13 @@ export function CriticalAlertsPanel() {
   const total = alerts.data?.[0]?.total_count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  // Busca avançada (client-side, sobre a página carregada)
+  // A filtragem é server-side; o parser local serve apenas para destacar os termos
   const parsed = useMemo(() => parseQuery(search), [search]);
   const highlightTerms = useMemo(
     () => [...parsed.include, ...parsed.fields.map((f) => f.value)],
     [parsed],
   );
-  const rows = alerts.data ?? [];
-  const visibleRows = useMemo(
-    () =>
-      search.trim() ? rows.filter((r) => matchesQuery(r, parsed)) : rows,
-    [rows, parsed, search],
-  );
+  const visibleRows = alerts.data ?? [];
 
   /** Trecho do metadata que casa com a busca, para exibir inline. */
   const metaSnippet = (row: AlertRow): string | null => {
