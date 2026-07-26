@@ -20,7 +20,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useTheme, type Theme } from '@/lib/theme';
+import { useTheme } from '@/hooks/use-theme';
+import type { Theme } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
 import { matchFirst } from "@/lib/variant";
 
