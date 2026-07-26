@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminRpc } from "@/lib/admin-rpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,6 +108,97 @@ function toCsv(rows: AlertRow[]): string {
   return `${header}\n${body}\n`;
 }
 
+/** Parser de busca avançada: termos livres, "frases", campo:valor e -exclusão. */
+type ParsedQuery = {
+  include: string[];
+  exclude: string[];
+  fields: Array<{ field: string; value: string }>;
+};
+
+const SEARCHABLE_FIELDS = [
+  "id",
+  "event_type",
+  "severity",
+  "description",
+  "dispatch_status",
+  "error_message",
+  "metadata",
+  "channels",
+] as const;
+
+function parseQuery(raw: string): ParsedQuery {
+  const out: ParsedQuery = { include: [], exclude: [], fields: [] };
+  const tokens = raw.match(/(?:[^\s"]+|"[^"]*")+/g) ?? [];
+  for (const tokenRaw of tokens) {
+    let token = tokenRaw.trim();
+    if (!token) continue;
+    let negated = false;
+    if (token.startsWith("-") && token.length > 1) {
+      negated = true;
+      token = token.slice(1);
+    }
+    const fieldMatch = /^([a-z_]+):(.*)$/i.exec(token);
+    if (fieldMatch && (SEARCHABLE_FIELDS as readonly string[]).includes(fieldMatch[1].toLowerCase())) {
+      const value = fieldMatch[2].replace(/^"|"$/g, "").toLowerCase();
+      if (!value) continue;
+      if (negated) out.exclude.push(value);
+      else out.fields.push({ field: fieldMatch[1].toLowerCase(), value });
+      continue;
+    }
+    const clean = token.replace(/^"|"$/g, "").toLowerCase();
+    if (!clean) continue;
+    if (negated) out.exclude.push(clean);
+    else out.include.push(clean);
+  }
+  return out;
+}
+
+function fieldText(row: AlertRow, field: string): string {
+  const v = row[field as keyof AlertRow];
+  if (v === null || v === undefined) return "";
+  if (Array.isArray(v)) return v.join(" ");
+  return typeof v === "string" ? v : JSON.stringify(v);
+}
+
+function rowHaystack(row: AlertRow): string {
+  return SEARCHABLE_FIELDS.map((f) => fieldText(row, f)).join(" \u0000 ").toLowerCase();
+}
+
+function matchesQuery(row: AlertRow, q: ParsedQuery): boolean {
+  const hay = rowHaystack(row);
+  if (q.exclude.some((t) => hay.includes(t))) return false;
+  if (!q.include.every((t) => hay.includes(t))) return false;
+  return q.fields.every((f) => fieldText(row, f.field).toLowerCase().includes(f.value));
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Destaca todos os termos de busca dentro de um texto. */
+function Highlight({ text, terms }: { text: string; terms: string[] }) {
+  const valid = terms.filter((t) => t.length > 0);
+  if (valid.length === 0) return <>{text}</>;
+  const re = new RegExp(`(${valid.map(escapeRegExp).join("|")})`, "gi");
+  const parts = text.split(re);
+  return (
+    <>
+      {parts.map((part, i) =>
+        valid.some((t) => part.toLowerCase() === t.toLowerCase()) ? (
+          <mark
+            key={`${part}-${i}`}
+            className="bg-amber-500/30 text-foreground rounded-sm px-0.5"
+          >
+            {part}
+          </mark>
+        ) : (
+          <span key={`${part}-${i}`}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 function downloadCsv(filename: string, csv: string): void {
   const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
@@ -129,6 +220,7 @@ export function CriticalAlertsPanel() {
   const [selected, setSelected] = useState<AlertRow | null>(null);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
+  const [search, setSearch] = useState("");
 
   const severities =
     severity === "all"
@@ -167,6 +259,34 @@ export function CriticalAlertsPanel() {
 
   const total = alerts.data?.[0]?.total_count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  // Busca avançada (client-side, sobre a página carregada)
+  const parsed = useMemo(() => parseQuery(search), [search]);
+  const highlightTerms = useMemo(
+    () => [...parsed.include, ...parsed.fields.map((f) => f.value)],
+    [parsed],
+  );
+  const rows = alerts.data ?? [];
+  const visibleRows = useMemo(
+    () =>
+      search.trim() ? rows.filter((r) => matchesQuery(r, parsed)) : rows,
+    [rows, parsed, search],
+  );
+
+  /** Trecho do metadata que casa com a busca, para exibir inline. */
+  const metaSnippet = (row: AlertRow): string | null => {
+    if (highlightTerms.length === 0) return null;
+    const json = JSON.stringify(row.metadata ?? {});
+    const lower = json.toLowerCase();
+    const idx = highlightTerms
+      .map((t) => lower.indexOf(t))
+      .filter((i) => i >= 0)
+      .sort((a, b) => a - b)[0];
+    if (idx === undefined) return null;
+    const start = Math.max(0, idx - 40);
+    const end = Math.min(json.length, idx + 80);
+    return `${start > 0 ? "…" : ""}${json.slice(start, end)}${end < json.length ? "…" : ""}`;
+  };
 
   const handleExportCsv = async (): Promise<void> => {
     const HARD_CAP = 5000;
@@ -315,6 +435,30 @@ export function CriticalAlertsPanel() {
           </div>
         </div>
 
+        {/* Busca textual avançada */}
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+            <Search className="w-3 h-3" /> Busca avançada (metadata, descrição, erro)
+          </label>
+          <div className="flex gap-2">
+            <Input
+              placeholder={`ex: timeout  "dead letter"  metadata:webhook_id  -skipped`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <Button variant="outline" size="sm" onClick={() => setSearch("")}>
+                Limpar
+              </Button>
+            )}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Suporta termos livres, "frases exatas", <code>campo:valor</code> (id, event_type,
+            severity, description, dispatch_status, error_message, metadata, channels) e
+            exclusão com <code>-termo</code>. Aplica-se aos eventos da página atual.
+          </p>
+        </div>
+
         {/* Sumário por tipo */}
         <div>
           <h3 className="text-sm font-semibold mb-2">
@@ -381,12 +525,19 @@ export function CriticalAlertsPanel() {
         <div>
           <h3 className="text-sm font-semibold mb-2">
             Eventos ({total} no filtro atual)
+            {search.trim() && (
+              <span className="ml-2 font-normal text-muted-foreground">
+                — {visibleRows.length} correspondência(s) nesta página
+              </span>
+            )}
           </h3>
           {alerts.isLoading ? (
             <Skeleton className="h-40 w-full" />
-          ) : (alerts.data ?? []).length === 0 ? (
+          ) : visibleRows.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
-              Nada encontrado para os filtros escolhidos.
+              {search.trim()
+                ? "Nenhum evento desta página casa com a busca."
+                : "Nada encontrado para os filtros escolhidos."}
             </p>
           ) : (
             <div className="overflow-x-auto rounded-md border">
@@ -403,7 +554,9 @@ export function CriticalAlertsPanel() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(alerts.data ?? []).map((a) => (
+                  {visibleRows.map((a) => {
+                    const snippet = metaSnippet(a);
+                    return (
                     <TableRow
                       key={a.id}
                       className="cursor-pointer hover:bg-muted/50"
@@ -413,7 +566,7 @@ export function CriticalAlertsPanel() {
                         {new Date(a.created_at).toLocaleString("pt-BR")}
                       </TableCell>
                       <TableCell className="font-mono text-xs">
-                        {a.event_type}
+                        <Highlight text={a.event_type} terms={highlightTerms} />
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -423,11 +576,15 @@ export function CriticalAlertsPanel() {
                           {a.severity}
                         </Badge>
                       </TableCell>
-                      <TableCell
-                        className="max-w-md truncate text-xs"
-                        title={a.description}
-                      >
-                        {a.description}
+                      <TableCell className="max-w-md text-xs" title={a.description}>
+                        <div className="truncate">
+                          <Highlight text={a.description} terms={highlightTerms} />
+                        </div>
+                        {snippet && (
+                          <div className="mt-1 font-mono text-[10px] text-muted-foreground truncate">
+                            <Highlight text={snippet} terms={highlightTerms} />
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -444,7 +601,8 @@ export function CriticalAlertsPanel() {
                         <Search className="w-3.5 h-3.5 text-muted-foreground" />
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
