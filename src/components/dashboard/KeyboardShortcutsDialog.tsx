@@ -8,7 +8,6 @@
 // Painel de atalhos de teclado disponíveis
 // =============================================================================
 
-import { useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
