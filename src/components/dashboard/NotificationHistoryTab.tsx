@@ -309,8 +309,8 @@ export default function NotificationHistoryTab() {
                     [dateRange?.from, () => format(dateRange?.from ?? new Date(), "dd/MM/yyyy", { locale: ptBR })],
                   ], () => (
                     <span>Período</span>
+                  ))}
 
-                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
