@@ -385,6 +385,19 @@ export function CriticalAlertsPanel() {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(window.location.href)
+                  .then(() => toast.success("Link com os filtros copiado."))
+                  .catch(() => toast.error("Falha ao copiar o link."));
+              }}
+            >
+              <Link2 className="w-4 h-4 mr-2" />
+              Copiar link
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setRefreshKey((k) => k + 1)}
             >
               <RefreshCw className="w-4 h-4 mr-2" />
