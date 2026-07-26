@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { X, Plus, Clock, Globe, TrendingUp, Save, Loader2 } from "lucide-react";
 import { useAuditConfig, useUpdateAuditConfig } from "@/features/security/hooks/use-audit-config";
 import { toast } from "sonner";
+import { log } from '@/lib/logger';
 
 const timezones = [
   { value: "America/Sao_Paulo", label: "São Paulo (GMT-3)" },
@@ -74,6 +75,7 @@ function AuditConfigTabBase() {
       });
       toast.success("Configurações salvas com sucesso");
     } catch (error) {
+      log.error("AuditConfigTab: falha ao salvar configurações", error);
       toast.error("Erro ao salvar configurações");
     }
   };

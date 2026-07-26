@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { log } from '@/lib/logger';
 
 const SCORE_CONFIG = {
   hot: { icon: Flame, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Quente' },
@@ -75,6 +76,7 @@ export default function LeadScoringTab() {
         description: `${count} contatos atualizados com sucesso` 
       });
     } catch (error) {
+      log.error('LeadScoringTab: falha ao recalcular scores', error);
       toast({ 
         title: 'Erro ao recalcular', 
         description: 'Não foi possível recalcular os scores', 
