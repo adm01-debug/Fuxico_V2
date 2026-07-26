@@ -654,3 +654,19 @@ body {
 .help-link:hover {
   text-decoration: underline;
 }
+
+/* Campo numérico das configurações (ex.: dias do lembrete) */
+.setting-number {
+  width: 56px;
+  padding: 4px 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  font-size: 12px;
+  text-align: center;
+  background: transparent;
+  color: inherit;
+}
+.setting-number:focus-visible {
+  outline: 2px solid #16a34a;
+  outline-offset: 1px;
+}

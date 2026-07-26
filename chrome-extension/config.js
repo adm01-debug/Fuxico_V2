@@ -14,7 +14,7 @@ const FUXICO_CONFIG = {
   DASHBOARD_URL: 'https://fuxico.lovable.app',
   
   // Versão da extensão
-  VERSION: '1.1.0',
+  VERSION: '1.4.0',
   
   // Getter para API URL
   get API_URL() {

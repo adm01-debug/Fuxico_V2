@@ -53,6 +53,10 @@
     // Settings
     notificationsToggle: document.getElementById('notificationsToggle'),
     soundToggle: document.getElementById('soundToggle'),
+    markersToggle: document.getElementById('markersToggle'),
+    selfOpensToggle: document.getElementById('selfOpensToggle'),
+    signatureToggle: document.getElementById('signatureToggle'),
+    reminderDaysInput: document.getElementById('reminderDaysInput'),
     
     // Header
     openDashboard: document.getElementById('openDashboard'),
@@ -482,6 +486,29 @@
     await chrome.storage.sync.set({ soundEnabled: e.target.checked });
   });
 
+  // Marcadores ✓✓ no Gmail
+  elements.markersToggle?.addEventListener('change', async (e) => {
+    await chrome.storage.sync.set({ showMarkers: e.target.checked });
+  });
+
+  // Ocultar auto-aberturas no marcador
+  elements.selfOpensToggle?.addEventListener('change', async (e) => {
+    await chrome.storage.sync.set({ hideSelfOpens: e.target.checked });
+  });
+
+  // Assinatura opcional (desligada por padrão — deliverability)
+  elements.signatureToggle?.addEventListener('change', async (e) => {
+    await chrome.storage.sync.set({ signatureEnabled: e.target.checked });
+  });
+
+  // Dias padrão do lembrete de follow-up (1-30)
+  elements.reminderDaysInput?.addEventListener('change', async (e) => {
+    const raw = Number(e.target.value);
+    const days = Number.isFinite(raw) ? Math.min(30, Math.max(1, Math.round(raw))) : 3;
+    e.target.value = String(days);
+    await chrome.storage.sync.set({ reminderDays: days });
+  });
+
   // Abrir dashboard
   elements.openDashboard?.addEventListener('click', (e) => {
     e.preventDefault();
@@ -511,11 +538,23 @@
       'trackingEnabled',
       'notificationsEnabled',
       'soundEnabled',
+      'showMarkers',
+      'hideSelfOpens',
+      'signatureEnabled',
+      'reminderDays',
     ]);
     
     elements.trackingToggle.checked = settings.trackingEnabled !== false;
     elements.notificationsToggle.checked = settings.notificationsEnabled !== false;
     elements.soundToggle.checked = settings.soundEnabled === true;
+
+    if (elements.markersToggle) elements.markersToggle.checked = settings.showMarkers !== false;
+    if (elements.selfOpensToggle) elements.selfOpensToggle.checked = settings.hideSelfOpens !== false;
+    if (elements.signatureToggle) elements.signatureToggle.checked = settings.signatureEnabled === true;
+    if (elements.reminderDaysInput) {
+      const days = Number(settings.reminderDays);
+      elements.reminderDaysInput.value = String(days >= 1 && days <= 30 ? days : 3);
+    }
     
     updateTrackingStatus(elements.trackingToggle.checked);
     

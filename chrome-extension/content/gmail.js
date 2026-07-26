@@ -1096,7 +1096,7 @@
   // ============================================
   
   async function init() {
-    log('Iniciando FUXICO v1.3.0...');
+    log('Iniciando FUXICO v1.4.0...');
     
     await new Promise(resolve => {
       if (document.readyState === 'complete') resolve();
