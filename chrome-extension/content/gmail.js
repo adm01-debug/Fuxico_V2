@@ -665,6 +665,17 @@
     );
     
     if (bodyDiv) {
+      // Assinatura opcional "Enviado com FUXICO" (desligada por padrão)
+      const wantsSignature = composeWindow.dataset.fuxicoSignature === 'on'
+        || (signatureEnabled && composeWindow.dataset.fuxicoSignature !== 'off');
+      if (wantsSignature && !bodyDiv.querySelector('.fuxico-signature-line')) {
+        const sig = document.createElement('div');
+        sig.className = 'fuxico-signature-line';
+        sig.style.cssText = 'font-size:12px;color:#6b7280;margin-top:12px;';
+        sig.textContent = 'Enviado com FUXICO';
+        bodyDiv.appendChild(sig);
+      }
+
       const pixelContainer = document.createElement('div');
       pixelContainer.innerHTML = pixelHTML;
       pixelContainer.style.cssText = 'font-size:1px;line-height:1px;height:1px;overflow:hidden;';
@@ -696,6 +707,11 @@
           log('Tracking registrado:', data.trackingId);
           showNotification('✅ FUXICO Ativado', `Email para ${recipients[0]} será rastreado`);
           lastStatsFetch = 0;
+
+          // Lembrete de follow-up se o usuário ativou no compose
+          if (composeWindow.dataset.fuxicoReminder === 'on') {
+            await createFollowUpReminder(data.trackingId || trackingId);
+          }
         } else if (response.status === 401) {
           error('Token expirado');
           showNotification('⚠️ Sessão Expirada', 'Faça login novamente na extensão');
@@ -748,6 +764,32 @@
   }
 
   // ============================================
+  // LEMBRETES DE FOLLOW-UP
+  // ============================================
+
+  async function createFollowUpReminder(trackingId) {
+    try {
+      const endpoint = CONFIG.ENDPOINTS?.CREATE_REMINDER || '/create-reminder';
+      const response = await fetch(`${CONFIG.API_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ trackingId, reminderDays }),
+      });
+
+      if (response.ok) {
+        showNotification('⏰ Lembrete criado', `Avisaremos se não houver abertura em ${reminderDays} dia(s)`);
+      } else {
+        error('Erro ao criar lembrete:', response.status);
+      }
+    } catch (e) {
+      error('Erro de rede ao criar lembrete:', e);
+    }
+  }
+
+  // ============================================
   // UI DO GMAIL
   // ============================================
   
@@ -790,6 +832,40 @@
         isTrackingEnabled ? 'Emails serão rastreados' : 'Emails não serão rastreados'
       );
     });
+
+    // Lembrete "se não abrir em N dias"
+    const reminderBtn = document.createElement('button');
+    reminderBtn.type = 'button';
+    reminderBtn.className = 'fuxico-compose-chip';
+    reminderBtn.textContent = `⏰ Lembrar em ${reminderDays}d`;
+    reminderBtn.title = `Criar lembrete se o destinatário não abrir em ${reminderDays} dias`;
+    reminderBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const on = composeWindow.dataset.fuxicoReminder !== 'on';
+      composeWindow.dataset.fuxicoReminder = on ? 'on' : 'off';
+      reminderBtn.classList.toggle('active', on);
+    });
+    toggleContainer.appendChild(reminderBtn);
+
+    // Assinatura opcional
+    const sigBtn = document.createElement('button');
+    sigBtn.type = 'button';
+    sigBtn.className = 'fuxico-compose-chip';
+    sigBtn.textContent = '✍️ Assinatura';
+    sigBtn.title = 'Incluir "Enviado com FUXICO" no rodapé deste e-mail';
+    if (signatureEnabled) {
+      sigBtn.classList.add('active');
+      composeWindow.dataset.fuxicoSignature = 'on';
+    }
+    sigBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const on = composeWindow.dataset.fuxicoSignature !== 'on';
+      composeWindow.dataset.fuxicoSignature = on ? 'on' : 'off';
+      sigBtn.classList.toggle('active', on);
+    });
+    toggleContainer.appendChild(sigBtn);
 
     toolbar.parentNode.insertBefore(toggleContainer, toolbar.nextSibling);
     log('Toggle adicionado');
