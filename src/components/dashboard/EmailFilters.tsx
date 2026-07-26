@@ -276,9 +276,10 @@ function EmailFiltersBaseComponent({
                   <Calendar className="h-4 w-4 shrink-0" />
                   <span className="truncate text-sm">
                     {filters.period === 'custom' && filters.dateRange.from
-                      ? `${format(filters.dateRange.from, 'dd/MM', { locale: ptBR })} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM', { locale: ptBR }) : '...'}`
+                      ? formatCustomRangeLabel(filters.dateRange)
                       : periodOptions.find(o => o.value === filters.period)?.label
                     }
+
                   </span>
                 </div>
                 <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
@@ -343,9 +344,8 @@ function EmailFiltersBaseComponent({
                   onClick={() => onFiltersChange({ 
                     ...filters, 
                     sortBy: option.value as EmailFilters['sortBy'],
-                    sortOrder: filters.sortBy === option.value 
-                      ? (filters.sortOrder === 'desc' ? 'asc' : 'desc')
-                      : 'desc'
+                    sortOrder: nextSortOrder(filters, option.value)
+
                   })}
                   className="min-h-[44px]"
                 >

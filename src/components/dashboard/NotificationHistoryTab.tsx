@@ -300,16 +300,16 @@ export default function NotificationHistoryTab() {
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="h-9 justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
+                  {matchFirst<ReactNode>([
+                    [dateRange?.from && dateRange.to, () => (
                       <>
-                        {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} - {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+                        {format(dateRange?.from ?? new Date(), "dd/MM/yyyy", { locale: ptBR })} - {format(dateRange?.to ?? new Date(), "dd/MM/yyyy", { locale: ptBR })}
                       </>
-                    ) : (
-                      format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
-                    )
-                  ) : (
+                    )],
+                    [dateRange?.from, () => format(dateRange?.from ?? new Date(), "dd/MM/yyyy", { locale: ptBR })],
+                  ], () => (
                     <span>Período</span>
+
                   )}
                 </Button>
               </PopoverTrigger>
