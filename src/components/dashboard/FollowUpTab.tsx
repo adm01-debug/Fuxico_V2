@@ -296,7 +296,7 @@ function FollowUpTabBase() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {matchFirst([
+              {matchFirst<React.ReactNode>([
   [isLoading, () => ((
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
