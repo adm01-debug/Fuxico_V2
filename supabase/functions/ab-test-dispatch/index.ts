@@ -64,7 +64,7 @@ async function dispatchTest(admin: ReturnType<typeof createClient>, test: ABTest
   if (error) throw error;
 
   const pool = (contacts ?? [])
-    .map((c: any) => (c.email ?? "").trim().toLowerCase())
+    .map((c: { email?: string | null }) => (c.email ?? "").trim().toLowerCase())
     .filter((e: string) => e && e.includes("@"));
 
   // Cap defensivo: mínimo amostra × 2 (A+B), máximo 200 por rodada
@@ -75,7 +75,7 @@ async function dispatchTest(admin: ReturnType<typeof createClient>, test: ABTest
     return { dispatched: 0, holdout: 0, skipped: "empty_audience" };
   }
 
-  const rows: any[] = [];
+  const rows: Record<string, unknown>[] = [];
   let sentA = 0;
   let sentB = 0;
   let holdout = 0;
@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  const results: any[] = [];
+  const results: Record<string, unknown>[] = [];
   for (const t of (tests ?? []) as ABTestRow[]) {
     try {
       const r = await dispatchTest(admin, t);
