@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, Key, Shield, Users } from 'lucide-react';
-import { CATEGORIES } from './PermissionFormDialog';
+import { CATEGORIES } from './permission-categories';
 
 interface Permission {
   id: string;

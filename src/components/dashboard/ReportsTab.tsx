@@ -12,7 +12,8 @@ import { useTrackedEmails, useTrackingStats, type TrackedEmailWithStats } from '
 import { useScheduledReports } from '@/hooks/use-scheduled-reports';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
-import { CreateReportDialog, metricOptions } from './reports/CreateReportDialog';
+import { CreateReportDialog } from './reports/CreateReportDialog';
+import { metricOptions } from './reports/report-metric-options';
 import { Plus } from 'lucide-react';
 
 function ReportsTabBase() {

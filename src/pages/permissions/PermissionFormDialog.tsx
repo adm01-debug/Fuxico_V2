@@ -6,17 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Loader2, Plus } from 'lucide-react';
+import { CATEGORIES } from './permission-categories';
 
-export const CATEGORIES = [
-  { value: 'general', label: 'Geral' },
-  { value: 'users', label: 'Usuários' },
-  { value: 'security', label: 'Segurança' },
-  { value: 'analytics', label: 'Analytics' },
-  { value: 'webhooks', label: 'Webhooks' },
-  { value: 'templates', label: 'Templates' },
-  { value: 'audit', label: 'Auditoria' },
-  { value: 'data', label: 'Dados' },
-];
 
 interface Permission {
   id: string;

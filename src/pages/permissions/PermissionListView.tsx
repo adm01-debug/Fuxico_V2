@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Edit, Trash2 } from 'lucide-react';
-import { CATEGORIES } from './PermissionFormDialog';
+import { CATEGORIES } from './permission-categories';
 
 interface Permission {
   id: string;
