@@ -13,6 +13,7 @@ import "jspdf-autotable";
 import { BackButton } from "@/components/ui/back-button";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import type { AutoTableOptions, TrackingHistoryItem } from "@/types/tracking-history";
 
 export default function TrackingAnalytics() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,13 +22,15 @@ export default function TrackingAnalytics() {
   const { data: history, isLoading } = useQuery({
     queryKey: ["tracking-history"],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("get-tracking-history");
+      const { data, error } = await supabase.functions.invoke<TrackingHistoryItem[]>(
+        "get-tracking-history",
+      );
       if (error) throw error;
-      return data;
+      return data ?? [];
     },
   });
 
-  const filteredHistory = history?.filter((item: any) => 
+  const filteredHistory = history?.filter((item) => 
     item.recipient_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.subject?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -48,18 +51,20 @@ export default function TrackingAnalytics() {
 
   const exportPDF = () => {
     if (!filteredHistory) return;
-    const doc = new jsPDF() as any;
+    // `jspdf-autotable` estende o protótipo em runtime sem publicar tipos.
+    const doc = new jsPDF() as jsPDF & {
+      autoTable: (options: AutoTableOptions) => void;
+    };
     doc.text("Histórico de Rastreamento de E-mails", 14, 15);
     
-    const tableData = filteredHistory.map((item: any) => [
-      item.recipient_email,
-      item.subject,
+    const tableData = filteredHistory.map((item) => [
+      item.recipient_email ?? "—",
+      item.subject ?? "(sem assunto)",
       format(new Date(item.sent_at), "dd/MM/yyyy HH:mm"),
       item.open_count,
       item.click_count
     ]);
 
-    // Use dynamic import or cast to avoid type issues if needed
     doc.autoTable({
       head: [["Destinatário", "Assunto", "Enviado em", "Aberturas", "Cliques"]],
       body: tableData,
@@ -109,7 +114,7 @@ export default function TrackingAnalytics() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {history?.length ? Math.round((history.filter((i: any) => i.open_count > 0).length / history.length) * 100) : 0}%
+                {history?.length ? Math.round((history.filter((i) => i.open_count > 0).length / history.length) * 100) : 0}%
               </div>
             </CardContent>
           </Card>
@@ -120,7 +125,7 @@ export default function TrackingAnalytics() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {history?.reduce((acc: number, curr: any) => acc + (curr.open_count || 0), 0) || 0}
+                {history?.reduce((acc: number, curr) => acc + (curr.open_count || 0), 0) || 0}
               </div>
             </CardContent>
           </Card>
@@ -131,7 +136,7 @@ export default function TrackingAnalytics() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {history?.reduce((acc: number, curr: any) => acc + (curr.click_count || 0), 0) || 0}
+                {history?.reduce((acc: number, curr) => acc + (curr.click_count || 0), 0) || 0}
               </div>
             </CardContent>
           </Card>
@@ -175,7 +180,7 @@ export default function TrackingAnalytics() {
                   </TableHeader>
                   <TableBody>
                     {filteredHistory?.length ? (
-                      filteredHistory.map((item: any) => (
+                      filteredHistory.map((item) => (
                         <TableRow key={item.tracking_id}>
                           <TableCell className="font-medium">{item.recipient_email}</TableCell>
                           <TableCell className="max-w-[200px] truncate">{item.subject}</TableCell>

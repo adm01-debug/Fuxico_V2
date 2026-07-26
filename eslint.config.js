@@ -79,6 +79,15 @@ export default tseslint.config(
       "@typescript-eslint/no-require-imports": "off",
       "no-control-regex": "off",
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "no-console": "off",
+    },
+  },
+  {
+    // Camada de logging/telemetria: é o único lugar autorizado a tocar o
+    // console diretamente — todo o resto do app deve usar `@/lib/logger`.
+    files: ["src/lib/logger.ts", "src/lib/sentry.ts"],
+    rules: {
       "no-console": "off",
     },
   },

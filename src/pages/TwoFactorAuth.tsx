@@ -222,7 +222,7 @@ export default function TwoFactorAuth() {
                       <p className="font-medium">App Autenticador</p>
                       <p className="text-sm text-muted-foreground">
                         {mfaSettings?.is_enabled 
-                          ? `Ativado em ${new Date(mfaSettings.enrolled_at!).toLocaleDateString()}`
+                          ? `Ativado em ${new Date(mfaSettings.enrolled_at ?? Date.now()).toLocaleDateString()}`
                           : 'Use Google Authenticator, Authy ou similar'
                         }
                       </p>

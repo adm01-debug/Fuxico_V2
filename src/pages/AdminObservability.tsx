@@ -20,8 +20,15 @@ import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashbo
 import { WebhookFailureRatesTable } from '@/components/admin/WebhookFailureRatesTable';
 import { WebhookRetryHistoryTable } from '@/components/admin/WebhookRetryHistoryTable';
 import { CriticalAlertsPanel } from '@/components/admin/CriticalAlertsPanel';
-
-type Severity = 'ok' | 'warning' | 'critical';
+import type {
+  AlertSanityCheck,
+  CronFailureRow,
+  CronStatusRow,
+  OpsDashboard,
+  QueryRegressionRow,
+  Severity,
+  TableBloatRow,
+} from '@/types/observability';
 
 function sevBadge(sev: Severity) {
   const map: Record<Severity, string> = {
@@ -30,6 +37,24 @@ function sevBadge(sev: Severity) {
     critical: 'bg-destructive/15 text-destructive border-destructive/30',
   };
   return <Badge variant="outline" className={map[sev]}>{sev.toUpperCase()}</Badge>;
+}
+
+/** Zero ocorrências = ok, poucas = atenção, muitas = crítico. */
+function severityFromCount(n: number): Severity {
+  if (n === 0) return 'ok';
+  return n < 5 ? 'warning' : 'critical';
+}
+
+/** Job inativo ou com última execução falha é crítico. */
+function cronSeverity(job: CronStatusRow): Severity {
+  if (!job.active || job.last_status === 'failed') return 'critical';
+  return job.last_status === 'succeeded' ? 'ok' : 'warning';
+}
+
+/** Bloat acima de 30% exige VACUUM FULL; acima de 15% é observação. */
+function bloatSeverity(pct: number): Severity {
+  if (pct >= 30) return 'critical';
+  return pct >= 15 ? 'warning' : 'ok';
 }
 
 export default function AdminObservability() {
@@ -56,7 +81,7 @@ export default function AdminObservability() {
 
   const opsDashboard = useQuery({
     queryKey: ['admin_ops_dashboard', refreshKey],
-    queryFn: () => adminRpc<any>('admin_ops_dashboard'),
+    queryFn: () => adminRpc<OpsDashboard>('admin_ops_dashboard'),
     enabled: !!isAdmin,
     staleTime: 30_000,
   });
@@ -64,9 +89,11 @@ export default function AdminObservability() {
   const cronStatus = useQuery({
     queryKey: ['admin_cron_status', refreshKey],
     queryFn: async () => {
-      const { data, error } = await supabase.from('admin_cron_status' as any).select('*');
+      const { data, error } = await supabase
+        .from('admin_cron_status' as never)
+        .select('*');
       if (error) throw error;
-      return (data ?? []) as any[];
+      return (data ?? []) as unknown as CronStatusRow[];
     },
     enabled: !!isAdmin,
     staleTime: 30_000,
@@ -74,28 +101,28 @@ export default function AdminObservability() {
 
   const bloat = useQuery({
     queryKey: ['admin_table_bloat', refreshKey],
-    queryFn: () => adminRpc<any[]>('admin_table_bloat'),
+    queryFn: () => adminRpc<TableBloatRow[]>('admin_table_bloat'),
     enabled: !!isAdmin,
     staleTime: 60_000,
   });
 
   const regressions = useQuery({
     queryKey: ['admin_query_regressions', refreshKey],
-    queryFn: () => adminRpc<any[]>('admin_query_regressions', { _threshold_pct: 50 }),
+    queryFn: () => adminRpc<QueryRegressionRow[]>('admin_query_regressions', { _threshold_pct: 50 }),
     enabled: !!isAdmin,
     staleTime: 60_000,
   });
 
   const dlq = useQuery({
     queryKey: ['admin_list_cron_failures', refreshKey],
-    queryFn: () => adminRpc<any[]>('admin_list_cron_failures', { _limit: 50 }),
+    queryFn: () => adminRpc<CronFailureRow[]>('admin_list_cron_failures', { _limit: 50 }),
     enabled: !!isAdmin,
     staleTime: 30_000,
   });
 
   const sanity = useQuery({
     queryKey: ['admin_alert_sanity_check', refreshKey],
-    queryFn: () => adminRpc<any>('admin_alert_sanity_check'),
+    queryFn: () => adminRpc<AlertSanityCheck>('admin_alert_sanity_check'),
     enabled: !!isAdmin,
     staleTime: 30_000,
   });
@@ -179,7 +206,7 @@ export default function AdminObservability() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-xs text-muted-foreground">
-            falhas recentes: {cronStatus.data?.filter((c: any) => c.last_status && c.last_status !== 'succeeded').length ?? 0}
+            falhas recentes: {cronStatus.data?.filter((c) => c.last_status && c.last_status !== 'succeeded').length ?? 0}
           </CardContent>
         </Card>
         <Card>
@@ -218,13 +245,7 @@ export default function AdminObservability() {
               ].map((m) => {
                 const n = Number(m.value);
                 const sev: Severity =
-                  m.label === 'Alertas enviados'
-                    ? 'ok'
-                    : n === 0
-                    ? 'ok'
-                    : n < 5
-                    ? 'warning'
-                    : 'critical';
+                  m.label === 'Alertas enviados' ? 'ok' : severityFromCount(n);
                 return (
                   <div key={m.label} className="rounded-md border p-3">
                     <div className="text-xs text-muted-foreground">{m.label}</div>
@@ -264,12 +285,8 @@ export default function AdminObservability() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(cronStatus.data ?? []).map((job: any) => {
-                    const sev: Severity =
-                      !job.active ? 'critical'
-                        : job.last_status === 'failed' ? 'critical'
-                        : job.last_status === 'succeeded' ? 'ok'
-                        : 'warning';
+                  {(cronStatus.data ?? []).map((job) => {
+                    const sev = cronSeverity(job);
                     return (
                       <TableRow key={job.jobname}>
                         <TableCell className="font-mono text-xs">{job.jobname}</TableCell>
@@ -322,7 +339,7 @@ export default function AdminObservability() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(regressions.data ?? []).map((r: any) => (
+                  {(regressions.data ?? []).map((r) => (
                     <TableRow key={r.queryid}>
                       <TableCell className="max-w-md truncate font-mono text-xs">{r.query_text}</TableCell>
                       <TableCell className="text-right">{r.current_mean_ms}</TableCell>
@@ -366,13 +383,13 @@ export default function AdminObservability() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(bloat.data ?? []).slice(0, 15).map((t: any) => (
+                  {(bloat.data ?? []).slice(0, 15).map((t) => (
                     <TableRow key={t.table_name}>
                       <TableCell className="font-mono text-xs">{t.table_name}</TableCell>
                       <TableCell className="text-right">{t.total_size}</TableCell>
                       <TableCell className="text-right">{t.bloat_size}</TableCell>
                       <TableCell className="text-right">
-                        {sevBadge(t.bloat_ratio_pct >= 30 ? 'critical' : t.bloat_ratio_pct >= 15 ? 'warning' : 'ok')}
+                        {sevBadge(bloatSeverity(t.bloat_ratio_pct))}
                         <span className="ml-2">{t.bloat_ratio_pct}%</span>
                       </TableCell>
                       <TableCell className="text-right">{t.live_rows}</TableCell>
@@ -442,7 +459,7 @@ export default function AdminObservability() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {dlq.data.map((f: any) => (
+                  {dlq.data.map((f) => (
                     <TableRow key={f.id}>
                       <TableCell className="font-mono text-xs">{f.job_name}</TableCell>
                       <TableCell>
@@ -451,7 +468,7 @@ export default function AdminObservability() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">{f.attempts}</TableCell>
-                      <TableCell className="max-w-md truncate text-xs" title={f.error_message}>
+                      <TableCell className="max-w-md truncate text-xs" title={f.error_message ?? undefined}>
                         {f.error_message ?? '—'}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">

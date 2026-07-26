@@ -286,7 +286,7 @@ function BounceAlertsTabBase() {
                     </span>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    Resolvido em {format(new Date(alert.resolved_at!), "dd/MM/yyyy", { locale: ptBR })}
+                    Resolvido em {format(new Date(alert.resolved_at ?? Date.now()), "dd/MM/yyyy", { locale: ptBR })}
                   </span>
                 </div>
               ))}

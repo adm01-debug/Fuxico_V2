@@ -208,7 +208,7 @@ export function JoyrideTour({ tourState, setTourState, onComplete }: JoyrideTour
   const handleJoyrideCallback = useCallback((data: CallBackProps) => {
     const { status, action, index, type } = data;
 
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any)) {
+    if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       onComplete?.(tourState.tourId);
       setTourState(prev => ({ ...prev, run: false, stepIndex: 0 }));
     } else if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {

@@ -59,7 +59,7 @@ function ReportsTabBase() {
   const { data: emails } = useTrackedEmails();
   const { data: stats } = useTrackingStats();
   
-  const exportData = (emails || []).map((email: any) => {
+  const exportData = (emails || []).map((email) => {
     const emailWithStats = email as TrackedEmailWithStats;
     return {
       id: email.id, tracking_id: email.tracking_id, destinatario: email.recipient_email,

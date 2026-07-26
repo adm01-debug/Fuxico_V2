@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
+import { requireUserId } from "@/lib/auth-guards";
 
 export interface ScheduledEmail {
   id: string;
@@ -111,7 +112,7 @@ export function useUpdateScheduledEmail() {
         .from('scheduled_emails')
         .update(updates)
         .eq('id', id)
-        .eq('user_id', user!.id)
+        .eq('user_id', requireUserId(user))
         .select()
         .single();
 
@@ -140,7 +141,7 @@ export function useCancelScheduledEmail() {
         .from('scheduled_emails')
         .update({ status: 'cancelled' })
         .eq('id', id)
-        .eq('user_id', user!.id);
+        .eq('user_id', requireUserId(user));
 
       if (error) throw error;
     },

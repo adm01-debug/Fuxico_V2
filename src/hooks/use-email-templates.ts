@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { requireUserId } from "@/lib/auth-guards";
 
 export interface EmailTemplate {
   id: string;
@@ -85,7 +86,7 @@ export function useEmailTemplates() {
         .from('email_templates')
         .update(updateData)
         .eq('id', id)
-        .eq('user_id', user!.id)
+        .eq('user_id', requireUserId(user))
         .select()
         .single();
       
@@ -108,7 +109,7 @@ export function useEmailTemplates() {
         .from('email_templates')
         .delete()
         .eq('id', id)
-        .eq('user_id', user!.id);
+        .eq('user_id', requireUserId(user));
       
       if (error) throw error;
     },
@@ -128,7 +129,7 @@ export function useEmailTemplates() {
         .from('email_templates')
         .select('usage_count')
         .eq('id', id)
-        .eq('user_id', user!.id)
+        .eq('user_id', requireUserId(user))
         .single();
       if (fetchError) throw fetchError;
       if (current) {
@@ -136,7 +137,7 @@ export function useEmailTemplates() {
           .from('email_templates')
           .update({ usage_count: (current.usage_count || 0) + 1 })
           .eq('id', id)
-          .eq('user_id', user!.id);
+          .eq('user_id', requireUserId(user));
         if (error) throw error;
       }
     },

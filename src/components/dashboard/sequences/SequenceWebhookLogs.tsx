@@ -77,7 +77,7 @@ function SequenceWebhookLogsBase() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {logs.map((log: any) => (
+                {logs.map((log) => (
                   <TableRow key={log.id}>
                     <TableCell>
                       {log.success ? (
