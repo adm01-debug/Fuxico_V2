@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { matchFirst } from "@/lib/variant";
 
 interface NotificationPreferences {
   emailOpened: boolean
@@ -180,27 +181,31 @@ export default function PushNotificationsTab() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!isSupported ? (
+            {matchFirst([
+  [!isSupported, () => ((
               <div className="p-4 rounded-lg bg-destructive/10 text-destructive text-sm">
                 <AlertTriangle className="h-4 w-4 mb-1" />
                 Seu navegador não suporta notificações push. Use Chrome, Firefox ou Edge.
               </div>
-            ) : permission === 'denied' ? (
+            ))],
+  [permission === 'denied', () => ((
               <div className="p-4 rounded-lg bg-destructive/10 text-destructive text-sm">
                 <BellOff className="h-4 w-4 mb-1" />
                 Notificações bloqueadas. Altere nas configurações do navegador.
               </div>
-            ) : permission === 'granted' ? (
+            ))],
+  [permission === 'granted', () => ((
               <div className="p-4 rounded-lg bg-emerald-500/10 text-emerald-500 text-sm flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4" />
                 Notificações push ativadas!
               </div>
-            ) : (
+            ))],
+], () => ((
               <Button className="w-full gap-2" onClick={requestPermission}>
                 <Bell className="h-4 w-4" />
                 Ativar Notificações Push
               </Button>
-            )}
+            )))}
 
             {permission === 'granted' && (
               <Button variant="outline" className="w-full gap-2" onClick={sendTestNotification}>

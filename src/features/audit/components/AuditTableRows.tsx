@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowUpRight, ArrowDownLeft, Clock, Globe, TrendingUp, C
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { FraudAlert, EmailAuditLog } from '../hooks/use-email-audit';
+import { matchFirst } from "@/lib/variant";
 
 const alertTypeLabels: Record<string, { label: string; icon: React.ReactNode }> = {
   suspicious_hours: { label: 'Horário Suspeito', icon: <Clock className="h-4 w-4" /> },
@@ -37,7 +38,10 @@ export function AlertRow({ alert, onResolve, isResolving }: {
       <TableCell className="max-w-[300px] truncate">{alert.description}</TableCell>
       <TableCell>
         <Badge className={severityColors[alert.severity]}>
-          {alert.severity === 'low' ? 'Baixa' : alert.severity === 'medium' ? 'Média' : 'Alta'}
+          {matchFirst([
+  [alert.severity === 'low', () => ('Baixa')],
+  [alert.severity === 'medium', () => ('Média')],
+], () => ('Alta'))}
         </Badge>
       </TableCell>
       <TableCell className="text-sm text-muted-foreground">

@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { matchFirst } from "@/lib/variant";
 
 interface UserRole {
   id: string;
@@ -241,15 +242,18 @@ export default function Roles() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {matchFirst([
+  [isLoading, () => ((
               <div className="text-center py-8 text-muted-foreground">
                 Carregando...
               </div>
-            ) : filteredRoles?.length === 0 ? (
+            ))],
+  [filteredRoles?.length === 0, () => ((
               <div className="text-center py-8 text-muted-foreground">
                 Nenhum usuário encontrado
               </div>
-            ) : (
+            ))],
+], () => ((
               <div className="space-y-2">
                 {filteredRoles?.map((userRole: UserRole) => (
                   <div 
@@ -306,7 +310,7 @@ export default function Roles() {
                   </div>
                 ))}
               </div>
-            )}
+            )))}
           </CardContent>
         </Card>
 

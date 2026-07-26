@@ -67,6 +67,7 @@ import { useBounceAlerts } from '@/hooks/use-bounce-alerts'
 import { Badge } from '@/components/ui/badge'
 import { motion, AnimatePresence } from 'framer-motion'
 import logoImg from '@/assets/logo.webp'
+import { matchFirst } from "@/lib/variant";
 
 // =============================================================================
 // TIPOS
@@ -141,7 +142,11 @@ function NotificationBadge({ count, variant = 'default' }: { count: number | 'ne
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
     >
       <Badge 
-        variant={isNew ? 'default' : isBeta ? 'secondary' : variant === 'destructive' ? 'destructive' : 'outline'}
+        variant={matchFirst([
+  [isNew, () => ('default')],
+  [isBeta, () => ('secondary')],
+  [variant === 'destructive', () => ('destructive')],
+], () => ('outline'))}
         className={cn(
           "h-5 min-w-5 flex items-center justify-center px-1.5 text-[10px] font-bold",
           isNew && "bg-primary text-primary-foreground",
@@ -150,7 +155,10 @@ function NotificationBadge({ count, variant = 'default' }: { count: number | 'ne
           variant === 'destructive' && "animate-pulse"
         )}
       >
-        {isNew ? 'NEW' : isBeta ? 'BETA' : count}
+        {matchFirst([
+  [isNew, () => ('NEW')],
+  [isBeta, () => ('BETA')],
+], () => (count))}
       </Badge>
     </motion.div>
   )

@@ -26,6 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { BarChart3, Flame, Snowflake, LayoutList } from 'lucide-react';
+import { matchFirst } from "@/lib/variant";
 
 type TrendRow = {
   bucket_date: string;
@@ -177,13 +178,16 @@ export function IndexUsageDashboard() {
           <div className="flex items-center gap-2 mb-2">
             <h3 className="text-sm font-semibold">Tendência — Top 10 índices por scans</h3>
           </div>
-          {trend.isLoading ? (
+          {matchFirst([
+  [trend.isLoading, () => ((
             <Skeleton className="h-72 w-full" />
-          ) : chartData.data.length === 0 ? (
+          ))],
+  [chartData.data.length === 0, () => ((
             <p className="text-sm text-muted-foreground py-8 text-center">
               Sem dados suficientes para o período selecionado. Aguardando novos snapshots.
             </p>
-          ) : (
+          ))],
+], () => ((
             <div className="w-full h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData.data}>
@@ -212,7 +216,7 @@ export function IndexUsageDashboard() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          )}
+          )))}
         </div>
 
         {/* Rankings lado a lado */}

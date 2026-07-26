@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AlertTriangle, TrendingDown, CheckCircle2 } from "lucide-react";
 import { adminRpc } from "@/lib/admin-rpc";
 import { cn } from "@/lib/utils";
+import { matchFirst } from "@/lib/variant";
 
 interface FailureRow {
   webhook_id: string;
@@ -35,11 +36,10 @@ function fmt(ts: string | null): string {
 
 function rateBadge(rate: number) {
   const cls =
-    rate >= 25
-      ? "bg-destructive/15 text-destructive border-destructive/30"
-      : rate >= 5
-        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
-        : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30";
+    matchFirst([
+  [rate >= 25, () => ("bg-destructive/15 text-destructive border-destructive/30")],
+  [rate >= 5, () => ("bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30")],
+], () => ("bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"));
   return (
     <Badge variant="outline" className={cn("font-mono text-xs", cls)}>
       {rate.toFixed(2)}%
@@ -99,19 +99,23 @@ function WebhookFailureRatesTableBase() {
           </div>
         </div>
 
-        {isError ? (
+        {matchFirst([
+  [isError, () => ((
           <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4" />
             Erro ao carregar taxas: {error instanceof Error ? error.message : "erro desconhecido"}
           </div>
-        ) : isLoading ? (
+        ))],
+  [isLoading, () => ((
           <Skeleton className="h-40 w-full" />
-        ) : rows.length === 0 ? (
+        ))],
+  [rows.length === 0, () => ((
           <div className="flex flex-col items-center gap-2 rounded-md border border-dashed p-8 text-sm text-muted-foreground">
             <CheckCircle2 className="w-8 h-8 text-emerald-500" />
             Nenhum evento de webhook registrado nos últimos 7 dias.
           </div>
-        ) : (
+        ))],
+], () => ((
           <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
@@ -149,7 +153,7 @@ function WebhookFailureRatesTableBase() {
               </TableBody>
             </Table>
           </div>
-        )}
+        )))}
       </CardContent>
     </Card>
   );

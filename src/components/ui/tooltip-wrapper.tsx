@@ -5,6 +5,7 @@
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 import { cn } from '@/lib/utils';
+import { matchFirst } from "@/lib/variant";
 
 interface TooltipWrapperProps {
   content: string;
@@ -130,9 +131,11 @@ export function KeyboardShortcutsPanel() {
       {Object.entries(KEYBOARD_SHORTCUTS).map(([category, shortcuts]) => (
         <div key={category}>
           <h4 className="text-sm font-medium capitalize mb-2 text-muted-foreground">
-            {category === 'navigation' ? 'Navegação' : 
-             category === 'actions' ? 'Ações' : 
-             category === 'table' ? 'Tabela' : category}
+            {matchFirst([
+  [category === 'navigation', () => ('Navegação')],
+  [category === 'actions', () => ('Ações')],
+  [category === 'table', () => ('Tabela')],
+], () => (category))}
           </h4>
           <div className="space-y-1">
             {shortcuts.map((shortcut) => (

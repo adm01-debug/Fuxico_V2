@@ -35,6 +35,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { matchFirst } from "@/lib/variant";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
@@ -211,18 +212,21 @@ function LinkEventsDialog({
           <DialogTitle>Histórico de Cliques</DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[500px] pr-4">
-          {isLoading ? (
+          {matchFirst([
+  [isLoading, () => ((
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
-          ) : !events?.length ? (
+          ))],
+  [!events?.length, () => ((
             <div className="text-center py-8 text-muted-foreground">
               <MousePointerClick className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Nenhum clique registrado</p>
             </div>
-          ) : (
+          ))],
+], () => ((
             <div className="space-y-3">
               {events.map((event) => (
                 <Card key={event.id}>
@@ -269,7 +273,7 @@ function LinkEventsDialog({
                 </Card>
               ))}
             </div>
-          )}
+          )))}
         </ScrollArea>
       </DialogContent>
     </Dialog>

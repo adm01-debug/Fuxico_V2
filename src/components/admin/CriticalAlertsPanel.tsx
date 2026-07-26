@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { AlertTriangle, Download, Filter, Link2, RefreshCw, Search } from "lucide-react";
 import { toast } from "sonner";
+import { matchFirst } from "@/lib/variant";
 
 type AlertRow = {
   id: string;
@@ -514,13 +515,16 @@ export function CriticalAlertsPanel() {
           <h3 className="text-sm font-semibold mb-2">
             Sumário ({hours}h) — {summary.data?.length ?? 0} tipos
           </h3>
-          {summary.isLoading ? (
+          {matchFirst([
+  [summary.isLoading, () => ((
             <Skeleton className="h-24 w-full" />
-          ) : (summary.data ?? []).length === 0 ? (
+          ))],
+  [(summary.data ?? []).length === 0, () => ((
             <p className="text-sm text-muted-foreground py-4">
               Nenhum alerta no período. 🎉
             </p>
-          ) : (
+          ))],
+], () => ((
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
@@ -568,7 +572,7 @@ export function CriticalAlertsPanel() {
                 </TableBody>
               </Table>
             </div>
-          )}
+          )))}
         </div>
 
         {/* Lista de eventos */}
@@ -581,15 +585,18 @@ export function CriticalAlertsPanel() {
               </span>
             )}
           </h3>
-          {alerts.isLoading ? (
+          {matchFirst([
+  [alerts.isLoading, () => ((
             <Skeleton className="h-40 w-full" />
-          ) : visibleRows.length === 0 ? (
+          ))],
+  [visibleRows.length === 0, () => ((
             <p className="text-sm text-muted-foreground py-4">
               {search.trim()
                 ? "Nenhum evento casa com a busca no período selecionado."
                 : "Nada encontrado para os filtros escolhidos."}
             </p>
-          ) : (
+          ))],
+], () => ((
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
@@ -656,7 +663,7 @@ export function CriticalAlertsPanel() {
                 </TableBody>
               </Table>
             </div>
-          )}
+          )))}
 
           {/* Paginação server-side */}
           {total > 0 && (

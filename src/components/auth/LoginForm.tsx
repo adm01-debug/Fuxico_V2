@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Mail, Eye, EyeOff, Lock, AlertTriangle, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { matchFirst } from "@/lib/variant";
 
 const formatLockoutTime = (seconds: number): string => {
   if (seconds < 60) return `${seconds} segundos`;
@@ -118,19 +119,22 @@ export const LoginForm = ({
         className="w-full h-11 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
         disabled={isLoading || isLockedOut}
       >
-        {isLoading ? (
+        {matchFirst([
+  [isLoading, () => ((
           <Loader2 className="h-4 w-4 animate-spin" />
-        ) : isLockedOut ? (
+        ))],
+  [isLockedOut, () => ((
           <>
             <Lock className="h-4 w-4 mr-2" />
             Bloqueado ({formatLockoutTime(lockoutSeconds)})
           </>
-        ) : (
+        ))],
+], () => ((
           <>
             Entrar
             <ArrowRight className="h-4 w-4 ml-2" />
           </>
-        )}
+        )))}
       </Button>
     </motion.div>
   </form>

@@ -19,6 +19,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { log } from '@/lib/logger';
+import { matchFirst } from "@/lib/variant";
 
 const AVAILABLE_EVENTS = [
   { id: 'email_open', label: 'Email Aberto', description: 'Quando um email é aberto pelo destinatário' },
@@ -217,18 +218,21 @@ export default function WebhookTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {logsLoading ? (
+          {matchFirst([
+  [logsLoading, () => ((
             <div className="flex items-center justify-center h-32">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          ) : !logs || logs.length === 0 ? (
+          ))],
+  [!logs || logs.length === 0, () => ((
             <EmptyState
               type="webhooks"
               title="Nenhum webhook enviado ainda"
               description="Configure um webhook e teste a conexão para ver os logs aqui."
               size="sm"
             />
-          ) : (
+          ))],
+], () => ((
             <Table>
               <TableHeader>
                 <TableRow>
@@ -277,7 +281,7 @@ export default function WebhookTab() {
                 ))}
               </TableBody>
             </Table>
-          )}
+          )))}
         </CardContent>
       </Card>
     </div>

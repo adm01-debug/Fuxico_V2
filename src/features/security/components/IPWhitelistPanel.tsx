@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { matchFirst } from "@/lib/variant";
 
 interface WhitelistedIP {
   id: string;
@@ -150,15 +151,18 @@ export default function IPWhitelistPanel() {
         </div>
 
         {/* List */}
-        {isLoading ? (
+        {matchFirst([
+  [isLoading, () => ((
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : filteredIPs?.length === 0 ? (
+        ))],
+  [filteredIPs?.length === 0, () => ((
           <div className="text-center py-8 text-muted-foreground">
             Nenhum IP na whitelist
           </div>
-        ) : (
+        ))],
+], () => ((
           <div className="space-y-2">
             {filteredIPs?.map((ip) => (
               <div
@@ -207,7 +211,7 @@ export default function IPWhitelistPanel() {
               </div>
             ))}
           </div>
-        )}
+        )))}
       </CardContent>
 
       {/* Add Dialog */}

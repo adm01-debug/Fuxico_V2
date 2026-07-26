@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AlertTriangle, History, CheckCircle2 } from "lucide-react";
 import { adminRpc } from "@/lib/admin-rpc";
 import { cn } from "@/lib/utils";
+import { matchFirst } from "@/lib/variant";
 
 interface RetryRow {
   id: string;
@@ -34,13 +35,11 @@ function fmt(ts: string | null): string {
 function statusBadge(status: string) {
   const s = status.toLowerCase();
   const cls =
-    s === "failed" || s === "dead_letter"
-      ? "bg-destructive/15 text-destructive border-destructive/30"
-      : s === "pending" || s === "retrying"
-        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
-        : s === "delivered" || s === "success"
-          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
-          : "bg-muted text-muted-foreground border-border";
+    matchFirst([
+  [s === "failed" || s === "dead_letter", () => ("bg-destructive/15 text-destructive border-destructive/30")],
+  [s === "pending" || s === "retrying", () => ("bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30")],
+  [s === "delivered" || s === "success", () => ("bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30")],
+], () => ("bg-muted text-muted-foreground border-border"));
   return (
     <Badge variant="outline" className={cn("font-mono text-xs uppercase", cls)}>
       {status}
@@ -69,19 +68,23 @@ function WebhookRetryHistoryTableBase() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {isError ? (
+        {matchFirst([
+  [isError, () => ((
           <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4" />
             Erro ao carregar histórico: {error instanceof Error ? error.message : "erro desconhecido"}
           </div>
-        ) : isLoading ? (
+        ))],
+  [isLoading, () => ((
           <Skeleton className="h-40 w-full" />
-        ) : rows.length === 0 ? (
+        ))],
+  [rows.length === 0, () => ((
           <div className="flex flex-col items-center gap-2 rounded-md border border-dashed p-8 text-sm text-muted-foreground">
             <CheckCircle2 className="w-8 h-8 text-emerald-500" />
             Nenhum retry na fila. Todos os webhooks foram entregues no primeiro envio.
           </div>
-        ) : (
+        ))],
+], () => ((
           <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
@@ -120,7 +123,7 @@ function WebhookRetryHistoryTableBase() {
               </TableBody>
             </Table>
           </div>
-        )}
+        )))}
       </CardContent>
     </Card>
   );

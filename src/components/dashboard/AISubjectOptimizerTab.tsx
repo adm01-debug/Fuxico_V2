@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { matchFirst } from "@/lib/variant";
 
 interface Suggestion {
   subject: string
@@ -338,8 +339,10 @@ export default function AISubjectOptimizerTab() {
                         <motion.div
                           className={cn(
                             "h-full rounded-full",
-                            time.score >= 85 ? "bg-emerald-500" :
-                            time.score >= 70 ? "bg-amber-500" : "bg-orange-500"
+                            matchFirst([
+  [time.score >= 85, () => ("bg-emerald-500")],
+  [time.score >= 70, () => ("bg-amber-500")],
+], () => ("bg-orange-500"))
                           )}
                           initial={{ width: 0 }}
                           animate={{ width: `${time.score}%` }}

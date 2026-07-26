@@ -22,6 +22,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { matchFirst } from "@/lib/variant";
 
 interface DemoModalProps {
   open: boolean;
@@ -283,11 +284,10 @@ export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
               key={index}
               onClick={() => setCurrentStep(index)}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentStep
-                  ? "w-6 bg-primary"
-                  : index < currentStep
-                  ? "bg-primary/50"
-                  : "bg-muted"
+                matchFirst([
+  [index === currentStep, () => ("w-6 bg-primary")],
+  [index < currentStep, () => ("bg-primary/50")],
+], () => ("bg-muted"))
               }`}
               aria-label={`Ir para passo ${index + 1}`}
             />

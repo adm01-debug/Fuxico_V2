@@ -11,6 +11,7 @@ import React, {
   useCallback 
 } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
+import { matchFirst } from "@/lib/variant";
 
 // =============================================================================
 // TIPOS
@@ -204,8 +205,14 @@ export function ThemeToggle({
     setTheme(themes[nextIndex]);
   };
 
-  const Icon = theme === 'system' ? Monitor : isDark ? Moon : Sun;
-  const label = theme === 'system' ? 'Sistema' : isDark ? 'Escuro' : 'Claro';
+  const Icon = matchFirst([
+  [theme === 'system', () => (Monitor)],
+  [isDark, () => (Moon)],
+], () => (Sun));
+  const label = matchFirst([
+  [theme === 'system', () => ('Sistema')],
+  [isDark, () => ('Escuro')],
+], () => ('Claro'));
 
   return (
     <button

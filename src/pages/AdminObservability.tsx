@@ -20,6 +20,7 @@ import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashbo
 import { WebhookFailureRatesTable } from '@/components/admin/WebhookFailureRatesTable';
 import { WebhookRetryHistoryTable } from '@/components/admin/WebhookRetryHistoryTable';
 import { CriticalAlertsPanel } from '@/components/admin/CriticalAlertsPanel';
+import { matchFirst } from "@/lib/variant";
 import type {
   AlertSanityCheck,
   CronFailureRow,
@@ -320,13 +321,16 @@ export default function AdminObservability() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {regressions.isLoading ? (
+          {matchFirst([
+  [regressions.isLoading, () => ((
             <Skeleton className="h-40 w-full" />
-          ) : (regressions.data ?? []).length === 0 ? (
+          ))],
+  [(regressions.data ?? []).length === 0, () => ((
             <p className="text-sm text-muted-foreground text-center py-6">
               ✨ Nenhuma regressão detectada.
             </p>
-          ) : (
+          ))],
+], () => ((
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -354,7 +358,7 @@ export default function AdminObservability() {
                 </TableBody>
               </Table>
             </div>
-          )}
+          )))}
         </CardContent>
       </Card>
 
@@ -415,7 +419,10 @@ export default function AdminObservability() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {strag && Object.entries(strag).map(([k, v]) => {
               const n = Number(v ?? 0);
-              const sev: Severity = n === 0 ? 'ok' : n < 100 ? 'warning' : 'critical';
+              const sev: Severity = matchFirst([
+  [n === 0, () => ('ok')],
+  [n < 100, () => ('warning')],
+], () => ('critical'));
               return (
                 <div key={k} className="flex items-center justify-between rounded-md border p-3">
                   <span className="text-xs font-mono">{k}</span>
@@ -441,11 +448,14 @@ export default function AdminObservability() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {dlq.isLoading ? (
+          {matchFirst([
+  [dlq.isLoading, () => ((
             <Skeleton className="h-24 w-full" />
-          ) : !dlq.data || dlq.data.length === 0 ? (
+          ))],
+  [!dlq.data || dlq.data.length === 0, () => ((
             <p className="text-sm text-muted-foreground">Nenhuma falha registrada. 🎉</p>
-          ) : (
+          ))],
+], () => ((
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -489,7 +499,7 @@ export default function AdminObservability() {
                 </TableBody>
               </Table>
             </div>
-          )}
+          )))}
         </CardContent>
       </Card>
 

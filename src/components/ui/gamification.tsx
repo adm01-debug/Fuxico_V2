@@ -11,6 +11,7 @@ import {
   Award
 } from "lucide-react";
 import { Badge } from "./badge";
+import { matchFirst } from "@/lib/variant";
 
 // Streak indicator
 interface StreakProps {
@@ -192,11 +193,15 @@ export const QuickStat = ({ value, label, icon, trend, trendValue }: QuickStatPr
         <Icon className="h-5 w-5 text-primary" />
         {trend && trendValue && (
           <span className={`text-xs font-medium ${
-            trend === "up" ? "text-green-500" : 
-            trend === "down" ? "text-red-500" : 
-            "text-muted-foreground"
+            matchFirst([
+  [trend === "up", () => ("text-green-500")],
+  [trend === "down", () => ("text-red-500")],
+], () => ("text-muted-foreground"))
           }`}>
-            {trend === "up" ? "↑" : trend === "down" ? "↓" : "→"} {trendValue}
+            {matchFirst([
+  [trend === "up", () => ("↑")],
+  [trend === "down", () => ("↓")],
+], () => ("→"))} {trendValue}
           </span>
         )}
       </div>

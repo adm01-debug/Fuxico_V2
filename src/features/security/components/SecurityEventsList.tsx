@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
+import { matchFirst } from "@/lib/variant";
 
 interface SecurityEventsListProps {
   limit?: number;
@@ -110,9 +111,10 @@ export function SecurityEventsList({ limit = 10 }: SecurityEventsListProps) {
             <div key={event.id} className="relative flex items-start gap-4 pl-10">
               {/* Timeline dot */}
               <div className={`absolute left-0 p-2 rounded-full bg-background border-2 ${
-                event.severity === 'error' ? 'border-destructive' :
-                event.severity === 'warning' ? 'border-orange-500' :
-                'border-border'
+                matchFirst([
+  [event.severity === 'error', () => ('border-destructive')],
+  [event.severity === 'warning', () => ('border-orange-500')],
+], () => ('border-border'))
               }`}>
                 <Icon className={`h-4 w-4 ${config.color}`} />
               </div>

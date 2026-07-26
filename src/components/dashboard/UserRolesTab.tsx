@@ -21,6 +21,7 @@ import { useUsersWithRoles, useAssignRole, useRemoveRole, type UserWithRole } fr
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { matchFirst } from "@/lib/variant";
 
 export function UserRolesTab() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -136,16 +137,19 @@ export function UserRolesTab() {
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {matchFirst([
+  [isLoading, () => ((
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
           </div>
-        ) : filteredUsers.length === 0 ? (
+        ))],
+  [filteredUsers.length === 0, () => ((
           <div className="text-center py-8 text-muted-foreground">
             <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>Nenhum usuário encontrado</p>
           </div>
-        ) : (
+        ))],
+], () => ((
           <Table>
             <TableHeader>
               <TableRow>
@@ -218,7 +222,7 @@ export function UserRolesTab() {
               ))}
             </TableBody>
           </Table>
-        )}
+        )))}
       </CardContent>
 
       <AlertDialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>

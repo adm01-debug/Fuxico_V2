@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Lightbulb, Play, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { matchFirst } from "@/lib/variant";
 
 type Run = {
   id: string;
@@ -141,13 +142,16 @@ export function IndexAdvisorPanel() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {runs.isLoading ? (
+        {matchFirst([
+  [runs.isLoading, () => ((
           <Skeleton className="h-40 w-full" />
-        ) : !hasRuns ? (
+        ))],
+  [!hasRuns, () => ((
           <p className="text-sm text-muted-foreground text-center py-6">
             Nenhuma execução registrada ainda. Clique em "Executar agora" para gerar o primeiro relatório.
           </p>
-        ) : (
+        ))],
+], () => ((
           <>
             {latest && (latest.high_count > 0 || latest.medium_count > 0) && (
               <div className="rounded-md border p-3 bg-muted/30">
@@ -223,7 +227,7 @@ export function IndexAdvisorPanel() {
               </Table>
             </div>
           </>
-        )}
+        )))}
       </CardContent>
     </Card>
   );

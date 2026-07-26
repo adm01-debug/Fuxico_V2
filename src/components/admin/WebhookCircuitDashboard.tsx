@@ -9,6 +9,7 @@ import { AlertTriangle, RefreshCw, Zap, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { adminRpc } from "@/lib/admin-rpc";
 import { cn } from "@/lib/utils";
+import { matchFirst } from "@/lib/variant";
 
 interface CircuitRow {
   webhook_id: string;
@@ -125,19 +126,23 @@ function WebhookCircuitDashboardBase() {
           </div>
         </div>
 
-        {isError ? (
+        {matchFirst([
+  [isError, () => ((
           <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4" />
             Erro ao carregar circuit breakers: {error instanceof Error ? error.message : "erro desconhecido"}
           </div>
-        ) : isLoading ? (
+        ))],
+  [isLoading, () => ((
           <Skeleton className="h-40 w-full" />
-        ) : summary.total === 0 ? (
+        ))],
+  [summary.total === 0, () => ((
           <div className="flex flex-col items-center gap-2 rounded-md border border-dashed p-8 text-sm text-muted-foreground">
             <ShieldCheck className="w-8 h-8 text-emerald-500" />
             Nenhum circuit breaker ativo. Todos os webhooks estão saudáveis.
           </div>
-        ) : (
+        ))],
+], () => ((
           <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
@@ -182,7 +187,7 @@ function WebhookCircuitDashboardBase() {
               </TableBody>
             </Table>
           </div>
-        )}
+        )))}
       </CardContent>
     </Card>
   );
