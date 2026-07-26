@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
 
 /** Estado de filtros aplicado à listagem de e-mails rastreados. */
 export interface EmailFilters {
