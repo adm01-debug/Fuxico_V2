@@ -212,50 +212,242 @@
   }
 
   // ============================================
-  // INDICADORES NA INBOX
+  // MARCADORES ✓✓ (INBOX / ENVIADOS / THREAD)
   // ============================================
+
+  const CHECK_SINGLE_SVG = `
+    <svg class="fuxico-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 12.5 9 17.5 20 6.5"/>
+    </svg>`;
+
+  const CHECK_DOUBLE_SVG = `
+    <svg class="fuxico-check" width="20" height="16" viewBox="0 0 30 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M2 12.5 7 17.5 18 6.5"/>
+      <path d="M11 12.5 16 17.5 27 6.5"/>
+    </svg>`;
+
+  /** Aberturas visíveis no marcador — ignora auto-aberturas quando configurado. */
+  function visibleOpens(stats) {
+    const total = Number(stats.opens || 0);
+    if (!hideSelfOpens) return total;
+    return Math.max(0, total - Number(stats.selfOpens || 0));
+  }
+
+  function markerTooltip(stats) {
+    const opens = visibleOpens(stats);
+    if (opens <= 0) return 'FUXICO • Enviado, ainda não lido';
+    const openText = opens === 1 ? 'Aberto 1 vez' : `Aberto ${opens} vezes`;
+    const clickText = stats.clicks > 0
+      ? ` • ${stats.clicks} clique${stats.clicks > 1 ? 's' : ''}`
+      : '';
+    return `FUXICO • ${openText}${clickText} — clique para ver o histórico`;
+  }
 
   function createIndicatorElement(stats) {
     const container = document.createElement('div');
     container.className = 'fuxico-inbox-indicator';
-    
-    const hasOpens = stats.opens > 0;
-    const hasClicks = stats.clicks > 0;
-    
-    if (!hasOpens && !hasClicks) {
-      container.innerHTML = `
-        <div class="fuxico-indicator fuxico-indicator-pending" title="Aguardando leitura">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 6v6l4 2"/>
+    container.dataset.fuxicoTracking = stats.trackingId || '';
+
+    const opens = visibleOpens(stats);
+    const isRead = opens > 0;
+    const tooltip = markerTooltip(stats);
+
+    container.innerHTML = `
+      <button type="button"
+              class="fuxico-marker ${isRead ? 'fuxico-marker-read' : 'fuxico-marker-sent'}"
+              aria-label="${escapeHtml(tooltip)}"
+              title="${escapeHtml(tooltip)}">
+        ${isRead ? CHECK_DOUBLE_SVG : CHECK_SINGLE_SVG}
+        ${opens > 1 ? `<span class="fuxico-marker-badge">${opens > 99 ? '99+' : opens}</span>` : ''}
+      </button>
+      ${stats.clicks > 0 ? `
+        <span class="fuxico-marker fuxico-marker-click"
+              title="${stats.clicks} clique${stats.clicks > 1 ? 's' : ''} em links">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M15 15l-2 5L9 9l11 4-5 2z"/>
+            <path d="M22 22l-5-5"/>
           </svg>
-        </div>
-      `;
-    } else {
-      const openText = stats.opens === 1 ? '1 abertura' : `${stats.opens} aberturas`;
-      const clickText = stats.clicks > 0 ? ` • ${stats.clicks} clique${stats.clicks > 1 ? 's' : ''}` : '';
-      const tooltip = `${openText}${clickText}`;
-      
-      container.innerHTML = `
-        <div class="fuxico-indicator fuxico-indicator-opened" title="${tooltip}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-          ${stats.opens > 1 ? `<span class="fuxico-indicator-badge">${stats.opens}</span>` : ''}
-        </div>
-        ${hasClicks ? `
-          <div class="fuxico-indicator fuxico-indicator-clicked" title="${stats.clicks} clique${stats.clicks > 1 ? 's' : ''}">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 15l-2 5L9 9l11 4-5 2z"/>
-              <path d="M22 22l-5-5"/>
-            </svg>
-          </div>
-        ` : ''}
-      `;
-    }
-    
+        </span>` : ''}
+    `;
+
+    const btn = container.querySelector('.fuxico-marker-read, .fuxico-marker-sent');
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openHistoryPopover(btn, stats);
+    });
+
     return container;
+  }
+
+  // ============================================
+  // POPOVER — HISTÓRICO COMPLETO DE RASTREAMENTO
+  // ============================================
+
+  function closeHistoryPopover() {
+    document.querySelectorAll('.fuxico-popover').forEach(el => el.remove());
+    document.removeEventListener('keydown', onPopoverKeydown, true);
+  }
+
+  function onPopoverKeydown(e) {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      closeHistoryPopover();
+    }
+  }
+
+  function relativeTime(iso) {
+    const then = new Date(iso).getTime();
+    if (Number.isNaN(then)) return '—';
+    const diff = Date.now() - then;
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return 'agora mesmo';
+    if (min < 60) return `há ${min} min`;
+    const hours = Math.floor(min / 60);
+    if (hours < 24) return `há ${hours}h`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `há ${days}d`;
+    return new Date(then).toLocaleDateString('pt-BR');
+  }
+
+  function absoluteTime(iso) {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function fetchTrackingDetail(trackingId) {
+    const cached = detailCache.get(trackingId);
+    if (cached && Date.now() - cached.at < DETAIL_TTL) return cached.data;
+
+    const endpoint = CONFIG.ENDPOINTS?.GET_DETAIL || '/get-tracking-detail';
+    const response = await fetch(
+      `${CONFIG.API_URL}${endpoint}?trackingId=${encodeURIComponent(trackingId)}`,
+      { headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        isAuthenticated = false;
+        authToken = null;
+      }
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    detailCache.set(trackingId, { at: Date.now(), data });
+    return data;
+  }
+
+  function renderTimeline(detail) {
+    const events = Array.isArray(detail.timeline) ? detail.timeline : [];
+    const visible = events.filter(ev => ev.type === 'open' || ev.type === 'click');
+
+    if (visible.length === 0) {
+      return `<div class="fuxico-popover-empty">Nenhuma abertura registrada ainda.</div>`;
+    }
+
+    return `<ul class="fuxico-timeline">${visible.slice(0, 30).map(ev => {
+      const place = [ev.city, ev.country].filter(Boolean).join(', ');
+      const isClick = ev.type === 'click';
+      return `
+        <li class="fuxico-timeline-item ${ev.isSelfOpen ? 'fuxico-timeline-self' : ''}">
+          <span class="fuxico-timeline-dot ${isClick ? 'click' : 'open'}"></span>
+          <div class="fuxico-timeline-body">
+            <div class="fuxico-timeline-title">
+              ${isClick ? 'Clique em link' : 'Abertura'}
+              ${ev.isSelfOpen ? '<span class="fuxico-tag">sua própria abertura</span>' : ''}
+            </div>
+            <div class="fuxico-timeline-meta">
+              ${escapeHtml(relativeTime(ev.at))} · ${escapeHtml(absoluteTime(ev.at))}
+              · ${escapeHtml(ev.device || '—')} · ${escapeHtml(ev.client || '—')}
+              ${place ? ` · ${escapeHtml(place)}` : ''}
+            </div>
+          </div>
+        </li>`;
+    }).join('')}</ul>`;
+  }
+
+  function renderLinks(detail) {
+    const links = Array.isArray(detail.links) ? detail.links.filter(l => l.clicks > 0) : [];
+    if (links.length === 0) return '';
+    return `
+      <div class="fuxico-popover-section">
+        <div class="fuxico-popover-subtitle">Cliques por link</div>
+        <ul class="fuxico-link-list">
+          ${links.slice(0, 8).map(l => `
+            <li><span class="fuxico-link-url" title="${escapeHtml(l.url || '')}">${escapeHtml(l.url || '')}</span>
+            <span class="fuxico-link-count">${l.clicks}</span></li>
+          `).join('')}
+        </ul>
+      </div>`;
+  }
+
+  function positionPopover(popover, anchor) {
+    const rect = anchor.getBoundingClientRect();
+    const width = 360;
+    const left = Math.min(Math.max(8, rect.left), window.innerWidth - width - 8);
+    const spaceBelow = window.innerHeight - rect.bottom;
+    popover.style.left = `${left}px`;
+    if (spaceBelow > 320) {
+      popover.style.top = `${rect.bottom + 8}px`;
+    } else {
+      popover.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+    }
+  }
+
+  async function openHistoryPopover(anchor, stats) {
+    closeHistoryPopover();
+
+    const popover = document.createElement('div');
+    popover.className = 'fuxico-popover';
+    popover.setAttribute('role', 'dialog');
+    popover.setAttribute('aria-label', 'Histórico completo de rastreamento');
+    popover.innerHTML = `
+      <div class="fuxico-popover-header">
+        <div>
+          <div class="fuxico-popover-title">Histórico de rastreamento</div>
+          <div class="fuxico-popover-subject">${escapeHtml(stats.subject || stats.recipientEmail || '')}</div>
+        </div>
+        <button type="button" class="fuxico-popover-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="fuxico-popover-content"><div class="fuxico-popover-loading">Carregando…</div></div>
+    `;
+    document.body.appendChild(popover);
+    positionPopover(popover, anchor);
+
+    popover.querySelector('.fuxico-popover-close').addEventListener('click', closeHistoryPopover);
+    popover.addEventListener('click', (e) => e.stopPropagation());
+    setTimeout(() => document.addEventListener('click', closeHistoryPopover, { once: true }), 0);
+    document.addEventListener('keydown', onPopoverKeydown, true);
+
+    const content = popover.querySelector('.fuxico-popover-content');
+
+    if (!stats.trackingId) {
+      content.innerHTML = `<div class="fuxico-popover-empty">Rastreamento não identificado para esta conversa.</div>`;
+      return;
+    }
+
+    try {
+      const detail = await fetchTrackingDetail(stats.trackingId);
+      const s = detail.summary || {};
+      content.innerHTML = `
+        <div class="fuxico-popover-stats">
+          <div><strong>${s.opens ?? 0}</strong><span>aberturas</span></div>
+          <div><strong>${s.clicks ?? 0}</strong><span>cliques</span></div>
+          <div><strong>${s.selfOpens ?? 0}</strong><span>próprias</span></div>
+        </div>
+        ${renderTimeline(detail)}
+        ${renderLinks(detail)}
+        <a class="fuxico-popover-link" target="_blank" rel="noopener noreferrer"
+           href="${DASHBOARD_URL}/tracking-analytics?tracking=${encodeURIComponent(stats.trackingId)}">
+          Ver no dashboard →
+        </a>
+      `;
+    } catch (e) {
+      error('Erro ao carregar histórico:', e);
+      content.innerHTML = `<div class="fuxico-popover-error">Não foi possível carregar o histórico. Verifique sua conexão ou faça login novamente.</div>`;
+    }
   }
 
   function extractEmailFromRow(row) {
@@ -284,39 +476,80 @@
     return subjectEl?.textContent?.trim()?.toLowerCase() || '';
   }
 
-  async function updateInboxIndicators() {
-    if (!isAuthenticated) return;
-    
-    const stats = await fetchEmailStats();
-    if (!stats || stats.size === 0) return;
+  function matchStats(stats, recipientEmail, subject) {
+    if (!recipientEmail) return null;
+    return stats.get(`${recipientEmail}|${subject}`) || stats.get(recipientEmail) || null;
+  }
 
-    const emailRows = document.querySelectorAll('tr.zA');
-    
-    emailRows.forEach(row => {
-      if (row.querySelector('.fuxico-inbox-indicator')) return;
-      
+  /** Marcadores nas listagens (inbox e Enviados). */
+  function renderRowMarkers(stats) {
+    document.querySelectorAll('tr.zA').forEach(row => {
       const recipientEmail = extractEmailFromRow(row);
       const subject = extractSubjectFromRow(row);
-      
-      if (!recipientEmail) return;
-      
-      const exactKey = `${recipientEmail}|${subject}`;
-      let emailStats = stats.get(exactKey);
-      
+      const emailStats = matchStats(stats, recipientEmail, subject);
+
+      const existing = row.querySelector('.fuxico-inbox-indicator');
       if (!emailStats) {
-        emailStats = stats.get(recipientEmail);
+        if (existing) existing.remove();
+        return;
       }
-      
-      if (emailStats) {
-        const indicator = createIndicatorElement(emailStats);
-        const subjectCell = row.querySelector('.xT, .y6');
-        if (subjectCell) {
-          subjectCell.style.position = 'relative';
-          subjectCell.insertBefore(indicator, subjectCell.firstChild);
-        }
+
+      // Idempotente: só re-renderiza quando o estado muda
+      const signature = `${emailStats.trackingId}:${visibleOpens(emailStats)}:${emailStats.clicks}`;
+      if (existing && existing.dataset.fuxicoSignature === signature) return;
+      if (existing) existing.remove();
+
+      const indicator = createIndicatorElement(emailStats);
+      indicator.dataset.fuxicoSignature = signature;
+
+      const subjectCell = row.querySelector('.xT, .y6');
+      if (subjectCell) {
+        subjectCell.style.position = 'relative';
+        subjectCell.insertBefore(indicator, subjectCell.firstChild);
       }
     });
   }
+
+  /** Marcador dentro da conversa aberta (thread view). */
+  function renderThreadMarkers(stats) {
+    document.querySelectorAll('.gE.iv.gt, .adn.ads .gE').forEach(header => {
+      const recipientEl = header.querySelector('[email], [data-hovercard-id]');
+      const recipientEmail = (
+        recipientEl?.getAttribute('email') || recipientEl?.getAttribute('data-hovercard-id') || ''
+      ).toLowerCase();
+      if (!recipientEmail) return;
+
+      const subject = (document.querySelector('h2.hP')?.textContent || '').trim().toLowerCase();
+      const emailStats = matchStats(stats, recipientEmail, subject);
+      if (!emailStats) return;
+
+      const signature = `${emailStats.trackingId}:${visibleOpens(emailStats)}:${emailStats.clicks}`;
+      const existing = header.querySelector('.fuxico-inbox-indicator');
+      if (existing && existing.dataset.fuxicoSignature === signature) return;
+      if (existing) existing.remove();
+
+      const indicator = createIndicatorElement(emailStats);
+      indicator.dataset.fuxicoSignature = signature;
+      indicator.classList.add('fuxico-thread-indicator');
+      header.appendChild(indicator);
+    });
+  }
+
+  async function updateInboxIndicators() {
+    if (!isAuthenticated) return;
+
+    if (!showMarkers) {
+      document.querySelectorAll('.fuxico-inbox-indicator').forEach(el => el.remove());
+      return;
+    }
+
+    const stats = await fetchEmailStats();
+    if (!stats || stats.size === 0) return;
+
+    renderRowMarkers(stats);
+    renderThreadMarkers(stats);
+  }
+
 
   function startInboxIndicators() {
     setTimeout(updateInboxIndicators, 2000);
