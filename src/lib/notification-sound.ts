@@ -60,7 +60,7 @@ export function playNotificationSound(
     oscillator.type = soundPatterns[soundType];
     gainNode.gain.setValueAtTime(Math.min(volume, 1), ctx.currentTime);
 
-    let time = ctx.currentTime;
+    const time = ctx.currentTime;
     freqs.forEach((freq, i) => {
       oscillator.frequency.setValueAtTime(freq, time + i * 0.1);
     });

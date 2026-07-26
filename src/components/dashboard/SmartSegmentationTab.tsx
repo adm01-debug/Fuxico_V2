@@ -2,7 +2,7 @@
 // FUXICO - Smart Contact Segmentation Tab
 // =============================================================================
 
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -36,8 +36,6 @@ interface Segment {
 
 export default function SmartSegmentationTab() {
   const { user } = useAuth()
-  const [_searchQuery, _setSearchQuery] = useState('')
-  void _searchQuery; void _setSearchQuery;
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contact-scores', user?.id],

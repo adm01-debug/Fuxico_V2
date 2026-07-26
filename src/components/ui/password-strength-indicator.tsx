@@ -19,7 +19,7 @@ const requirements: PasswordRequirement[] = [
   { label: 'Mínimo 8 caracteres', test: (p) => p.length >= 8 },
   { label: 'Letra maiúscula', test: (p) => /[A-Z]/.test(p) },
   { label: 'Letra minúscula', test: (p) => /[a-z]/.test(p) },
-  { label: 'Número', test: (p) => /[0-9]/.test(p) },
+  { label: 'Número', test: (p) => /\d/.test(p) },
   { label: 'Caractere especial (!@#$%^&*)', test: (p) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
 ];
 
@@ -38,6 +38,7 @@ async function checkPasswordBreach(password: string): Promise<boolean> {
     // Create SHA-1 hash of password
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
+    // eslint-disable-next-line sonarjs/hashing -- SHA-1 exigido pelo protocolo k-anonymity da API HaveIBeenPwned
     const hashBuffer = await crypto.subtle.digest('SHA-1', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();

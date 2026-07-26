@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import type { ReportType, ReportFormat } from '@/hooks/use-scheduled-reports';
 
 const metricOptions = [
   { value: 'emails_sent', label: 'Emails Enviados' },
@@ -27,8 +28,8 @@ interface CreateReportDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreate: (data: {
     name: string;
-    report_type: 'daily' | 'weekly' | 'monthly';
-    format: 'email' | 'pdf' | 'csv';
+    report_type: ReportType;
+    format: ReportFormat;
     recipients: string[];
     metrics: string[];
   }) => Promise<unknown>;
@@ -52,6 +53,9 @@ export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: 
     setNewReport({ name: '', report_type: 'weekly', format: 'email', recipients: [], metrics: ['emails_sent', 'opens', 'clicks'] });
     onOpenChange(false);
   };
+
+  const removeRecipient = (email: string) =>
+    setNewReport(prev => ({ ...prev, recipients: prev.recipients.filter(e => e !== email) }));
 
   const addRecipient = () => {
     if (!recipientInput || !recipientInput.includes('@')) { toast.error('Email inválido'); return; }
@@ -122,7 +126,7 @@ export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: 
             <div className="flex flex-wrap gap-1 mb-2">
               {newReport.recipients.map(email => (
                 <Badge key={email} variant="secondary" className="cursor-pointer"
-                  onClick={() => setNewReport(prev => ({ ...prev, recipients: prev.recipients.filter(e => e !== email) }))}>{email} ×</Badge>
+                  onClick={() => removeRecipient(email)}>{email} ×</Badge>
               ))}
             </div>
             <div className="flex gap-2">

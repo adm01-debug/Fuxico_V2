@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { EmailSequence, useCreateSequence } from '@/features/sequences/hooks/useEmailSequences';
 import { Loader2 } from 'lucide-react';
+import { log } from '@/lib/logger';
 
 interface CreateSequenceDialogProps {
   open: boolean;
@@ -50,7 +51,7 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
       onOpenChange(false);
       onSuccess?.(sequence);
     } catch (error) {
-      // Error handled by mutation
+      log.error('CreateSequenceDialog: falha ao criar sequência', error);
     }
   };
 

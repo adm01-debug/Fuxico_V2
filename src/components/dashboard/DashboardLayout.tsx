@@ -14,7 +14,7 @@ import { ModeToggle } from '@/components/ui/mode-toggle'
 import { useIsMobile } from '@/hooks/use-media-query'
 import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import { useLocalStorage } from '@/hooks/use-local-storage'
-import { Keyboard, Plus, Search, Settings2 } from 'lucide-react'
+import { Keyboard, Plus, Search } from 'lucide-react'
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper'
 import { BackButton } from '@/components/ui/back-button'
 import { TopProgressBar } from '@/components/ui/top-progress-bar'
@@ -338,15 +338,6 @@ export default function DashboardLayout() {
 
                 {/* Notification Center */}
                 <NotificationCenter />
-
-                {/* Settings button - Hidden for now or can be moved to sidebar */}
-                {false && activeTab === 'home' && (
-                  <TooltipWrapper content="Configurações do dashboard">
-                    <Button variant="ghost" size="icon" className="h-10 w-10">
-                      <Settings2 className="h-5 w-5" />
-                    </Button>
-                  </TooltipWrapper>
-                )}
 
                 {/* Dark Mode Toggle */}
                 <ModeToggle size="sm" className="h-10 w-10" />

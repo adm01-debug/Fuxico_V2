@@ -2,6 +2,10 @@ import { useRef, type ReactNode } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { cn } from "@/lib/utils";
 
+function toCssSize(width: number | string): string {
+  return typeof width === "number" ? `${width}px` : width;
+}
+
 export interface VirtualTableColumn<T> {
   key: string;
   header: ReactNode;
@@ -79,7 +83,7 @@ export function VirtualTable<T>({
               key={col.key}
               role="columnheader"
               className={cn("flex-1 truncate px-2", col.className)}
-              style={col.width ? { flex: `0 0 ${typeof col.width === "number" ? `${col.width}px` : col.width}` } : undefined}
+              style={col.width ? { flex: `0 0 ${toCssSize(col.width)}` } : undefined}
             >
               {col.header}
             </div>
@@ -120,7 +124,7 @@ export function VirtualTable<T>({
                       key={col.key}
                       role="cell"
                       className={cn("flex-1 truncate px-2", col.className)}
-                      style={col.width ? { flex: `0 0 ${typeof col.width === "number" ? `${col.width}px` : col.width}` } : undefined}
+                      style={col.width ? { flex: `0 0 ${toCssSize(col.width)}` } : undefined}
                     >
                       {col.cell(row, virtualRow.index)}
                     </div>

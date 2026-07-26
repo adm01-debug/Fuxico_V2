@@ -62,7 +62,7 @@ export function useCampaigns() {
 
       // Batch: fetch all events for all tracking IDs in ONE query
       const allTrackingIds = Array.from(emailsByCampaign.values()).flat();
-      let eventsByTrackingId = new Map<string, { opens: number; clicks: number }>();
+      const eventsByTrackingId = new Map<string, { opens: number; clicks: number }>();
 
       if (allTrackingIds.length > 0) {
         const { data: allEvents } = await supabase

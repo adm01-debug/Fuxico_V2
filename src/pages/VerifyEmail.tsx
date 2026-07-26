@@ -1,6 +1,6 @@
 import { log } from '@/lib/logger';
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,6 @@ export default function VerifyEmail() {
   const [email, setEmail] = useState('');
   const [resending, setResending] = useState(false);
   const navigate = useNavigate();
-  const [_searchParams] = useSearchParams();
 
   useEffect(() => {
     const verifyEmail = async () => {

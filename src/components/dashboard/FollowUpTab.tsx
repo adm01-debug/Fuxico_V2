@@ -19,6 +19,7 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { AIFollowUpDialog } from './AIFollowUpDialog';
 import { EmptyState } from '@/components/ui/empty-state';
+import { log } from '@/lib/logger';
 
 function FollowUpTabBase() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -63,6 +64,7 @@ function FollowUpTabBase() {
       setIsCreateOpen(false);
       setSelectedEmail('');
     } catch (error) {
+      log.error('FollowUpTab: falha ao criar lembrete', error);
       toast.error('Erro ao criar lembrete');
     }
   };
@@ -72,6 +74,7 @@ function FollowUpTabBase() {
       await updateStatus.mutateAsync({ id, status: 'sent' });
       toast.success('Lembrete marcado como enviado');
     } catch (error) {
+      log.error('FollowUpTab: falha ao atualizar lembrete', error);
       toast.error('Erro ao atualizar lembrete');
     }
   };
@@ -81,6 +84,7 @@ function FollowUpTabBase() {
       await updateStatus.mutateAsync({ id, status: 'cancelled' });
       toast.success('Lembrete cancelado');
     } catch (error) {
+      log.error('FollowUpTab: falha ao cancelar lembrete', error);
       toast.error('Erro ao cancelar lembrete');
     }
   };
@@ -90,6 +94,7 @@ function FollowUpTabBase() {
       await deleteReminder.mutateAsync(id);
       toast.success('Lembrete excluído');
     } catch (error) {
+      log.error('FollowUpTab: falha ao excluir lembrete', error);
       toast.error('Erro ao excluir lembrete');
     }
   };
@@ -401,6 +406,7 @@ function FollowUpTabBase() {
               reminderDays: 3,
             });
           } catch (error) {
+            log.error('FollowUpTab: falha ao criar lembrete rápido', error);
             toast.error('Erro ao criar lembrete');
           }
         }}

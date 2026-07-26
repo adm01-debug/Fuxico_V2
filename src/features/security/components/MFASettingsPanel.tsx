@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { generateBackupCodes } from "@/lib/secure-random";
 
 export function MFASettingsPanel() {
   const { user } = useAuth();
@@ -36,9 +37,7 @@ export function MFASettingsPanel() {
   const enableMFA = useMutation({
     mutationFn: async () => {
       // Generate backup codes
-      const backupCodes = Array.from({ length: 8 }, () => 
-        Math.random().toString(36).substring(2, 8).toUpperCase()
-      );
+      const backupCodes = generateBackupCodes(8);
 
       const { error } = await supabase
         .from('mfa_settings')
@@ -103,9 +102,7 @@ export function MFASettingsPanel() {
 
   const regenerateBackupCodes = useMutation({
     mutationFn: async () => {
-      const backupCodes = Array.from({ length: 8 }, () => 
-        Math.random().toString(36).substring(2, 8).toUpperCase()
-      );
+      const backupCodes = generateBackupCodes(8);
 
       const { error } = await supabase
         .from('mfa_settings')

@@ -1,5 +1,4 @@
 import { readFile, writeFile } from 'fs/promises';
-import { join } from 'path';
 
 async function generatePlaceholderPdf() {
   const mdContent = await readFile('SYSTEM_AUDIT_ENTERPRISE.md', 'utf-8');

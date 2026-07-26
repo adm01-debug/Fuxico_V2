@@ -6,6 +6,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { cosmeticRange } from "@/lib/secure-random";
 
 // =============================================================================
 // SKELETON VARIANTS
@@ -136,7 +137,7 @@ export function ChartSkeleton({ className }: SkeletonProps) {
               key={i} 
               className="flex-1 rounded-t animate-pulse"
               style={{ 
-                height: `${Math.random() * 60 + 40}%`,
+                height: `${cosmeticRange(40, 100)}%`,
                 animationDelay: `${i * 50}ms` 
               }}
             />

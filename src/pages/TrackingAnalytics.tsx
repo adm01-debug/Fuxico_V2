@@ -60,7 +60,6 @@ export default function TrackingAnalytics() {
     ]);
 
     // Use dynamic import or cast to avoid type issues if needed
-    // @ts-ignore
     doc.autoTable({
       head: [["Destinatário", "Assunto", "Enviado em", "Aberturas", "Cliques"]],
       body: tableData,

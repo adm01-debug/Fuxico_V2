@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cosmeticInt, cosmeticRandom, cosmeticRange } from "@/lib/secure-random";
 
 interface ConfettiPiece {
   id: number;
@@ -41,11 +42,11 @@ export const Confetti = ({
       setIsActive(true);
       const newPieces: ConfettiPiece[] = Array.from({ length: particleCount }, (_, i) => ({
         id: i,
-        x: Math.random() * 100,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        delay: Math.random() * 0.5,
-        rotation: Math.random() * 360,
-        scale: 0.5 + Math.random() * 0.5,
+        x: cosmeticRange(0, 100),
+        color: colors[cosmeticInt(0, colors.length - 1)],
+        delay: cosmeticRange(0, 0.5),
+        rotation: cosmeticRange(0, 360),
+        scale: cosmeticRange(0.5, 1),
       }));
       setPieces(newPieces);
 
@@ -71,7 +72,7 @@ export const Confetti = ({
                 left: `${piece.x}%`,
                 top: -20,
                 backgroundColor: piece.color,
-                borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+                borderRadius: cosmeticRandom() > 0.5 ? "50%" : "2px",
                 transform: `scale(${piece.scale})`,
               }}
               initial={{ 
@@ -83,10 +84,10 @@ export const Confetti = ({
                 y: "100vh",
                 opacity: [1, 1, 0],
                 rotate: piece.rotation * 3,
-                x: [0, (Math.random() - 0.5) * 200, (Math.random() - 0.5) * 100],
+                x: [0, cosmeticRange(-100, 100), cosmeticRange(-50, 50)],
               }}
               transition={{
-                duration: 2 + Math.random(),
+                duration: cosmeticRange(2, 3),
                 delay: piece.delay,
                 ease: [0.25, 0.46, 0.45, 0.94],
               }}

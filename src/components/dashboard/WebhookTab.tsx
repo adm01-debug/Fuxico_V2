@@ -18,6 +18,7 @@ import { Loader2, Send, CheckCircle, XCircle, Webhook, Clock } from 'lucide-reac
 import { EmptyState } from '@/components/ui/empty-state';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { log } from '@/lib/logger';
 
 const AVAILABLE_EVENTS = [
   { id: 'email_open', label: 'Email Aberto', description: 'Quando um email é aberto pelo destinatário' },
@@ -65,6 +66,7 @@ export default function WebhookTab() {
       await saveConfig.mutateAsync({ url, secret: secret || undefined, events, is_active: isActive });
       toast({ title: 'Configuração salva', description: 'Webhook configurado com sucesso' });
     } catch (error) {
+      log.error('WebhookTab: falha ao salvar configuração', error);
       toast({ title: 'Erro ao salvar', description: 'Não foi possível salvar a configuração', variant: 'destructive' });
     }
   };
@@ -80,6 +82,7 @@ export default function WebhookTab() {
       toast({ title: 'Teste enviado', description: 'Requisição de teste enviada para o webhook' });
       setTimeout(() => refetchLogs(), 2000);
     } catch (error) {
+      log.error('WebhookTab: falha no teste de webhook', error);
       toast({ title: 'Erro no teste', description: 'Falha ao enviar requisição de teste', variant: 'destructive' });
     }
   };

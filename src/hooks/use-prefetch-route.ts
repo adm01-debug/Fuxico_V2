@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { log } from '@/lib/logger';
 
 /**
  * Hook for prefetching routes/components based on user hover behavior
@@ -37,13 +38,17 @@ export function usePrefetchRoute() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     // Delay prefetch slightly to avoid unnecessary loads on quick mouse movements
+    const run = () => {
+      loader()
+        .then(() => prefetchedModules.add(routeId))
+        .catch((error) => log.warn('Prefetch de rota falhou', { routeId, error }));
+    };
+
     timeoutRef.current = setTimeout(() => {
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          loader().then(() => prefetchedModules.add(routeId)).catch(() => {});
-        });
+        requestIdleCallback(run);
       } else {
-        loader().then(() => prefetchedModules.add(routeId)).catch(() => {});
+        run();
       }
     }, 200);
   }, []);

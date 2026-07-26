@@ -72,7 +72,7 @@ const mockSentry = {
 };
 
 // Try to use real Sentry if available, otherwise use mock
-let Sentry = mockSentry;
+const Sentry = mockSentry;
 
 // Initialize Sentry
 export function initSentry(): void {

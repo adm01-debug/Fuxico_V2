@@ -59,7 +59,7 @@ const Auth = () => {
       { test: (p: string) => p.length >= 8 },
       { test: (p: string) => /[A-Z]/.test(p) },
       { test: (p: string) => /[a-z]/.test(p) },
-      { test: (p: string) => /[0-9]/.test(p) },
+      { test: (p: string) => /\d/.test(p) },
       { test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
     ];
     const passed = pwRequirements.filter(req => req.test(signupPassword));
