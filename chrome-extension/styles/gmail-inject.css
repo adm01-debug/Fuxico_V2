@@ -127,64 +127,56 @@
   flex-shrink: 0;
 }
 
-.fuxico-indicator {
+/* Tokens de cor dos marcadores */
+.fuxico-inbox-indicator {
+  --fuxico-sent: #9aa0a6;
+  --fuxico-read: #16a34a;
+  --fuxico-click: #4f46e5;
+}
+
+.fuxico-thread-indicator {
+  margin-left: 8px;
+}
+
+/* Marcador ✓ / ✓✓ estilo Mailtrack */
+.fuxico-marker {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 3px;
+  padding: 2px 3px;
+  border: none;
+  background: transparent;
   border-radius: 4px;
-  cursor: default;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  line-height: 0;
+  transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.fuxico-indicator:hover {
-  transform: scale(1.1);
+.fuxico-marker:hover {
+  transform: scale(1.08);
+  background: rgba(0, 0, 0, 0.06);
 }
 
-/* Pending (not opened yet) */
-.fuxico-indicator-pending {
-  color: #9ca3af;
-  background: rgba(156, 163, 175, 0.1);
+.fuxico-marker:focus-visible {
+  outline: 2px solid var(--fuxico-read);
+  outline-offset: 1px;
 }
 
-.fuxico-indicator-pending:hover {
-  color: #6b7280;
-  background: rgba(156, 163, 175, 0.2);
-}
+.fuxico-marker-sent { color: var(--fuxico-sent); }
+.fuxico-marker-read { color: var(--fuxico-read); }
+.fuxico-marker-click { color: var(--fuxico-click); cursor: default; }
 
-/* Opened */
-.fuxico-indicator-opened {
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
-}
-
-.fuxico-indicator-opened:hover {
-  color: #059669;
-  background: rgba(16, 185, 129, 0.2);
-}
-
-/* Clicked */
-.fuxico-indicator-clicked {
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.1);
-}
-
-.fuxico-indicator-clicked:hover {
-  color: #4f46e5;
-  background: rgba(99, 102, 241, 0.2);
-}
-
-/* Badge for multiple opens */
-.fuxico-indicator-badge {
+/* Badge de múltiplas aberturas */
+.fuxico-marker-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -5px;
+  right: -6px;
   min-width: 14px;
   height: 14px;
   padding: 0 3px;
-  background: #10b981;
-  color: white;
+  background: var(--fuxico-read);
+  color: #fff;
   font-size: 9px;
   font-weight: 700;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -194,15 +186,198 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+/* Tema escuro do Gmail */
+@media (prefers-color-scheme: dark) {
+  .fuxico-inbox-indicator {
+    --fuxico-sent: #9aa0a6;
+    --fuxico-read: #34d399;
+    --fuxico-click: #a5b4fc;
+  }
+  .fuxico-marker:hover { background: rgba(255, 255, 255, 0.10); }
+}
+
+/* ============================================
+   POPOVER — HISTÓRICO DE RASTREAMENTO
+   ============================================ */
+
+.fuxico-popover {
+  position: fixed;
+  z-index: 2147483000;
+  width: 360px;
+  max-height: 460px;
+  overflow-y: auto;
+  background: #fff;
+  color: #202124;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+}
+
+.fuxico-popover-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.fuxico-popover-title { font-weight: 700; font-size: 13px; }
+
+.fuxico-popover-subject {
+  margin-top: 2px;
+  color: #5f6368;
+  font-size: 12px;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fuxico-popover-close {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: #5f6368;
+}
+
+.fuxico-popover-content { padding: 12px 14px; }
+
+.fuxico-popover-loading,
+.fuxico-popover-empty { color: #5f6368; padding: 8px 0; }
+
+.fuxico-popover-error { color: #b3261e; padding: 8px 0; }
+
+.fuxico-popover-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.fuxico-popover-stats > div {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.fuxico-popover-stats strong { display: block; font-size: 16px; }
+.fuxico-popover-stats span { font-size: 11px; color: #5f6368; }
+
+.fuxico-timeline { list-style: none; margin: 0; padding: 0; }
+
+.fuxico-timeline-item {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.fuxico-timeline-self { opacity: 0.62; }
+
+.fuxico-timeline-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.fuxico-timeline-dot.open { background: #16a34a; }
+.fuxico-timeline-dot.click { background: #4f46e5; }
+
+.fuxico-timeline-title { font-weight: 600; font-size: 12px; }
+.fuxico-timeline-meta { color: #5f6368; font-size: 11px; margin-top: 2px; }
+
+.fuxico-tag {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.07);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.fuxico-popover-section { margin-top: 12px; }
+.fuxico-popover-subtitle { font-weight: 600; font-size: 12px; margin-bottom: 6px; }
+
+.fuxico-link-list { list-style: none; margin: 0; padding: 0; }
+.fuxico-link-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+.fuxico-link-url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 260px;
+  color: #5f6368;
+}
+.fuxico-link-count { font-weight: 700; color: #4f46e5; }
+
+.fuxico-popover-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: #1a73e8;
+  font-weight: 600;
+  text-decoration: none;
+}
+.fuxico-popover-link:hover { text-decoration: underline; }
+
+/* Chips do compose */
+.fuxico-compose-chip {
+  margin-left: 6px;
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+  color: inherit;
+}
+.fuxico-compose-chip.active {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+}
+
+@media (prefers-color-scheme: dark) {
+  .fuxico-popover {
+    background: #202124;
+    color: #e8eaed;
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+  .fuxico-popover-header { border-bottom-color: rgba(255, 255, 255, 0.10); }
+  .fuxico-popover-subject,
+  .fuxico-popover-loading,
+  .fuxico-popover-empty,
+  .fuxico-timeline-meta,
+  .fuxico-link-url,
+  .fuxico-popover-stats span,
+  .fuxico-popover-close { color: #9aa0a6; }
+  .fuxico-popover-stats > div { background: rgba(255, 255, 255, 0.07); }
+  .fuxico-timeline-item { border-bottom-color: rgba(255, 255, 255, 0.08); }
+  .fuxico-tag { background: rgba(255, 255, 255, 0.12); }
+  .fuxico-popover-link { color: #8ab4f8; }
+}
+
+
 /* ============================================
    TOOLTIP STYLES
    ============================================ */
 
-.fuxico-indicator[title] {
+.fuxico-marker[title] {
   position: relative;
 }
 
-.fuxico-indicator[title]::after {
+.fuxico-marker[title]::after {
   content: attr(title);
   position: absolute;
   bottom: 100%;
@@ -224,7 +399,7 @@
   pointer-events: none;
 }
 
-.fuxico-indicator[title]::before {
+.fuxico-marker[title]::before {
   content: '';
   position: absolute;
   bottom: 100%;
@@ -239,8 +414,8 @@
   pointer-events: none;
 }
 
-.fuxico-indicator[title]:hover::after,
-.fuxico-indicator[title]:hover::before {
+.fuxico-marker[title]:hover::after,
+.fuxico-marker[title]:hover::before {
   opacity: 1;
   visibility: visible;
 }

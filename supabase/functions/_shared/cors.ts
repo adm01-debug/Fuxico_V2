@@ -11,6 +11,9 @@ export const ALLOWED_ORIGINS: string[] = [
   'https://fuxico.app',
   'https://www.fuxico.app',
   'https://fuxico.lovable.app',
+  // Extensão Chrome (content script no Gmail envia Origin = mail.google.com)
+  'https://mail.google.com',
+
   // Development origins - remove in production or gate behind env var
   ...(typeof (globalThis as unknown as { Deno?: { env: { get(key: string): string | undefined } } }).Deno !== 'undefined' && (globalThis as unknown as { Deno: { env: { get(key: string): string | undefined } } }).Deno.env.get('ENVIRONMENT') !== 'production' ? [
     'http://localhost:5173',
