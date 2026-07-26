@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "FUXICO - Email Tracker",
   "short_name": "FUXICO",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Saiba quando seus emails são lidos. Rastreamento de aberturas e cliques para Gmail com autenticação segura.",
   "icons": {
     "16": "icons/icon16.png",
