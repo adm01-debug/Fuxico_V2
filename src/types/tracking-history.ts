@@ -6,6 +6,8 @@
 /** Item agregado de um e-mail rastreado exibido no Analytics. */
 export interface TrackingHistoryItem {
   id: string;
+  /** Identificador público usado no pixel/redirect de tracking. */
+  tracking_id: string;
   recipient_email: string | null;
   subject: string | null;
   sent_at: string;

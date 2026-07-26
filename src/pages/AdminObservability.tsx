@@ -468,7 +468,7 @@ export default function AdminObservability() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">{f.attempts}</TableCell>
-                      <TableCell className="max-w-md truncate text-xs" title={f.error_message}>
+                      <TableCell className="max-w-md truncate text-xs" title={f.error_message ?? undefined}>
                         {f.error_message ?? '—'}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">

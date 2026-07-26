@@ -58,8 +58,8 @@ export default function TrackingAnalytics() {
     doc.text("Histórico de Rastreamento de E-mails", 14, 15);
     
     const tableData = filteredHistory.map((item) => [
-      item.recipient_email,
-      item.subject,
+      item.recipient_email ?? "—",
+      item.subject ?? "(sem assunto)",
       format(new Date(item.sent_at), "dd/MM/yyyy HH:mm"),
       item.open_count,
       item.click_count
