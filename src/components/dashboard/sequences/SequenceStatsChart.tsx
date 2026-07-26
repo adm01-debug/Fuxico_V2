@@ -30,7 +30,7 @@ export function SequenceStatsChart() {
     );
   }
 
-  const chartData = stats?.map((s: any) => ({
+  const chartData = stats?.map((s) => ({
     ...s,
     displayDate: format(parseISO(s.date), 'dd/MM', { locale: ptBR }),
   })) || [];

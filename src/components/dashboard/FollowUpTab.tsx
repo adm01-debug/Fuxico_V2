@@ -122,7 +122,7 @@ function FollowUpTabBase() {
 
   // Get emails that don't have a reminder yet
   const availableEmails = emails.filter(
-    (email: any) => !reminders.some(r => r.tracking_id === email.tracking_id && r.status === 'pending')
+    (email) => !reminders.some(r => r.tracking_id === email.tracking_id && r.status === 'pending')
   );
 
   return (
@@ -214,7 +214,7 @@ function FollowUpTabBase() {
       {/* Actions */}
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
-          <Select value={filter} onValueChange={(v) => setFilter(v as any)}>
+          <Select value={filter} onValueChange={(v) => setFilter(v as 'all' | 'pending' | 'sent' | 'cancelled')}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Filtrar" />
             </SelectTrigger>

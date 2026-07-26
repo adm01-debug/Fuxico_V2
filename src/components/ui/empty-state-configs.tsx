@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import type { TargetAndTransition } from "framer-motion";
 import {
   Mail, FileText, Link2, BarChart3, Users, Bell, Search, Filter,
   Inbox, MousePointerClick, Eye, TrendingUp, Calendar, Globe, Award,
@@ -29,7 +30,7 @@ const IllustrationBox = ({ gradient, children, animate }: {
 }) => (
   <motion.div
     className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center`}
-    animate={animate as any}
+    animate={animate as TargetAndTransition}
     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
   >
     {children}

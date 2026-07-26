@@ -142,7 +142,7 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Tom do email</label>
-                  <Select value={tone} onValueChange={(v) => setTone(v as any)}>
+                  <Select value={tone} onValueChange={(v) => setTone(v as 'formal' | 'friendly' | 'urgent')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
