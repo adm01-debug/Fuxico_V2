@@ -8,7 +8,7 @@
 // Painel de atalhos de teclado disponíveis
 // =============================================================================
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import {
   Dialog,
   DialogContent,

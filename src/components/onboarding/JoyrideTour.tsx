@@ -3,7 +3,7 @@
  * @description Guia interativo para novos usuários do FUXICO
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import Joyride, { 
   CallBackProps, 
   STATUS, 
@@ -15,9 +15,6 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, ChevronLeft, ChevronRight, SkipForward, Sparkles, HelpCircle } from 'lucide-react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
-import { supabase } from '@/integrations/supabase/client';
-import { log } from '@/lib/logger';
 import { tourStepsMap, tourLabels } from './tour-steps';
 
 // =============================================================================
