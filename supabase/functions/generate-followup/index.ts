@@ -18,7 +18,6 @@ const FollowUpSchema = z.object({
   language: z.enum(['pt-BR', 'en', 'es']).default('pt-BR')
 });
 
-// eslint-disable-next-line sonarjs/cognitive-complexity -- orchestration handler; branches are linear guard checks
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
   
