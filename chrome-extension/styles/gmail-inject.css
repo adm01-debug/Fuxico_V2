@@ -373,11 +373,11 @@
    TOOLTIP STYLES
    ============================================ */
 
-.fuxico-indicator[title] {
+.fuxico-marker[title] {
   position: relative;
 }
 
-.fuxico-indicator[title]::after {
+.fuxico-marker[title]::after {
   content: attr(title);
   position: absolute;
   bottom: 100%;
@@ -399,7 +399,7 @@
   pointer-events: none;
 }
 
-.fuxico-indicator[title]::before {
+.fuxico-marker[title]::before {
   content: '';
   position: absolute;
   bottom: 100%;
@@ -414,8 +414,8 @@
   pointer-events: none;
 }
 
-.fuxico-indicator[title]:hover::after,
-.fuxico-indicator[title]:hover::before {
+.fuxico-marker[title]:hover::after,
+.fuxico-marker[title]:hover::before {
   opacity: 1;
   visibility: visible;
 }
