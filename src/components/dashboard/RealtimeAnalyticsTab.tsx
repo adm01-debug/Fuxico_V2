@@ -14,8 +14,8 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { cosmeticInt } from '@/lib/secure-random'
 import { 
-import { cosmeticInt } from "@/lib/secure-random";
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer
 } from 'recharts'
