@@ -5816,6 +5816,7 @@ export type Database = {
       is_country_allowed: { Args: { _country_code: string }; Returns: boolean }
       is_ip_blocked: { Args: { _ip_address: string }; Returns: boolean }
       is_ip_whitelisted: { Args: { _ip_address: string }; Returns: boolean }
+      is_service_context: { Args: never; Returns: boolean }
       log_audit_event: {
         Args: {
           p_description: string
