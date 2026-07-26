@@ -180,7 +180,7 @@ export default function TrackingAnalytics() {
                   </TableHeader>
                   <TableBody>
                     {filteredHistory?.length ? (
-                      filteredHistory.map((item: any) => (
+                      filteredHistory.map((item) => (
                         <TableRow key={item.tracking_id}>
                           <TableCell className="font-medium">{item.recipient_email}</TableCell>
                           <TableCell className="max-w-[200px] truncate">{item.subject}</TableCell>
