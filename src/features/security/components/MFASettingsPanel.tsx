@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Key, Smartphone, Mail, Shield, CheckCircle2, XCircle, Copy, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';

@@ -3,7 +3,7 @@
 // Manages tab badge based on unread alerts count
 // =============================================================================
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { useBounceAlerts } from '@/hooks/use-bounce-alerts';
 import { useTabNotificationBadge } from '@/hooks/use-tab-badge';
 

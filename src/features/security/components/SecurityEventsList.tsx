@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, Key, Monitor, LogIn, LogOut, Settings, AlertTriangle, Clock, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
