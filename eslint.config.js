@@ -107,4 +107,13 @@ export default tseslint.config(
       "@typescript-eslint/no-require-imports": "off",
     },
   },
+  {
+    // Scripts de build/seed rodam em CLI: o console é a interface de saída
+    // legítima desses utilitários, que nunca são carregados pelo app.
+    files: ["scripts/**/*.{ts,js,cjs}"],
+    rules: {
+      "no-console": "off",
+    },
+  },
+
 );
