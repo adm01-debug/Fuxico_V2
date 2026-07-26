@@ -187,7 +187,7 @@ export function IndexAdvisorPanel() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {runs.data!.map((r) => (
+                  {(runs.data ?? []).map((r) => (
                     <TableRow key={r.id}>
                       <TableCell className="text-xs text-muted-foreground">
                         {new Date(r.ran_at).toLocaleString('pt-BR')}

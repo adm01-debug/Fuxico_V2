@@ -28,7 +28,11 @@ if (import.meta.env.DEV && "serviceWorker" in navigator) {
   }
 }
 
-const root = document.getElementById("root")!;
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error('Elemento #root ausente no index.html — aplicação não pode montar.');
+}
+const root = rootElement;
 
 // Create skip link for keyboard navigation (accessibility)
 const existingSkip = document.querySelector('.skip-to-content');

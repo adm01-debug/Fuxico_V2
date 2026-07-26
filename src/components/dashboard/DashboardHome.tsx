@@ -124,7 +124,7 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
             subject: b.subject || undefined,
             type: b.bounce_type || 'unknown',
             reason: b.bounce_reason || undefined,
-            timestamp: b.bounce_detected_at!,
+            timestamp: b.bounce_detected_at ?? new Date().toISOString(),
           }));
           setBounceAlerts(formattedBounces);
         }

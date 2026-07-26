@@ -35,7 +35,7 @@ function CreateTrackingDialogBase({
   // Support both controlled and uncontrolled modes
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
-  const setOpen = isControlled ? controlledOnOpenChange! : setInternalOpen;
+  const setOpen = controlledOnOpenChange ?? setInternalOpen;
   
   const [recipientEmail, setRecipientEmail] = useState("");
   const [subject, setSubject] = useState("");

@@ -134,7 +134,7 @@ export function DashboardBreadcrumbs({
               
               {isClickable ? (
                 <button
-                  onClick={() => onNavigate(item.tabId!)}
+                  onClick={() => item.tabId && onNavigate?.(item.tabId)}
                   className="text-muted-foreground hover:text-foreground transition-colors touch-target-inline"
                 >
                   {item.label}
@@ -171,7 +171,7 @@ export function DashboardBreadcrumbs({
               
               {isClickable ? (
                 <button
-                  onClick={() => onNavigate(item.tabId!)}
+                  onClick={() => item.tabId && onNavigate?.(item.tabId)}
                   className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center -my-2"
                 >
                   <span className="sr-only">{item.label}</span>

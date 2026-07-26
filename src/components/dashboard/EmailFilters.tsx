@@ -126,9 +126,10 @@ export function filterEmails<T extends {
     }
     
     if (startDate) {
+      const intervalStart = startDate;
       result = result.filter(email => {
         const emailDate = new Date(email.created_at);
-        return isWithinInterval(emailDate, { start: startDate!, end: endDate });
+        return isWithinInterval(emailDate, { start: intervalStart, end: endDate });
       });
     }
   }

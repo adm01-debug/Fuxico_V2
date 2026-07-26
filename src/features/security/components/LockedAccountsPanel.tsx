@@ -155,7 +155,7 @@ export function LockedAccountsPanel() {
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm">
                           <Clock className="h-3 w-3" />
-                          {getTimeRemaining(lockout.lockout_until!)}
+                          {getTimeRemaining(lockout.lockout_until ?? '')}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
