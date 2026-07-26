@@ -5,6 +5,7 @@
 // e chama finalize_webhook_retry(success|error) com backoff exponencial.
 // =============================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { requireEnv } from '../_shared/env.ts'
 
 const BATCH_SIZE = 25
 const REQUEST_TIMEOUT_MS = 8000
@@ -20,8 +21,8 @@ async function hmacHex(secret: string, body: string): Promise<string> {
 
 Deno.serve(async (_req) => {
   const admin = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    requireEnv('SUPABASE_URL'),
+    requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
   )
 
   const { data: claimed, error } = await admin.rpc('claim_webhook_retries', { p_batch_size: BATCH_SIZE })
@@ -75,7 +76,7 @@ Deno.serve(async (_req) => {
         p_success: success,
         p_error: success ? null : `http_${res.status}`,
       })
-      success ? delivered++ : failed++
+      if (success) { delivered++ } else { failed++ }
     } catch (e) {
       await admin.rpc('finalize_webhook_retry', {
         p_id: row.id,

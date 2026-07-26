@@ -5,6 +5,7 @@
 //           SHA-256 checksum salvo em `dsar_requests.notes` para integridade.
 // =============================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { requireEnv } from '../_shared/env.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,8 +29,8 @@ Deno.serve(async (req) => {
   if (!authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
 
   const userClient = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
+    requireEnv('SUPABASE_URL'),
+    requireEnv('SUPABASE_ANON_KEY'),
     { global: { headers: { Authorization: authHeader } } },
   )
   const token = authHeader.replace('Bearer ', '')
@@ -38,8 +39,8 @@ Deno.serve(async (req) => {
 
   const userId = claims.claims.sub as string
   const admin = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    requireEnv('SUPABASE_URL'),
+    requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
   )
 
   // Parse body — supports {action:"refresh", dsar_id} for Onda 111 URL renewal

@@ -6,6 +6,7 @@
 // contra o payload (JSON array esperado) e chama `verify_partition_archive`.
 // =============================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { requireEnv } from '../_shared/env.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -42,8 +43,8 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   const admin = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    requireEnv('SUPABASE_URL'),
+    requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
   )
 
   const { data: pending, error: listErr } = await admin
@@ -75,9 +76,7 @@ Deno.serve(async (req) => {
         .from('cold-archive')
         .download(path)
 
-      if (dlErr || !blob) {
-        objectExists = false
-      } else {
+      if (!dlErr && blob) {
         const buf = new Uint8Array(await blob.arrayBuffer())
         objectExists = true
         checksum = await sha256Hex(buf)

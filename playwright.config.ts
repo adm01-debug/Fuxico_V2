@@ -73,7 +73,7 @@ export default defineConfig({
     // Setup - autenticação
     {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      testMatch: /\.setup\.ts$/,
     },
     
     // Chrome Desktop
