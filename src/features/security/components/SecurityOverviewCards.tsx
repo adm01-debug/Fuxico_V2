@@ -93,9 +93,10 @@ export function SecurityOverviewCards() {
     {
       title: 'Autenticação MFA',
       value: mfaSettings?.is_enabled ? 'Ativo' : 'Inativo',
-      description: mfaSettings?.is_enabled 
-        ? `Último uso: ${mfaSettings.last_verified_at ? 'Recente' : 'N/A'}`
+      description: mfaSettings?.is_enabled
+        ? mfaLastUseLabel
         : 'Configure para maior segurança',
+
       icon: Key,
       color: mfaSettings?.is_enabled ? 'text-green-500' : 'text-muted-foreground',
       bgColor: mfaSettings?.is_enabled ? 'bg-green-500/10' : 'bg-muted/50',

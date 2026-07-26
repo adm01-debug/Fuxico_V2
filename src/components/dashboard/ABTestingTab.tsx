@@ -14,6 +14,8 @@ import { useABTests } from '@/hooks/use-ab-tests';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ABTestResultsDialog } from './ABTestResultsDialog';
+import { pickFirst } from '@/lib/variant';
+
 
 function ABTestingTabBase() {
   const { tests = [], isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
@@ -364,11 +366,11 @@ function ABTestingTabBase() {
                     {/* Variantes comparison */}
                     <div className="grid md:grid-cols-2 gap-4">
                       {/* Variant A */}
-                      <div className={`p-4 rounded-lg border-2 ${
-                        test.winner === 'A' ? 'border-green-500 bg-green-500/5' : 
-                        suggestedWinner === 'A' && !test.winner ? 'border-blue-500/50 bg-blue-500/5' : 
-                        'border-border bg-muted/30'
-                      }`}>
+                      <div className={`p-4 rounded-lg border-2 ${pickFirst([
+                        [test.winner === 'A', 'border-green-500 bg-green-500/5'],
+                        [suggestedWinner === 'A' && !test.winner, 'border-blue-500/50 bg-blue-500/5'],
+                      ], 'border-border bg-muted/30')}`}>
+
                         <div className="flex items-center justify-between mb-2">
                           <Badge variant="outline" className="bg-blue-500/10 text-blue-600">
                             Variante A
@@ -394,11 +396,11 @@ function ABTestingTabBase() {
                       </div>
 
                       {/* Variant B */}
-                      <div className={`p-4 rounded-lg border-2 ${
-                        test.winner === 'B' ? 'border-green-500 bg-green-500/5' : 
-                        suggestedWinner === 'B' && !test.winner ? 'border-purple-500/50 bg-purple-500/5' : 
-                        'border-border bg-muted/30'
-                      }`}>
+                      <div className={`p-4 rounded-lg border-2 ${pickFirst([
+                        [test.winner === 'B', 'border-green-500 bg-green-500/5'],
+                        [suggestedWinner === 'B' && !test.winner, 'border-purple-500/50 bg-purple-500/5'],
+                      ], 'border-border bg-muted/30')}`}>
+
                         <div className="flex items-center justify-between mb-2">
                           <Badge variant="outline" className="bg-purple-500/10 text-purple-600">
                             Variante B

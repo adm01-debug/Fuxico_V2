@@ -184,13 +184,11 @@ export default function BlockedIPsPanel() {
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-mono font-medium">{ip.ip_address}</p>
-                      {ip.is_permanent ? (
-                        <Badge variant="destructive">Permanente</Badge>
-                      ) : isExpired(ip.expires_at) ? (
-                        <Badge variant="outline">Expirado</Badge>
-                      ) : (
-                        <Badge variant="secondary">Temporário</Badge>
-                      )}
+                      {matchFirst([
+                        [ip.is_permanent, () => <Badge variant="destructive">Permanente</Badge>],
+                        [isExpired(ip.expires_at), () => <Badge variant="outline">Expirado</Badge>],
+                      ], () => <Badge variant="secondary">Temporário</Badge>)}
+
                     </div>
                     <p className="text-sm text-muted-foreground">{ip.reason}</p>
                     <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">

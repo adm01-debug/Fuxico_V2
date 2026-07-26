@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { matchFirst } from "@/lib/variant";
+import { matchFirst, thresholdVariant } from "@/lib/variant";
 
 interface Suggestion {
   subject: string
@@ -259,7 +259,7 @@ export default function AISubjectOptimizerTab() {
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-sm font-semibold">Sugestão {i + 1}</span>
                               <Badge 
-                                variant={suggestion.score >= 85 ? 'default' : suggestion.score >= 75 ? 'secondary' : 'outline'}
+                                variant={thresholdVariant(suggestion.score, [[85, 'default' as const], [75, 'secondary' as const]], 'outline' as const)}
                                 className="text-xs"
                               >
                                 Score: {suggestion.score}/100
@@ -294,8 +294,8 @@ export default function AISubjectOptimizerTab() {
                           <motion.div
                             className={cn(
                               "h-full rounded-full",
-                              suggestion.score >= 85 ? "bg-emerald-500" : 
-                              suggestion.score >= 75 ? "bg-amber-500" : "bg-orange-500"
+                              thresholdVariant(suggestion.score, [[85, "bg-emerald-500"], [75, "bg-amber-500"]], "bg-orange-500")
+
                             )}
                             initial={{ width: 0 }}
                             animate={{ width: `${suggestion.score}%` }}
