@@ -28,6 +28,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { matchFirst } from "@/lib/variant";
 
 interface PasswordResetRequest {
   id: string;
@@ -168,15 +169,18 @@ export default function PasswordResetRequestsPanel() {
         </div>
 
         {/* List */}
-        {isLoading ? (
+        {matchFirst([
+  [isLoading, () => ((
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : filteredRequests?.length === 0 ? (
+        ))],
+  [filteredRequests?.length === 0, () => ((
           <div className="text-center py-8 text-muted-foreground">
             Nenhuma solicitação encontrada
           </div>
-        ) : (
+        ))],
+], () => ((
           <div className="space-y-3">
             {filteredRequests?.map((request) => {
               const isExpired = new Date(request.expires_at) < new Date();
@@ -247,7 +251,7 @@ export default function PasswordResetRequestsPanel() {
               );
             })}
           </div>
-        )}
+        )))}
       </CardContent>
 
       {/* Reject Dialog */}

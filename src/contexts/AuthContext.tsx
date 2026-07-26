@@ -1,23 +1,12 @@
-import { createContext, useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { useEffect, useState, useRef, useCallback, ReactNode } from 'react';
+import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { log } from '@/lib/logger';
+import { AuthContext } from '@/contexts/auth-context';
 
 // Session idle timeout: 30 minutes of inactivity
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
-
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signInWithGoogle: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUpWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signOut: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -116,10 +105,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}

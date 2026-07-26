@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { AlertCircle, CheckCircle2, Shield, Info, Filter } from "lucide-react";
+import { matchFirst } from "@/lib/variant";
 
 export default function AuditLogs() {
   const { user } = useAuth();
@@ -115,9 +116,11 @@ export default function AuditLogs() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {matchFirst([
+  [isLoading, () => ((
               <div className="flex justify-center py-10">Carregando auditoria...</div>
-            ) : filteredLogs && filteredLogs.length > 0 ? (
+            ))],
+  [filteredLogs && filteredLogs.length > 0, () => ((
               <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -130,7 +133,7 @@ export default function AuditLogs() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredLogs.map((log) => (
+                    {(filteredLogs ?? []).map((log) => (
                       <TableRow key={log.id}>
                         <TableCell className="whitespace-nowrap font-medium">
                           {log.created_at ? format(new Date(log.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }) : 'N/A'}
@@ -152,7 +155,8 @@ export default function AuditLogs() {
                   </TableBody>
                 </Table>
               </div>
-            ) : (
+            ))],
+], () => ((
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Filter className="w-12 h-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium">Nenhum log encontrado</h3>
@@ -160,7 +164,7 @@ export default function AuditLogs() {
                   Não existem registros que correspondam aos seus filtros atuais.
                 </p>
               </div>
-            )}
+            )))}
           </CardContent>
       </Card>
     </div>

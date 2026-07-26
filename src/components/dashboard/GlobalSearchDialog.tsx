@@ -297,30 +297,6 @@ function GlobalSearchDialogBase({
   );
 }
 
-// Hook for managing global search dialog with Alt+F shortcut
-export function useGlobalSearch() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Alt+F to open global search
-      if (e.altKey && e.key.toLowerCase() === 'f') {
-        e.preventDefault();
-        setOpen(true);
-      }
-      // Also support Cmd/Ctrl+K as common pattern
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setOpen(true);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  return { open, setOpen };
-}
 
 export const GlobalSearchDialog = memo(GlobalSearchDialogBase);
 export default GlobalSearchDialog;

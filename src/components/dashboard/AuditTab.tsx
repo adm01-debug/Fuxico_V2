@@ -23,6 +23,7 @@ import {
 } from "@/features/audit/hooks/use-email-audit";
 import { toast } from "sonner";
 import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { matchFirst } from "@/lib/variant";
 
 function AuditTabBase() {
   const { data: isAdmin, isLoading: isLoadingAdmin } = useIsAdmin();
@@ -134,14 +135,17 @@ function AuditTabBase() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoadingAlerts ? (
+              {matchFirst([
+  [isLoadingAlerts, () => ((
                 <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div></div>
-              ) : filteredAlerts.length === 0 ? (
+              ))],
+  [filteredAlerts.length === 0, () => ((
                 <div className="text-center py-8 text-muted-foreground">
                   <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
                   <p>Nenhum alerta {showResolved ? "" : "pendente"} {(severityFilter !== "all" || typeFilter !== "all") ? "com os filtros selecionados" : ""}</p>
                 </div>
-              ) : (
+              ))],
+], () => ((
                 <ScrollArea className="h-[400px]">
                   <Table aria-label="Tabela de alertas de auditoria">
                     <TableHeader>
@@ -157,7 +161,7 @@ function AuditTabBase() {
                     </TableBody>
                   </Table>
                 </ScrollArea>
-              )}
+              )))}
             </CardContent>
           </Card>
         </TabsContent>
@@ -181,13 +185,16 @@ function AuditTabBase() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoadingLogs ? (
+              {matchFirst([
+  [isLoadingLogs, () => ((
                 <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div></div>
-              ) : logs.length === 0 ? (
+              ))],
+  [logs.length === 0, () => ((
                 <div className="text-center py-8 text-muted-foreground">
                   <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Nenhum log de email encontrado</p>
                 </div>
-              ) : (
+              ))],
+], () => ((
                 <ScrollArea className="h-[400px]">
                   <Table aria-label="Tabela de logs de email">
                     <TableHeader>
@@ -201,7 +208,7 @@ function AuditTabBase() {
                     </TableBody>
                   </Table>
                 </ScrollArea>
-              )}
+              )))}
             </CardContent>
           </Card>
         </TabsContent>

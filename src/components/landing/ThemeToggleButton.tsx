@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTheme, Theme } from "@/lib/theme";
+import { useTheme } from '@/hooks/use-theme';
+import type { Theme } from '@/lib/theme-context';
 import { motion, AnimatePresence } from "framer-motion";
 
 const themes: { value: Theme; label: string; icon: typeof Sun }[] = [

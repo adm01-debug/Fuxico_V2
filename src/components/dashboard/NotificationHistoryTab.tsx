@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useNotificationHistory, NotificationHistoryItem } from '@/hooks/use-notification-history';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { format, formatDistanceToNow, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { DateRange } from 'react-day-picker';
+import { matchFirst } from "@/lib/variant";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -299,17 +300,17 @@ export default function NotificationHistoryTab() {
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="h-9 justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
+                  {matchFirst<ReactNode>([
+                    [dateRange?.from && dateRange.to, () => (
                       <>
-                        {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} - {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+                        {format(dateRange?.from ?? new Date(), "dd/MM/yyyy", { locale: ptBR })} - {format(dateRange?.to ?? new Date(), "dd/MM/yyyy", { locale: ptBR })}
                       </>
-                    ) : (
-                      format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
-                    )
-                  ) : (
+                    )],
+                    [dateRange?.from, () => format(dateRange?.from ?? new Date(), "dd/MM/yyyy", { locale: ptBR })],
+                  ], () => (
                     <span>Período</span>
-                  )}
+                  ))}
+
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -343,13 +344,15 @@ export default function NotificationHistoryTab() {
         </CardHeader>
         
         <CardContent>
-          {notifications.length === 0 ? (
+          {matchFirst([
+  [notifications.length === 0, () => ((
             <EmptyState
               type="notifications"
               title="Nenhuma notificação"
               description="Suas notificações aparecerão aqui quando você receber alertas."
             />
-          ) : filteredNotifications.length === 0 ? (
+          ))],
+  [filteredNotifications.length === 0, () => ((
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Filter className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium">Nenhuma notificação encontrada</h3>
@@ -360,7 +363,8 @@ export default function NotificationHistoryTab() {
                 Limpar filtros
               </Button>
             </div>
-          ) : (
+          ))],
+], () => ((
             <ScrollArea className="h-[500px] pr-4">
               <div className="space-y-3">
                 {filteredNotifications.map(notification => (
@@ -373,7 +377,7 @@ export default function NotificationHistoryTab() {
                 ))}
               </div>
             </ScrollArea>
-          )}
+          )))}
         </CardContent>
       </Card>
     </div>

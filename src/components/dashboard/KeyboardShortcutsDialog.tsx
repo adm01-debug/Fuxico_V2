@@ -8,7 +8,6 @@
 // Painel de atalhos de teclado disponíveis
 // =============================================================================
 
-import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -161,32 +160,5 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
   );
 }
 
-// Hook para abrir o painel com "?"
-export function useKeyboardShortcutsDialog() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignora se estiver em input/textarea
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement ||
-        e.target instanceof HTMLSelectElement
-      ) {
-        return;
-      }
-
-      if (e.key === '?' && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        e.preventDefault();
-        setOpen(true);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  return { open, setOpen };
-}
 
 export default KeyboardShortcutsDialog;

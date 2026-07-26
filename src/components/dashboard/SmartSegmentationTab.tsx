@@ -15,7 +15,8 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/use-auth'
+import { matchFirst } from "@/lib/variant";
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend 
 } from 'recharts'
@@ -119,7 +120,11 @@ export default function SmartSegmentationTab() {
   const pieData = segments.map(s => ({
     name: s.name.split(' ')[0],
     value: s.count,
-    color: s.id === 'hot' ? '#ef4444' : s.id === 'warm' ? '#f59e0b' : s.id === 'cold' ? '#3b82f6' : '#6b7280',
+    color: matchFirst([
+  [s.id === 'hot', () => ('#ef4444')],
+  [s.id === 'warm', () => ('#f59e0b')],
+  [s.id === 'cold', () => ('#3b82f6')],
+], () => ('#6b7280')),
   }))
 
   const recommendations = [
@@ -269,7 +274,10 @@ export default function SmartSegmentationTab() {
                   className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
                 >
                   <Badge 
-                    variant={rec.priority === 'high' ? 'default' : rec.priority === 'medium' ? 'secondary' : 'outline'}
+                    variant={matchFirst([
+  [rec.priority === 'high', () => ('default')],
+  [rec.priority === 'medium', () => ('secondary')],
+], () => ('outline'))}
                     className="shrink-0 text-xs"
                   >
                     {rec.segment}

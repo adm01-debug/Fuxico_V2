@@ -14,6 +14,7 @@ import {
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { matchFirst } from "@/lib/variant";
 import { 
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -136,18 +137,22 @@ export default function BenchmarkReportsTab() {
                 <span className="text-lg text-muted-foreground">/100</span>
               </div>
               <p className="text-sm mt-1">
-                {overallScore >= 80 ? '🏆 Excelente! Acima dos top performers' :
-                 overallScore >= 60 ? '✅ Bom! Acima da média do setor' :
-                 '⚠️ Há espaço para melhorias'}
+                {matchFirst([
+  [overallScore >= 80, () => ('🏆 Excelente! Acima dos top performers')],
+  [overallScore >= 60, () => ('✅ Bom! Acima da média do setor')],
+], () => ('⚠️ Há espaço para melhorias'))}
               </p>
             </div>
             <div className="hidden sm:block">
               <Badge variant="outline" className="text-lg px-4 py-2 gap-2">
-                {overallScore >= 80 ? <Award className="h-5 w-5 text-amber-500" /> :
-                 overallScore >= 60 ? <TrendingUp className="h-5 w-5 text-emerald-500" /> :
-                 <Target className="h-5 w-5 text-orange-500" />}
-                {overallScore >= 80 ? 'Top Performer' :
-                 overallScore >= 60 ? 'Acima da Média' : 'Em Desenvolvimento'}
+                {matchFirst([
+  [overallScore >= 80, () => (<Award className="h-5 w-5 text-amber-500" />)],
+  [overallScore >= 60, () => (<TrendingUp className="h-5 w-5 text-emerald-500" />)],
+], () => (<Target className="h-5 w-5 text-orange-500" />))}
+                {matchFirst([
+  [overallScore >= 80, () => ('Top Performer')],
+  [overallScore >= 60, () => ('Acima da Média')],
+], () => ('Em Desenvolvimento'))}
               </Badge>
             </div>
           </div>

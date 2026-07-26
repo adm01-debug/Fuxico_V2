@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Shield, Monitor, Key, AlertTriangle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function SecurityOverviewCards() {
@@ -71,6 +71,8 @@ export function SecurityOverviewCards() {
     enabled: !!user?.email,
   });
 
+  const mfaLastUseLabel = `Último uso: ${mfaSettings?.last_verified_at ? 'Recente' : 'N/A'}`;
+
   const cards = [
     {
       title: 'Status de Segurança',
@@ -93,9 +95,10 @@ export function SecurityOverviewCards() {
     {
       title: 'Autenticação MFA',
       value: mfaSettings?.is_enabled ? 'Ativo' : 'Inativo',
-      description: mfaSettings?.is_enabled 
-        ? `Último uso: ${mfaSettings.last_verified_at ? 'Recente' : 'N/A'}`
+      description: mfaSettings?.is_enabled
+        ? mfaLastUseLabel
         : 'Configure para maior segurança',
+
       icon: Key,
       color: mfaSettings?.is_enabled ? 'text-green-500' : 'text-muted-foreground',
       bgColor: mfaSettings?.is_enabled ? 'bg-green-500/10' : 'bg-muted/50',

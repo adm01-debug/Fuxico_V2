@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { matchFirst } from "@/lib/variant";
 
 interface BlockedIP {
   id: string;
@@ -158,15 +159,18 @@ export default function BlockedIPsPanel() {
         </div>
 
         {/* List */}
-        {isLoading ? (
+        {matchFirst([
+  [isLoading, () => ((
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : filteredIPs?.length === 0 ? (
+        ))],
+  [filteredIPs?.length === 0, () => ((
           <div className="text-center py-8 text-muted-foreground">
             Nenhum IP bloqueado
           </div>
-        ) : (
+        ))],
+], () => ((
           <div className="space-y-2">
             {filteredIPs?.map((ip) => (
               <div
@@ -180,13 +184,11 @@ export default function BlockedIPsPanel() {
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-mono font-medium">{ip.ip_address}</p>
-                      {ip.is_permanent ? (
-                        <Badge variant="destructive">Permanente</Badge>
-                      ) : isExpired(ip.expires_at) ? (
-                        <Badge variant="outline">Expirado</Badge>
-                      ) : (
-                        <Badge variant="secondary">Temporário</Badge>
-                      )}
+                      {matchFirst([
+                        [ip.is_permanent, () => <Badge variant="destructive">Permanente</Badge>],
+                        [isExpired(ip.expires_at), () => <Badge variant="outline">Expirado</Badge>],
+                      ], () => <Badge variant="secondary">Temporário</Badge>)}
+
                     </div>
                     <p className="text-sm text-muted-foreground">{ip.reason}</p>
                     <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
@@ -217,7 +219,7 @@ export default function BlockedIPsPanel() {
               </div>
             ))}
           </div>
-        )}
+        )))}
       </CardContent>
 
       {/* Add Dialog */}

@@ -183,8 +183,8 @@ describe('Context Providers', () => {
     expect(content.length).toBeGreaterThan(0);
   });
 
-  it('should export useAuth hook', () => {
-    expect(content).toContain('useAuth');
+  it('should export useAuth hook from dedicated module', () => {
+    expect(readComponent('hooks/use-auth.ts')).toContain('export function useAuth');
   });
 
   it('should provide user state', () => {

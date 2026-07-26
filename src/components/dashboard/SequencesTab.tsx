@@ -22,6 +22,7 @@ import { SequenceStatsChart } from './sequences/SequenceStatsChart';
 import { SequenceWebhookLogs } from './sequences/SequenceWebhookLogs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from './ConfirmDialog';
+import { matchFirst } from "@/lib/variant";
 
 function SequencesTabBase() {
   const [selectedSequenceId, setSelectedSequenceId] = useState<string | null>(null);
@@ -212,13 +213,15 @@ function SequencesTabBase() {
       </div>
 
       {/* Sequences Grid */}
-      {isLoading ? (
+      {matchFirst([
+  [isLoading, () => ((
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-48" />
           ))}
         </div>
-      ) : filteredSequences.length === 0 ? (
+      ))],
+  [filteredSequences.length === 0, () => ((
         <EmptyState
           type="sequences"
           title={sequences?.length === 0 
@@ -233,7 +236,8 @@ function SequencesTabBase() {
             icon: <Plus className="h-4 w-4" />
           } : undefined}
         />
-      ) : (
+      ))],
+], () => ((
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredSequences.map((sequence) => (
             <SequenceCard
@@ -246,7 +250,7 @@ function SequencesTabBase() {
             />
           ))}
         </div>
-      )}
+      )))}
 
       {/* Create Dialog */}
       <CreateSequenceDialog

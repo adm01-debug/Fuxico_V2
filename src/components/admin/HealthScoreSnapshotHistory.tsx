@@ -9,6 +9,7 @@ import { AlertTriangle, Camera, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import { adminRpc } from "@/lib/admin-rpc";
 import { cn } from "@/lib/utils";
+import { matchFirst } from "@/lib/variant";
 
 interface SnapshotRow {
   id: string;
@@ -124,18 +125,22 @@ function HealthScoreSnapshotHistoryBase() {
           </div>
         )}
 
-        {isError ? (
+        {matchFirst([
+  [isError, () => ((
           <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4" />
             Erro ao carregar snapshots: {error instanceof Error ? error.message : "erro desconhecido"}
           </div>
-        ) : isLoading ? (
+        ))],
+  [isLoading, () => ((
           <Skeleton className="h-40 w-full" />
-        ) : rows.length === 0 ? (
+        ))],
+  [rows.length === 0, () => ((
           <div className="rounded-md border border-dashed p-6 text-sm text-muted-foreground text-center">
             Nenhum snapshot registrado ainda. Clique em <strong>Capturar snapshot</strong>.
           </div>
-        ) : (
+        ))],
+], () => ((
           <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
@@ -184,7 +189,7 @@ function HealthScoreSnapshotHistoryBase() {
               </TableBody>
             </Table>
           </div>
-        )}
+        )))}
       </CardContent>
     </Card>
   );

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/hooks/use-auth';
 import { motion, useScroll } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 // VARIANTS and TRANSITIONS imports removed to fix unused import error

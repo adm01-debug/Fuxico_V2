@@ -4,4 +4,5 @@
  * Central export for all context providers
  */
 
-export { AuthProvider, useAuth } from './AuthContext';
+export { AuthProvider } from './AuthContext';
+export { useAuth } from '@/hooks/use-auth';

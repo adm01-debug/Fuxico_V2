@@ -20,8 +20,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useTheme, type Theme } from '@/lib/theme';
+import { useTheme } from '@/hooks/use-theme';
+import type { Theme } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
+import { matchFirst } from "@/lib/variant";
 
 interface ModeToggleProps {
   className?: string;
@@ -59,7 +61,8 @@ function AnimatedThemeIcon({ theme, resolvedTheme }: { theme: Theme; resolvedThe
   return (
     <div className="relative h-5 w-5">
       <AnimatePresence mode="wait">
-        {theme === 'system' ? (
+        {matchFirst([
+  [theme === 'system', () => ((
           <motion.div
             key="system"
             initial={{ scale: 0, rotate: -180, opacity: 0 }}
@@ -70,7 +73,8 @@ function AnimatedThemeIcon({ theme, resolvedTheme }: { theme: Theme; resolvedThe
           >
             <Monitor className="h-5 w-5" />
           </motion.div>
-        ) : resolvedTheme === 'dark' ? (
+        ))],
+  [resolvedTheme === 'dark', () => ((
           <motion.div
             key="dark"
             initial={{ scale: 0, rotate: -180, opacity: 0 }}
@@ -90,7 +94,8 @@ function AnimatedThemeIcon({ theme, resolvedTheme }: { theme: Theme; resolvedThe
               <Sparkles className="h-2 w-2 text-yellow-300" />
             </motion.div>
           </motion.div>
-        ) : (
+        ))],
+], () => ((
           <motion.div
             key="light"
             initial={{ scale: 0, rotate: 180, opacity: 0 }}
@@ -109,7 +114,7 @@ function AnimatedThemeIcon({ theme, resolvedTheme }: { theme: Theme; resolvedThe
               <Sun className="h-7 w-7" />
             </motion.div>
           </motion.div>
-        )}
+        )))}
       </AnimatePresence>
     </div>
   );
@@ -234,7 +239,10 @@ export function ModeToggle({
                 )}
               >
                 <motion.div
-                  whileHover={{ rotate: value === 'light' ? 180 : value === 'dark' ? -30 : 0 }}
+                  whileHover={{ rotate: matchFirst([
+  [value === 'light', () => (180)],
+  [value === 'dark', () => (-30)],
+], () => (0)) }}
                   className={cn(
                     'p-1.5 rounded-lg bg-gradient-to-br',
                     gradient,
@@ -280,7 +288,10 @@ export function ModeToggle({
               </DropdownMenuTrigger>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Alternar tema ({theme === 'system' ? 'automático' : theme === 'dark' ? 'escuro' : 'claro'})</p>
+              <p>Alternar tema ({matchFirst([
+  [theme === 'system', () => ('automático')],
+  [theme === 'dark', () => ('escuro')],
+], () => ('claro'))})</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -362,7 +373,10 @@ export function ModeToggle({
             >
               <AnimatedThemeIcon theme={theme} resolvedTheme={resolvedTheme} />
               <span className="sr-only">
-                Tema atual: {theme === 'system' ? 'automático' : theme === 'dark' ? 'escuro' : 'claro'}
+                Tema atual: {matchFirst([
+  [theme === 'system', () => ('automático')],
+  [theme === 'dark', () => ('escuro')],
+], () => ('claro'))}
               </span>
             </Button>
           </motion.div>

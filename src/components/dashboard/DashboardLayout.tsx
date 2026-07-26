@@ -4,10 +4,13 @@ import { Button } from '@/components/ui/button'
 import { DashboardSidebar, type TabId } from './DashboardSidebar'
 import MobileBottomNav from './MobileBottomNav'
 import DashboardBreadcrumbs from './DashboardBreadcrumbs'
-import { JoyrideTour, useOnboardingTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
+import { JoyrideTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
+import { useOnboardingTour } from '@/hooks/use-onboarding-tour'
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
-import { KeyboardShortcutsDialog, useKeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
-import { GlobalSearchDialog, useGlobalSearch } from './GlobalSearchDialog'
+import { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
+import { useKeyboardShortcutsDialog } from '@/hooks/use-keyboard-shortcuts-dialog'
+import { GlobalSearchDialog } from './GlobalSearchDialog'
+import { useGlobalSearch } from '@/hooks/use-global-search'
 import { CreateTrackingDialog } from './CreateTrackingDialog'
 import { NotificationCenter } from './NotificationCenter'
 import { ModeToggle } from '@/components/ui/mode-toggle'
@@ -182,6 +185,16 @@ const TAB_SKELETON_VARIANTS: Partial<Record<TabId, 'table' | 'metrics' | 'chart'
 // COMPONENTE PRINCIPAL
 // =============================================================================
 
+/** Mapeia cada aba do dashboard ao tour guiado correspondente. */
+const TAB_TO_TOUR_MAP: Partial<Record<TabId, string>> = {
+  links: 'links',
+  documents: 'documents',
+  analytics: 'analytics',
+  leads: 'leads',
+  emails: 'emails',
+  geo: 'geo',
+}
+
 export default function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<TabId>('home')
   const [tabHistory, setTabHistory] = useState<TabId[]>(['home'])
@@ -213,14 +226,6 @@ export default function DashboardLayout() {
   }, [setHasSeenWizard])
 
   // Mapa de tab para tour correspondente
-  const tabToTourMap: Partial<Record<TabId, string>> = {
-    links: 'links',
-    documents: 'documents',
-    analytics: 'analytics',
-    leads: 'leads',
-    emails: 'emails',
-    geo: 'geo',
-  }
 
   // Handle tab change with transition animation
   const handleTabChange = useCallback((value: TabId) => {
@@ -260,7 +265,7 @@ export default function DashboardLayout() {
 
   // Função para iniciar tour específico da tab atual
   const handleStartModuleTour = useCallback(() => {
-    const tourId = tabToTourMap[activeTab]
+    const tourId = TAB_TO_TOUR_MAP[activeTab]
     if (tourId) {
       startTour(tourId)
     } else {
@@ -269,8 +274,8 @@ export default function DashboardLayout() {
   }, [activeTab, startTour])
 
   // Verificar se a tab atual tem um tour
-  const currentTabHasTour = !!tabToTourMap[activeTab]
-  const currentTourId = tabToTourMap[activeTab] || 'dashboard'
+  const currentTabHasTour = !!TAB_TO_TOUR_MAP[activeTab]
+  const currentTourId = TAB_TO_TOUR_MAP[activeTab] || 'dashboard'
 
   // Renderizar componente ativo
   const ActiveComponent = TAB_COMPONENTS[activeTab]

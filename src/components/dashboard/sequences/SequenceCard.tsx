@@ -24,6 +24,7 @@ import {
 import { EmailSequence } from '@/features/sequences/hooks/useEmailSequences';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { matchFirst } from "@/lib/variant";
 
 interface SequenceCardProps {
   sequence: EmailSequence;
@@ -95,17 +96,20 @@ export const SequenceCard = React.memo(function SequenceCard({
                   Duplicar
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                {sequence.status === 'active' ? (
+                {matchFirst([
+  [sequence.status === 'active', () => ((
                   <DropdownMenuItem onClick={() => onStatusChange(sequence.id, 'paused')}>
                     <Pause className="mr-2 h-4 w-4" />
                     Pausar
                   </DropdownMenuItem>
-                ) : sequence.status !== 'archived' ? (
+                ))],
+  [sequence.status !== 'archived', () => ((
                   <DropdownMenuItem onClick={() => onStatusChange(sequence.id, 'active')}>
                     <Play className="mr-2 h-4 w-4" />
                     Ativar
                   </DropdownMenuItem>
-                ) : null}
+                ))],
+], () => (null))}
                 {sequence.status !== 'archived' && (
                   <DropdownMenuItem onClick={() => onStatusChange(sequence.id, 'archived')}>
                     <Archive className="mr-2 h-4 w-4" />

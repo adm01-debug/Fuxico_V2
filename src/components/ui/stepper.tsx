@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ComponentProps, ReactNode } from "react";
+import { matchFirst } from "@/lib/variant";
 
 export interface StepperStep {
   id: string;
@@ -64,7 +65,10 @@ export function Stepper({
               type="button"
               disabled={!isClickable}
               onClick={() => isClickable && onStepClick(index)}
-              aria-label={`${isCompleted ? "Concluído: " : isCurrent ? "Atual: " : "Pendente: "}${step.label}`}
+              aria-label={`${matchFirst([
+  [isCompleted, () => ("Concluído: ")],
+  [isCurrent, () => ("Atual: ")],
+], () => ("Pendente: "))}${step.label}`}
               className={cn(
                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
                 isCompleted && "border-primary bg-primary text-primary-foreground",

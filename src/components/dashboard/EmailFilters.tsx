@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useCallback } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Search, X, Calendar, Eye, MousePointerClick, ArrowUpDown, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,18 +24,30 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { format, subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import type { EmailFilters } from '@/hooks/use-email-filters';
 
-export interface EmailFilters {
-  search: string;
-  status: 'all' | 'opened' | 'not-opened' | 'clicked';
-  period: 'all' | 'today' | '7days' | '30days' | 'custom';
-  dateRange: { from: Date | undefined; to: Date | undefined };
-  minOpens: number;
-  sortBy: 'date' | 'opens' | 'clicks' | 'recipient';
-  sortOrder: 'asc' | 'desc';
+export type { EmailFilters };
+
+
+/** Rótulo compacto do intervalo customizado ("dd/MM - dd/MM"). */
+function formatCustomRangeLabel(range: EmailFilters['dateRange']): string {
+  if (!range.from) return '';
+  const from = format(range.from, 'dd/MM', { locale: ptBR });
+  const to = range.to ? format(range.to, 'dd/MM', { locale: ptBR }) : '...';
+  return `${from} - ${to}`;
 }
+
+/** Alterna a direção quando a mesma coluna é reordenada; caso contrário, inicia em 'desc'. */
+function nextSortOrder(
+  filters: EmailFilters,
+  nextSortBy: string,
+): EmailFilters['sortOrder'] {
+  if (filters.sortBy !== nextSortBy) return 'desc';
+  return filters.sortOrder === 'desc' ? 'asc' : 'desc';
+}
+
 
 interface EmailFiltersProps {
   filters: EmailFilters;
@@ -44,125 +56,6 @@ interface EmailFiltersProps {
   filteredCount: number;
 }
 
-const defaultFilters: EmailFilters = {
-  search: '',
-  status: 'all',
-  period: 'all',
-  dateRange: { from: undefined, to: undefined },
-  minOpens: 0,
-  sortBy: 'date',
-  sortOrder: 'desc',
-};
-
-export function useEmailFilters() {
-  const [filters, setFilters] = useState<EmailFilters>(defaultFilters);
-  
-  const resetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
-  
-  const hasActiveFilters = 
-    filters.search !== '' ||
-    filters.status !== 'all' ||
-    filters.period !== 'all' ||
-    filters.minOpens > 0;
-  
-  return { filters, setFilters, resetFilters, hasActiveFilters };
-}
-
-export function filterEmails<T extends {
-  recipient_email: string;
-  subject: string | null;
-  created_at: string;
-  opens?: number;
-  clicks?: number;
-}>(emails: T[], filters: EmailFilters): T[] {
-  let result = [...emails];
-  
-  // Search filter
-  if (filters.search) {
-    const searchLower = filters.search.toLowerCase();
-    result = result.filter(email => 
-      email.recipient_email.toLowerCase().includes(searchLower) ||
-      (email.subject?.toLowerCase() || '').includes(searchLower)
-    );
-  }
-  
-  // Status filter
-  if (filters.status !== 'all') {
-    switch (filters.status) {
-      case 'opened':
-        result = result.filter(email => (email.opens || 0) > 0);
-        break;
-      case 'not-opened':
-        result = result.filter(email => (email.opens || 0) === 0);
-        break;
-      case 'clicked':
-        result = result.filter(email => (email.clicks || 0) > 0);
-        break;
-    }
-  }
-  
-  // Period filter
-  if (filters.period !== 'all') {
-    const now = new Date();
-    let startDate: Date | undefined;
-    let endDate: Date = endOfDay(now);
-    
-    switch (filters.period) {
-      case 'today':
-        startDate = startOfDay(now);
-        break;
-      case '7days':
-        startDate = startOfDay(subDays(now, 7));
-        break;
-      case '30days':
-        startDate = startOfDay(subDays(now, 30));
-        break;
-      case 'custom':
-        startDate = filters.dateRange.from;
-        endDate = filters.dateRange.to ? endOfDay(filters.dateRange.to) : endDate;
-        break;
-    }
-    
-    if (startDate) {
-      const intervalStart = startDate;
-      result = result.filter(email => {
-        const emailDate = new Date(email.created_at);
-        return isWithinInterval(emailDate, { start: intervalStart, end: endDate });
-      });
-    }
-  }
-  
-  // Min opens filter
-  if (filters.minOpens > 0) {
-    result = result.filter(email => (email.opens || 0) >= filters.minOpens);
-  }
-  
-  // Sorting
-  result.sort((a, b) => {
-    let comparison = 0;
-    
-    switch (filters.sortBy) {
-      case 'date':
-        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        break;
-      case 'opens':
-        comparison = (a.opens || 0) - (b.opens || 0);
-        break;
-      case 'clicks':
-        comparison = (a.clicks || 0) - (b.clicks || 0);
-        break;
-      case 'recipient':
-        comparison = a.recipient_email.localeCompare(b.recipient_email);
-        break;
-    }
-    
-    return filters.sortOrder === 'desc' ? -comparison : comparison;
-  });
-  
-  return result;
-}
 
 function EmailFiltersBaseComponent({ 
   filters, 
@@ -181,6 +74,9 @@ function EmailFiltersBaseComponent({
     }, 300);
     
     return () => clearTimeout(timer);
+    // `filters`/`onFiltersChange` são intencionalmente omitidos: o efeito deve
+    // disparar apenas quando o texto digitado muda (debounce de busca).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
 
   const hasActiveFilters = 
@@ -276,9 +172,10 @@ function EmailFiltersBaseComponent({
                   <Calendar className="h-4 w-4 shrink-0" />
                   <span className="truncate text-sm">
                     {filters.period === 'custom' && filters.dateRange.from
-                      ? `${format(filters.dateRange.from, 'dd/MM', { locale: ptBR })} - ${filters.dateRange.to ? format(filters.dateRange.to, 'dd/MM', { locale: ptBR }) : '...'}`
+                      ? formatCustomRangeLabel(filters.dateRange)
                       : periodOptions.find(o => o.value === filters.period)?.label
                     }
+
                   </span>
                 </div>
                 <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
@@ -343,9 +240,8 @@ function EmailFiltersBaseComponent({
                   onClick={() => onFiltersChange({ 
                     ...filters, 
                     sortBy: option.value as EmailFilters['sortBy'],
-                    sortOrder: filters.sortBy === option.value 
-                      ? (filters.sortOrder === 'desc' ? 'asc' : 'desc')
-                      : 'desc'
+                    sortOrder: nextSortOrder(filters, option.value)
+
                   })}
                   className="min-h-[44px]"
                 >

@@ -1,7 +1,7 @@
 import { log } from '@/lib/logger';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
 import { requireUserId } from "@/lib/auth-guards";

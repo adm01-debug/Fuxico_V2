@@ -27,6 +27,7 @@ import { EmailSequence, useSequenceDetail, useUpdateSequence } from '@/features/
 import { SequenceStepEditor } from './SequenceStepEditor';
 import { SequenceEnrollments } from './SequenceEnrollments';
 import { Skeleton } from '@/components/ui/skeleton';
+import { matchFirst } from "@/lib/variant";
 
 interface SequenceDetailProps {
   sequenceId: string;
@@ -128,13 +129,16 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
               onClick={handleStatusToggle}
               disabled={updateSequence.isPending || steps.length === 0}
             >
-              {updateSequence.isPending ? (
+              {matchFirst([
+  [updateSequence.isPending, () => ((
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : sequence.status === 'active' ? (
+              ))],
+  [sequence.status === 'active', () => ((
                 <Pause className="h-4 w-4 mr-2" />
-              ) : (
+              ))],
+], () => ((
                 <Play className="h-4 w-4 mr-2" />
-              )}
+              )))}
               {sequence.status === 'active' ? 'Pausar' : 'Ativar'}
             </Button>
           )}

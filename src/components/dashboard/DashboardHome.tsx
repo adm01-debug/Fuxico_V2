@@ -27,6 +27,7 @@ import { MetricCard } from './home/MetricCard';
 import { RealtimeEvents } from './home/RealtimeEvents';
 import { BounceAlerts } from './home/BounceAlerts';
 import { WeeklyTrendChart } from './home/WeeklyTrendChart';
+import { matchFirst } from "@/lib/variant";
 
 // =============================================================================
 // COMPONENTE PRINCIPAL
@@ -194,6 +195,9 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
       setStreak(1);
     }
     setLastVisit(today);
+    // Executa uma única vez na montagem: calcula o streak com o valor de
+    // `lastVisit` daquele instante e o atualiza em seguida.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const userXP = useMemo(() => {
@@ -240,9 +244,18 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
       {/* Metrics */}
       <section className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 xl:gap-6" data-tour="stats-cards">
         <MetricCard title="Total de Emails" value={metrics.totalEmails.toLocaleString('pt-BR')} icon={<Mail className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />} isLoading={isLoadingStats} />
-        <MetricCard title="Aberturas" value={metrics.totalOpens.toLocaleString('pt-BR')} change={metrics.openRate} changeLabel="taxa" icon={<Eye className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />} trend={metrics.openRate > 20 ? 'up' : metrics.openRate < 10 ? 'down' : 'neutral'} isLoading={isLoadingStats} />
-        <MetricCard title="Cliques" value={metrics.totalClicks.toLocaleString('pt-BR')} change={metrics.clickRate} changeLabel="taxa" icon={<MousePointerClick className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />} trend={metrics.clickRate > 5 ? 'up' : metrics.clickRate < 2 ? 'down' : 'neutral'} isLoading={isLoadingStats} />
-        <MetricCard title="Taxa de Bounce" value={`${metrics.bounceRate.toFixed(1)}%`} icon={<AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />} trend={metrics.bounceRate < 2 ? 'up' : metrics.bounceRate > 5 ? 'down' : 'neutral'} isLoading={isLoadingStats} />
+        <MetricCard title="Aberturas" value={metrics.totalOpens.toLocaleString('pt-BR')} change={metrics.openRate} changeLabel="taxa" icon={<Eye className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />} trend={matchFirst([
+  [metrics.openRate > 20, () => ('up')],
+  [metrics.openRate < 10, () => ('down')],
+], () => ('neutral'))} isLoading={isLoadingStats} />
+        <MetricCard title="Cliques" value={metrics.totalClicks.toLocaleString('pt-BR')} change={metrics.clickRate} changeLabel="taxa" icon={<MousePointerClick className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />} trend={matchFirst([
+  [metrics.clickRate > 5, () => ('up')],
+  [metrics.clickRate < 2, () => ('down')],
+], () => ('neutral'))} isLoading={isLoadingStats} />
+        <MetricCard title="Taxa de Bounce" value={`${metrics.bounceRate.toFixed(1)}%`} icon={<AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />} trend={matchFirst([
+  [metrics.bounceRate < 2, () => ('up')],
+  [metrics.bounceRate > 5, () => ('down')],
+], () => ('neutral'))} isLoading={isLoadingStats} />
       </section>
 
       {/* Widgets Grid */}

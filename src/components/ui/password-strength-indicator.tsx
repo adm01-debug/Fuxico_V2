@@ -2,6 +2,7 @@ import { log } from '@/lib/logger';
 import { useMemo, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Check, X, Loader2, AlertTriangle } from 'lucide-react';
+import { matchFirst } from "@/lib/variant";
 
 interface PasswordStrengthIndicatorProps {
   password: string;
@@ -154,9 +155,10 @@ export function PasswordStrengthIndicator({
               key={i}
               className={cn(
                 'h-1 flex-1 rounded-full transition-colors duration-200',
-                isBreached 
-                  ? 'bg-destructive' 
-                  : i < analysis.score ? analysis.config.color : 'bg-muted'
+                matchFirst([
+  [isBreached, () => ('bg-destructive')],
+  [i < analysis.score, () => (analysis.config.color)],
+], () => ('bg-muted'))
               )}
             />
           ))}
@@ -191,40 +193,43 @@ export function PasswordStrengthIndicator({
           {/* Breach check status */}
           <div className={cn(
             'flex items-center gap-1.5 text-xs transition-colors',
-            isCheckingBreach 
-              ? 'text-muted-foreground' 
-              : isBreached === false 
-                ? 'text-success' 
-                : isBreached === true 
-                  ? 'text-destructive' 
-                  : 'text-muted-foreground'
+            matchFirst([
+  [isCheckingBreach, () => ('text-muted-foreground')],
+  [isBreached === false, () => ('text-success')],
+  [isBreached === true, () => ('text-destructive')],
+], () => ('text-muted-foreground'))
           )}>
-            {isCheckingBreach ? (
+            {matchFirst([
+  [isCheckingBreach, () => ((
               <>
                 <Loader2 className="w-3 h-3 flex-shrink-0 animate-spin" />
                 <span>Verificando vazamentos...</span>
               </>
-            ) : isBreached === false ? (
+            ))],
+  [isBreached === false, () => ((
               <>
                 <Check className="w-3 h-3 flex-shrink-0" />
                 <span>Senha não encontrada em vazamentos</span>
               </>
-            ) : isBreached === true ? (
+            ))],
+  [isBreached === true, () => ((
               <>
                 <AlertTriangle className="w-3 h-3 flex-shrink-0" />
                 <span>Senha encontrada em vazamentos</span>
               </>
-            ) : password.length >= 8 ? (
+            ))],
+  [password.length >= 8, () => ((
               <>
                 <Loader2 className="w-3 h-3 flex-shrink-0" />
                 <span>Aguardando verificação...</span>
               </>
-            ) : (
+            ))],
+], () => ((
               <>
                 <X className="w-3 h-3 flex-shrink-0" />
                 <span>Verificação de vazamentos (mín. 8 caracteres)</span>
               </>
-            )}
+            )))}
           </div>
         </div>
       )}

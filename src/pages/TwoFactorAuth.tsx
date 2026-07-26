@@ -1,7 +1,7 @@
 import { log } from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,9 @@ export default function TwoFactorAuth() {
       return;
     }
     loadMFASettings();
+    // `loadMFASettings` é recriada a cada render e só deve rodar quando a
+    // sessão do usuário muda.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate]);
 
   const loadMFASettings = async () => {

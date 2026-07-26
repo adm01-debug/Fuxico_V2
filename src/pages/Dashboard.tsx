@@ -3,7 +3,7 @@
 // =============================================================================
 
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/use-auth'
 import { Helmet } from 'react-helmet-async'
 import { DashboardSkeleton } from '@/components/ui/skeletons'
 

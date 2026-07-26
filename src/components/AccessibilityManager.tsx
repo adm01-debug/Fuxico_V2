@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { useAccessibility } from '@/hooks/use-accessibility';
 
 export function AccessibilityManager() {
   const { fontSize, motionPreference, contrastPreference } = useAccessibility();

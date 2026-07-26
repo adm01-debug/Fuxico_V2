@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, type ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { AIFollowUpDialog } from './AIFollowUpDialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { log } from '@/lib/logger';
+import { matchFirst } from "@/lib/variant";
 
 function FollowUpTabBase() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -295,7 +296,8 @@ function FollowUpTabBase() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
+              {matchFirst<ReactNode>([
+  [isLoading, () => ((
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                     <div className="flex items-center justify-center gap-2">
@@ -304,7 +306,8 @@ function FollowUpTabBase() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : filteredReminders.length === 0 ? (
+              ))],
+  [filteredReminders.length === 0, () => ((
                 <TableRow>
                   <TableCell colSpan={6} className="py-0">
                     <EmptyState
@@ -320,7 +323,8 @@ function FollowUpTabBase() {
                     />
                   </TableCell>
                 </TableRow>
-              ) : (
+              ))],
+], () => ((
                 filteredReminders.map((reminder) => (
                   <TableRow key={reminder.id}>
                     <TableCell className="font-medium">{reminder.recipient_email}</TableCell>
@@ -388,7 +392,7 @@ function FollowUpTabBase() {
                     </TableCell>
                   </TableRow>
                 ))
-              )}
+              )))}
             </TableBody>
           </Table>
         </CardContent>

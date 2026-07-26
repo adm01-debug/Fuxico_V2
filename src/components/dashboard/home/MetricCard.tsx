@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MetricCardProps } from './types';
+import { matchFirst } from "@/lib/variant";
 
 function MiniSparkline({ data, color = 'hsl(var(--primary))' }: { data: number[]; color?: string }) {
   if (!data || data.length < 2) return null;
@@ -82,8 +83,14 @@ export function MetricCard({
     );
   }
 
-  const trendColor = trend === 'up' ? 'text-emerald-500' : trend === 'down' ? 'text-red-500' : 'text-muted-foreground';
-  const trendBg = trend === 'up' ? 'bg-emerald-500/10' : trend === 'down' ? 'bg-red-500/10' : 'bg-muted';
+  const trendColor = matchFirst([
+  [trend === 'up', () => ('text-emerald-500')],
+  [trend === 'down', () => ('text-red-500')],
+], () => ('text-muted-foreground'));
+  const trendBg = matchFirst([
+  [trend === 'up', () => ('bg-emerald-500/10')],
+  [trend === 'down', () => ('bg-red-500/10')],
+], () => ('bg-muted'));
 
   return (
     <motion.div
@@ -120,7 +127,10 @@ export function MetricCard({
                 {sparklineData && sparklineData.length > 0 && (
                   <MiniSparkline 
                     data={sparklineData} 
-                    color={trend === 'up' ? 'hsl(142, 76%, 36%)' : trend === 'down' ? 'hsl(0, 84%, 60%)' : 'hsl(var(--primary))'} 
+                    color={matchFirst([
+  [trend === 'up', () => ('hsl(142, 76%, 36%)')],
+  [trend === 'down', () => ('hsl(0, 84%, 60%)')],
+], () => ('hsl(var(--primary))'))} 
                   />
                 )}
               </p>

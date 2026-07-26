@@ -1,6 +1,6 @@
 import { log } from '@/lib/logger';
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/hooks/use-auth';
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";

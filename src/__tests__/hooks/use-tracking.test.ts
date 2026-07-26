@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: { from: vi.fn(), auth: { getUser: vi.fn() } },
 }));
-vi.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/hooks/use-auth', () => ({
   useAuth: () => ({ user: { id: 'user-123' }, loading: false }),
 }));
 

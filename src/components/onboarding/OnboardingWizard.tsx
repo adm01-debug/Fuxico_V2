@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Confetti } from '@/components/ui/confetti';
 import { createWizardSteps, type WizardStep } from './wizard-steps';
+import { matchFirst } from "@/lib/variant";
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -22,9 +23,10 @@ const StepIndicator = ({ steps, currentStep, onStepClick }: {
       <motion.button key={step.id}
         onClick={() => index <= currentStep && onStepClick(index)}
         className={cn("relative rounded-full transition-all duration-300",
-          index === currentStep ? "w-10 h-3 bg-primary"
-            : index < currentStep ? "w-3 h-3 bg-primary/60 cursor-pointer hover:bg-primary/80"
-              : "w-3 h-3 bg-muted-foreground/20")}
+          matchFirst([
+  [index === currentStep, () => ("w-10 h-3 bg-primary")],
+  [index < currentStep, () => ("w-3 h-3 bg-primary/60 cursor-pointer hover:bg-primary/80")],
+], () => ("w-3 h-3 bg-muted-foreground/20")))}
         whileHover={index < currentStep ? { scale: 1.2 } : {}}
         whileTap={index < currentStep ? { scale: 0.9 } : {}}
         aria-label={`Ir para passo ${index + 1}: ${step.title}`}>

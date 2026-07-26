@@ -6,7 +6,8 @@ import { ptBR } from "date-fns/locale";
 import { Mail, Eye, MousePointerClick, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { EmailFiltersComponent, useEmailFilters, filterEmails, type EmailFilters } from "./EmailFilters";
+import { EmailFiltersComponent } from "./EmailFilters";
+import { useEmailFilters, filterEmails, type EmailFilters } from "@/hooks/use-email-filters";
 import { EmailStatusBadge } from "@/components/ui/email-status-badge";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { motion } from "framer-motion";
@@ -157,7 +158,11 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const emails = externalEmails ?? (fetchedEmails as TrackedEmail[] | undefined) ?? [];
+  // Identidade estável do array evita invalidar o memo de filtragem a cada render.
+  const emails = useMemo(
+    () => externalEmails ?? (fetchedEmails as TrackedEmail[] | undefined) ?? [],
+    [externalEmails, fetchedEmails],
+  );
   const selectedId = externalSelectedId ?? internalSelectedId;
   const onSelect = externalOnSelect ?? setInternalSelectedId;
 
@@ -246,6 +251,5 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
   );
 }
 
-export { useEmailFilters, filterEmails };
 export type { EmailFilters };
 export default EmailTable;

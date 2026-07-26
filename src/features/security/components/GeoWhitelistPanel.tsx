@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { matchFirst } from "@/lib/variant";
 import { 
   Globe2,
   Plus, 
@@ -219,17 +220,20 @@ export default function GeoWhitelistPanel() {
         </div>
 
         {/* List */}
-        {isLoading ? (
+        {matchFirst([
+  [isLoading, () => ((
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : filteredCountries?.length === 0 ? (
+        ))],
+  [filteredCountries?.length === 0, () => ((
           <div className="text-center py-8 text-muted-foreground">
             {geoWhitelist?.length === 0 
               ? 'Nenhum país na whitelist. Adicione países para ativar o bloqueio.'
               : 'Nenhum país encontrado'}
           </div>
-        ) : (
+        ))],
+], () => ((
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {filteredCountries?.map((entry) => (
               <div
@@ -268,7 +272,7 @@ export default function GeoWhitelistPanel() {
               </div>
             ))}
           </div>
-        )}
+        )))}
       </CardContent>
 
       {/* Add Dialog */}

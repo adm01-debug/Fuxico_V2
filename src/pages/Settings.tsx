@@ -1,5 +1,5 @@
 import { useUserPreferences } from '@/hooks/use-user-preferences';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import { BackButton } from '@/components/ui/back-button';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType } from '@/lib/notification-sound';
+import { matchFirst } from "@/lib/variant";
 
 export default function Settings() {
   const { preferences, isLoading, updatePreferences, isUpdating } = useUserPreferences();
@@ -140,13 +141,16 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label className="text-sm">Volume Aviso:</Label>
                   <div className="flex items-center gap-2">
-                    {warningVolume === 0 ? (
+                    {matchFirst([
+  [warningVolume === 0, () => ((
                       <VolumeX className="h-4 w-4 text-muted-foreground shrink-0" />
-                    ) : warningVolume < 0.5 ? (
+                    ))],
+  [warningVolume < 0.5, () => ((
                       <Volume1 className="h-4 w-4 text-muted-foreground shrink-0" />
-                    ) : (
+                    ))],
+], () => ((
                       <Volume2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                    )}
+                    )))}
                     <Slider
                       value={[warningVolume]}
                       onValueChange={handleWarningVolumeChange}
@@ -174,13 +178,16 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label className="text-sm">Volume Crítico:</Label>
                   <div className="flex items-center gap-2">
-                    {criticalVolume === 0 ? (
+                    {matchFirst([
+  [criticalVolume === 0, () => ((
                       <VolumeX className="h-4 w-4 text-destructive shrink-0" />
-                    ) : criticalVolume < 0.5 ? (
+                    ))],
+  [criticalVolume < 0.5, () => ((
                       <Volume1 className="h-4 w-4 text-destructive shrink-0" />
-                    ) : (
+                    ))],
+], () => ((
                       <Volume2 className="h-4 w-4 text-destructive shrink-0" />
-                    )}
+                    )))}
                     <Slider
                       value={[criticalVolume]}
                       onValueChange={handleCriticalVolumeChange}
