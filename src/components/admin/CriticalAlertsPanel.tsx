@@ -155,12 +155,8 @@ function parseQuery(raw: string): ParsedQuery {
   return out;
 }
 
-function fieldText(row: AlertRow, field: string): string {
-  const v = row[field as keyof AlertRow];
-  if (v === null || v === undefined) return "";
-  if (Array.isArray(v)) return v.join(" ");
-  return typeof v === "string" ? v : JSON.stringify(v);
-}
+
+
 
 
 function escapeRegExp(s: string): string {
@@ -345,6 +341,7 @@ export function CriticalAlertsPanel() {
           _event_types: eventType.trim() ? [eventType.trim()] : null,
           _severities: severities,
           _dispatch_status: dispatch === "all" ? null : dispatch,
+          _search: search.trim() || null,
           _limit: limit,
           _offset: offset,
         });
