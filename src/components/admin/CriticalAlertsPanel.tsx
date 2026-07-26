@@ -162,16 +162,6 @@ function fieldText(row: AlertRow, field: string): string {
   return typeof v === "string" ? v : JSON.stringify(v);
 }
 
-function rowHaystack(row: AlertRow): string {
-  return SEARCHABLE_FIELDS.map((f) => fieldText(row, f)).join(" \u0000 ").toLowerCase();
-}
-
-function matchesQuery(row: AlertRow, q: ParsedQuery): boolean {
-  const hay = rowHaystack(row);
-  if (q.exclude.some((t) => hay.includes(t))) return false;
-  if (!q.include.every((t) => hay.includes(t))) return false;
-  return q.fields.every((f) => fieldText(row, f.field).toLowerCase().includes(f.value));
-}
 
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -493,11 +483,11 @@ export function CriticalAlertsPanel() {
           <div className="flex gap-2">
             <Input
               placeholder={`ex: timeout  "dead letter"  metadata:webhook_id  -skipped`}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
             />
-            {search && (
-              <Button variant="outline" size="sm" onClick={() => setSearch("")}>
+            {searchInput && (
+              <Button variant="outline" size="sm" onClick={() => setSearchInput("")}>
                 Limpar
               </Button>
             )}
@@ -698,7 +688,7 @@ export function CriticalAlertsPanel() {
                   variant="outline"
                   size="sm"
                   disabled={page === 0 || alerts.isFetching}
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  onClick={() => setPage(Math.max(0, page - 1))}
                 >
                   ‹ Anterior
                 </Button>
@@ -706,7 +696,7 @@ export function CriticalAlertsPanel() {
                   variant="outline"
                   size="sm"
                   disabled={page + 1 >= totalPages || alerts.isFetching}
-                  onClick={() => setPage((p) => p + 1)}
+                  onClick={() => setPage(page + 1)}
                 >
                   Próxima ›
                 </Button>
