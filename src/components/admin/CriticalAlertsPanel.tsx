@@ -184,7 +184,7 @@ function Highlight({ text, terms }: { text: string; terms: string[] }) {
   return (
     <>
       {parts.map((part, i) =>
-        re.test(part) && valid.some((t) => part.toLowerCase() === t.toLowerCase()) ? (
+        valid.some((t) => part.toLowerCase() === t.toLowerCase()) ? (
           <mark
             key={`${part}-${i}`}
             className="bg-amber-500/30 text-foreground rounded-sm px-0.5"
