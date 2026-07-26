@@ -92,6 +92,16 @@ export default tseslint.config(
     },
   },
   {
+    // Primitivos shadcn/ui: por convenção da biblioteca cada arquivo exporta o
+    // componente junto com suas variantes CVA / hook interno. Reescrevê-los
+    // quebraria a compatibilidade com upstream, então o aviso de Fast Refresh
+    // é desativado apenas nesta camada.
+    files: ["src/components/ui/**/*.tsx"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
+  {
     files: ["**/*.cjs", "scripts/**/*.{js,cjs}"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
