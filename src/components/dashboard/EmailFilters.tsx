@@ -37,6 +37,24 @@ export interface EmailFilters {
   sortOrder: 'asc' | 'desc';
 }
 
+/** Rótulo compacto do intervalo customizado ("dd/MM - dd/MM"). */
+function formatCustomRangeLabel(range: EmailFilters['dateRange']): string {
+  if (!range.from) return '';
+  const from = format(range.from, 'dd/MM', { locale: ptBR });
+  const to = range.to ? format(range.to, 'dd/MM', { locale: ptBR }) : '...';
+  return `${from} - ${to}`;
+}
+
+/** Alterna a direção quando a mesma coluna é reordenada; caso contrário, inicia em 'desc'. */
+function nextSortOrder(
+  filters: EmailFilters,
+  nextSortBy: string,
+): EmailFilters['sortOrder'] {
+  if (filters.sortBy !== nextSortBy) return 'desc';
+  return filters.sortOrder === 'desc' ? 'asc' : 'desc';
+}
+
+
 interface EmailFiltersProps {
   filters: EmailFilters;
   onFiltersChange: (filters: EmailFilters) => void;
