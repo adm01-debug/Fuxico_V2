@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Shield, Loader2, ArrowLeft, KeyRound, Copy, CheckCircle } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { generateBackupCodes } from "@/lib/secure-random";
 
 interface MFASettings {
   is_enabled: boolean;
@@ -110,9 +111,7 @@ export default function TwoFactorAuth() {
       if (verifyError) throw verifyError;
 
       // Generate backup codes
-      const codes = Array.from({ length: 10 }, () => 
-        Math.random().toString(36).substring(2, 8).toUpperCase()
-      );
+      const codes = generateBackupCodes(10);
       setBackupCodes(codes);
 
       // Save MFA settings to our table

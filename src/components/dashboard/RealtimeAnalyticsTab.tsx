@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { 
+import { cosmeticInt } from "@/lib/secure-random";
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer
 } from 'recharts'
@@ -54,8 +55,8 @@ export default function RealtimeAnalyticsTab() {
       const hour = new Date(now.getTime() - (23 - i) * 60 * 60 * 1000)
       return {
         time: hour.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        opens: Math.floor(Math.random() * 30) + 5,
-        clicks: Math.floor(Math.random() * 15) + 2,
+        opens: cosmeticInt(5, 34),
+        clicks: cosmeticInt(2, 16),
       }
     })
     setChartData(data)
@@ -113,18 +114,18 @@ export default function RealtimeAnalyticsTab() {
     
     const interval = setInterval(() => {
       const types: RealtimeEvent['type'][] = ['open', 'click', 'delivered', 'open', 'open']
-      const type = types[Math.floor(Math.random() * types.length)]
+      const type = types[cosmeticInt(0, types.length - 1)]
       const domains = ['gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'empresa.com.br']
       const names = ['Maria', 'João', 'Ana', 'Pedro', 'Lucas', 'Carla', 'Bruno', 'Julia']
       
       const event: RealtimeEvent = {
         id: crypto.randomUUID(),
         type,
-        email: `${names[Math.floor(Math.random() * names.length)].toLowerCase()}@${domains[Math.floor(Math.random() * domains.length)]}`,
-        subject: type === 'open' ? 'Proposta comercial #' + Math.floor(Math.random() * 1000) : undefined,
+        email: `${names[cosmeticInt(0, names.length - 1)].toLowerCase()}@${domains[cosmeticInt(0, domains.length - 1)]}`,
+        subject: type === 'open' ? 'Proposta comercial #' + cosmeticInt(0, 999) : undefined,
         timestamp: new Date(),
-        country: ['BR', 'US', 'PT', 'AR'][Math.floor(Math.random() * 4)],
-        device: ['Desktop', 'Mobile', 'Tablet'][Math.floor(Math.random() * 3)],
+        country: ['BR', 'US', 'PT', 'AR'][cosmeticInt(0, 3)],
+        device: ['Desktop', 'Mobile', 'Tablet'][cosmeticInt(0, 2)],
       }
       
       setEvents(prev => [event, ...prev].slice(0, 50))

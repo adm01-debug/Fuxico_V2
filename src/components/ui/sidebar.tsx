@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cosmeticInt } from "@/lib/secure-random";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -513,7 +514,7 @@ const SidebarMenuSkeleton = forwardRef<
   }
 >(({ className, showIcon = false, ...props }, ref) => {
   const width = useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
+    return `${cosmeticInt(50, 90)}%`;
   }, []);
 
   return (
