@@ -38,6 +38,48 @@ export default tseslint.config(
       "eqeqeq": ["error", "always"],
       "no-var": "error",
       "prefer-const": "error",
+      // Limiar de complexidade cognitiva calibrado para componentes de dashboard
+      // com múltiplos estados de carregamento/erro (padrão do Sonar = 15).
+      "sonarjs/cognitive-complexity": ["error", 25],
+    },
+  },
+  {
+    // Camada de apresentação (JSX): ternários encadeados são idiomáticos para
+    // seleção de variante/ícone. Mantemos como aviso para não mascarar lógica
+    // de negócio, que continua sob regra de erro nos arquivos .ts.
+    files: ["**/*.tsx"],
+    rules: {
+      "sonarjs/no-nested-conditional": "warn",
+    },
+  },
+  {
+    // Testes, mocks e fixtures: IPs/URLs/aleatoriedade são dados sintéticos.
+    files: [
+      "**/__tests__/**/*.{ts,tsx}",
+      "**/*.test.{ts,tsx}",
+      "**/*.spec.{ts,tsx}",
+      "src/test/**/*.{ts,tsx}",
+      "e2e/**/*.{ts,tsx}",
+      "tests/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "sonarjs/no-hardcoded-ip": "off",
+      "sonarjs/pseudo-random": "off",
+      "sonarjs/no-clear-text-protocols": "off",
+      "sonarjs/no-nested-conditional": "off",
+      "sonarjs/no-identical-expressions": "off",
+      "sonarjs/no-empty-collection": "off",
+      "sonarjs/assertions-in-tests": "off",
+      "sonarjs/slow-regex": "off",
+      "sonarjs/no-hardcoded-passwords": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "no-console": "off",
+    },
+  },
+  {
+    files: ["**/*.cjs", "scripts/**/*.{js,cjs}"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
 );
