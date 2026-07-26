@@ -3,12 +3,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
+export type ReportType = 'daily' | 'weekly' | 'monthly';
+export type ReportFormat = 'email' | 'pdf' | 'csv';
+
 export interface ScheduledReport {
   id: string;
   user_id: string;
   name: string;
-  report_type: 'daily' | 'weekly' | 'monthly';
-  format: 'email' | 'pdf' | 'csv';
+  report_type: ReportType;
+  format: ReportFormat;
   enabled: boolean;
   recipients: string[];
   metrics: string[];
@@ -179,7 +182,7 @@ export function useScheduledReports() {
   const addRecipient = useMutation({
     mutationFn: async ({ id, email }: { id: string; email: string }) => {
       // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]{1,64}@[^\s@.]{1,63}(?:\.[^\s@.]{1,63}){1,4}$/;
       if (!emailRegex.test(email)) throw new Error('Formato de email inválido');
 
       const report = reports.find(r => r.id === id);

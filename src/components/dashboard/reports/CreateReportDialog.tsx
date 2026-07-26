@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import type { ReportType, ReportFormat } from '@/hooks/use-scheduled-reports';
 
 const metricOptions = [
   { value: 'emails_sent', label: 'Emails Enviados' },
@@ -27,8 +28,8 @@ interface CreateReportDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreate: (data: {
     name: string;
-    report_type: 'daily' | 'weekly' | 'monthly';
-    format: 'email' | 'pdf' | 'csv';
+    report_type: ReportType;
+    format: ReportFormat;
     recipients: string[];
     metrics: string[];
   }) => Promise<unknown>;

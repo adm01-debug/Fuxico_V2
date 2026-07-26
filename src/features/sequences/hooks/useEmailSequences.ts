@@ -279,7 +279,7 @@ export function useEnrollContact() {
         .limit(1);
 
       const firstStep = steps?.[0];
-      let nextStepAt = new Date();
+      const nextStepAt = new Date();
       if (firstStep) {
         nextStepAt.setDate(nextStepAt.getDate() + (firstStep.delay_days || 0));
         nextStepAt.setHours(nextStepAt.getHours() + (firstStep.delay_hours || 0));

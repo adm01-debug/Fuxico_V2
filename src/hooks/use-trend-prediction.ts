@@ -17,13 +17,15 @@ interface Prediction {
   confidence: number;
 }
 
+export type TrendDirection = 'up' | 'down' | 'stable';
+
 export interface TrendPredictionData {
   historical: TrendDataPoint[];
   predictions: Prediction[];
   summary: {
-    emailsTrend: 'up' | 'down' | 'stable';
-    opensTrend: 'up' | 'down' | 'stable';
-    clicksTrend: 'up' | 'down' | 'stable';
+    emailsTrend: TrendDirection;
+    opensTrend: TrendDirection;
+    clicksTrend: TrendDirection;
     predictedOpenRate: number;
     predictedClickRate: number;
   };
