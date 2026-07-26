@@ -435,6 +435,30 @@ export function CriticalAlertsPanel() {
           </div>
         </div>
 
+        {/* Busca textual avançada */}
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+            <Search className="w-3 h-3" /> Busca avançada (metadata, descrição, erro)
+          </label>
+          <div className="flex gap-2">
+            <Input
+              placeholder={`ex: timeout  "dead letter"  metadata:webhook_id  -skipped`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <Button variant="outline" size="sm" onClick={() => setSearch("")}>
+                Limpar
+              </Button>
+            )}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Suporta termos livres, "frases exatas", <code>campo:valor</code> (id, event_type,
+            severity, description, dispatch_status, error_message, metadata, channels) e
+            exclusão com <code>-termo</code>. Aplica-se aos eventos da página atual.
+          </p>
+        </div>
+
         {/* Sumário por tipo */}
         <div>
           <h3 className="text-sm font-semibold mb-2">
@@ -501,12 +525,19 @@ export function CriticalAlertsPanel() {
         <div>
           <h3 className="text-sm font-semibold mb-2">
             Eventos ({total} no filtro atual)
+            {search.trim() && (
+              <span className="ml-2 font-normal text-muted-foreground">
+                — {visibleRows.length} correspondência(s) nesta página
+              </span>
+            )}
           </h3>
           {alerts.isLoading ? (
             <Skeleton className="h-40 w-full" />
-          ) : (alerts.data ?? []).length === 0 ? (
+          ) : visibleRows.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
-              Nada encontrado para os filtros escolhidos.
+              {search.trim()
+                ? "Nenhum evento desta página casa com a busca."
+                : "Nada encontrado para os filtros escolhidos."}
             </p>
           ) : (
             <div className="overflow-x-auto rounded-md border">
@@ -523,7 +554,9 @@ export function CriticalAlertsPanel() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(alerts.data ?? []).map((a) => (
+                  {visibleRows.map((a) => {
+                    const snippet = metaSnippet(a);
+                    return (
                     <TableRow
                       key={a.id}
                       className="cursor-pointer hover:bg-muted/50"
@@ -533,7 +566,7 @@ export function CriticalAlertsPanel() {
                         {new Date(a.created_at).toLocaleString("pt-BR")}
                       </TableCell>
                       <TableCell className="font-mono text-xs">
-                        {a.event_type}
+                        <Highlight text={a.event_type} terms={highlightTerms} />
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -543,11 +576,15 @@ export function CriticalAlertsPanel() {
                           {a.severity}
                         </Badge>
                       </TableCell>
-                      <TableCell
-                        className="max-w-md truncate text-xs"
-                        title={a.description}
-                      >
-                        {a.description}
+                      <TableCell className="max-w-md text-xs" title={a.description}>
+                        <div className="truncate">
+                          <Highlight text={a.description} terms={highlightTerms} />
+                        </div>
+                        {snippet && (
+                          <div className="mt-1 font-mono text-[10px] text-muted-foreground truncate">
+                            <Highlight text={snippet} terms={highlightTerms} />
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -564,7 +601,8 @@ export function CriticalAlertsPanel() {
                         <Search className="w-3.5 h-3.5 text-muted-foreground" />
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
