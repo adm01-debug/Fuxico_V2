@@ -3,7 +3,7 @@
  * @description Guia interativo para novos usuários do FUXICO
  */
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import Joyride, { 
   CallBackProps, 
   STATUS, 

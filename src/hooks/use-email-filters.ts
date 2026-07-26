@@ -12,7 +12,7 @@ export interface EmailFilters {
   sortOrder: 'asc' | 'desc';
 }
 
-const defaultFilters: EmailFilters = {
+export const defaultFilters: EmailFilters = {
   search: '',
   status: 'all',
   period: 'all',
