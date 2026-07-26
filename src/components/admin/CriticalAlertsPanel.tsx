@@ -108,6 +108,97 @@ function toCsv(rows: AlertRow[]): string {
   return `${header}\n${body}\n`;
 }
 
+/** Parser de busca avançada: termos livres, "frases", campo:valor e -exclusão. */
+type ParsedQuery = {
+  include: string[];
+  exclude: string[];
+  fields: Array<{ field: string; value: string }>;
+};
+
+const SEARCHABLE_FIELDS = [
+  "id",
+  "event_type",
+  "severity",
+  "description",
+  "dispatch_status",
+  "error_message",
+  "metadata",
+  "channels",
+] as const;
+
+function parseQuery(raw: string): ParsedQuery {
+  const out: ParsedQuery = { include: [], exclude: [], fields: [] };
+  const tokens = raw.match(/(?:[^\s"]+|"[^"]*")+/g) ?? [];
+  for (const tokenRaw of tokens) {
+    let token = tokenRaw.trim();
+    if (!token) continue;
+    let negated = false;
+    if (token.startsWith("-") && token.length > 1) {
+      negated = true;
+      token = token.slice(1);
+    }
+    const fieldMatch = /^([a-z_]+):(.*)$/i.exec(token);
+    if (fieldMatch && (SEARCHABLE_FIELDS as readonly string[]).includes(fieldMatch[1].toLowerCase())) {
+      const value = fieldMatch[2].replace(/^"|"$/g, "").toLowerCase();
+      if (!value) continue;
+      if (negated) out.exclude.push(value);
+      else out.fields.push({ field: fieldMatch[1].toLowerCase(), value });
+      continue;
+    }
+    const clean = token.replace(/^"|"$/g, "").toLowerCase();
+    if (!clean) continue;
+    if (negated) out.exclude.push(clean);
+    else out.include.push(clean);
+  }
+  return out;
+}
+
+function fieldText(row: AlertRow, field: string): string {
+  const v = row[field as keyof AlertRow];
+  if (v === null || v === undefined) return "";
+  if (Array.isArray(v)) return v.join(" ");
+  return typeof v === "string" ? v : JSON.stringify(v);
+}
+
+function rowHaystack(row: AlertRow): string {
+  return SEARCHABLE_FIELDS.map((f) => fieldText(row, f)).join(" \u0000 ").toLowerCase();
+}
+
+function matchesQuery(row: AlertRow, q: ParsedQuery): boolean {
+  const hay = rowHaystack(row);
+  if (q.exclude.some((t) => hay.includes(t))) return false;
+  if (!q.include.every((t) => hay.includes(t))) return false;
+  return q.fields.every((f) => fieldText(row, f.field).toLowerCase().includes(f.value));
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Destaca todos os termos de busca dentro de um texto. */
+function Highlight({ text, terms }: { text: string; terms: string[] }) {
+  const valid = terms.filter((t) => t.length > 0);
+  if (valid.length === 0) return <>{text}</>;
+  const re = new RegExp(`(${valid.map(escapeRegExp).join("|")})`, "gi");
+  const parts = text.split(re);
+  return (
+    <>
+      {parts.map((part, i) =>
+        re.test(part) && valid.some((t) => part.toLowerCase() === t.toLowerCase()) ? (
+          <mark
+            key={`${part}-${i}`}
+            className="bg-amber-500/30 text-foreground rounded-sm px-0.5"
+          >
+            {part}
+          </mark>
+        ) : (
+          <span key={`${part}-${i}`}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 function downloadCsv(filename: string, csv: string): void {
   const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
