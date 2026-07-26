@@ -38,12 +38,13 @@ export function usePrefetchRoute() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     // Delay prefetch slightly to avoid unnecessary loads on quick mouse movements
+    const run = () => {
+      loader()
+        .then(() => prefetchedModules.add(routeId))
+        .catch((error) => log.warn('Prefetch de rota falhou', { routeId, error }));
+    };
+
     timeoutRef.current = setTimeout(() => {
-      const run = () => {
-        loader()
-          .then(() => prefetchedModules.add(routeId))
-          .catch((error) => log.warn('Prefetch de rota falhou', { routeId, error }));
-      };
       if ('requestIdleCallback' in window) {
         requestIdleCallback(run);
       } else {

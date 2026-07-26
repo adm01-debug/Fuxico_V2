@@ -178,7 +178,8 @@ export function useRealtimeNotifications() {
       );
     }
     
-    const severityEmoji = alert.severity === 'high' ? '🚨' : alert.severity === 'medium' ? '⚠️' : 'ℹ️';
+    const severityEmojiMap: Record<string, string> = { high: '🚨', medium: '⚠️' };
+    const severityEmoji = severityEmojiMap[alert.severity] ?? 'ℹ️';
     const title = `${severityEmoji} Alerta de Fraude Detectado!`;
     const description = `${alert.user_email}: ${alert.description}`;
     

@@ -30,10 +30,6 @@ describe("Role-Based Access Control", () => {
     return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
   };
 
-  const _hasRole = (userRoles: Role[], requiredRole: Role): boolean =>
-    userRoles.includes(requiredRole);
-  void _hasRole;
-
   describe("Permission checks", () => {
     it("admin should have all permissions", () => {
       ROLE_PERMISSIONS.admin.forEach(p =>

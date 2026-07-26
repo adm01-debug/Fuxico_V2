@@ -54,6 +54,9 @@ export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: 
     onOpenChange(false);
   };
 
+  const removeRecipient = (email: string) =>
+    setNewReport(prev => ({ ...prev, recipients: prev.recipients.filter(e => e !== email) }));
+
   const addRecipient = () => {
     if (!recipientInput || !recipientInput.includes('@')) { toast.error('Email inválido'); return; }
     setNewReport(prev => ({ ...prev, recipients: [...prev.recipients, recipientInput] }));
@@ -123,7 +126,7 @@ export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: 
             <div className="flex flex-wrap gap-1 mb-2">
               {newReport.recipients.map(email => (
                 <Badge key={email} variant="secondary" className="cursor-pointer"
-                  onClick={() => setNewReport(prev => ({ ...prev, recipients: prev.recipients.filter(e => e !== email) }))}>{email} ×</Badge>
+                  onClick={() => removeRecipient(email)}>{email} ×</Badge>
               ))}
             </div>
             <div className="flex gap-2">

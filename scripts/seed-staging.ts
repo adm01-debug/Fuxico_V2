@@ -23,12 +23,16 @@ const supabase = createClient(url, key);
 const USERS = 100;
 const EMAILS_PER_USER = 500;
 
+const STAGING_PASSWORD =
+  process.env.STAGING_SEED_PASSWORD ??
+  (() => { throw new Error("Defina STAGING_SEED_PASSWORD para executar o seed."); })();
+
 async function main() {
   console.log(`Seeding ${USERS} users × ${EMAILS_PER_USER} emails...`);
   for (let u = 0; u < USERS; u++) {
     const email = faker.internet.email();
     const { data: user } = await supabase.auth.admin.createUser({
-      email, password: "StagingPass123!", email_confirm: true,
+      email, password: STAGING_PASSWORD, email_confirm: true,
     });
     if (!user?.user) continue;
 

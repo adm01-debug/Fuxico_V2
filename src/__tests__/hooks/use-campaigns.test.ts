@@ -117,8 +117,10 @@ describe('useCampaigns - batch query optimization', () => {
   });
 
   it('should handle zero division in rates', () => {
-    const openRate = 0 > 0 ? Math.round((0 / 0) * 100) : 0;
-    const clickRate = 0 > 0 ? Math.round((0 / 0) * 100) : 0;
+    const safeRate = (numerator: number, denominator: number) =>
+      denominator > 0 ? Math.round((numerator / denominator) * 100) : 0;
+    const openRate = safeRate(0, 0);
+    const clickRate = safeRate(0, 0);
 
     expect(openRate).toBe(0);
     expect(clickRate).toBe(0);
