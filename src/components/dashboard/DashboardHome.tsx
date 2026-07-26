@@ -195,6 +195,9 @@ export default function DashboardHome({ onNavigate, onCreateTracking }: Dashboar
       setStreak(1);
     }
     setLastVisit(today);
+    // Executa uma única vez na montagem: calcula o streak com o valor de
+    // `lastVisit` daquele instante e o atualiza em seguida.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const userXP = useMemo(() => {

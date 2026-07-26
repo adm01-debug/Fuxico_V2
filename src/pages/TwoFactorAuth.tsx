@@ -37,6 +37,9 @@ export default function TwoFactorAuth() {
       return;
     }
     loadMFASettings();
+    // `loadMFASettings` é recriada a cada render e só deve rodar quando a
+    // sessão do usuário muda.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate]);
 
   const loadMFASettings = async () => {

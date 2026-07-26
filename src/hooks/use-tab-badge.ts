@@ -15,15 +15,14 @@ export function useTabBadge(count: number) {
   const originalTitle = useRef(BASE_TITLE);
 
   useEffect(() => {
-    if (count > 0) {
-      document.title = `(${count}) ${originalTitle.current}`;
-    } else {
-      document.title = originalTitle.current;
-    }
+    // Copiado para variável local: o cleanup precisa do valor vigente no
+    // momento em que o efeito rodou, não do ref no momento da desmontagem.
+    const baseTitle = originalTitle.current;
 
-    // Cleanup on unmount
+    document.title = count > 0 ? `(${count}) ${baseTitle}` : baseTitle;
+
     return () => {
-      document.title = originalTitle.current;
+      document.title = baseTitle;
     };
   }, [count]);
 }

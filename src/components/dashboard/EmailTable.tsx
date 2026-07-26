@@ -158,7 +158,11 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const emails = externalEmails ?? (fetchedEmails as TrackedEmail[] | undefined) ?? [];
+  // Identidade estável do array evita invalidar o memo de filtragem a cada render.
+  const emails = useMemo(
+    () => externalEmails ?? (fetchedEmails as TrackedEmail[] | undefined) ?? [],
+    [externalEmails, fetchedEmails],
+  );
   const selectedId = externalSelectedId ?? internalSelectedId;
   const onSelect = externalOnSelect ?? setInternalSelectedId;
 

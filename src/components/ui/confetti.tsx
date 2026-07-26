@@ -212,6 +212,9 @@ export const AnimatedNumber = ({
     };
     
     requestAnimationFrame(animate);
+    // `displayValue` é lido apenas como ponto de partida da animação; incluí-lo
+    // reiniciaria a contagem a cada frame.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, duration]);
 
   return <span className={className}>{displayValue.toLocaleString()}</span>;

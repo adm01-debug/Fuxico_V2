@@ -74,6 +74,9 @@ function EmailFiltersBaseComponent({
     }, 300);
     
     return () => clearTimeout(timer);
+    // `filters`/`onFiltersChange` são intencionalmente omitidos: o efeito deve
+    // disparar apenas quando o texto digitado muda (debounce de busca).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
 
   const hasActiveFilters = 

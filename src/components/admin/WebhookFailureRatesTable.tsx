@@ -55,7 +55,9 @@ function WebhookFailureRatesTableBase() {
     refetchInterval: 60_000,
   });
 
-  const rows = data ?? [];
+  // useMemo garante identidade estável quando `data` ainda não chegou (undefined),
+  // evitando recomputar `totals` a cada render.
+  const rows = useMemo(() => data ?? [], [data]);
   const totals = useMemo(() => {
     return rows.reduce(
       (acc, r) => {
