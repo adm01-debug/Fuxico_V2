@@ -1,5 +1,5 @@
 // FUXICO - Component: ConfirmDialog
-import { useState, useCallback } from 'react';
+
 import { AlertTriangle, Trash2, Info } from 'lucide-react';
 import {
   AlertDialog,
@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-type DialogVariant = 'danger' | 'warning' | 'info';
+import type { DialogVariant } from '@/hooks/use-confirm-dialog';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -84,48 +84,5 @@ export function ConfirmDialog({
   );
 }
 
-// Hook para facilitar uso
-
-export function useConfirmDialog() {
-  const [state, setState] = useState<{
-    open: boolean;
-    title: string;
-    description: string;
-    onConfirm: () => void;
-    variant: DialogVariant;
-  }>({
-    open: false,
-    title: '',
-    description: '',
-    onConfirm: () => {},
-    variant: 'danger',
-  });
-
-  const confirm = useCallback((options: {
-    title: string;
-    description: string;
-    onConfirm: () => void;
-    variant?: DialogVariant;
-  }) => {
-    setState({
-      open: true,
-      title: options.title,
-      description: options.description,
-      onConfirm: options.onConfirm,
-      variant: options.variant || 'danger',
-    });
-  }, []);
-
-  const close = useCallback(() => {
-    setState(prev => ({ ...prev, open: false }));
-  }, []);
-
-  return {
-    ...state,
-    confirm,
-    close,
-    setOpen: (open: boolean) => setState(prev => ({ ...prev, open })),
-  };
-}
 
 export default ConfirmDialog;

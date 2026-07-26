@@ -18,7 +18,7 @@ interface FeatureCardProps {
   delay: number;
 }
 
-export const FeatureCard = ({ icon: Icon, title, description, color, delay }: FeatureCardProps) => (
+const FeatureCard = ({ icon: Icon, title, description, color, delay }: FeatureCardProps) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
     className={cn("flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-default", `bg-gradient-to-br ${color}`)}>
     <div className="p-2 rounded-lg bg-background/80 backdrop-blur-sm"><Icon className="h-5 w-5" /></div>
