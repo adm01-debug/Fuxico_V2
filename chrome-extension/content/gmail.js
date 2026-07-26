@@ -121,13 +121,24 @@
 
   async function loadSettings() {
     try {
-      const result = await chrome.storage.sync.get(['trackingEnabled']);
+      const result = await chrome.storage.sync.get([
+        'trackingEnabled',
+        'showMarkers',
+        'hideSelfOpens',
+        'signatureEnabled',
+        'reminderDays',
+      ]);
       isTrackingEnabled = result.trackingEnabled !== false;
+      showMarkers = result.showMarkers !== false;
+      hideSelfOpens = result.hideSelfOpens !== false;
+      signatureEnabled = result.signatureEnabled === true;
+      reminderDays = Number(result.reminderDays) > 0 ? Number(result.reminderDays) : 3;
       log('Tracking:', isTrackingEnabled ? 'ON' : 'OFF', '| Auth:', isAuthenticated ? 'YES' : 'NO');
     } catch (e) {
       error('Erro ao carregar configurações:', e);
     }
   }
+
 
   // ============================================
   // CACHE DE ESTATÍSTICAS
