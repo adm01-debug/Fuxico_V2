@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { requireUserId } from "@/lib/auth-guards";
 
 export interface Campaign {
   id: string;
@@ -37,7 +38,7 @@ export function useCampaigns() {
       const { data: campaigns, error } = await supabase
         .from('campaigns')
         .select('*')
-        .eq('user_id', user!.id)
+        .eq('user_id', requireUserId(user))
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -119,7 +120,7 @@ export function useCreateCampaign() {
       const { data: campaign, error } = await supabase
         .from('campaigns')
         .insert({
-          user_id: user!.id,
+          user_id: requireUserId(user),
           name: data.name,
           description: data.description || null,
         })

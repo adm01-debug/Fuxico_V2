@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { requireUserId } from "@/lib/auth-guards";
 
 export type ReportType = 'daily' | 'weekly' | 'monthly';
 export type ReportFormat = 'email' | 'pdf' | 'csv';
@@ -123,7 +124,7 @@ export function useScheduledReports() {
         .from('scheduled_reports')
         .update(update)
         .eq('id', id)
-        .eq('user_id', user!.id)
+        .eq('user_id', requireUserId(user))
         .select()
         .single();
       
@@ -146,7 +147,7 @@ export function useScheduledReports() {
         .from('scheduled_reports')
         .delete()
         .eq('id', id)
-        .eq('user_id', user!.id);
+        .eq('user_id', requireUserId(user));
       
       if (error) throw error;
     },
@@ -166,7 +167,7 @@ export function useScheduledReports() {
         .from('scheduled_reports')
         .update({ enabled })
         .eq('id', id)
-        .eq('user_id', user!.id);
+        .eq('user_id', requireUserId(user));
       
       if (error) throw error;
     },
@@ -196,7 +197,7 @@ export function useScheduledReports() {
         .from('scheduled_reports')
         .update({ recipients: [...report.recipients, email] })
         .eq('id', id)
-        .eq('user_id', user!.id);
+        .eq('user_id', requireUserId(user));
       
       if (error) throw error;
     },
