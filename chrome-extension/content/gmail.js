@@ -170,32 +170,31 @@
         const emails = Array.isArray(data.emails) ? data.emails : [];
         emails.forEach(email => {
           if (!email.recipient_email) return;
-          
-          const key = `${email.recipient_email}|${email.subject || ''}`.toLowerCase();
-          emailStatsCache.set(key, {
+
+          // A RPC `get_emails_with_stats` retorna open_count/click_count.
+          // Mantemos fallback para nomes antigos por compatibilidade.
+          const entry = {
             trackingId: email.tracking_id,
-            opens: email.opens || 0,
-            clicks: email.clicks || 0,
-            selfOpens: email.selfOpens || 0,
+            opens: Number(email.open_count ?? email.opens ?? 0),
+            uniqueOpens: Number(email.unique_opens ?? email.open_count ?? 0),
+            clicks: Number(email.total_link_clicks ?? email.click_count ?? email.clicks ?? 0),
+            selfOpens: Number(email.self_opens ?? email.selfOpens ?? 0),
+            lastOpenedAt: email.last_opened_at || null,
             createdAt: email.created_at,
             recipientEmail: email.recipient_email,
             subject: email.subject,
-          });
-          
+          };
+
+          const key = `${email.recipient_email}|${email.subject || ''}`.toLowerCase();
+          emailStatsCache.set(key, entry);
+
           // Also index by just recipient email for fuzzy matching
           const emailKey = email.recipient_email.toLowerCase();
           if (!emailStatsCache.has(emailKey)) {
-            emailStatsCache.set(emailKey, {
-              trackingId: email.tracking_id,
-              opens: email.opens || 0,
-              clicks: email.clicks || 0,
-              selfOpens: email.selfOpens || 0,
-              createdAt: email.created_at,
-              recipientEmail: email.recipient_email,
-              subject: email.subject,
-            });
+            emailStatsCache.set(emailKey, entry);
           }
         });
+
         
         lastStatsFetch = now;
         log(`Stats cache atualizado: ${emailStatsCache.size} entradas`);
