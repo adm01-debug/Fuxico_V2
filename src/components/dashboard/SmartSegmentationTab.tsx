@@ -15,7 +15,7 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/use-auth'
 import { matchFirst } from "@/lib/variant";
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend 

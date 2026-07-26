@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/integrations/supabase/client'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/use-auth'
 import { 
   Activity, Eye, MousePointerClick, Mail, Zap, Clock, 
   ArrowUpRight, ArrowDownRight, Pause, Play, Wifi, WifiOff 
