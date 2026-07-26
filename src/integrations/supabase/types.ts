@@ -5200,18 +5200,31 @@ export type Database = {
         }
       }
       admin_cleanup_index_advisor_runs: { Args: never; Returns: Json }
-      admin_critical_alerts_summary: {
-        Args: { _hours?: number }
-        Returns: {
-          event_type: string
-          failed: number
-          last_seen: string
-          pending: number
-          sent: number
-          severity: string
-          total: number
-        }[]
-      }
+      admin_critical_alerts_summary:
+        | {
+            Args: { _hours?: number }
+            Returns: {
+              event_type: string
+              failed: number
+              last_seen: string
+              pending: number
+              sent: number
+              severity: string
+              total: number
+            }[]
+          }
+        | {
+            Args: { _hours?: number; _search?: string }
+            Returns: {
+              event_type: string
+              failed: number
+              last_seen: string
+              pending: number
+              sent: number
+              severity: string
+              total: number
+            }[]
+          }
       admin_data_integrity_check: {
         Args: never
         Returns: {
@@ -5310,30 +5323,56 @@ export type Database = {
         }[]
       }
       admin_last_index_advisor_cleanup: { Args: never; Returns: Json }
-      admin_list_critical_alerts: {
-        Args: {
-          _dispatch_status?: string
-          _event_types?: string[]
-          _hours?: number
-          _limit?: number
-          _offset?: number
-          _severities?: string[]
-        }
-        Returns: {
-          admin_count: number
-          channels: string[]
-          created_at: string
-          description: string
-          dispatch_status: string
-          dispatched_at: string
-          error_message: string
-          event_type: string
-          id: string
-          metadata: Json
-          severity: string
-          total_count: number
-        }[]
-      }
+      admin_list_critical_alerts:
+        | {
+            Args: {
+              _dispatch_status?: string
+              _event_types?: string[]
+              _hours?: number
+              _limit?: number
+              _offset?: number
+              _severities?: string[]
+            }
+            Returns: {
+              admin_count: number
+              channels: string[]
+              created_at: string
+              description: string
+              dispatch_status: string
+              dispatched_at: string
+              error_message: string
+              event_type: string
+              id: string
+              metadata: Json
+              severity: string
+              total_count: number
+            }[]
+          }
+        | {
+            Args: {
+              _dispatch_status?: string
+              _event_types?: string[]
+              _hours?: number
+              _limit?: number
+              _offset?: number
+              _search?: string
+              _severities?: string[]
+            }
+            Returns: {
+              admin_count: number
+              channels: string[]
+              created_at: string
+              description: string
+              dispatch_status: string
+              dispatched_at: string
+              error_message: string
+              event_type: string
+              id: string
+              metadata: Json
+              severity: string
+              total_count: number
+            }[]
+          }
       admin_list_cron_failures: {
         Args: { _limit?: number }
         Returns: {
@@ -5811,6 +5850,14 @@ export type Database = {
       monitor_archive_and_webhook_health: { Args: never; Returns: Json }
       monitor_cron_jobs: { Args: never; Returns: number }
       monitor_table_bloat: { Args: never; Returns: number }
+      parse_alert_search: {
+        Args: { _search: string }
+        Returns: {
+          field: string
+          kind: string
+          value: string
+        }[]
+      }
       preview_ab_segment: {
         Args: { p_filters?: Json; p_user_id: string }
         Returns: {
