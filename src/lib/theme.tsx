@@ -6,7 +6,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { matchFirst } from "@/lib/variant";
-import { ThemeContext, type Theme, type ResolvedTheme } from '@/lib/theme-context';
+import { ThemeContext, type Theme, type ResolvedTheme, type ThemeContextType } from '@/lib/theme-context';
 import { useTheme } from '@/hooks/use-theme';
 
 // =============================================================================
