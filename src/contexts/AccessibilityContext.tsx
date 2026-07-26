@@ -1,18 +1,10 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
+import {
+  AccessibilityContext,
+  type MotionPreference,
+  type ContrastPreference,
+} from "@/contexts/accessibility-context";
 
-type MotionPreference = "no-preference" | "reduce";
-type ContrastPreference = "standard" | "high";
-
-interface AccessibilityContextType {
-  fontSize: number;
-  setFontSize: (size: number) => void;
-  motionPreference: MotionPreference;
-  setMotionPreference: (pref: MotionPreference) => void;
-  contrastPreference: ContrastPreference;
-  setContrastPreference: (pref: ContrastPreference) => void;
-}
-
-const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
 
 export const AccessibilityProvider = ({ children }: { children: ReactNode }) => {
   const [fontSize, setFontSize] = useState(() => {
@@ -67,8 +59,3 @@ export const AccessibilityProvider = ({ children }: { children: ReactNode }) => 
   );
 };
 
-export const useAccessibility = () => {
-  const context = useContext(AccessibilityContext);
-  if (!context) throw new Error("useAccessibility must be used within AccessibilityProvider");
-  return context;
-};

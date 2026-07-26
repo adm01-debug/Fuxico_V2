@@ -3,36 +3,22 @@
 // Arquivo: src/lib/theme.tsx
 // =============================================================================
 
-import React, { 
-  createContext, 
-  useContext, 
-  useEffect, 
-  useState, 
-  useCallback 
-} from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { matchFirst } from "@/lib/variant";
+import { ThemeContext, type Theme, type ResolvedTheme } from '@/lib/theme-context';
+import { useTheme } from '@/hooks/use-theme';
 
 // =============================================================================
 // TIPOS
 // =============================================================================
 
-export type Theme = 'light' | 'dark' | 'system';
-export type ResolvedTheme = 'light' | 'dark';
-
-interface ThemeContextType {
-  theme: Theme;
-  resolvedTheme: ResolvedTheme;
-  setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
-  isDark: boolean;
-}
+export type { Theme, ResolvedTheme };
 
 // =============================================================================
 // CONTEXTO
 // =============================================================================
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 // =============================================================================
 // PROVIDER
@@ -175,15 +161,6 @@ export function ThemeProvider({
 // HOOK
 // =============================================================================
 
-export function useTheme(): ThemeContextType {
-  const context = useContext(ThemeContext);
-  
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  
-  return context;
-}
 
 // =============================================================================
 // COMPONENTES
