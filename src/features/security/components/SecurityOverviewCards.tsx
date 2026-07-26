@@ -71,6 +71,8 @@ export function SecurityOverviewCards() {
     enabled: !!user?.email,
   });
 
+  const mfaLastUseLabel = `Último uso: ${mfaSettings?.last_verified_at ? 'Recente' : 'N/A'}`;
+
   const cards = [
     {
       title: 'Status de Segurança',

@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, type ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -296,7 +296,7 @@ function FollowUpTabBase() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {matchFirst<React.ReactNode>([
+              {matchFirst<ReactNode>([
   [isLoading, () => ((
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
