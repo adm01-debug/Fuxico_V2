@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminRpc } from "@/lib/admin-rpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -220,6 +220,7 @@ export function CriticalAlertsPanel() {
   const [selected, setSelected] = useState<AlertRow | null>(null);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
+  const [search, setSearch] = useState("");
 
   const severities =
     severity === "all"
@@ -258,6 +259,34 @@ export function CriticalAlertsPanel() {
 
   const total = alerts.data?.[0]?.total_count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  // Busca avançada (client-side, sobre a página carregada)
+  const parsed = useMemo(() => parseQuery(search), [search]);
+  const highlightTerms = useMemo(
+    () => [...parsed.include, ...parsed.fields.map((f) => f.value)],
+    [parsed],
+  );
+  const rows = alerts.data ?? [];
+  const visibleRows = useMemo(
+    () =>
+      search.trim() ? rows.filter((r) => matchesQuery(r, parsed)) : rows,
+    [rows, parsed, search],
+  );
+
+  /** Trecho do metadata que casa com a busca, para exibir inline. */
+  const metaSnippet = (row: AlertRow): string | null => {
+    if (highlightTerms.length === 0) return null;
+    const json = JSON.stringify(row.metadata ?? {});
+    const lower = json.toLowerCase();
+    const idx = highlightTerms
+      .map((t) => lower.indexOf(t))
+      .filter((i) => i >= 0)
+      .sort((a, b) => a - b)[0];
+    if (idx === undefined) return null;
+    const start = Math.max(0, idx - 40);
+    const end = Math.min(json.length, idx + 80);
+    return `${start > 0 ? "…" : ""}${json.slice(start, end)}${end < json.length ? "…" : ""}`;
+  };
 
   const handleExportCsv = async (): Promise<void> => {
     const HARD_CAP = 5000;
