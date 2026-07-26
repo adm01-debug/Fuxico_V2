@@ -60,7 +60,6 @@ export default function TrackingAnalytics() {
     ]);
 
     // Use dynamic import or cast to avoid type issues if needed
-    // @ts-expect-error - jspdf-autotable estende o protótipo do jsPDF em runtime
     doc.autoTable({
       head: [["Destinatário", "Assunto", "Enviado em", "Aberturas", "Cliques"]],
       body: tableData,
