@@ -228,7 +228,7 @@ function LinkEventsDialog({
           ))],
 ], () => ((
             <div className="space-y-3">
-              {events.map((event) => (
+              {(events ?? []).map((event) => (
                 <Card key={event.id}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">

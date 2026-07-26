@@ -469,7 +469,7 @@ export default function AdminObservability() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {dlq.data.map((f) => (
+                  {(dlq.data ?? []).map((f) => (
                     <TableRow key={f.id}>
                       <TableCell className="font-mono text-xs">{f.job_name}</TableCell>
                       <TableCell>

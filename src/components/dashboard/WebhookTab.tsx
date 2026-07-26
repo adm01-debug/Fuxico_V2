@@ -244,7 +244,7 @@ export default function WebhookTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {logs.map((log) => (
+                {(logs ?? []).map((log) => (
                   <TableRow key={log.id}>
                     <TableCell>
                       {log.success ? (

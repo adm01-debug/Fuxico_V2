@@ -133,7 +133,7 @@ export default function AuditLogs() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredLogs.map((log) => (
+                    {(filteredLogs ?? []).map((log) => (
                       <TableRow key={log.id}>
                         <TableCell className="whitespace-nowrap font-medium">
                           {log.created_at ? format(new Date(log.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }) : 'N/A'}
