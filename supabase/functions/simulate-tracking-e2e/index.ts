@@ -27,8 +27,13 @@ const UA_POOL = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0",
 ];
 
-const jitter = (base: number, spread: number) =>
-  new Promise((r) => setTimeout(r, base + Math.floor(Math.random() * spread)));
+/** Jitter determinístico-seguro: usa CSPRNG apenas para espalhar o delay. */
+const jitter = (base: number, spread: number) => {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  const offset = spread > 0 ? buf[0] % spread : 0;
+  return new Promise((r) => setTimeout(r, base + offset));
+};
 
 const fakeIP = (i: number) =>
   // 10.99.x.x — bloco RFC1918 reservado, seguro para simulação
@@ -228,7 +233,8 @@ Deno.serve(async (req) => {
       .eq("tracking_id", trackingId)
       .maybeSingle();
     statsCheck = { tracked_email_visible: !!stats };
-  } catch (_e) {
+  } catch (err) {
+    console.warn('stats check failed', err);
     statsCheck = { tracked_email_visible: false };
   }
 
@@ -263,12 +269,12 @@ Deno.serve(async (req) => {
   // 9) Veredicto automático
   const expectedOpens = samples; // 1 evento por IP único
   const opens = events?.length ?? 0;
-  const verdict =
-    opens === expectedOpens && dedupResult.extra_events_created === 0 && selfOpens === 0
-      ? "PASS"
-      : opens >= Math.floor(expectedOpens * 0.9)
-      ? "PARTIAL"
-      : "FAIL";
+  const isPerfect =
+    opens === expectedOpens && dedupResult.extra_events_created === 0 && selfOpens === 0;
+  const isAcceptable = opens >= Math.floor(expectedOpens * 0.9);
+  let verdict: "PASS" | "PARTIAL" | "FAIL" = "FAIL";
+  if (isPerfect) verdict = "PASS";
+  else if (isAcceptable) verdict = "PARTIAL";
 
   return json({
     ok: true,

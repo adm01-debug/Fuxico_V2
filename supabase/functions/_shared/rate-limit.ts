@@ -118,8 +118,9 @@ export async function checkAdaptiveRateLimit(
         _base_limit: baseLimit,
       });
       if (typeof data === 'number' && data > 0) effectiveLimit = data;
-    } catch (_e) {
-      // Fallback silencioso ao base limit
+    } catch (err) {
+      // Degrada para o limite base quando o cálculo adaptativo falha.
+      console.warn('compute_adaptive_limit failed, using base limit', err);
     }
   }
   return checkRateLimit(identifier, endpoint, effectiveLimit, windowSeconds);

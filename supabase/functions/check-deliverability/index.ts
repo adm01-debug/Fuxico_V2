@@ -131,7 +131,6 @@ async function checkDNSRecords(domain: string) {
   return result;
 }
 
-// eslint-disable-next-line sonarjs/cognitive-complexity -- orchestration handler; branches are linear guard checks
 export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
