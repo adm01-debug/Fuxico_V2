@@ -19,7 +19,7 @@ const requirements: PasswordRequirement[] = [
   { label: 'Mínimo 8 caracteres', test: (p) => p.length >= 8 },
   { label: 'Letra maiúscula', test: (p) => /[A-Z]/.test(p) },
   { label: 'Letra minúscula', test: (p) => /[a-z]/.test(p) },
-  { label: 'Número', test: (p) => /[0-9]/.test(p) },
+  { label: 'Número', test: (p) => /\d/.test(p) },
   { label: 'Caractere especial (!@#$%^&*)', test: (p) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
 ];
 

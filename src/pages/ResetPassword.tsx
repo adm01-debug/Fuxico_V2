@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,8 +13,8 @@ const passwordSchema = z.string()
   .min(8, 'Senha deve ter no mínimo 8 caracteres')
   .regex(/[A-Z]/, 'Senha deve ter pelo menos uma letra maiúscula')
   .regex(/[a-z]/, 'Senha deve ter pelo menos uma letra minúscula')
-  .regex(/[0-9]/, 'Senha deve ter pelo menos um número')
-  .regex(/[^A-Za-z0-9]/, 'Senha deve ter pelo menos um caractere especial');
+  .regex(/\d/, 'Senha deve ter pelo menos um número')
+  .regex(/[^A-Za-z\d]/, 'Senha deve ter pelo menos um caractere especial');
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -27,7 +27,6 @@ export default function ResetPassword() {
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
   
   const navigate = useNavigate();
-  const [_searchParams] = useSearchParams();
 
   useEffect(() => {
     // Check if we have access token in URL (from email link)
@@ -94,8 +93,8 @@ export default function ResetPassword() {
     if (password.length >= 8) strength++;
     if (/[A-Z]/.test(password)) strength++;
     if (/[a-z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^A-Za-z\d]/.test(password)) strength++;
     return strength;
   };
 
@@ -240,8 +239,8 @@ export default function ResetPassword() {
                 <li className={password.length >= 8 ? 'text-green-600' : ''}>Mínimo 8 caracteres</li>
                 <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>Uma letra maiúscula</li>
                 <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>Uma letra minúscula</li>
-                <li className={/[0-9]/.test(password) ? 'text-green-600' : ''}>Um número</li>
-                <li className={/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : ''}>Um caractere especial</li>
+                <li className={/\d/.test(password) ? 'text-green-600' : ''}>Um número</li>
+                <li className={/[^A-Za-z\d]/.test(password) ? 'text-green-600' : ''}>Um caractere especial</li>
               </ul>
             </div>
           </CardContent>

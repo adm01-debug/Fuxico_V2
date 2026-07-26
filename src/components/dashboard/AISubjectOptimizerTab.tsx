@@ -11,7 +11,6 @@ import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { supabase } from '@/integrations/supabase/client'
-import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
 import { 
   Brain, Sparkles, Clock, Copy, 
@@ -29,7 +28,6 @@ interface Suggestion {
 }
 
 export default function AISubjectOptimizerTab() {
-  const { } = useAuth()
   const [originalSubject, setOriginalSubject] = useState('')
   const [context, setContext] = useState('')
   const [audience, setAudience] = useState('general')

@@ -36,8 +36,6 @@ interface Segment {
 
 export default function SmartSegmentationTab() {
   const { user } = useAuth()
-  const [_searchQuery, _setSearchQuery] = useState('')
-  void _searchQuery; void _setSearchQuery;
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contact-scores', user?.id],
