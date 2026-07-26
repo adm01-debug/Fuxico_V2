@@ -31,6 +31,8 @@ const FUXICO_CONFIG = {
     REPORT_BOUNCE: '/report-bounce',
     LOG_EMAIL_ACTIVITY: '/log-email-activity',
     GET_CONFIG: '/get-config',
+    GET_DETAIL: '/get-tracking-detail',
+    CREATE_REMINDER: '/create-reminder',
   },
   
   // Intervalos de verificação (em ms)
