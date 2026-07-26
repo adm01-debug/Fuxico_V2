@@ -70,7 +70,7 @@ export function generateBackupCodes(count: number, groupSize = 4, groups = 2): s
  * Nunca utilize para tokens, senhas, IDs de sessão ou códigos de recuperação.
  */
 export function cosmeticRandom(): number {
-  // NOSONAR - uso exclusivamente cosmético
+  // eslint-disable-next-line sonarjs/pseudo-random -- uso exclusivamente cosmético (animações/skeletons)
   return Math.random();
 }
 
