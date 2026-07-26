@@ -23,6 +23,8 @@
       REPORT_BOUNCE: '/report-bounce',
       LOG_EMAIL_ACTIVITY: '/log-email-activity',
       GET_STATS: '/get-tracking-stats',
+      GET_DETAIL: '/get-tracking-detail',
+      CREATE_REMINDER: '/create-reminder',
     },
     INTERVALS: {
       CHECK_COMPOSE: 1000,
@@ -37,6 +39,9 @@
     },
   };
 
+  const DASHBOARD_URL = (typeof FUXICO_CONFIG !== 'undefined' && FUXICO_CONFIG.DASHBOARD_URL)
+    || 'https://fuxico.lovable.app';
+
   // ============================================
   // ESTADO GLOBAL
   // ============================================
@@ -48,6 +53,17 @@
   let isAuthenticated = false;
   let emailStatsCache = new Map();
   let lastStatsFetch = 0;
+
+  // Preferências (Mailtrack-like)
+  let showMarkers = true;
+  let hideSelfOpens = true;
+  let signatureEnabled = false;
+  let reminderDays = 3;
+
+  // Cache curto do detalhe por trackingId
+  const detailCache = new Map(); // trackingId -> { at, data }
+  const DETAIL_TTL = 30000;
+
 
   // ============================================
   // UTILITÁRIOS
