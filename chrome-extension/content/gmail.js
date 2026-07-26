@@ -1108,6 +1108,24 @@
     await loadAuthToken();
     await loadSettings();
 
+    // Reage a mudanças de preferências feitas no popup
+    if (chrome?.storage?.onChanged) {
+      chrome.storage.onChanged.addListener((changes, area) => {
+        if (area !== 'sync') return;
+        if (changes.trackingEnabled) isTrackingEnabled = changes.trackingEnabled.newValue !== false;
+        if (changes.showMarkers) showMarkers = changes.showMarkers.newValue !== false;
+        if (changes.hideSelfOpens) hideSelfOpens = changes.hideSelfOpens.newValue !== false;
+        if (changes.signatureEnabled) signatureEnabled = changes.signatureEnabled.newValue === true;
+        if (changes.reminderDays) {
+          const v = Number(changes.reminderDays.newValue);
+          reminderDays = v > 0 ? v : 3;
+        }
+        detailCache.clear();
+        document.querySelectorAll('.fuxico-inbox-indicator').forEach(el => el.remove());
+        updateInboxIndicators();
+      });
+    }
+
     observeComposeWindows();
     startBounceDetection();
     startInboxIndicators();
