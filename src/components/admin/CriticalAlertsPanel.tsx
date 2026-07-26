@@ -492,7 +492,8 @@ export function CriticalAlertsPanel() {
           <p className="text-[11px] text-muted-foreground mt-1">
             Suporta termos livres, "frases exatas", <code>campo:valor</code> (id, event_type,
             severity, description, dispatch_status, error_message, metadata, channels) e
-            exclusão com <code>-termo</code>. Aplica-se aos eventos da página atual.
+            exclusão com <code>-termo</code>. Executada no servidor (índices GIN/trigram),
+            varrendo todos os eventos do período — não apenas a página atual.
           </p>
         </div>
 
@@ -564,7 +565,7 @@ export function CriticalAlertsPanel() {
             Eventos ({total} no filtro atual)
             {search.trim() && (
               <span className="ml-2 font-normal text-muted-foreground">
-                — {visibleRows.length} correspondência(s) nesta página
+                — busca aplicada em todo o período ({total} correspondência(s))
               </span>
             )}
           </h3>
@@ -573,7 +574,7 @@ export function CriticalAlertsPanel() {
           ) : visibleRows.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
               {search.trim()
-                ? "Nenhum evento desta página casa com a busca."
+                ? "Nenhum evento casa com a busca no período selecionado."
                 : "Nada encontrado para os filtros escolhidos."}
             </p>
           ) : (
