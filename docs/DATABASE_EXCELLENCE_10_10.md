@@ -192,3 +192,15 @@ Watchdog fecha o loop: se algum monitor cair, o meta-monitor detecta e alerta.
 **20 ondas aplicadas** — particionamento mensal, versionamento otimista, cobertura de FKs, MV CONCURRENTLY, pgTAP, `admin_slow_queries`, BRIN + statistics, índices parciais + `admin_table_health`, pg_cron completo, covering indexes com INCLUDE, integridade + `admin_data_integrity_check`, audit trail automático, `admin_ops_dashboard`, FORCE RLS em 20 tabelas, timeouts por role, autovacuum + advisory locks + `db_health_check`, bloat/cache/blocking observability, histórico de performance, auto-alertas de regressão/bloat, e cron watchdog + status consolidado.
 
 Banco pronto para produção enterprise-grade — auto-observável, auto-alertante, auto-mantido e com self-monitoring recursivo.
+
+## Onda 140 — Hardening de `SECURITY DEFINER` expostas ao cliente
+
+Auditoria das 26 funções `SECURITY DEFINER` executáveis por `anon`/`authenticated`, cruzando assinatura × corpo real:
+
+- **F-01 (crítico)** — `admin_system_health_score()` era executável por qualquer usuário logado **sem verificação de papel**, vazando métricas internas (falhas de cron, eventos críticos, estado de circuit breakers, pool de conexões, status da chave de assinatura). Corrigido: guarda `has_role(auth.uid(),'admin') OR is_service_context()` no wrapper e corpo movido para `admin_system_health_score_impl()`, exclusiva de `service_role`.
+- **F-02** — 7 rotinas `admin_*` (index advisor + painel de webhooks) consumidas apenas pelo proxy `admin-rpc` (service_role) ainda eram executáveis por `authenticated`. `EXECUTE` revogado — defesa em profundidade sobre o `has_role` já existente.
+- **F-03 (regressão funcional)** — a Onda 133 revogou `anon` de `check_lockout_status()` e `record_failed_login()`, funções chamadas **antes** do login. Resultado: `42501 permission denied` silencioso e **proteção contra brute force desativada**. `EXECUTE` restaurado para `anon`, com hardening adicional: normalização (`lower`/`btrim`), validação de formato de e-mail (entrada inválida não cria linha em `login_lockouts`) e `email_hash` SHA-256 no `security_events` em vez do e-mail em claro (LGPD).
+
+Regressão travada em `supabase/tests/rls/wave140-definer-hardening.test.sql` (13 asserções pgTAP).
+
+Linter: 26 → 21 warnings. Os 21 restantes são funções user-scoped que já validam `auth.uid() <> p_user_id` com `ERRCODE 42501`.
