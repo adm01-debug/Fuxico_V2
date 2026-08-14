@@ -5646,6 +5646,7 @@ export type Database = {
         Args: { target_month: string }
         Returns: undefined
       }
+      exec_sql: { Args: { query: string }; Returns: Json[] }
       finalize_webhook_retry: {
         Args: { p_error?: string; p_id: string; p_success: boolean }
         Returns: undefined
