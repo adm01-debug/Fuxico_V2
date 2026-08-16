@@ -59,7 +59,7 @@ jobs:
 
       - name: Create Release Notes
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           body_path: CHANGELOG.md
         env:
