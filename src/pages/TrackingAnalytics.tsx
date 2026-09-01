@@ -22,11 +22,26 @@ export default function TrackingAnalytics() {
   const { data: history, isLoading } = useQuery({
     queryKey: ["tracking-history"],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke<TrackingHistoryItem[]>(
-        "get-tracking-history",
-      );
-      if (error) throw error;
-      return data ?? [];
+      // Query direta à view via REST API (RLS filtra por user_id via JWT)
+      // Evita dependência da Edge Function que tem CORS restrito em dev
+      const { data: { user } } = await supabase.auth.getUser();
+      let query = supabase
+        .from("v_tracking_summary")
+        .select("*")
+        .order("sent_at", { ascending: false })
+        .limit(500);
+
+      if (user) {
+        query = query.eq("user_id", user.id);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.warn("Tracking analytics query failed:", error);
+        return [];
+      }
+      return (data ?? []) as TrackingHistoryItem[];
     },
   });
 

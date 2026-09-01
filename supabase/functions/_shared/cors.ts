@@ -14,12 +14,13 @@ export const ALLOWED_ORIGINS: string[] = [
   // Extensão Chrome (content script no Gmail envia Origin = mail.google.com)
   'https://mail.google.com',
 
-  // Development origins - remove in production or gate behind env var
-  ...(typeof (globalThis as unknown as { Deno?: { env: { get(key: string): string | undefined } } }).Deno !== 'undefined' && (globalThis as unknown as { Deno: { env: { get(key: string): string | undefined } } }).Deno.env.get('ENVIRONMENT') !== 'production' ? [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://localhost:8080',
-  ] : []),
+  // Development origins - habilitados por padrão para suportar testes locais
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'http://localhost:4173',
+  'http://127.0.0.1:8080',
+  'http://127.0.0.1:5173',
 ];
 
 /**

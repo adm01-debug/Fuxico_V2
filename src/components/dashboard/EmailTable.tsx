@@ -179,6 +179,11 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
     overscan: 5,
   });
 
+  // Para listas pequenas (até 30 itens), renderização simples sem virtualização
+  // evita bugs de layout onde o virtualizer empilha itens quando o container
+  // pai não tem altura explícita.
+  const useSimpleLayout = filteredEmails.length <= 30;
+
   if (isLoading && !externalEmails) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -203,11 +208,31 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
 
         {filteredEmails.length === 0 ? (
           <EmptyState hasFilters={hasActiveFilters} />
-        ) : (
-          <div 
+        ) : useSimpleLayout ? (
+          // Renderização simples sem virtualização (listas com até 30 itens)
+          <div
             ref={parentRef}
-            className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
-            role="region" 
+            className="flex-1 min-h-[400px] overflow-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
+            role="region"
+            aria-label="Lista de emails rastreados"
+          >
+            <div className="divide-y divide-border">
+              {filteredEmails.map((email) => (
+                <EmailRow
+                  key={email.tracking_id || email.id}
+                  email={email}
+                  isSelected={selectedId === email.tracking_id}
+                  onSelect={() => onSelect(email.tracking_id)}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          // Virtualização para listas grandes
+          <div
+            ref={parentRef}
+            className="flex-1 min-h-[500px] overflow-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
+            role="region"
             aria-label="Lista de emails rastreados"
           >
             <div

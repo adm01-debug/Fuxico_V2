@@ -4,13 +4,9 @@
  */
 
 import { useCallback, useState } from 'react';
-import Joyride, { 
-  CallBackProps, 
-  STATUS, 
-    TooltipRenderProps,
-  ACTIONS,
-  EVENTS,
-} from 'react-joyride';
+import { Joyride } from 'react-joyride';
+import type { CallBackProps, TooltipRenderProps } from 'react-joyride';
+import { STATUS, ACTIONS, EVENTS } from 'react-joyride';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
