@@ -1,0 +1,46 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { secureErrorResponse } from "../_shared/security-headers.ts";
+import { CommonStandaloneLinkSchema } from "../_shared/schemas.ts";
+import { publicHandler } from '../_shared/security-middleware.ts';
+
+const StandaloneLinkSchema = CommonStandaloneLinkSchema;
+
+Deno.serve(publicHandler(async (req, corsHeaders) => {
+  try {
+    const clientIP = req.headers.get("x-forwarded-for") || "unknown";
+    const userAgent = req.headers.get("user-agent") || "";
+    const rateLimit = await checkRateLimit(clientIP, "standalone", 100, 60);
+    if (!rateLimit.allowed) return secureErrorResponse("Rate limit exceeded", 429, corsHeaders);
+
+    const url = new URL(req.url);
+    const shortCode = url.pathname.split("/").pop() || url.searchParams.get("c");
+
+    const validation = StandaloneLinkSchema.safeParse({ shortCode });
+    if (!validation.success || !shortCode) {
+      return secureErrorResponse("Invalid link", 400, corsHeaders);
+    }
+
+    const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
+
+    // Use the correct table name: standalone_tracked_links
+    const { data: link } = await supabase.from("standalone_tracked_links").select("*").eq("link_id", shortCode).single();
+    if (!link) return secureErrorResponse("Link not found", 404, corsHeaders);
+
+    // Log click event to link_click_events table
+    await supabase.from("link_click_events").insert({
+      link_id: link.link_id,
+      ip_address: clientIP,
+      user_agent: userAgent,
+      referer: req.headers.get("referer")
+    });
+
+    // Update click count on the link
+    await supabase.from("standalone_tracked_links").update({ click_count: (link.click_count || 0) + 1 }).eq("id", link.id);
+
+    return Response.redirect(link.destination_url, 302);
+  } catch (_error) {
+    console.error("caught:", _error);
+    return secureErrorResponse("Internal error", 500, corsHeaders);
+  }
+}));

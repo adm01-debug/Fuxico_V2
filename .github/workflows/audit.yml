@@ -1,0 +1,39 @@
+name: Dependency Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  push:
+    paths:
+      - 'package-lock.json'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+        
+      - name: Run npm outdated
+        run: npm outdated || true
+        
+      - name: Create Issue on Vulnerabilities
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔒 Security: Vulnerabilities found in dependencies',
+              body: 'npm audit found vulnerabilities. Please review.',
+              labels: ['security', 'dependencies']
+            })

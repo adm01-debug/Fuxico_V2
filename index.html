@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>FUXICO - Rastreamento de Emails Profissional</title>
+    <meta name="title" content="FUXICO - Rastreamento de Emails Profissional" />
+    <meta name="description" content="Saiba quando seus emails são lidos. Sistema completo de rastreamento de aberturas, cliques, documentos e links. Integração com Bitrix24 e mais.">
+    <meta name="keywords" content="email tracking, rastreamento de email, email analytics, Bitrix24, CRM, email marketing" />
+    <meta name="author" content="FUXICO" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://fuxico.app" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fuxico.app/" />
+    
+    
+    <meta property="og:image" content="https://fuxico.app/og-image.png">
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="FUXICO" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://fuxico.app/" />
+    <meta property="twitter:title" content="FUXICO - Rastreamento de Emails Profissional" />
+    <meta property="twitter:description" content="Saiba quando seus emails são lidos. Sistema completo de rastreamento de aberturas, cliques, documentos e links." />
+    <meta property="twitter:image" content="https://fuxico.app/og-image.png" />
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#6366f1" />
+    <link rel="apple-touch-icon" href="/favicon.ico" />
+    
+    <!-- Security -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://npjfwzzapbtcguoupozd.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://npjfwzzapbtcguoupozd.supabase.co" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="/src/assets/logo.webp" as="image" type="image/webp" />
+    <!-- Prevent FOUC: apply saved theme before render -->
+    <script>
+      (function(){
+        try {
+          var t = localStorage.getItem('fuxico-theme');
+          var d = 'light';
+          if (t === 'dark' || (t === 'system' || !t) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            d = 'dark';
+          }
+          document.documentElement.classList.add(d);
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', d === 'dark' ? '#1a1a2e' : '#ffffff');
+        } catch(e){}
+      })();
+    </script>
+    <meta property="og:title" content="FUXICO - Rastreamento de Emails Profissional">
+  <meta name="twitter:title" content="FUXICO - Rastreamento de Emails Profissional">
+  <meta property="og:description" content="Saiba quando seus emails são lidos. Sistema completo de rastreamento de aberturas, cliques, documentos e links. Integração com Bitrix24 e mais.">
+  <meta name="twitter:description" content="Saiba quando seus emails são lidos. Sistema completo de rastreamento de aberturas, cliques, documentos e links. Integração com Bitrix24 e mais.">
+  <meta name="twitter:image" content="https://fuxico.app/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,233 @@
+openapi: 3.1.0
+info:
+  title: FUXICO Edge Functions API
+  version: "2.0.0"
+  description: |
+    Documentação completa das 28 Edge Functions expostas pelo FUXICO.
+    Todas as rotas retornam JSON exceto `track-pixel` (image/gif) e
+    `track-link`/`track-standalone-link` (302 redirect).
+
+    **Autenticação**: funções internas exigem `Authorization: Bearer <supabase-anon-key>`
+    + validação JWT em código. Funções públicas (tracking) são anonymous.
+
+    **CORS**: origem restrita à lista em `_shared/cors.ts`.
+
+    **Rate limit**: 60 rpm por IP nas funções internas; 500 rpm nos endpoints
+    de tracking com dedupe.
+
+servers:
+  - url: https://{project-ref}.supabase.co/functions/v1
+    variables:
+      project-ref:
+        default: blopallcxuotfutblkoe
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+        message: { type: string }
+        details: { type: object }
+
+    TrackingId:
+      type: string
+      pattern: '^[A-Za-z0-9_-]{8,64}$'
+
+    CreateTrackingBody:
+      type: object
+      required: [recipient_email, subject]
+      properties:
+        recipient_email: { type: string, format: email }
+        sender_email: { type: string, format: email }
+        subject: { type: string, maxLength: 500 }
+        metadata:
+          type: object
+          additionalProperties: false
+          maxProperties: 20
+
+paths:
+  /track-pixel:
+    get:
+      summary: Pixel tracking (image/gif 1x1)
+      tags: [Tracking (Public)]
+      security: []
+      parameters:
+        - in: query
+          name: tid
+          required: true
+          schema: { $ref: '#/components/schemas/TrackingId' }
+      responses:
+        "200":
+          description: GIF 1x1 transparente
+          content: { image/gif: {} }
+        "429":
+          description: Rate limit
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  /track-link:
+    get:
+      summary: Redirect rastreado
+      tags: [Tracking (Public)]
+      security: []
+      parameters:
+        - in: query
+          name: tid
+          required: true
+          schema: { $ref: '#/components/schemas/TrackingId' }
+        - in: query
+          name: url
+          required: true
+          schema: { type: string, format: uri }
+      responses:
+        "302":
+          description: Redirect para URL destino
+        "400":
+          description: URL bloqueada (SSRF/allow-list)
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  /track-document:
+    get:
+      summary: Registro de visualização de documento
+      tags: [Tracking (Public)]
+      security: []
+      parameters:
+        - { in: query, name: doc_id, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: OK }
+
+  /track-standalone-link:
+    get:
+      summary: Redirect rastreado avulso
+      tags: [Tracking (Public)]
+      security: []
+      parameters:
+        - { in: query, name: sid, required: true, schema: { type: string } }
+      responses:
+        "302": { description: Redirect }
+
+  /track-beacon:
+    post:
+      summary: Beacon de sessão (navigator.sendBeacon)
+      tags: [Tracking (Public)]
+      security: []
+      responses:
+        "204": { description: No content }
+
+  /unsubscribe:
+    get:
+      summary: Descadastro de destinatário
+      tags: [Compliance (Public)]
+      security: []
+      parameters:
+        - { in: query, name: token, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Confirmação HTML }
+
+  /create-tracking:
+    post:
+      summary: Cria registro de e-mail rastreado
+      tags: [Tracking Internal]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTrackingBody' }
+      responses:
+        "201":
+          description: Criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tracking_id: { $ref: '#/components/schemas/TrackingId' }
+                  pixel_url: { type: string, format: uri }
+
+  /get-tracking-stats:
+    get:
+      summary: Estatísticas agregadas por usuário
+      tags: [Analytics]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_emails: { type: integer }
+                  open_rate: { type: number }
+                  click_rate: { type: number }
+                  bounce_rate: { type: number }
+
+  /ai-insights:
+    post:
+      summary: Insights gerados por LLM (Lovable AI)
+      tags: [AI]
+      responses:
+        "200": { description: JSON com insights }
+
+  /suggest-subject:
+    post:
+      summary: Sugestão de assunto por IA
+      tags: [AI]
+      responses:
+        "200": { description: array de sugestões }
+
+  /process-sequences:
+    post:
+      summary: Worker de processamento de sequências
+      tags: [Automation]
+      security:
+        - bearerAuth: []
+      responses:
+        "200": { description: contagem de passos processados }
+
+  /send-batch-emails:
+    post:
+      summary: Envio em lote (Resend)
+      tags: [Email]
+      responses:
+        "202": { description: Aceito para envio }
+
+  /send-mail-merge: { post: { tags: [Email], summary: Envio com mail-merge, responses: { "202": { description: Aceito } } } }
+  /send-mass-email: { post: { tags: [Email], summary: Envio em massa, responses: { "202": { description: Aceito } } } }
+  /send-signature-request: { post: { tags: [Email], summary: Solicitação de assinatura, responses: { "202": { description: Aceito } } } }
+  /send-push-notification: { post: { tags: [Notifications], summary: Push notification, responses: { "202": { description: Aceito } } } }
+  /report-bounce: { post: { tags: [Deliverability], summary: Webhook de bounce, responses: { "200": { description: OK } } } }
+  /check-deliverability: { get: { tags: [Deliverability], summary: Verifica SPF/DKIM/DMARC, responses: { "200": { description: OK } } } }
+  /log-email-activity: { post: { tags: [Audit], summary: Log de atividade, responses: { "200": { description: OK } } } }
+  /log-security-event: { post: { tags: [Audit], summary: Log de evento de segurança, responses: { "200": { description: OK } } } }
+  /bitrix24-sync: { post: { tags: [CRM], summary: Sincroniza com Bitrix24, responses: { "200": { description: OK } } } }
+  /geo-lookup: { get: { tags: [Analytics], summary: Geolocalização por IP, responses: { "200": { description: OK } } } }
+  /get-config: { get: { tags: [Config], summary: Config pública do usuário, responses: { "200": { description: OK } } } }
+  /health-check:
+    get:
+      summary: Healthcheck com métricas RED/USE
+      tags: [Ops]
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok, degraded, down] }
+                  latency_ms: { type: number }
+                  db_ok: { type: boolean }
+  /create-watermarked-pdf: { post: { tags: [Documents], summary: PDF com watermark, responses: { "200": { description: PDF } } } }
+  /generate-signed-document: { post: { tags: [Documents], summary: Documento assinado, responses: { "200": { description: PDF } } } }
+  /generate-delivery-certificate: { post: { tags: [Documents], summary: Certificado de entrega, responses: { "200": { description: PDF } } } }

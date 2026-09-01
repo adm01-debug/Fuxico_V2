@@ -1,0 +1,32 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
+import { secureJsonResponse } from '../_shared/security-headers.ts'
+import { publicHandler } from '../_shared/security-middleware.ts'
+import { CommonBounceSchema } from '../_shared/schemas.ts'
+
+const bounceSchema = CommonBounceSchema
+
+export const handler = async (req: Request, corsHeaders: Record<string, string>) => {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+
+  const rateLimitResult = await checkRateLimit(ip, 'report-bounce', 50, 60)
+  if (!rateLimitResult.allowed) return secureJsonResponse({ error: 'Rate limit exceeded' }, 429, corsHeaders)
+
+  try {
+    const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
+    const body = await req.json()
+    const validation = bounceSchema.safeParse(body)
+    if (!validation.success) return secureJsonResponse({ error: 'Invalid input' }, 400, corsHeaders)
+
+    const { trackingId, bounceType, bounceReason } = validation.data
+    const { data, error } = await supabaseAdmin.from('tracked_emails').update({ delivery_status: 'bounced', bounce_type: bounceType || 'unknown', bounce_reason: bounceReason || '', bounce_detected_at: new Date().toISOString() }).eq('tracking_id', trackingId).select().single()
+    if (error) throw error
+
+    return secureJsonResponse({ success: true, email: data }, 200, corsHeaders)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return secureJsonResponse({ error: message }, 500, corsHeaders)
+  }
+}
+
+Deno.serve(publicHandler(handler))

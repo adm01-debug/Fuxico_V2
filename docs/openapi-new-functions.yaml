@@ -1,0 +1,322 @@
+# New Edge Functions Documentation - FUXICO v3.0
+# Append to existing openapi.yaml
+
+paths:
+  /functions/v1/send-mail-merge:
+    post:
+      summary: Send Mail Merge Campaign
+      description: Send personalized emails to multiple recipients using templates
+      tags: [Mail Merge]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject, body, recipients]
+              properties:
+                templateId:
+                  type: string
+                  format: uuid
+                subject:
+                  type: string
+                  maxLength: 500
+                body:
+                  type: string
+                recipients:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                      variables:
+                        type: object
+      responses:
+        '200':
+          description: Campaign sent successfully
+        '429':
+          description: Rate limit exceeded
+
+  /functions/v1/send-mass-email:
+    post:
+      summary: Send Mass Email Campaign
+      description: Send bulk emails with monthly limit control
+      tags: [Campaigns]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject, body, recipients]
+              properties:
+                campaignId:
+                  type: string
+                  format: uuid
+                subject:
+                  type: string
+                body:
+                  type: string
+                recipients:
+                  type: array
+                  items:
+                    type: string
+                    format: email
+                scheduledAt:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Emails queued successfully
+
+  /functions/v1/send-signature-request:
+    post:
+      summary: Send E-Signature Request
+      description: Request electronic signatures on documents
+      tags: [E-Signature]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [documentId, title, signers]
+              properties:
+                documentId:
+                  type: string
+                  format: uuid
+                title:
+                  type: string
+                message:
+                  type: string
+                signers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                      name:
+                        type: string
+                expiresAt:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Signature request sent
+
+  /functions/v1/generate-signed-document:
+    post:
+      summary: Generate Signed Document
+      description: Generate final signed PDF with all signatures
+      tags: [E-Signature]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [requestId]
+              properties:
+                requestId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Signed document generated
+
+  /functions/v1/create-watermarked-pdf:
+    post:
+      summary: Create Watermarked PDF
+      description: Add dynamic watermark to PDF documents
+      tags: [Documents]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [documentId, watermarkText]
+              properties:
+                documentId:
+                  type: string
+                  format: uuid
+                watermarkText:
+                  type: string
+                  maxLength: 200
+                opacity:
+                  type: number
+                  minimum: 0.1
+                  maximum: 1
+                  default: 0.3
+                rotation:
+                  type: number
+                  minimum: -90
+                  maximum: 90
+                  default: -45
+      responses:
+        '200':
+          description: Watermarked PDF created
+
+  /functions/v1/send-push-notification:
+    post:
+      summary: Send Push Notification
+      description: Send push notifications to mobile devices
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body]
+              properties:
+                deviceIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                userId:
+                  type: string
+                  format: uuid
+                title:
+                  type: string
+                  maxLength: 100
+                body:
+                  type: string
+                  maxLength: 500
+                data:
+                  type: object
+      responses:
+        '200':
+          description: Notification sent
+
+  /functions/v1/verify-custom-domain:
+    post:
+      summary: Verify Custom Domain
+      description: Verify ownership of a custom tracking domain
+      tags: [Domains]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [domain]
+              properties:
+                domain:
+                  type: string
+                  maxLength: 255
+                domainId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Domain verification status
+
+  /functions/v1/generate-delivery-certificate:
+    post:
+      summary: Generate Delivery Certificate
+      description: Generate cryptographic proof of email delivery
+      tags: [Tracking]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [trackingId]
+              properties:
+                trackingId:
+                  type: string
+      responses:
+        '200':
+          description: Certificate generated
+
+  /functions/v1/vote-poll:
+    post:
+      summary: Vote in Poll
+      description: Submit vote for an embedded email poll
+      tags: [Polls]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pollId, selectedOptions]
+              properties:
+                pollId:
+                  type: string
+                  format: uuid
+                selectedOptions:
+                  type: array
+                  items:
+                    type: integer
+                voterEmail:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Vote recorded
+
+  /functions/v1/send-batch-emails:
+    post:
+      summary: Send Batch Emails
+      description: Send multiple tracked emails in a single request
+      tags: [Campaigns]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [emails]
+              properties:
+                emails:
+                  type: array
+                  maxItems: 100
+                  items:
+                    type: object
+                    properties:
+                      to:
+                        type: string
+                        format: email
+                      subject:
+                        type: string
+                      body:
+                        type: string
+                      trackingEnabled:
+                        type: boolean
+                        default: true
+      responses:
+        '200':
+          description: Batch sent successfully
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

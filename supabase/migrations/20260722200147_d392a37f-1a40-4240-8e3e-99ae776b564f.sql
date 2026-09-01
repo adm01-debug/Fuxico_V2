@@ -1,0 +1,1 @@
+ALTER FUNCTION public.compute_sprt_boundary(INT, INT, INT, INT, NUMERIC, NUMERIC) SET search_path = public;

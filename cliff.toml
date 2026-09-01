@@ -1,0 +1,108 @@
+# =============================================================================
+# FUXICO - Git-cliff Configuration
+# Arquivo: cliff.toml
+# Documentação: https://git-cliff.org/docs/configuration
+# =============================================================================
+
+[changelog]
+# Template do header do changelog
+header = """
+# Changelog
+
+Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
+
+O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
+e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
+
+"""
+
+# Template do body (para cada versão)
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [Unreleased]
+{% endif %}\
+
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits %}
+        - {% if commit.scope %}**{{ commit.scope }}**: {% endif %}\
+            {{ commit.message | upper_first }}\
+            {% if commit.github.username %} by @{{ commit.github.username }}{% endif %}\
+            {% if commit.github.pr_number %} in [#{{ commit.github.pr_number }}](https://github.com/adm01-debug/fuxico/pull/{{ commit.github.pr_number }}){% endif %}\
+    {% endfor %}
+{% endfor %}\n
+"""
+
+# Template do footer
+footer = """
+{% for release in releases -%}
+    {% if release.version -%}
+        {% if release.previous.version -%}
+            [{{ release.version | trim_start_matches(pat="v") }}]: \
+                https://github.com/adm01-debug/fuxico/compare/{{ release.previous.version }}...{{ release.version }}
+        {% endif -%}
+    {% else -%}
+        [unreleased]: https://github.com/adm01-debug/fuxico/compare/{{ release.previous.version }}...HEAD
+    {% endif -%}
+{% endfor %}
+
+---
+
+*Gerado automaticamente por [git-cliff](https://git-cliff.org)*
+"""
+
+# Remove leading/trailing whitespace
+trim = true
+# Processar datas
+postprocessors = [
+    { pattern = '<REPO>', replace = "https://github.com/adm01-debug/fuxico" },
+]
+
+[git]
+# Parse conventional commits
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+
+# Sorting commits
+commit_order = "oldest"
+sort_commits = "oldest"
+
+# Commit parsers - mapeia tipos para grupos
+commit_parsers = [
+    { message = "^feat", group = "✨ Features" },
+    { message = "^fix", group = "🐛 Correções" },
+    { message = "^doc", group = "📚 Documentação" },
+    { message = "^perf", group = "⚡ Performance" },
+    { message = "^refactor", group = "♻️ Refatoração" },
+    { message = "^style", group = "🎨 Estilo" },
+    { message = "^test", group = "🧪 Testes" },
+    { message = "^chore\\(release\\)", skip = true },
+    { message = "^chore\\(deps\\)", skip = true },
+    { message = "^chore\\(pr\\)", skip = true },
+    { message = "^chore\\(pull\\)", skip = true },
+    { message = "^chore|^ci", group = "🔧 Manutenção" },
+    { body = ".*security", group = "🔐 Segurança" },
+    { message = "^revert", group = "⏪ Reversões" },
+]
+
+# Protect breaking changes
+protect_breaking_commits = false
+
+# Filter commits
+filter_commits = false
+
+# Tag pattern (para versões)
+tag_pattern = "v[0-9].*"
+
+# Ignorar tags específicas
+skip_tags = ""
+
+# Ignorar commits específicos
+ignore_tags = ""
+
+# Limite de commits por grupo
+# topo_order = false
+# limit_commits = 42
