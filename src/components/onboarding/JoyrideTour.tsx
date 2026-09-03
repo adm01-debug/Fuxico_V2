@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useState } from 'react';
-import { Joyride } from 'react-joyride';
+import Joyride from 'react-joyride';
 import type { CallBackProps, TooltipRenderProps } from 'react-joyride';
 import { STATUS, ACTIONS, EVENTS } from 'react-joyride';
 import { Button } from '@/components/ui/button';
