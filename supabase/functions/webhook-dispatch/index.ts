@@ -14,6 +14,7 @@ import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { publicHandler } from '../_shared/security-middleware.ts'
 import { isWebhookUrlSafe } from '../_shared/url-validator.ts'
+import { CommonWebhookDispatchSchema } from '../_shared/schemas.ts'
 
 // =============================================================================
 // SCHEMAS

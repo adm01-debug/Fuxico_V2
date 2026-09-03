@@ -1,6 +1,10 @@
 // FUXICO — Motor de despacho de testes A/B com holdout determinístico
 // Cron-only endpoint. Verify JWT desabilitado; execução restrita ao service_role.
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
+
+// Schema dinâmico: o cliente de serviço acessa tabelas sem tipos gerados.
+// deno-lint-ignore no-explicit-any
+type AdminClient = SupabaseClient<any>;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -38,7 +42,7 @@ function hashBucket(input: string): number {
   return Math.abs(h) % 1000;
 }
 
-async function dispatchTest(admin: ReturnType<typeof createClient>, test: ABTestRow) {
+async function dispatchTest(admin: AdminClient, test: ABTestRow) {
   const filters = test.segment_filters ?? {};
   const holdoutCutoff = Math.round((test.holdout_percent ?? 10) * 10); // 0..500
 
