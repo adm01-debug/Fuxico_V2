@@ -21,6 +21,6 @@ Deno.test("create-tracking handler - validation error", async () => {
     // Should return 400 if validation fails, or 401 if auth fails first
     assertEquals(res.status === 400 || res.status === 401, true);
   } catch (e) {
-    console.log("Test caught expected failure or error:", e.message);
+    console.log("Test caught expected failure or error:", (e as Error).message);
   }
 });

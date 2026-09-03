@@ -3,6 +3,7 @@ import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { protectedHandler } from '../_shared/security-middleware.ts'
+import { CommonTrackingSchema } from '../_shared/schemas.ts'
 
 const log = createLogger('create-tracking')
 const createTrackingSchema = CommonTrackingSchema

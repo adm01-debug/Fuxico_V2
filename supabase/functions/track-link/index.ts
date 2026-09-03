@@ -64,7 +64,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       .maybeSingle();
 
     if (!recentEvent) {
-      await supabase.rpc("increment_link_click_count", { p_link_id: link.link_id }).catch(() => {
+      await Promise.resolve(supabase.rpc("increment_link_click_count", { p_link_id: link.link_id })).catch(() => {
         supabase
           .from("tracked_links")
           .update({ click_count: (link.click_count || 0) + 1 })

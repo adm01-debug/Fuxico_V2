@@ -18,7 +18,7 @@ Deno.test("check-deliverability handler - unauthorized", async () => {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status, 401);
   } catch (e) {
-    console.log("Test caught expected failure or error:", e.message);
+    console.log("Test caught expected failure or error:", (e as Error).message);
   }
 });
 Deno.test("check-deliverability handler - check-dns", async () => {
@@ -35,6 +35,6 @@ Deno.test("check-deliverability handler - check-dns", async () => {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status, 401);
   } catch (e) {
-    console.log("Test caught expected failure or error:", e.message);
+    console.log("Test caught expected failure or error:", (e as Error).message);
   }
 });

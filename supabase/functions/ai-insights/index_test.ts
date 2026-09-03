@@ -23,7 +23,7 @@ Deno.test("ai-insights handler - unauthorized", async () => {
     assertEquals(res.status, 401);
   } catch (e) {
     // If it fails due to env vars or network, we catch it
-    console.log("Test caught expected failure or error:", e.message);
+    console.log("Test caught expected failure or error:", (e as Error).message);
   }
 });
 

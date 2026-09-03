@@ -7,7 +7,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { publicHandler } from '../_shared/security-middleware.ts';
-const ZapierSchema = CommonZapierSchema;
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { SafeMetadataSchema } from '../_shared/schemas.ts';
+
+const ZapierSchema = z.object({
+  event: z.string().min(1).max(120),
+  trackingId: z.string().uuid().optional(),
+  data: SafeMetadataSchema.optional(),
+});
 
 Deno.serve(publicHandler(async (req, corsHeaders) => {
   try {

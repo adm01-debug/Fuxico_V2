@@ -51,7 +51,8 @@ export function isOriginAllowed(origin: string | null): boolean {
 /**
  * Gera headers CORS para uma requisição.
  */
-export function getCorsHeaders(origin: string | null): Record<string, string> {
+export function getCorsHeaders(source?: string | null | Request): Record<string, string> {
+  const origin = source instanceof Request ? source.headers.get('origin') : (source ?? null);
   const allowedOrigin = isOriginAllowed(origin) ? origin : ALLOWED_ORIGINS[0];
   
   return {

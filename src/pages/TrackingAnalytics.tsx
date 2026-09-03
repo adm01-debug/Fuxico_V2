@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -25,7 +26,10 @@ export default function TrackingAnalytics() {
       // Query direta à view via REST API (RLS filtra por user_id via JWT)
       // Evita dependência da Edge Function que tem CORS restrito em dev
       const { data: { user } } = await supabase.auth.getUser();
-      let query = supabase
+      // A view v_tracking_summary não consta nos tipos gerados; acessamos via
+      // cliente sem schema tipado (RLS continua filtrando por user_id).
+      const untyped = supabase as unknown as SupabaseClient;
+      let query = untyped
         .from("v_tracking_summary")
         .select("*")
         .order("sent_at", { ascending: false })
