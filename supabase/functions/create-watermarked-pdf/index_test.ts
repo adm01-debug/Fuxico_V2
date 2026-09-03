@@ -18,6 +18,6 @@ Deno.test("create-watermarked-pdf handler - unauthorized", async () => {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status, 401);
   } catch (e) {
-    console.log("Test caught expected failure or error:", e.message);
+    console.log("Test caught expected failure or error:", (e as Error).message);
   }
 });

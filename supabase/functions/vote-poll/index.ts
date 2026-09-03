@@ -48,7 +48,7 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     });
 
     // Atomic increment to prevent race conditions on vote count
-    await supabase.rpc("increment_poll_option_votes", { p_option_id: optionId }).catch(() => {
+    await Promise.resolve(supabase.rpc("increment_poll_option_votes", { p_option_id: optionId })).catch(() => {
       // Fallback if RPC doesn't exist
       const current = poll.poll_options.find((o: { id: string }) => o.id === optionId);
       supabase.from("poll_options").update({ votes_count: (current?.votes_count || 0) + 1 }).eq("id", optionId);

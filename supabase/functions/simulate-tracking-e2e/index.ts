@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
     _role: "admin",
   });
   if (!isAdmin) {
-    await adminClient.rpc("log_security_event", {
+    await Promise.resolve(adminClient.rpc("log_security_event", {
       _user_id: userData.user.id,
       _event_type: "simulate_tracking_forbidden",
       _severity: "high",
@@ -257,12 +257,12 @@ Deno.serve(async (req) => {
   }
 
   // 8) Auditoria
-  await adminClient.rpc("log_security_event", {
+  await Promise.resolve(adminClient.rpc("log_security_event", {
     _user_id: userData.user.id,
     _event_type: "simulate_tracking_run",
     _severity: "low",
     _description: `E2E open-tracking simulation ${runId} — samples=${samples}, opens=${events?.length ?? 0}`,
-  }).catch(() => null);
+  })).catch(() => null);
 
   const durationMs = Date.now() - startedAt;
 

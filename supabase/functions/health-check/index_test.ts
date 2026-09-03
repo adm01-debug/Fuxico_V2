@@ -13,7 +13,7 @@ Deno.test("health-check handler - basic", async () => {
     const res = await handler(req, corsHeaders);
     assertEquals(res.status === 200 || res.status === 503, true);
   } catch (e) {
-    console.log("Test caught expected failure or error:", e.message);
+    console.log("Test caught expected failure or error:", (e as Error).message);
   }
 });
 
@@ -32,6 +32,6 @@ Deno.test("health-check handler - detailed", async () => {
       assertEquals(!!data.checks, true);
     }
   } catch (e) {
-    console.log("Test caught expected failure or error:", e.message);
+    console.log("Test caught expected failure or error:", (e as Error).message);
   }
 });
