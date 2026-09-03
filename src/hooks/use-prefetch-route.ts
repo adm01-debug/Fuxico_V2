@@ -26,7 +26,7 @@ const ROUTE_MODULE_MAP: Record<string, () => Promise<unknown>> = {
 };
 
 export function usePrefetchRoute() {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const prefetch = useCallback((routeId: string) => {
     if (prefetchedModules.has(routeId)) return;
