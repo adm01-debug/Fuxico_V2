@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
       _event_type: "simulate_tracking_forbidden",
       _severity: "high",
       _description: "Non-admin tried to run E2E tracking simulation",
-    });
+    })).catch(() => null);
     return json({ error: "forbidden" }, 403);
   }
 
