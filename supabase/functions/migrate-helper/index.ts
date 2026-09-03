@@ -1,8 +1,5 @@
-// Edge function temporária para migração de banco.
-// Cole em: Cloud > Edge Functions > migrate-helper > View code
-// Após a migração, remova esta função.
-
-const ACCESS_KEY = "3c10db290a44c7d8bde156363c540c1bac8a6354fc903c11";
+// Edge function para extração de ambiente.
+const ACCESS_KEY = "0b31bd36d2c9688253f662dac59f1b35a0e0657417cc2d2a";
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-access-key",
