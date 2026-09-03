@@ -7,7 +7,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
 import { publicHandler } from '../_shared/security-middleware.ts';
-import { z } from "https://esm.sh/zod@3.23.8";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { SafeMetadataSchema } from '../_shared/schemas.ts';
 
 const ZapierSchema = z.object({
