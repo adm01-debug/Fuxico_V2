@@ -86,7 +86,7 @@
     "react-joyride": "^3.2.0",
     "react-resizable-panels": "^4.12.3",
     "react-router-dom": "^7.18.3",
-    "recharts": "^2.15.4",
+    "recharts": "^3.10.1",
     "rollup-plugin-visualizer": "^6.0.5",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
