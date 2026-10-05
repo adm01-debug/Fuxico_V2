@@ -87,7 +87,7 @@
     "react-resizable-panels": "^4.12.3",
     "react-router-dom": "^7.18.3",
     "recharts": "^3.10.1",
-    "rollup-plugin-visualizer": "^6.0.5",
+    "rollup-plugin-visualizer": "^7.1.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
