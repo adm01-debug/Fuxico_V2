@@ -67,6 +67,13 @@ não empilhe patch em cima.
 Também vermelhos por conta própria nos agendamentos: `Security Scan` (semanal), `CodeQL Analysis`
 (semanal), `Supabase Types Codegen` (diário), `Load Test` (semanal). `Dependency Audit` passa.
 
+**Segunda causa raiz, independente do `npm ci`:** o job `analyze` (CodeQL, em `codeql.yml` e em
+`ci.yml`) passa `Initialize CodeQL` e `Autobuild` e morre em `Perform CodeQL Analysis` com
+`##[error]Please verify that the necessary features are enabled: Code scanning is not enabled for
+this repository.` Idêntico na `main` (run `42427857045`) e em PR. É **configuração do repositório**
+(code scanning desligado), não código: nenhuma PR consegue consertar — é item de **chame o dono**.
+`Supabase Types Codegen` e `Load Test` falham por **secret ausente** (tabela acima).
+
 ## Workflows — 12 arquivos em `.github/workflows/`
 
 | arquivo | `name:` | gatilho | o que faz de fato |
