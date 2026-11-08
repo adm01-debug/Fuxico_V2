@@ -44,3 +44,12 @@ test-results/
 # Supabase
 supabase/.branches/
 supabase/.temp/
+
+# Grafo de código (graphify) — ~dezenas de MB; cada clone gera o seu
+graphify-out/
+# Gerados por `graphify hook install` com o caminho do Python da máquina
+.husky/post-commit
+.husky/post-checkout
+
+# Worktrees isolados de agentes (Agent tool, isolation: worktree) — efêmeros, nunca versionar
+.claude/worktrees/
