@@ -1,0 +1,103 @@
+# Instincts do repositório https://github.com/adm01-debug/Fuxico_V2
+# Padrão herdado do Zapp Web V2 (mesmo formato de instincts)
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+
+---
+id: fuxico-v2-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: https://github.com/adm01-debug/Fuxico_V2
+---
+
+# Fuxico V2 Commit Conventional
+
+## Action
+
+Use conventional commit format (`<tipo>(<escopo>): <assunto>`) in PT-BR; types allowed by
+`@commitlint/config-conventional`: feat fix docs style refactor perf test build ci chore revert.
+
+## Evidence
+
+- `commitlint.config.js`: `export default { extends: ['@commitlint/config-conventional'] }`
+- `.husky/commit-msg`: `npx --no-install commitlint --edit "$1"`
+
+---
+id: fuxico-v2-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/adm01-debug/Fuxico_V2
+---
+
+# Fuxico V2 Naming Files
+
+## Action
+
+Components in `PascalCase.tsx`, hooks in `useAlgo.ts`, utilities in `kebab-case.ts` — follow the
+neighbouring file in the same folder.
+
+## Evidence
+
+- Padrão observado em `src/components/`, `src/hooks/` e `src/lib/`
+
+---
+id: fuxico-v2-import-alias
+trigger: "when importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/adm01-debug/Fuxico_V2
+---
+
+# Fuxico V2 Import Alias
+
+## Action
+
+Use the `@/` alias for anything under `src/`; relative imports only inside the same folder.
+
+## Evidence
+
+- `vite.config.ts` e `tsconfig.app.json` definem o alias `@/` → `./src`
+
+---
+id: fuxico-v2-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/adm01-debug/Fuxico_V2
+---
+
+# Fuxico V2 Export Style
+
+## Action
+
+Prefer named exports.
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: fuxico-v2-test-location
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/adm01-debug/Fuxico_V2
+---
+
+# Fuxico V2 Test Location
+
+## Action
+
+Unit tests with Vitest next to the module (`__tests__/`) or in `tests/`; Playwright specs in `e2e/`.
+Run only what you touched: `npx vitest run <caminho>`.
+
+## Evidence
+
+- `vitest.config.ts` e `playwright.config.ts` na raiz; pastas `tests/` e `e2e/`
