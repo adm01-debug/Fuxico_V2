@@ -53,10 +53,30 @@ function bytesAtuais() {
   }
   if (existsSync(DOCS_DIR)) {
     for (const f of readdirSync(DOCS_DIR)) {
-      if (f.endsWith('.md')) total += Buffer.byteLength(readFileSync(join(DOCS_DIR, f), 'utf8'));
+      if (!f.endsWith('.md')) continue;
+      try {
+        total += Buffer.byteLength(readFileSync(join(DOCS_DIR, f), 'utf8'));
+      } catch (e) {
+        console.error(`::error::${join(DOCS_DIR, f)} nao pode ser lido (${e.code || e.message}). Symlink quebrado ou arquivo corrompido?`);
+        process.exitCode = 1;
+        process.exit();
+      }
     }
   }
   return total;
+}
+
+// A base precisa resolver para um commit real: CLAUDE_MD_BASE errado, git fetch que falhou ou
+// checkout raso sem a ref produzem o mesmo sintoma (bytesNaBase devolve 0 arquivos) que um bootstrap
+// legitimo (repo antes de AGENTS.md existir). Sem essa checagem o guard "passava" (OK) sem comparar
+// nada - falha aberta, o oposto do que GA02 existe para evitar.
+function baseResolve(base) {
+  try {
+    execSync(`git rev-parse --verify ${base}^{commit}`, { stdio: ['ignore', 'ignore', 'ignore'] });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // Tamanho na base de cada arquivo do conjunto: { total, porArquivo: Map(path -> bytes) } ou null
@@ -86,6 +106,11 @@ function bytesNaBase(base) {
 }
 
 const BASE = process.env.CLAUDE_MD_BASE || 'HEAD';
+if (!baseResolve(BASE)) {
+  console.error(`::error::CLAUDE_MD_BASE='${BASE}' nao resolve para um commit valido (git fetch falhou? ref errada?). Guard GA02 nao pode comparar - tratando como falha, nao como "sem base para comparar".`);
+  process.exitCode = 1;
+  process.exit();
+}
 const atual = bytesAtuais();
 const base = bytesNaBase(BASE);
 

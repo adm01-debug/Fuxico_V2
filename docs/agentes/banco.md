@@ -6,11 +6,11 @@ project refs diferentes no código.
 
 ## Qual é o banco — ainda não resolvido
 
-| ref | onde aparece (arquivo:linha) | o que isso significa |
-|---|---|---|
-| **`xmyvefffgltlrobazrmg`** | `supabase/config.toml:1` (`project_id`) | é o alvo de qualquer comando `supabase` CLI rodado na raiz |
-| **`blopallcxuotfutblkoe`** | `public/_redirects:6` e `:7` (proxy público de tracking), `.github/workflows/load-test.yml` (fallback de `BASE_URL`), `supabase/functions/mcp-query/index.ts:5` (comentário de deploy), 1 migration | é o ref que **recebe tráfego real de pixel/clique** em produção |
-| **`npjfwzzapbtcguoupozd`** | `chrome-extension/config.js:10` (`SUPABASE_URL`) e `:11` (anon key JWT commitada), `index.html:43-44` (`preconnect`/`dns-prefetch`), `SYSTEM_AUDIT.md` | é o ref que a **extensão do Gmail** e o preconnect do HTML usam |
+| ref                        | onde aparece (arquivo:linha)                                                                                                                                                                                                                                                   | o que isso significa                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| **`xmyvefffgltlrobazrmg`** | `supabase/config.toml:1` (`project_id`)                                                                                                                                                                                                                                        | é o alvo de qualquer comando `supabase` CLI rodado na raiz      |
+| **`blopallcxuotfutblkoe`** | `public/_redirects:6` e `:7` (proxy público de tracking), `.github/workflows/load-test.yml` (fallback de `BASE_URL`), `supabase/functions/mcp-query/index.ts:5` (comentário de deploy), 2 migrations (`20260712205807_358fabe8....sql:4`, `20260723130526_153af818....sql:20`) | é o ref que **recebe tráfego real de pixel/clique** em produção |
+| **`npjfwzzapbtcguoupozd`** | `chrome-extension/config.js:10` (`SUPABASE_URL`) e `:11` (anon key JWT commitada), `index.html:43-44` (`preconnect`/`dns-prefetch`), `SYSTEM_AUDIT.md`                                                                                                                         | é o ref que a **extensão do Gmail** e o preconnect do HTML usam |
 
 O front **não** tem ref hardcoded: `src/integrations/supabase/client.ts:7-8` lê `VITE_SUPABASE_URL` e
 `VITE_SUPABASE_PUBLISHABLE_KEY` do ambiente — ou seja, o banco que o dashboard usa depende das env vars
@@ -23,11 +23,11 @@ oficial**. Não deduza pelo `config.toml`: ele não é o ref que atende o tracki
 
 Os MCPs Supabase carregados nas sessões atuais são de **outros** projetos:
 
-| MCP | ref | papel |
-|---|---|---|
-| `SUPABASE - GESTÃO DE CLIENTES` | `pgxfvjmuubtbowutlide` | CRM de outro sistema |
+| MCP                             | ref                    | papel                     |
+| ------------------------------- | ---------------------- | ------------------------- |
+| `SUPABASE - GESTÃO DE CLIENTES` | `pgxfvjmuubtbowutlide` | CRM de outro sistema      |
 | `SUPABASE - GESTÃO DE PRODUTOS` | `doufsxqlfjyuvxuezpln` | Catálogo de outro sistema |
-| `SUPABASE - ZAPP WEB V2 - MCP` | `tnnnlkbymytvtqngbbqh` | banco do Zapp Web V2 |
+| `SUPABASE - ZAPP WEB V2 - MCP`  | `tnnnlkbymytvtqngbbqh` | banco do Zapp Web V2      |
 
 Verificado nesta sessão por `get_project_url` nos dois primeiros. **Nunca** rodar `apply_migration`,
 `execute_sql` de escrita ou `deploy_edge_function` neles a partir deste repo — nome parecido não é o mesmo
@@ -40,14 +40,14 @@ desse Worker **com um segmento-segredo em claro no path** — não reutilize ess
 
 ## Estado do schema
 
-| O que | Valor | Evidência |
-|---|---|---|
-| Tabelas | **122** | bloco `Tables` de `src/integrations/supabase/types.ts` |
-| Views | **7** (`admin_cache_hit_ratio`, `admin_cron_status`, `admin_partition_coverage`, `admin_slow_queries`, `admin_table_health`, `email_stats_mv`, `tracking_events_monthly_agg`) | bloco `Views` do mesmo arquivo |
-| Funções | **123** | bloco `Functions` do mesmo arquivo |
-| Migrations | **209** `.sql` | `ls supabase/migrations/*.sql \| wc -l` |
-| Testes de RLS | **9** arquivos pgTAP | `supabase/tests/rls/*.test.sql` |
-| Seed oficial | **não existe** (`supabase/seed.sql` ausente) | seeds avulsos em `scripts/seed-*` |
+| O que         | Valor                                                                                                                                                                         | Evidência                                              |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Tabelas       | **122**                                                                                                                                                                       | bloco `Tables` de `src/integrations/supabase/types.ts` |
+| Views         | **7** (`admin_cache_hit_ratio`, `admin_cron_status`, `admin_partition_coverage`, `admin_slow_queries`, `admin_table_health`, `email_stats_mv`, `tracking_events_monthly_agg`) | bloco `Views` do mesmo arquivo                         |
+| Funções       | **123**                                                                                                                                                                       | bloco `Functions` do mesmo arquivo                     |
+| Migrations    | **209** `.sql`                                                                                                                                                                | `ls supabase/migrations/*.sql \| wc -l`                |
+| Testes de RLS | **9** arquivos pgTAP                                                                                                                                                          | `supabase/tests/rls/*.test.sql`                        |
+| Seed oficial  | **não existe** (`supabase/seed.sql` ausente)                                                                                                                                  | seeds avulsos em `scripts/seed-*`                      |
 
 `src/integrations/supabase/types.ts` é **gerado** (`supabase gen types`) pelo workflow
 `supabase-codegen.yml` — não edite à mão. Esse workflow **falha todos os dias** (ver
