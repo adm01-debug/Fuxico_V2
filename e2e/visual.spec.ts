@@ -10,6 +10,7 @@ const hasBaselines = fs.existsSync(
 );
 
 test.describe('Visual Regression Tests', () => {
+  // eslint-disable-next-line sonarjs/no-skipped-tests -- baselines de snapshot ainda nao versionados em e2e/visual.spec.ts-snapshots; a suite volta sozinha quando eles existirem.
   test.skip(!hasBaselines, 'Baselines de snapshot ainda nao versionados');
 
   test('landing page screenshot', async ({ page }) => {
