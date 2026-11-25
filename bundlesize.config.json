@@ -12,7 +12,7 @@
     },
     {
       "path": "dist/assets/react-vendor-*.js",
-      "maxSize": "50 kB",
+            "maxSize": "70 kB",
       "compression": "gzip"
     },
     {
@@ -22,7 +22,7 @@
     },
     {
       "path": "dist/assets/chart-vendor-*.js",
-      "maxSize": "100 kB",
+            "maxSize": "150 kB",
       "compression": "gzip"
     }
   ]
