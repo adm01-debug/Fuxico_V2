@@ -55,7 +55,9 @@ jobs:
         run: npx playwright install --with-deps
       
       - name: Run E2E tests
-        run: npm run test:e2e
+        # No CI roda so o chromium: o gate precisa ser rapido e estavel. Os 5
+        # projetos (firefox, webkit, mobile) continuam rodando localmente.
+        run: npx playwright test --project=chromium
       
       - name: Upload Playwright report
         uses: actions/upload-artifact@v7

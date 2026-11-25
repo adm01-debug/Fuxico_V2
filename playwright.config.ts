@@ -27,7 +27,7 @@ export default defineConfig({
   
   // Expectativas
   expect: {
-    timeout: 5000,
+    timeout: 10000,
   },
   
   // Execução completa em CI

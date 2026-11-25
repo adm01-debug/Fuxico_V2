@@ -37,7 +37,9 @@ setup('authenticate', async ({ page }) => {
   // renderiza o DashboardLayout), então o texto literal nunca aparecia; o título
   // do documento, definido por Helmet em src/pages/Dashboard.tsx, é o sinal
   // estável de que o app autenticado carregou.
-  await expect(page).toHaveTitle(/Dashboard \| FUXICO/);
+  // O primeiro acesso a /dashboard compila o chunk do dashboard no dev server
+  // do CI (pode passar de 10s), entao a espera e explicita.
+  await expect(page).toHaveTitle(/Dashboard \| FUXICO/, { timeout: 30000 });
   
   // Salvar estado de autenticação
   await page.context().storageState({ path: authFile });
