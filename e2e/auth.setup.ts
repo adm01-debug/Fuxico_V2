@@ -32,8 +32,12 @@ setup('authenticate', async ({ page }) => {
   // Aguardar redirecionamento para dashboard
   await page.waitForURL('/dashboard', { timeout: 10000 });
   
-  // Verificar se está logado
-  await expect(page.locator('text=Dashboard')).toBeVisible();
+  // Verificar se está logado.
+  // O corpo de /dashboard não contém o texto "Dashboard" (src/pages/Dashboard.tsx
+  // renderiza o DashboardLayout), então o texto literal nunca aparecia; o título
+  // do documento, definido por Helmet em src/pages/Dashboard.tsx, é o sinal
+  // estável de que o app autenticado carregou.
+  await expect(page).toHaveTitle(/Dashboard \| FUXICO/);
   
   // Salvar estado de autenticação
   await page.context().storageState({ path: authFile });
