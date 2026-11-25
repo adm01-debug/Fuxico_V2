@@ -17,12 +17,12 @@ export default defineConfig({
       include: ["src/lib/**", "src/hooks/**", "src/components/**"],
       exclude: ["src/test/**", "src/**/*.d.ts", "src/integrations/**"],
       // Ratchet floor: set to the measured baseline so the gate is enforced
-            // instead of always failing. Raise these as coverage improves.
-            thresholds: {
-              lines: 4,
-              functions: 3,
-              branches: 2,
-              statements: 4,
+      // instead of always failing. Raise these as coverage improves.
+      thresholds: {
+        lines: 4,
+        functions: 3,
+        branches: 2,
+        statements: 4,
       },
     },
   },
