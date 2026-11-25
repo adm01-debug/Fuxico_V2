@@ -79,29 +79,31 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 500,
     rollupOptions: {
       output: {
-        manualChunks: {
+        // Rolldown (Vite 8) requires manualChunks to be a function, not an object
+                manualChunks: (id: string) => {
+                  if (!id.includes("node_modules")) return;
+                  // i18n first: react-i18next must not fall into react-vendor
+                  if (/node_modules\/(i18next|i18next-browser-languagedetector|react-i18next)\//.test(id))
+                    return "i18n-vendor";
           // Core React - loaded first
-          "react-vendor": ["react", "react-dom", "react-router-dom"],
+                  if (/node_modules\/(react-dom|react-router-dom|react)\//.test(id)) return "react-vendor";
           // UI framework - loaded on demand via components
-          "ui-vendor": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-select",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-tooltip",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-accordion",
-          ],
+                  if (
+                    /node_modules\/@radix-ui\/react-(dialog|dropdown-menu|select|tabs|tooltip|popover|accordion)\//.test(
+                      id,
+                    )
+                  )
+                    return "ui-vendor";
           // Data layer
-          "query-vendor": ["@tanstack/react-query"],
+                  if (/node_modules\/@tanstack\/react-query\//.test(id)) return "query-vendor";
           // Heavy libs - separate chunks for parallel loading
-          "animation-vendor": ["framer-motion"],
-          "chart-vendor": ["recharts"],
-          "date-vendor": ["date-fns"],
-          "i18n-vendor": ["i18next", "react-i18next", "i18next-browser-languagedetector"],
-          "utils-vendor": ["clsx", "tailwind-merge", "class-variance-authority", "zod"],
+                  if (/node_modules\/framer-motion\//.test(id)) return "animation-vendor";
+                  if (/node_modules\/recharts\//.test(id)) return "chart-vendor";
+                  if (/node_modules\/date-fns\//.test(id)) return "date-vendor";
+                  if (/node_modules\/(clsx|class-variance-authority|tailwind-merge|zod)\//.test(id))
+                    return "utils-vendor";
           // Supabase SDK
-          "supabase-vendor": ["@supabase/supabase-js"],
+                  if (/node_modules\/@supabase\/supabase-js\//.test(id)) return "supabase-vendor";
         },
       },
     },
