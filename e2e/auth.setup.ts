@@ -6,7 +6,10 @@
 import { test as setup, expect } from '@playwright/test';
 import path from 'path';
 
-const authFile = path.join(__dirname, '.auth/user.json');
+// package.json tem "type": "module", entao __dirname nao existe aqui (o arquivo
+// nem carregava: "ReferenceError: __dirname is not defined"). O caminho relativo
+// e o mesmo de `use.storageState` no playwright.config.ts.
+const authFile = path.join(process.cwd(), 'e2e/.auth/user.json');
 
 setup('authenticate', async ({ page }) => {
   // Navegar para página de login

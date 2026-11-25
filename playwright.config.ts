@@ -9,11 +9,11 @@ import { defineConfig, devices } from '@playwright/test';
  * URL base para testes
  * @see https://playwright.dev/docs/api/class-testoptions#test-options-base-url
  */
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173';
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
 
 export default defineConfig({
   // Diretório dos testes
-  testDir: './e2e/tests',
+  testDir: './e2e',
   
   // Padrão de arquivos de teste
   testMatch: '**/*.spec.ts',
@@ -130,7 +130,8 @@ export default defineConfig({
   // Servidor de desenvolvimento
   webServer: {
     command: 'npm run dev',
-    url: baseURL,
+    // A porta tem que ser a mesma que o Vite sobe (vite.config.ts: server.port = 8080)
+    url: 'http://localhost:8080',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },
