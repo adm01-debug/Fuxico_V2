@@ -4,8 +4,8 @@
  */
 
 import { useCallback, useState } from 'react';
-import Joyride from 'react-joyride';
-import type { CallBackProps, TooltipRenderProps } from 'react-joyride';
+import { Joyride } from 'react-joyride';
+import type { EventData, TooltipRenderProps } from 'react-joyride';
 import { STATUS, ACTIONS, EVENTS } from 'react-joyride';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -124,7 +124,7 @@ interface JoyrideTourProps {
 }
 
 export function JoyrideTour({ tourState, setTourState, onComplete }: JoyrideTourProps) {
-  const handleJoyrideCallback = useCallback((data: CallBackProps) => {
+  const handleJoyrideCallback = useCallback((data: EventData) => {
     const { status, action, index, type } = data;
 
     if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
@@ -143,36 +143,30 @@ export function JoyrideTour({ tourState, setTourState, onComplete }: JoyrideTour
 
   return (
     <Joyride
-      callback={handleJoyrideCallback}
+      onEvent={handleJoyrideCallback}
       continuous
       run={tourState.run}
       stepIndex={tourState.stepIndex}
       steps={steps}
       scrollToFirstStep
-      showProgress
-      showSkipButton
-      disableScrolling={false}
-      spotlightClicks={false}
-      disableOverlayClose
       tooltipComponent={CustomTooltip}
+      options={{
+        zIndex: 10000,
+        arrowColor: 'hsl(var(--card))',
+        backgroundColor: 'hsl(var(--card))',
+        overlayColor: 'rgba(0, 0, 0, 0.6)',
+        primaryColor: 'hsl(var(--primary))',
+        textColor: 'hsl(var(--foreground))',
+        showProgress: true,
+        buttons: ['back', 'close', 'primary', 'skip'],
+        blockTargetInteraction: true,
+        overlayClickAction: false,
+        spotlightRadius: 12,
+      }}
       styles={{
-        options: {
-          zIndex: 10000,
-          arrowColor: 'hsl(var(--card))',
-          backgroundColor: 'hsl(var(--card))',
-          overlayColor: 'rgba(0, 0, 0, 0.6)',
-          primaryColor: 'hsl(var(--primary))',
-          textColor: 'hsl(var(--foreground))',
-        },
-        spotlight: {
-          borderRadius: 12,
-        },
         overlay: {
           backdropFilter: 'blur(2px)',
         },
-      }}
-      floaterProps={{
-        disableAnimation: false,
       }}
       locale={{
         back: 'Anterior',
