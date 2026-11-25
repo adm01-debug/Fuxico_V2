@@ -34,7 +34,7 @@ function constantTimeEq(a: string, b: string): boolean {
 // Simple TOTP implementation using HMAC-SHA1
 function base32ToBytes(base32: string): Uint8Array {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  // eslint-disable-next-line sonarjs/slow-regex -- trailing-only anchored pattern; O(n)
+  // eslint-disable-next-line sonarjs/super-linear-regex -- trailing-only anchored pattern; O(n)
   const cleanedInput = base32.replace(/=+$/, "").toUpperCase();
   const bits: number[] = [];
   

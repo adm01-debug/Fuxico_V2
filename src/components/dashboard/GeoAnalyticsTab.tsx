@@ -1,7 +1,22 @@
 import { memo, useState } from 'react';
-import { Globe, MapPin, ChevronDown, ChevronRight, Eye, MousePointerClick, BarChart3 } from 'lucide-react';
+import {
+  Globe,
+  MapPin,
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  MousePointerClick,
+  BarChart3,
+} from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,30 +48,30 @@ const COLORS = [
 
 // Map country codes/names to flag emojis
 const countryFlags: Record<string, string> = {
-  'Brazil': '🇧🇷',
-  'Brasil': '🇧🇷',
-  'BR': '🇧🇷',
+  Brazil: '🇧🇷',
+  Brasil: '🇧🇷',
+  BR: '🇧🇷',
   'United States': '🇺🇸',
-  'USA': '🇺🇸',
-  'US': '🇺🇸',
-  'Portugal': '🇵🇹',
-  'PT': '🇵🇹',
-  'Argentina': '🇦🇷',
-  'AR': '🇦🇷',
-  'Mexico': '🇲🇽',
-  'MX': '🇲🇽',
-  'Spain': '🇪🇸',
-  'ES': '🇪🇸',
-  'Germany': '🇩🇪',
-  'DE': '🇩🇪',
-  'France': '🇫🇷',
-  'FR': '🇫🇷',
+  USA: '🇺🇸',
+  US: '🇺🇸',
+  Portugal: '🇵🇹',
+  PT: '🇵🇹',
+  Argentina: '🇦🇷',
+  AR: '🇦🇷',
+  Mexico: '🇲🇽',
+  MX: '🇲🇽',
+  Spain: '🇪🇸',
+  ES: '🇪🇸',
+  Germany: '🇩🇪',
+  DE: '🇩🇪',
+  France: '🇫🇷',
+  FR: '🇫🇷',
   'United Kingdom': '🇬🇧',
-  'UK': '🇬🇧',
-  'GB': '🇬🇧',
-  'Canada': '🇨🇦',
-  'CA': '🇨🇦',
-  'Unknown': '🌍',
+  UK: '🇬🇧',
+  GB: '🇬🇧',
+  Canada: '🇨🇦',
+  CA: '🇨🇦',
+  Unknown: '🌍',
 };
 
 function getFlag(country: string): string {
@@ -72,11 +87,11 @@ function CountryRow({ country, maxTotal }: { country: CountryStats; maxTotal: nu
       <TableRow className="group">
         <TableCell>
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="p-0 h-auto">
+            <Button variant="ghost" size="sm" className="h-auto p-0">
               {isOpen ? (
-                <ChevronDown className="h-4 w-4 mr-2" />
+                <ChevronDown className="mr-2 h-4 w-4" />
               ) : (
-                <ChevronRight className="h-4 w-4 mr-2" />
+                <ChevronRight className="mr-2 h-4 w-4" />
               )}
               <span className="mr-2">{getFlag(country.country)}</span>
               <span className="font-medium">{country.country}</span>
@@ -105,7 +120,7 @@ function CountryRow({ country, maxTotal }: { country: CountryStats; maxTotal: nu
           <Progress value={percentage} className="h-2" />
         </TableCell>
       </TableRow>
-      
+
       <CollapsibleContent asChild>
         <>
           {country.cities.map((city, idx) => (
@@ -126,10 +141,7 @@ function CountryRow({ country, maxTotal }: { country: CountryStats; maxTotal: nu
                 <span className="text-sm">{city.total}</span>
               </TableCell>
               <TableCell>
-                <Progress 
-                  value={(city.total / country.total) * 100} 
-                  className="h-1.5" 
-                />
+                <Progress value={(city.total / country.total) * 100} className="h-1.5" />
               </TableCell>
             </TableRow>
           ))}
@@ -145,7 +157,7 @@ function GeoAnalyticsTabBase() {
   if (isLoading) {
     return (
       <div role="region" aria-label="GeoAnalyticsTab" className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-32" />
           ))}
@@ -159,7 +171,7 @@ function GeoAnalyticsTabBase() {
     return (
       <Card role="article">
         <CardContent className="p-8 text-center text-muted-foreground">
-          <Globe className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <Globe className="mx-auto mb-4 h-12 w-12 opacity-50" />
           <p>Erro ao carregar dados geográficos</p>
         </CardContent>
       </Card>
@@ -178,7 +190,7 @@ function GeoAnalyticsTabBase() {
     fill: COLORS[idx % COLORS.length],
   }));
 
-  const barData = topCountries.map(c => ({
+  const barData = topCountries.map((c) => ({
     country: c.country,
     opens: c.opens,
     clicks: c.clicks,
@@ -189,7 +201,7 @@ function GeoAnalyticsTabBase() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card role="article">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -197,7 +209,7 @@ function GeoAnalyticsTabBase() {
                 <p className="text-sm text-muted-foreground">Total de Países</p>
                 <p className="text-3xl font-bold">{geoStats.length}</p>
               </div>
-              <div className="p-3 bg-primary/10 rounded-lg">
+              <div className="rounded-lg bg-primary/10 p-3">
                 <Globe className="h-6 w-6 text-primary" />
               </div>
             </div>
@@ -211,8 +223,8 @@ function GeoAnalyticsTabBase() {
                 <p className="text-sm text-muted-foreground">Total de Aberturas</p>
                 <p className="text-3xl font-bold">{totalOpens}</p>
               </div>
-              <div className="p-3 bg-chart-2/10 rounded-lg">
-                <Eye className="h-6 w-6 text-chart-2" />
+              <div className="bg-chart-2/10 rounded-lg p-3">
+                <Eye className="text-chart-2 h-6 w-6" />
               </div>
             </div>
           </CardContent>
@@ -225,8 +237,8 @@ function GeoAnalyticsTabBase() {
                 <p className="text-sm text-muted-foreground">Total de Cliques</p>
                 <p className="text-3xl font-bold">{totalClicks}</p>
               </div>
-              <div className="p-3 bg-chart-3/10 rounded-lg">
-                <MousePointerClick className="h-6 w-6 text-chart-3" />
+              <div className="bg-chart-3/10 rounded-lg p-3">
+                <MousePointerClick className="text-chart-3 h-6 w-6" />
               </div>
             </div>
           </CardContent>
@@ -242,7 +254,7 @@ function GeoAnalyticsTabBase() {
       ) : (
         <>
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -256,12 +268,7 @@ function GeoAnalyticsTabBase() {
                   <BarChart data={barData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis type="number" />
-                    <YAxis 
-                      type="category" 
-                      dataKey="country" 
-                      width={100}
-                      tick={{ fontSize: 12 }}
-                    />
+                    <YAxis type="category" dataKey="country" width={100} tick={{ fontSize: 12 }} />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--card))',
@@ -270,8 +277,18 @@ function GeoAnalyticsTabBase() {
                       }}
                     />
                     <Legend />
-                    <Bar dataKey="opens" name="Aberturas" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-                    <Bar dataKey="clicks" name="Cliques" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
+                    <Bar
+                      dataKey="opens"
+                      name="Aberturas"
+                      fill="hsl(var(--primary))"
+                      radius={[0, 4, 4, 0]}
+                    />
+                    <Bar
+                      dataKey="clicks"
+                      name="Cliques"
+                      fill="hsl(var(--chart-3))"
+                      radius={[0, 4, 4, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -324,9 +341,7 @@ function GeoAnalyticsTabBase() {
                 <MapPin className="h-5 w-5" />
                 Detalhamento por Região
               </CardTitle>
-              <CardDescription>
-                Clique em um país para ver as cidades
-              </CardDescription>
+              <CardDescription>Clique em um país para ver as cidades</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -341,11 +356,7 @@ function GeoAnalyticsTabBase() {
                 </TableHeader>
                 <TableBody>
                   {geoStats.map((country) => (
-                    <CountryRow 
-                      key={country.country} 
-                      country={country} 
-                      maxTotal={maxTotal}
-                    />
+                    <CountryRow key={country.country} country={country} maxTotal={maxTotal} />
                   ))}
                 </TableBody>
               </Table>

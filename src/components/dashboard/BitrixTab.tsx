@@ -8,11 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Users, 
-  Activity, 
-  Briefcase, 
-  Settings, 
+import {
+  Users,
+  Activity,
+  Briefcase,
+  Settings,
   RefreshCw,
   Mail,
   MousePointer,
@@ -22,18 +22,18 @@ import {
   Clock,
   DollarSign,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { 
+import {
   useBitrix24Config,
   useBitrix24Contacts,
   useBitrix24Activities,
   useBitrix24Deals,
   Bitrix24Contact,
   Bitrix24Activity,
-  Bitrix24Deal
+  Bitrix24Deal,
 } from '@/features/crm/hooks/use-bitrix24';
 
 function ActivityIcon({ type }: { type: Bitrix24Activity['type'] }) {
@@ -56,7 +56,7 @@ function ContactsPanel() {
   if (!config.webhookUrl) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <AlertCircle className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <AlertCircle className="mb-4 h-12 w-12 text-muted-foreground/50" />
         <p className="text-muted-foreground">Configure o webhook do Bitrix24 na aba Configuração</p>
       </div>
     );
@@ -65,7 +65,7 @@ function ContactsPanel() {
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map(i => (
+        {[1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-20 w-full" />
         ))}
       </div>
@@ -74,59 +74,61 @@ function ContactsPanel() {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {contacts?.length || 0} contatos sincronizados
         </p>
         <Button variant="ghost" size="sm" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-1" />
+          <RefreshCw className="mr-1 h-4 w-4" />
           Atualizar
         </Button>
       </div>
       <ScrollArea className="h-[400px]">
         <div className="space-y-2">
           {contacts?.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Nenhum contato encontrado</p>
-          ) : contacts?.map((contact: Bitrix24Contact) => (
-            <Card key={contact.id} className="bg-muted/30">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <p className="font-medium">{contact.name}</p>
-                    <p className="text-sm text-muted-foreground">{contact.email}</p>
-                    {contact.company && (
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Building2 className="h-3 w-3" />
-                        {contact.company}
-                      </div>
-                    )}
-                    {contact.phone && (
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3" />
-                        {contact.phone}
-                      </div>
-                    )}
+            <p className="py-8 text-center text-muted-foreground">Nenhum contato encontrado</p>
+          ) : (
+            contacts?.map((contact: Bitrix24Contact) => (
+              <Card key={contact.id} className="bg-muted/30">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="font-medium">{contact.name}</p>
+                      <p className="text-sm text-muted-foreground">{contact.email}</p>
+                      {contact.company && (
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Building2 className="h-3 w-3" />
+                          {contact.company}
+                        </div>
+                      )}
+                      {contact.phone && (
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Phone className="h-3 w-3" />
+                          {contact.phone}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      {contact.source && (
+                        <Badge variant="secondary" className="text-xs">
+                          {contact.source}
+                        </Badge>
+                      )}
+                      {contact.lastActivity && (
+                        <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {formatDistanceToNow(new Date(contact.lastActivity), {
+                            addSuffix: true,
+                            locale: ptBR,
+                          })}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-right">
-                    {contact.source && (
-                      <Badge variant="secondary" className="text-xs">
-                        {contact.source}
-                      </Badge>
-                    )}
-                    {contact.lastActivity && (
-                      <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(contact.lastActivity), { 
-                          addSuffix: true, 
-                          locale: ptBR 
-                        })}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </ScrollArea>
     </div>
@@ -140,7 +142,7 @@ function ActivitiesPanel() {
   if (!config.webhookUrl) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <AlertCircle className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <AlertCircle className="mb-4 h-12 w-12 text-muted-foreground/50" />
         <p className="text-muted-foreground">Configure o webhook do Bitrix24 na aba Configuração</p>
       </div>
     );
@@ -149,7 +151,7 @@ function ActivitiesPanel() {
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3, 4].map(i => (
+        {[1, 2, 3, 4].map((i) => (
           <Skeleton key={i} className="h-16 w-full" />
         ))}
       </div>
@@ -158,38 +160,40 @@ function ActivitiesPanel() {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {activities?.length || 0} atividades registradas
         </p>
         <Button variant="ghost" size="sm" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-1" />
+          <RefreshCw className="mr-1 h-4 w-4" />
           Atualizar
         </Button>
       </div>
       <ScrollArea className="h-[400px]">
         <div className="space-y-2">
           {activities?.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Nenhuma atividade encontrada</p>
-          ) : activities?.map((activity: Bitrix24Activity) => (
-            <Card key={activity.id} className="bg-muted/30">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-3">
-                  <ActivityIcon type={activity.type} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{activity.subject}</p>
-                    <p className="text-xs text-muted-foreground">{activity.contactName}</p>
+            <p className="py-8 text-center text-muted-foreground">Nenhuma atividade encontrada</p>
+          ) : (
+            activities?.map((activity: Bitrix24Activity) => (
+              <Card key={activity.id} className="bg-muted/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <ActivityIcon type={activity.type} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{activity.subject}</p>
+                      <p className="text-xs text-muted-foreground">{activity.contactName}</p>
+                    </div>
+                    <p className="whitespace-nowrap text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(activity.timestamp), {
+                        addSuffix: true,
+                        locale: ptBR,
+                      })}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground whitespace-nowrap">
-                    {formatDistanceToNow(new Date(activity.timestamp), { 
-                      addSuffix: true, 
-                      locale: ptBR 
-                    })}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </ScrollArea>
     </div>
@@ -203,7 +207,7 @@ function DealsPanel() {
   if (!config.webhookUrl) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <AlertCircle className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <AlertCircle className="mb-4 h-12 w-12 text-muted-foreground/50" />
         <p className="text-muted-foreground">Configure o webhook do Bitrix24 na aba Configuração</p>
       </div>
     );
@@ -212,7 +216,7 @@ function DealsPanel() {
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {[1, 2].map(i => (
+        {[1, 2].map((i) => (
           <Skeleton key={i} className="h-24 w-full" />
         ))}
       </div>
@@ -221,46 +225,46 @@ function DealsPanel() {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
-          {deals?.length || 0} negócios criados
-        </p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">{deals?.length || 0} negócios criados</p>
         <Button variant="ghost" size="sm" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-1" />
+          <RefreshCw className="mr-1 h-4 w-4" />
           Atualizar
         </Button>
       </div>
       <ScrollArea className="h-[400px]">
         <div className="space-y-2">
           {deals?.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Nenhum negócio encontrado</p>
-          ) : deals?.map((deal: Bitrix24Deal) => (
-            <Card key={deal.id} className="bg-muted/30">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <p className="font-medium">{deal.title}</p>
-                    <p className="text-sm text-muted-foreground">{deal.contactName}</p>
-                    <Badge variant="outline">{deal.stage}</Badge>
-                  </div>
-                  <div className="text-right">
-                    {deal.value && (
-                      <p className="font-semibold text-green-600 flex items-center gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        {deal.value.toLocaleString('pt-BR')} {deal.currency}
+            <p className="py-8 text-center text-muted-foreground">Nenhum negócio encontrado</p>
+          ) : (
+            deals?.map((deal: Bitrix24Deal) => (
+              <Card key={deal.id} className="bg-muted/30">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="font-medium">{deal.title}</p>
+                      <p className="text-sm text-muted-foreground">{deal.contactName}</p>
+                      <Badge variant="outline">{deal.stage}</Badge>
+                    </div>
+                    <div className="text-right">
+                      {deal.value && (
+                        <p className="flex items-center gap-1 font-semibold text-green-600">
+                          <DollarSign className="h-4 w-4" />
+                          {deal.value.toLocaleString('pt-BR')} {deal.currency}
+                        </p>
+                      )}
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(deal.createdAt), {
+                          addSuffix: true,
+                          locale: ptBR,
+                        })}
                       </p>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(deal.createdAt), { 
-                        addSuffix: true, 
-                        locale: ptBR 
-                      })}
-                    </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </ScrollArea>
     </div>
@@ -308,7 +312,7 @@ function ConfigPanel() {
               <Input
                 placeholder="https://seu-dominio.bitrix24.com.br/rest/..."
                 value={webhookUrl}
-                onChange={e => setWebhookUrl(e.target.value)}
+                onChange={(e) => setWebhookUrl(e.target.value)}
               />
               <Button onClick={handleSaveWebhook} disabled={isUpdating}>
                 {isUpdating ? 'Salvando...' : 'Salvar'}
@@ -324,9 +328,7 @@ function ConfigPanel() {
       <Card role="article">
         <CardHeader>
           <CardTitle className="text-base">Automações</CardTitle>
-          <CardDescription>
-            Configure quais ações são sincronizadas automaticamente
-          </CardDescription>
+          <CardDescription>Configure quais ações são sincronizadas automaticamente</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -338,7 +340,7 @@ function ConfigPanel() {
             </div>
             <Switch
               checked={config.autoSyncContacts}
-              onCheckedChange={checked => updateConfig({ autoSyncContacts: checked })}
+              onCheckedChange={(checked) => updateConfig({ autoSyncContacts: checked })}
             />
           </div>
 
@@ -351,7 +353,7 @@ function ConfigPanel() {
             </div>
             <Switch
               checked={config.autoRegisterActivities}
-              onCheckedChange={checked => updateConfig({ autoRegisterActivities: checked })}
+              onCheckedChange={(checked) => updateConfig({ autoRegisterActivities: checked })}
             />
           </div>
 
@@ -364,7 +366,7 @@ function ConfigPanel() {
             </div>
             <Switch
               checked={config.autoCreateDeals}
-              onCheckedChange={checked => updateConfig({ autoCreateDeals: checked })}
+              onCheckedChange={(checked) => updateConfig({ autoCreateDeals: checked })}
             />
           </div>
 
@@ -377,7 +379,7 @@ function ConfigPanel() {
             </div>
             <Switch
               checked={config.sendNotifications}
-              onCheckedChange={checked => updateConfig({ sendNotifications: checked })}
+              onCheckedChange={(checked) => updateConfig({ sendNotifications: checked })}
             />
           </div>
         </CardContent>
@@ -395,7 +397,7 @@ function BitrixTabBase() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
+              <div className="rounded-lg bg-primary/10 p-2">
                 <Building2 className="h-6 w-6 text-primary" />
               </div>
               <div>

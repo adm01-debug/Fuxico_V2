@@ -4,7 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockFrom = vi.fn();
 const mockAuth = {
   getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } }, error: null }),
-  getSession: vi.fn().mockResolvedValue({ data: { session: { access_token: 'tok' } }, error: null }),
+  getSession: vi
+    .fn()
+    .mockResolvedValue({ data: { session: { access_token: 'tok' } }, error: null }),
   onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
 };
 
@@ -26,8 +28,20 @@ describe('useCampaigns - batch query optimization', () => {
 
   it('should fetch campaigns with stats in batch (not N+1)', async () => {
     const mockCampaigns = [
-      { id: 'c1', user_id: 'user-123', name: 'Campaign 1', status: 'active', created_at: '2026-01-01' },
-      { id: 'c2', user_id: 'user-123', name: 'Campaign 2', status: 'draft', created_at: '2026-01-02' },
+      {
+        id: 'c1',
+        user_id: 'user-123',
+        name: 'Campaign 1',
+        status: 'active',
+        created_at: '2026-01-01',
+      },
+      {
+        id: 'c2',
+        user_id: 'user-123',
+        name: 'Campaign 2',
+        status: 'draft',
+        created_at: '2026-01-02',
+      },
     ];
 
     const mockEmails = [

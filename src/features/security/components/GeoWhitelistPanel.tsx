@@ -7,16 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { matchFirst } from "@/lib/variant";
-import { 
-  Globe2,
-  Plus, 
-  Trash2, 
-  Search,
-  MapPin,
-  Loader2,
-  AlertTriangle
-} from 'lucide-react';
+import { matchFirst } from '@/lib/variant';
+import { Globe2, Plus, Trash2, Search, MapPin, Loader2, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -96,7 +88,7 @@ export default function GeoWhitelistPanel() {
   // Add country
   const addMutation = useMutation({
     mutationFn: async () => {
-      const country = COUNTRIES.find(c => c.code === selectedCountry);
+      const country = COUNTRIES.find((c) => c.code === selectedCountry);
       if (!country) throw new Error('País não encontrado');
 
       const { error } = await supabase.from('geo_whitelist').insert({
@@ -151,14 +143,15 @@ export default function GeoWhitelistPanel() {
     },
   });
 
-  const filteredCountries = geoWhitelist?.filter(entry =>
-    entry.country_name.toLowerCase().includes(search.toLowerCase()) ||
-    entry.country_code.toLowerCase().includes(search.toLowerCase())
+  const filteredCountries = geoWhitelist?.filter(
+    (entry) =>
+      entry.country_name.toLowerCase().includes(search.toLowerCase()) ||
+      entry.country_code.toLowerCase().includes(search.toLowerCase())
   );
 
-  const activeCount = geoWhitelist?.filter(e => e.is_active).length || 0;
+  const activeCount = geoWhitelist?.filter((e) => e.is_active).length || 0;
   const availableCountries = COUNTRIES.filter(
-    c => !geoWhitelist?.some(g => g.country_code === c.code)
+    (c) => !geoWhitelist?.some((g) => g.country_code === c.code)
   );
 
   return (
@@ -166,8 +159,8 @@ export default function GeoWhitelistPanel() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <Globe2 className="w-5 h-5 text-blue-500" />
+            <div className="rounded-lg bg-blue-500/10 p-2">
+              <Globe2 className="h-5 w-5 text-blue-500" />
             </div>
             <div>
               <CardTitle>Bloqueio Geográfico</CardTitle>
@@ -177,7 +170,7 @@ export default function GeoWhitelistPanel() {
             </div>
           </div>
           <Button onClick={() => setShowAddDialog(true)} disabled={availableCountries.length === 0}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Adicionar País
           </Button>
         </div>
@@ -185,8 +178,8 @@ export default function GeoWhitelistPanel() {
       <CardContent className="space-y-4">
         {/* Info banner */}
         {activeCount === 0 && (
-          <div className="flex items-center gap-3 p-4 bg-warning/10 border border-warning/20 rounded-lg">
-            <AlertTriangle className="w-5 h-5 text-warning" />
+          <div className="flex items-center gap-3 rounded-lg border border-warning/20 bg-warning/10 p-4">
+            <AlertTriangle className="h-5 w-5 text-warning" />
             <div>
               <p className="font-medium text-warning">Bloqueio desativado</p>
               <p className="text-sm text-muted-foreground">
@@ -197,12 +190,13 @@ export default function GeoWhitelistPanel() {
         )}
 
         {activeCount > 0 && (
-          <div className="flex items-center gap-3 p-4 bg-success/10 border border-success/20 rounded-lg">
-            <MapPin className="w-5 h-5 text-success" />
+          <div className="flex items-center gap-3 rounded-lg border border-success/20 bg-success/10 p-4">
+            <MapPin className="h-5 w-5 text-success" />
             <div>
               <p className="font-medium text-success">Bloqueio ativo</p>
               <p className="text-sm text-muted-foreground">
-                Apenas {activeCount} país(es) permitido(s). Acessos de outros países serão bloqueados.
+                Apenas {activeCount} país(es) permitido(s). Acessos de outros países serão
+                bloqueados.
               </p>
             </div>
           </div>
@@ -210,7 +204,7 @@ export default function GeoWhitelistPanel() {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar país..."
             value={search}
@@ -220,59 +214,68 @@ export default function GeoWhitelistPanel() {
         </div>
 
         {/* List */}
-        {matchFirst([
-  [isLoading, () => ((
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
-        ))],
-  [filteredCountries?.length === 0, () => ((
-          <div className="text-center py-8 text-muted-foreground">
-            {geoWhitelist?.length === 0 
-              ? 'Nenhum país na whitelist. Adicione países para ativar o bloqueio.'
-              : 'Nenhum país encontrado'}
-          </div>
-        ))],
-], () => ((
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredCountries?.map((entry) => (
-              <div
-                key={entry.id}
-                className={`flex items-center justify-between p-3 rounded-lg border ${
-                  entry.is_active ? 'bg-muted/50' : 'bg-muted/30 opacity-60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{getFlagEmoji(entry.country_code)}</span>
-                  <div>
-                    <p className="font-medium text-sm">{entry.country_name}</p>
-                    <p className="text-xs text-muted-foreground">{entry.country_code}</p>
+        {matchFirst(
+          [
+            [
+              isLoading,
+              () => (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ),
+            ],
+            [
+              filteredCountries?.length === 0,
+              () => (
+                <div className="py-8 text-center text-muted-foreground">
+                  {geoWhitelist?.length === 0
+                    ? 'Nenhum país na whitelist. Adicione países para ativar o bloqueio.'
+                    : 'Nenhum país encontrado'}
+                </div>
+              ),
+            ],
+          ],
+          () => (
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredCountries?.map((entry) => (
+                <div
+                  key={entry.id}
+                  className={`flex items-center justify-between rounded-lg border p-3 ${
+                    entry.is_active ? 'bg-muted/50' : 'bg-muted/30 opacity-60'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{getFlagEmoji(entry.country_code)}</span>
+                    <div>
+                      <p className="text-sm font-medium">{entry.country_name}</p>
+                      <p className="text-xs text-muted-foreground">{entry.country_code}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={entry.is_active}
+                      onCheckedChange={(checked) =>
+                        toggleMutation.mutate({ id: entry.id, isActive: checked })
+                      }
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      onClick={() => {
+                        if (confirm(`Remover ${entry.country_name} da whitelist?`)) {
+                          removeMutation.mutate(entry.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={entry.is_active}
-                    onCheckedChange={(checked) => 
-                      toggleMutation.mutate({ id: entry.id, isActive: checked })
-                    }
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                    onClick={() => {
-                      if (confirm(`Remover ${entry.country_name} da whitelist?`)) {
-                        removeMutation.mutate(entry.id);
-                      }
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )))}
+              ))}
+            </div>
+          )
+        )}
       </CardContent>
 
       {/* Add Dialog */}
@@ -280,9 +283,7 @@ export default function GeoWhitelistPanel() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Adicionar País à Whitelist</DialogTitle>
-            <DialogDescription>
-              Apenas acessos deste país serão permitidos
-            </DialogDescription>
+            <DialogDescription>Apenas acessos deste país serão permitidos</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -292,7 +293,7 @@ export default function GeoWhitelistPanel() {
                   <SelectValue placeholder="Selecione um país" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableCountries.map(country => (
+                  {availableCountries.map((country) => (
                     <SelectItem key={country.code} value={country.code}>
                       <span className="flex items-center gap-2">
                         <span>{getFlagEmoji(country.code)}</span>
@@ -327,6 +328,6 @@ function getFlagEmoji(countryCode: string): string {
   const codePoints = countryCode
     .toUpperCase()
     .split('')
-    .map(char => 127397 + char.charCodeAt(0));
+    .map((char) => 127397 + char.charCodeAt(0));
   return String.fromCodePoint(...codePoints);
 }

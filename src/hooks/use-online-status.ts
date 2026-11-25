@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook for tracking online/offline status
- * 
+ *
  * @description Monitors network connectivity and returns current status.
- * 
+ *
  * @example
  * ```tsx
  * const isOnline = useOnlineStatus();
- * 
+ *
  * if (!isOnline) {
  *   return <OfflineBanner />;
  * }
@@ -51,12 +51,12 @@ export function useNetworkStatus(): {
     effectiveType: null as string | null,
     downlink: null as number | null,
     rtt: null as number | null,
-    saveData: false
+    saveData: false,
   });
 
   useEffect(() => {
     const connection = (navigator as unknown as { connection?: NetworkInformation })?.connection;
-    
+
     if (!connection) return;
 
     const updateNetworkInfo = () => {
@@ -64,7 +64,7 @@ export function useNetworkStatus(): {
         effectiveType: connection.effectiveType || null,
         downlink: connection.downlink || null,
         rtt: connection.rtt || null,
-        saveData: connection.saveData || false
+        saveData: connection.saveData || false,
       });
     };
 

@@ -4,13 +4,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
 import { log } from '@/lib/logger';
-import { playNotificationSound as playSound, NotificationSoundType } from '@/lib/notification-sound';
+import {
+  playNotificationSound as playSound,
+  NotificationSoundType,
+} from '@/lib/notification-sound';
 
 // Play notification using centralized sound system
-function playNotificationChime(
-  soundType?: NotificationSoundType, 
-  volume?: number
-) {
+function playNotificationChime(soundType?: NotificationSoundType, volume?: number) {
   try {
     playSound('success', soundType || 'gentle', volume || 0.5);
   } catch (error) {
@@ -23,16 +23,16 @@ async function requestNotificationPermission(): Promise<boolean> {
   if (!('Notification' in window)) {
     return false;
   }
-  
+
   if (Notification.permission === 'granted') {
     return true;
   }
-  
+
   if (Notification.permission !== 'denied') {
     const permission = await Notification.requestPermission();
     return permission === 'granted';
   }
-  
+
   return false;
 }
 
@@ -61,139 +61,149 @@ export function useRealtimeNotifications() {
     }
   }, [preferences?.desktop_enabled]);
 
-  const showOpenNotification = useCallback(async (trackingId: string, isSelfOpen: boolean) => {
-    // Skip if self-open
-    if (isSelfOpen) return;
-    
-    // Check if user wants open notifications
-    if (!preferences?.notify_on_open) return;
+  const showOpenNotification = useCallback(
+    async (trackingId: string, isSelfOpen: boolean) => {
+      // Skip if self-open
+      if (isSelfOpen) return;
 
-    const { data: email } = await supabase
-      .from('tracked_emails')
-      .select('recipient_email, subject, user_id, tracking_id')
-      .eq('tracking_id', trackingId)
-      .single();
+      // Check if user wants open notifications
+      if (!preferences?.notify_on_open) return;
 
-    if (email && email.user_id === user?.id) {
-      // Play sound if enabled
+      const { data: email } = await supabase
+        .from('tracked_emails')
+        .select('recipient_email, subject, user_id, tracking_id')
+        .eq('tracking_id', trackingId)
+        .single();
+
+      if (email && email.user_id === user?.id) {
+        // Play sound if enabled
+        if (preferences?.sound_enabled) {
+          playNotificationChime(
+            preferences.notification_sound_type as NotificationSoundType,
+            preferences.notification_volume || 0.5
+          );
+        }
+
+        const title = '📧 Email Aberto!';
+        const description = `${email.recipient_email} abriu "${email.subject || 'Sem assunto'}"`;
+
+        toast({ title, description });
+
+        // Update internal notification center state
+        try {
+          const stored = localStorage.getItem('notifications');
+          const notifications = stored ? JSON.parse(stored) : [];
+          const newNotif = {
+            id: crypto.randomUUID(),
+            type: 'open',
+            title,
+            message: description,
+            timestamp: new Date().toISOString(),
+            read: false,
+            metadata: { tracking_id: trackingId },
+          };
+          localStorage.setItem(
+            'notifications',
+            JSON.stringify([newNotif, ...notifications].slice(0, 50))
+          );
+          window.dispatchEvent(new StorageEvent('local-storage', { key: 'notifications' }));
+        } catch (err) {
+          log.error('Failed to sync notification to storage', err);
+        }
+
+        // Show desktop notification if enabled
+        if (preferences?.desktop_enabled) {
+          showDesktopNotification(title, description);
+        }
+      }
+    },
+    [user, toast, preferences]
+  );
+
+  const showClickNotification = useCallback(
+    async (trackingId: string, _linkUrl: string) => {
+      // Check if user wants click notifications
+      if (!preferences?.notify_on_click) return;
+
+      const { data: email } = await supabase
+        .from('tracked_emails')
+        .select('recipient_email, subject, user_id, tracking_id')
+        .eq('tracking_id', trackingId)
+        .single();
+
+      if (email && email.user_id === user?.id) {
+        // Play sound if enabled
+        if (preferences?.sound_enabled) {
+          playNotificationChime(
+            preferences.notification_sound_type as NotificationSoundType,
+            preferences.notification_volume || 0.5
+          );
+        }
+
+        const title = '🔗 Link Clicado!';
+        const description = `${email.recipient_email} clicou em um link`;
+
+        toast({ title, description });
+
+        // Update internal notification center state
+        try {
+          const stored = localStorage.getItem('notifications');
+          const notifications = stored ? JSON.parse(stored) : [];
+          const newNotif = {
+            id: crypto.randomUUID(),
+            type: 'click',
+            title,
+            message: description,
+            timestamp: new Date().toISOString(),
+            read: false,
+            metadata: { tracking_id: trackingId },
+          };
+          localStorage.setItem(
+            'notifications',
+            JSON.stringify([newNotif, ...notifications].slice(0, 50))
+          );
+          window.dispatchEvent(new StorageEvent('local-storage', { key: 'notifications' }));
+        } catch (err) {
+          log.error('Failed to sync notification to storage', err);
+        }
+
+        // Show desktop notification if enabled
+        if (preferences?.desktop_enabled) {
+          showDesktopNotification(title, description);
+        }
+      }
+    },
+    [user, toast, preferences]
+  );
+
+  const showFraudAlertNotification = useCallback(
+    (alert: { alert_type: string; severity: string; description: string; user_email: string }) => {
+      // Play urgent sound for fraud alerts
       if (preferences?.sound_enabled) {
         playNotificationChime(
           preferences.notification_sound_type as NotificationSoundType,
-          preferences.notification_volume || 0.5
+          preferences.critical_volume || 0.8
         );
       }
-      
-      const title = '📧 Email Aberto!';
-      const description = `${email.recipient_email} abriu "${email.subject || 'Sem assunto'}"`;
-      
-      toast({ title, description });
-      
-      // Update internal notification center state
-      try {
-        const stored = localStorage.getItem('notifications');
-        const notifications = stored ? JSON.parse(stored) : [];
-        const newNotif = {
-          id: crypto.randomUUID(),
-          type: 'open',
-          title,
-          message: description,
-          timestamp: new Date().toISOString(),
-          read: false,
-          metadata: { tracking_id: trackingId }
-        };
-        localStorage.setItem('notifications', JSON.stringify([newNotif, ...notifications].slice(0, 50)));
-        window.dispatchEvent(new StorageEvent('local-storage', { key: 'notifications' }));
-      } catch (err) {
-        log.error('Failed to sync notification to storage', err);
-      }
-      
+
+      const severityEmojiMap: Record<string, string> = { high: '🚨', medium: '⚠️' };
+      const severityEmoji = severityEmojiMap[alert.severity] ?? 'ℹ️';
+      const title = `${severityEmoji} Alerta de Fraude Detectado!`;
+      const description = `${alert.user_email}: ${alert.description}`;
+
+      toast({
+        title,
+        description,
+        variant: alert.severity === 'high' ? 'destructive' : 'default',
+      });
+
       // Show desktop notification if enabled
       if (preferences?.desktop_enabled) {
         showDesktopNotification(title, description);
       }
-    }
-  }, [user, toast, preferences]);
-
-  const showClickNotification = useCallback(async (trackingId: string, _linkUrl: string) => {
-    // Check if user wants click notifications
-    if (!preferences?.notify_on_click) return;
-
-    const { data: email } = await supabase
-      .from('tracked_emails')
-      .select('recipient_email, subject, user_id, tracking_id')
-      .eq('tracking_id', trackingId)
-      .single();
-
-    if (email && email.user_id === user?.id) {
-      // Play sound if enabled
-      if (preferences?.sound_enabled) {
-        playNotificationChime(
-          preferences.notification_sound_type as NotificationSoundType,
-          preferences.notification_volume || 0.5
-        );
-      }
-      
-      const title = '🔗 Link Clicado!';
-      const description = `${email.recipient_email} clicou em um link`;
-      
-      toast({ title, description });
-      
-      // Update internal notification center state
-      try {
-        const stored = localStorage.getItem('notifications');
-        const notifications = stored ? JSON.parse(stored) : [];
-        const newNotif = {
-          id: crypto.randomUUID(),
-          type: 'click',
-          title,
-          message: description,
-          timestamp: new Date().toISOString(),
-          read: false,
-          metadata: { tracking_id: trackingId }
-        };
-        localStorage.setItem('notifications', JSON.stringify([newNotif, ...notifications].slice(0, 50)));
-        window.dispatchEvent(new StorageEvent('local-storage', { key: 'notifications' }));
-      } catch (err) {
-        log.error('Failed to sync notification to storage', err);
-      }
-      
-      // Show desktop notification if enabled
-      if (preferences?.desktop_enabled) {
-        showDesktopNotification(title, description);
-      }
-    }
-  }, [user, toast, preferences]);
-
-  const showFraudAlertNotification = useCallback((alert: {
-    alert_type: string;
-    severity: string;
-    description: string;
-    user_email: string;
-  }) => {
-    // Play urgent sound for fraud alerts
-    if (preferences?.sound_enabled) {
-      playNotificationChime(
-        preferences.notification_sound_type as NotificationSoundType,
-        preferences.critical_volume || 0.8
-      );
-    }
-    
-    const severityEmojiMap: Record<string, string> = { high: '🚨', medium: '⚠️' };
-    const severityEmoji = severityEmojiMap[alert.severity] ?? 'ℹ️';
-    const title = `${severityEmoji} Alerta de Fraude Detectado!`;
-    const description = `${alert.user_email}: ${alert.description}`;
-    
-    toast({ 
-      title, 
-      description,
-      variant: alert.severity === 'high' ? 'destructive' : 'default',
-    });
-    
-    // Show desktop notification if enabled
-    if (preferences?.desktop_enabled) {
-      showDesktopNotification(title, description);
-    }
-  }, [toast, preferences]);
+    },
+    [toast, preferences]
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -209,13 +219,13 @@ export function useRealtimeNotifications() {
           table: 'tracking_events',
         },
         (payload) => {
-          const event = payload.new as { 
-            tracking_id: string; 
+          const event = payload.new as {
+            tracking_id: string;
             event_type: string;
             link_url?: string;
             is_self_open?: boolean;
           };
-          
+
           if (event.event_type === 'open') {
             showOpenNotification(event.tracking_id, event.is_self_open || false);
           } else if (event.event_type === 'click') {
@@ -245,7 +255,7 @@ export function useRealtimeNotifications() {
             user_email: string;
             user_id: string;
           };
-          
+
           showFraudAlertNotification(alert);
         }
       )

@@ -66,13 +66,18 @@ export function useDeliverability() {
   const { data, isLoading, error, refetch } = useQuery<DeliverabilityData>({
     queryKey: ['deliverability-stats'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       // Use RPC to get domain stats instead of edge function
-      const { data: domainStats, error: rpcError } = await supabase.rpc('calculate_domain_deliverability', {
-        p_user_id: user.id,
-      });
+      const { data: domainStats, error: rpcError } = await supabase.rpc(
+        'calculate_domain_deliverability',
+        {
+          p_user_id: user.id,
+        }
+      );
 
       if (rpcError) throw rpcError;
 
@@ -92,9 +97,12 @@ export function useDeliverability() {
         deliveryRate: totalSent > 0 ? (totalDelivered / totalSent) * 100 : 0,
         bounceRate: totalSent > 0 ? (totalBounced / totalSent) * 100 : 0,
         openRate: totalDelivered > 0 ? (totalOpened / totalDelivered) * 100 : 0,
-        reputationScore: domains.length > 0
-          ? Math.round(domains.reduce((sum, d) => sum + Number(d.reputation_score), 0) / domains.length)
-          : 50,
+        reputationScore:
+          domains.length > 0
+            ? Math.round(
+                domains.reduce((sum, d) => sum + Number(d.reputation_score), 0) / domains.length
+              )
+            : 50,
       };
 
       return { domains, totals };
@@ -111,7 +119,7 @@ export function useDeliverability() {
         {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${session.session?.access_token}`,
+            Authorization: `Bearer ${session.session?.access_token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -136,7 +144,7 @@ export function useDeliverability() {
         {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${session.session?.access_token}`,
+            Authorization: `Bearer ${session.session?.access_token}`,
             'Content-Type': 'application/json',
           },
         }

@@ -1,14 +1,14 @@
 /**
  * Hook para gerenciamento de testes A/B em campanhas de email
- * 
+ *
  * @description Este hook fornece funcionalidades para hook para gerenciamento de testes a/b em campanhas de email.
  * Inclui gerenciamento de estado, cache e tratamento de erros.
- * 
+ *
  * @example
  * ```tsx
  * const { data, isLoading, error } = useabtests();
  * ```
- * 
+ *
  * @returns Object contendo data, isLoading, error e funções auxiliares
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -63,24 +63,27 @@ export interface CreateABTestData {
   min_sample_size?: number;
 }
 
-
 export function useABTests() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: tests = [], isLoading, error } = useQuery({
+  const {
+    data: tests = [],
+    isLoading,
+    error,
+  } = useQuery({
     staleTime: 5 * 60 * 1000, // 5 minutos
     gcTime: 30 * 60 * 1000, // 30 minutos
     queryKey: ['ab-tests', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('ab_tests')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       return data as ABTest[];
     },
@@ -90,7 +93,7 @@ export function useABTests() {
   const createTest = useMutation({
     mutationFn: async (testData: CreateABTestData) => {
       if (!user?.id) throw new Error('Usuário não autenticado');
-      
+
       const { data, error } = await supabase
         .from('ab_tests')
         .insert({
@@ -108,7 +111,7 @@ export function useABTests() {
         } as never)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
@@ -125,12 +128,12 @@ export function useABTests() {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('ab_tests')
-        .update({ 
+        .update({
           status: 'running',
           started_at: new Date().toISOString(),
         })
         .eq('id', id);
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -144,11 +147,8 @@ export function useABTests() {
 
   const pauseTest = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('ab_tests')
-        .update({ status: 'paused' })
-        .eq('id', id);
-      
+      const { error } = await supabase.from('ab_tests').update({ status: 'paused' }).eq('id', id);
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -164,13 +164,13 @@ export function useABTests() {
     mutationFn: async ({ id, winner }: { id: string; winner: 'A' | 'B' }) => {
       const { error } = await supabase
         .from('ab_tests')
-        .update({ 
+        .update({
           status: 'completed',
           winner,
           completed_at: new Date().toISOString(),
         })
         .eq('id', id);
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -183,39 +183,37 @@ export function useABTests() {
   });
 
   const updateMetrics = useMutation({
-    mutationFn: async ({ 
-      id, 
-      variant, 
-      sends = 0, 
-      opens = 0, 
-      clicks = 0 
-    }: { 
-      id: string; 
+    mutationFn: async ({
+      id,
+      variant,
+      sends = 0,
+      opens = 0,
+      clicks = 0,
+    }: {
+      id: string;
       variant: 'A' | 'B';
       sends?: number;
       opens?: number;
       clicks?: number;
     }) => {
-      const test = tests.find(t => t.id === id);
+      const test = tests.find((t) => t.id === id);
       if (!test) throw new Error('Teste não encontrado');
 
-      const updates = variant === 'A' 
-        ? {
-            variant_a_sends: test.variant_a_sends + sends,
-            variant_a_opens: test.variant_a_opens + opens,
-            variant_a_clicks: test.variant_a_clicks + clicks,
-          }
-        : {
-            variant_b_sends: test.variant_b_sends + sends,
-            variant_b_opens: test.variant_b_opens + opens,
-            variant_b_clicks: test.variant_b_clicks + clicks,
-          };
+      const updates =
+        variant === 'A'
+          ? {
+              variant_a_sends: test.variant_a_sends + sends,
+              variant_a_opens: test.variant_a_opens + opens,
+              variant_a_clicks: test.variant_a_clicks + clicks,
+            }
+          : {
+              variant_b_sends: test.variant_b_sends + sends,
+              variant_b_opens: test.variant_b_opens + opens,
+              variant_b_clicks: test.variant_b_clicks + clicks,
+            };
 
-      const { error } = await supabase
-        .from('ab_tests')
-        .update(updates)
-        .eq('id', id);
-      
+      const { error } = await supabase.from('ab_tests').update(updates).eq('id', id);
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -227,11 +225,8 @@ export function useABTests() {
 
   const deleteTest = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('ab_tests')
-        .delete()
-        .eq('id', id);
-      
+      const { error } = await supabase.from('ab_tests').delete().eq('id', id);
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -245,7 +240,7 @@ export function useABTests() {
 
   // Auto-winner detection with statistical significance
   const checkAutoWinner = () => {
-    const runningTests = tests.filter(t => t.status === 'running');
+    const runningTests = tests.filter((t) => t.status === 'running');
     for (const test of runningTests) {
       const minSends = 30; // Minimum sends per variant
       if (test.variant_a_sends < minSends || test.variant_b_sends < minSends) continue;
@@ -256,16 +251,18 @@ export function useABTests() {
 
       // Simple Z-test for proportions
       const pooledRate = (test.variant_a_opens + test.variant_b_opens) / totalSends;
-      const se = Math.sqrt(pooledRate * (1 - pooledRate) * (1 / test.variant_a_sends + 1 / test.variant_b_sends));
-      
+      const se = Math.sqrt(
+        pooledRate * (1 - pooledRate) * (1 / test.variant_a_sends + 1 / test.variant_b_sends)
+      );
+
       if (se === 0) continue;
       const zScore = Math.abs(rateA - rateB) / se;
 
       // 95% confidence = z > 1.96
       if (zScore > 1.96) {
-        const winner = rateA > rateB ? 'A' as const : 'B' as const;
+        const winner = rateA > rateB ? ('A' as const) : ('B' as const);
         const confidence = Math.min(99, Math.round((1 - 2 * (1 - normalCDF(zScore))) * 100));
-        
+
         completeTest.mutate({ id: test.id, winner });
         toast.success(`Vencedor automático: Variante ${winner}`, {
           description: `Confiança estatística de ${confidence}%`,
@@ -276,12 +273,16 @@ export function useABTests() {
 
   // Standard normal CDF approximation
   function normalCDF(x: number): number {
-    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429;
+    const a1 = 0.254829592,
+      a2 = -0.284496736,
+      a3 = 1.421413741,
+      a4 = -1.453152027,
+      a5 = 1.061405429;
     const p = 0.3275911;
     const sign = x < 0 ? -1 : 1;
     x = Math.abs(x) / Math.sqrt(2);
     const t = 1.0 / (1.0 + p * x);
-    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    const y = 1.0 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
     return 0.5 * (1.0 + sign * y);
   }
 

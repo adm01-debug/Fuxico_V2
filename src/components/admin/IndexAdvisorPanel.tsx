@@ -4,7 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Lightbulb, Play, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 type Run = {
   id: string;
@@ -54,11 +61,10 @@ export function IndexAdvisorPanel() {
   });
 
   const runNow = useMutation({
-    mutationFn: () => adminRpc<{ high_count: number; medium_count: number }>('admin_run_index_advisor'),
+    mutationFn: () =>
+      adminRpc<{ high_count: number; medium_count: number }>('admin_run_index_advisor'),
     onSuccess: (data) => {
-      toast.success(
-        `Advisor executado: ${data.high_count} HIGH · ${data.medium_count} MEDIUM`,
-      );
+      toast.success(`Advisor executado: ${data.high_count} HIGH · ${data.medium_count} MEDIUM`);
       qc.invalidateQueries({ queryKey: ['admin_list_index_advisor_runs'] });
     },
     onError: (e: unknown) => {
@@ -94,31 +100,27 @@ export function IndexAdvisorPanel() {
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div>
           <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="w-5 h-5" /> Index Advisor
+            <Lightbulb className="h-5 w-5" /> Index Advisor
           </CardTitle>
           <CardDescription>
             Recomendações diárias de índices baseadas em uso de seq scan. Cron: 03:15 UTC.
           </CardDescription>
-          <div className="text-xs text-muted-foreground mt-2">{cleanupLabel}</div>
+          <div className="mt-2 text-xs text-muted-foreground">{cleanupLabel}</div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Button
             size="sm"
             variant="outline"
             disabled={runNow.isPending}
             onClick={() => runNow.mutate()}
           >
-            <Play className="w-4 h-4 mr-2" />
+            <Play className="mr-2 h-4 w-4" />
             {runNow.isPending ? 'Executando...' : 'Executar agora'}
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={cleanup.isPending || !hasRuns}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
+              <Button size="sm" variant="outline" disabled={cleanup.isPending || !hasRuns}>
+                <Trash2 className="mr-2 h-4 w-4" />
                 {cleanup.isPending ? 'Limpando...' : 'Limpar histórico >90d'}
               </Button>
             </AlertDialogTrigger>
@@ -126,9 +128,9 @@ export function IndexAdvisorPanel() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Limpar histórico do Index Advisor</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta ação remove permanentemente todas as execuções com mais de 90 dias.
-                  A limpeza automática já roda todo domingo às 04:00 UTC — use este botão
-                  apenas se precisar antecipar. Nenhum dado recente é afetado.
+                  Esta ação remove permanentemente todas as execuções com mais de 90 dias. A limpeza
+                  automática já roda todo domingo às 04:00 UTC — use este botão apenas se precisar
+                  antecipar. Nenhum dado recente é afetado.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -142,92 +144,100 @@ export function IndexAdvisorPanel() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {matchFirst([
-  [runs.isLoading, () => ((
-          <Skeleton className="h-40 w-full" />
-        ))],
-  [!hasRuns, () => ((
-          <p className="text-sm text-muted-foreground text-center py-6">
-            Nenhuma execução registrada ainda. Clique em "Executar agora" para gerar o primeiro relatório.
-          </p>
-        ))],
-], () => ((
-          <>
-            {latest && (latest.high_count > 0 || latest.medium_count > 0) && (
-              <div className="rounded-md border p-3 bg-muted/30">
-                <div className="text-xs font-semibold mb-2">
-                  Última execução — {new Date(latest.ran_at).toLocaleString('pt-BR')}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                  {latest.details.slice(0, 20).map((d, i) => (
-                    <div key={i} className="text-xs rounded border p-2 flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="font-mono truncate">{d.table_name}</div>
-                        <div className="text-muted-foreground">{d.reason}</div>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={
-                          d.severity === 'HIGH'
-                            ? 'bg-destructive/15 text-destructive border-destructive/30'
-                            : 'bg-amber-500/15 text-amber-500 border-amber-500/30'
-                        }
+        {matchFirst(
+          [
+            [runs.isLoading, () => <Skeleton className="h-40 w-full" />],
+            [
+              !hasRuns,
+              () => (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  Nenhuma execução registrada ainda. Clique em "Executar agora" para gerar o
+                  primeiro relatório.
+                </p>
+              ),
+            ],
+          ],
+          () => (
+            <>
+              {latest && (latest.high_count > 0 || latest.medium_count > 0) && (
+                <div className="rounded-md border bg-muted/30 p-3">
+                  <div className="mb-2 text-xs font-semibold">
+                    Última execução — {new Date(latest.ran_at).toLocaleString('pt-BR')}
+                  </div>
+                  <div className="grid max-h-64 grid-cols-1 gap-2 overflow-y-auto md:grid-cols-2">
+                    {latest.details.slice(0, 20).map((d, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start justify-between gap-2 rounded border p-2 text-xs"
                       >
-                        {d.severity}
-                      </Badge>
-                    </div>
-                  ))}
+                        <div className="min-w-0">
+                          <div className="truncate font-mono">{d.table_name}</div>
+                          <div className="text-muted-foreground">{d.reason}</div>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={
+                            d.severity === 'HIGH'
+                              ? 'border-destructive/30 bg-destructive/15 text-destructive'
+                              : 'border-amber-500/30 bg-amber-500/15 text-amber-500'
+                          }
+                        >
+                          {d.severity}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Quando</TableHead>
-                    <TableHead>Origem</TableHead>
-                    <TableHead className="text-right">HIGH</TableHead>
-                    <TableHead className="text-right">MEDIUM</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(runs.data ?? []).map((r) => (
-                    <TableRow key={r.id}>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {new Date(r.ran_at).toLocaleString('pt-BR')}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">{r.triggered_by}</TableCell>
-                      <TableCell className="text-right">
-                        <Badge
-                          variant="outline"
-                          className={
-                            r.high_count > 0
-                              ? 'bg-destructive/15 text-destructive border-destructive/30'
-                              : 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30'
-                          }
-                        >
-                          {r.high_count}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge
-                          variant="outline"
-                          className={
-                            r.medium_count > 0
-                              ? 'bg-amber-500/15 text-amber-500 border-amber-500/30'
-                              : 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30'
-                          }
-                        >
-                          {r.medium_count}
-                        </Badge>
-                      </TableCell>
+              )}
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Quando</TableHead>
+                      <TableHead>Origem</TableHead>
+                      <TableHead className="text-right">HIGH</TableHead>
+                      <TableHead className="text-right">MEDIUM</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </>
-        )))}
+                  </TableHeader>
+                  <TableBody>
+                    {(runs.data ?? []).map((r) => (
+                      <TableRow key={r.id}>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {new Date(r.ran_at).toLocaleString('pt-BR')}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">{r.triggered_by}</TableCell>
+                        <TableCell className="text-right">
+                          <Badge
+                            variant="outline"
+                            className={
+                              r.high_count > 0
+                                ? 'border-destructive/30 bg-destructive/15 text-destructive'
+                                : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-500'
+                            }
+                          >
+                            {r.high_count}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Badge
+                            variant="outline"
+                            className={
+                              r.medium_count > 0
+                                ? 'border-amber-500/30 bg-amber-500/15 text-amber-500'
+                                : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-500'
+                            }
+                          >
+                            {r.medium_count}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )
+        )}
       </CardContent>
     </Card>
   );

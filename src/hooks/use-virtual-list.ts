@@ -7,7 +7,11 @@ interface UseVirtualListOptions<T> {
   overscan?: number;
 }
 
-export function useVirtualList<T>({ items, estimateSize = 48, overscan = 5 }: UseVirtualListOptions<T>) {
+export function useVirtualList<T>({
+  items,
+  estimateSize = 48,
+  overscan = 5,
+}: UseVirtualListOptions<T>) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
@@ -18,7 +22,7 @@ export function useVirtualList<T>({ items, estimateSize = 48, overscan = 5 }: Us
   });
 
   const getVirtualItems = useCallback(() => {
-    return virtualizer.getVirtualItems().map(virtualRow => ({
+    return virtualizer.getVirtualItems().map((virtualRow) => ({
       ...virtualRow,
       item: items[virtualRow.index],
     }));

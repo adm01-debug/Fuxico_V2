@@ -49,7 +49,11 @@ export function useUserPreferences() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: preferences, isLoading, error } = useQuery({
+  const {
+    data: preferences,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['user-preferences', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;

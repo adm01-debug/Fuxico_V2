@@ -23,7 +23,8 @@ const defaultConfig: Omit<WhatsAppConfig, 'id' | 'user_id'> = {
   api_key: '',
   auto_follow_up: true,
   follow_up_delay: 24,
-  follow_up_message: 'Olá! Vi que você ainda não abriu o email que enviei sobre {{assunto}}. Posso ajudar?',
+  follow_up_message:
+    'Olá! Vi que você ainda não abriu o email que enviei sobre {{assunto}}. Posso ajudar?',
   max_retries: 2,
   business_hours_only: true,
 };
@@ -33,7 +34,11 @@ export function useWhatsAppConfig() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: config, isLoading, error } = useQuery({
+  const {
+    data: config,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['whatsapp-config', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;

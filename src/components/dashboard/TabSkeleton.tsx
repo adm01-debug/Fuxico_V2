@@ -6,7 +6,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { cosmeticRange } from "@/lib/secure-random";
+import { cosmeticRange } from '@/lib/secure-random';
 
 // =============================================================================
 // SKELETON VARIANTS
@@ -19,7 +19,7 @@ interface SkeletonProps {
 // Skeleton para tabelas com linhas animadas
 export function TableSkeleton({ className }: SkeletonProps) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn('overflow-hidden', className)}>
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <Skeleton className="h-7 w-48 animate-pulse" />
@@ -33,38 +33,38 @@ export function TableSkeleton({ className }: SkeletonProps) {
           <Skeleton className="h-10 w-[120px] animate-pulse" />
           <Skeleton className="h-10 w-[100px] animate-pulse" />
         </div>
-        
+
         {/* Header da tabela */}
-        <div className="grid grid-cols-5 gap-4 py-3 border-b">
+        <div className="grid grid-cols-5 gap-4 border-b py-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton 
-              key={i} 
-              className="h-4 animate-pulse" 
+            <Skeleton
+              key={i}
+              className="h-4 animate-pulse"
               style={{ animationDelay: `${i * 100}ms` }}
             />
           ))}
         </div>
-        
+
         {/* Linhas da tabela com stagger animation */}
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div 
-              key={i} 
-              className="grid grid-cols-5 gap-4 py-4 border-b border-border/50"
+            <div
+              key={i}
+              className="grid grid-cols-5 gap-4 border-b border-border/50 py-4"
               style={{ animationDelay: `${i * 50}ms` }}
             >
               <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-10 rounded-full animate-pulse" />
+                <Skeleton className="h-10 w-10 animate-pulse rounded-full" />
                 <Skeleton className="h-4 flex-1 animate-pulse" />
               </div>
               <Skeleton className="h-4 animate-pulse" />
               <Skeleton className="h-4 animate-pulse" />
-              <Skeleton className="h-6 w-20 rounded-full animate-pulse" />
+              <Skeleton className="h-6 w-20 animate-pulse rounded-full" />
               <Skeleton className="h-4 w-24 animate-pulse" />
             </div>
           ))}
         </div>
-        
+
         {/* Paginação */}
         <div className="flex items-center justify-between pt-4">
           <Skeleton className="h-4 w-32 animate-pulse" />
@@ -82,27 +82,27 @@ export function TableSkeleton({ className }: SkeletonProps) {
 // Skeleton para cards de métricas
 export function MetricsSkeleton({ className }: SkeletonProps) {
   return (
-    <div className={cn("grid gap-4 md:grid-cols-2 lg:grid-cols-4", className)}>
+    <div className={cn('grid gap-4 md:grid-cols-2 lg:grid-cols-4', className)}>
       {Array.from({ length: 4 }).map((_, i) => (
         <Card key={i} className="overflow-hidden">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <Skeleton 
-                  className="h-4 w-24 animate-pulse" 
+                <Skeleton
+                  className="h-4 w-24 animate-pulse"
                   style={{ animationDelay: `${i * 100}ms` }}
                 />
-                <Skeleton 
-                  className="h-8 w-20 animate-pulse" 
+                <Skeleton
+                  className="h-8 w-20 animate-pulse"
                   style={{ animationDelay: `${i * 100 + 50}ms` }}
                 />
-                <Skeleton 
-                  className="h-3 w-16 animate-pulse" 
+                <Skeleton
+                  className="h-3 w-16 animate-pulse"
                   style={{ animationDelay: `${i * 100 + 100}ms` }}
                 />
               </div>
-              <Skeleton 
-                className="h-12 w-12 rounded-xl animate-pulse" 
+              <Skeleton
+                className="h-12 w-12 animate-pulse rounded-xl"
                 style={{ animationDelay: `${i * 100}ms` }}
               />
             </div>
@@ -116,7 +116,7 @@ export function MetricsSkeleton({ className }: SkeletonProps) {
 // Skeleton para gráficos
 export function ChartSkeleton({ className }: SkeletonProps) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn('overflow-hidden', className)}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -130,21 +130,21 @@ export function ChartSkeleton({ className }: SkeletonProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] flex items-end justify-between gap-2 pt-4">
+        <div className="flex h-[300px] items-end justify-between gap-2 pt-4">
           {/* Barras do gráfico simuladas */}
           {Array.from({ length: 12 }).map((_, i) => (
-            <Skeleton 
-              key={i} 
-              className="flex-1 rounded-t animate-pulse"
-              style={{ 
+            <Skeleton
+              key={i}
+              className="flex-1 animate-pulse rounded-t"
+              style={{
                 height: `${cosmeticRange(40, 100)}%`,
-                animationDelay: `${i * 50}ms` 
+                animationDelay: `${i * 50}ms`,
               }}
             />
           ))}
         </div>
         {/* Eixo X */}
-        <div className="flex justify-between mt-4 pt-2 border-t">
+        <div className="mt-4 flex justify-between border-t pt-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-3 w-8 animate-pulse" />
           ))}
@@ -157,7 +157,7 @@ export function ChartSkeleton({ className }: SkeletonProps) {
 // Skeleton para formulários
 export function FormSkeleton({ className }: SkeletonProps) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn('overflow-hidden', className)}>
       <CardHeader>
         <Skeleton className="h-7 w-48 animate-pulse" />
         <Skeleton className="h-4 w-72 animate-pulse" />
@@ -181,27 +181,27 @@ export function FormSkeleton({ className }: SkeletonProps) {
 // Skeleton para lista de eventos/atividades
 export function ActivitySkeleton({ className }: SkeletonProps) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn('overflow-hidden', className)}>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Skeleton className="h-5 w-5 rounded animate-pulse" />
+          <Skeleton className="h-5 w-5 animate-pulse rounded" />
           <Skeleton className="h-6 w-40 animate-pulse" />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div 
-            key={i} 
-            className="flex items-center gap-3 p-3 rounded-lg bg-muted/30"
+          <div
+            key={i}
+            className="flex items-center gap-3 rounded-lg bg-muted/30 p-3"
             style={{ animationDelay: `${i * 75}ms` }}
           >
-            <Skeleton className="h-10 w-10 rounded-full animate-pulse" />
+            <Skeleton className="h-10 w-10 animate-pulse rounded-full" />
             <div className="flex-1 space-y-1">
               <Skeleton className="h-4 w-32 animate-pulse" />
               <Skeleton className="h-3 w-48 animate-pulse" />
             </div>
-            <div className="text-right space-y-1">
-              <Skeleton className="h-5 w-16 rounded-full animate-pulse" />
+            <div className="space-y-1 text-right">
+              <Skeleton className="h-5 w-16 animate-pulse rounded-full" />
               <Skeleton className="h-3 w-20 animate-pulse" />
             </div>
           </div>
@@ -214,7 +214,7 @@ export function ActivitySkeleton({ className }: SkeletonProps) {
 // Skeleton para dashboard home
 export function DashboardHomeSkeleton() {
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="animate-fade-in space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="space-y-1">
@@ -230,11 +230,11 @@ export function DashboardHomeSkeleton() {
           <Skeleton className="h-6 w-32 animate-pulse" />
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton 
-                key={i} 
-                className="h-24 rounded-xl animate-pulse"
+              <Skeleton
+                key={i}
+                className="h-24 animate-pulse rounded-xl"
                 style={{ animationDelay: `${i * 50}ms` }}
               />
             ))}
@@ -255,7 +255,11 @@ export function DashboardHomeSkeleton() {
 }
 
 // Skeleton genérico para tabs
-export default function TabSkeleton({ variant = 'table' }: { variant?: 'table' | 'metrics' | 'chart' | 'form' | 'activity' | 'dashboard' }) {
+export default function TabSkeleton({
+  variant = 'table',
+}: {
+  variant?: 'table' | 'metrics' | 'chart' | 'form' | 'activity' | 'dashboard';
+}) {
   switch (variant) {
     case 'metrics':
       return <MetricsSkeleton />;
@@ -269,7 +273,7 @@ export default function TabSkeleton({ variant = 'table' }: { variant?: 'table' |
       return <DashboardHomeSkeleton />;
     default:
       return (
-        <div className="space-y-6 animate-fade-in">
+        <div className="animate-fade-in space-y-6">
           <div className="flex items-center justify-between">
             <Skeleton className="h-8 w-48 animate-pulse" />
             <Skeleton className="h-10 w-32 animate-pulse" />

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 import type { Json } from '@/integrations/supabase/types';
-import { requireUserId } from "@/lib/auth-guards";
+import { requireUserId } from '@/lib/auth-guards';
 
 export interface ScheduledEmail {
   id: string;
@@ -90,11 +90,11 @@ export function useUpdateScheduledEmail() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ 
-      id, 
-      updates 
-    }: { 
-      id: string; 
+    mutationFn: async ({
+      id,
+      updates,
+    }: {
+      id: string;
       updates: {
         recipient_email?: string;
         sender_email?: string;
@@ -105,7 +105,7 @@ export function useUpdateScheduledEmail() {
         status?: string;
         tracking_id?: string;
         metadata?: Json;
-      }
+      };
     }) => {
       // SECURITY: Verify ownership with user_id filter
       const { data, error } = await supabase
@@ -136,7 +136,9 @@ export function useCancelScheduledEmail() {
   return useMutation({
     mutationFn: async (id: string) => {
       // SECURITY: Verify ownership with user_id filter
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const { error } = await supabase
         .from('scheduled_emails')
         .update({ status: 'cancelled' })
@@ -161,10 +163,7 @@ export function useDeleteScheduledEmail() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('scheduled_emails')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('scheduled_emails').delete().eq('id', id);
 
       if (error) throw error;
     },

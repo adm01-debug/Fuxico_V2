@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 export const FloatingOrbs = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+  <div className="pointer-events-none absolute inset-0 overflow-hidden">
     {[...Array(6)].map((_, i) => (
       <motion.div
         key={i}
@@ -21,7 +21,7 @@ export const FloatingOrbs = () => (
         transition={{
           duration: 15 + i * 2,
           repeat: Infinity,
-          ease: "easeInOut",
+          ease: 'easeInOut',
           delay: i * 0.5,
         }}
       />
@@ -30,11 +30,11 @@ export const FloatingOrbs = () => (
 );
 
 export const GridPattern = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.03]">
+  <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.03]">
     <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="auth-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#auth-grid)" />

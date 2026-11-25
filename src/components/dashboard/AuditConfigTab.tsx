@@ -1,28 +1,34 @@
 import { memo, useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { X, Plus, Clock, Globe, TrendingUp, Save, Loader2 } from "lucide-react";
-import { useAuditConfig, useUpdateAuditConfig } from "@/features/security/hooks/use-audit-config";
-import { toast } from "sonner";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { X, Plus, Clock, Globe, TrendingUp, Save, Loader2 } from 'lucide-react';
+import { useAuditConfig, useUpdateAuditConfig } from '@/features/security/hooks/use-audit-config';
+import { toast } from 'sonner';
 import { log } from '@/lib/logger';
 
 const timezones = [
-  { value: "America/Sao_Paulo", label: "São Paulo (GMT-3)" },
-  { value: "America/Manaus", label: "Manaus (GMT-4)" },
-  { value: "America/Fortaleza", label: "Fortaleza (GMT-3)" },
-  { value: "America/Recife", label: "Recife (GMT-3)" },
-  { value: "America/Cuiaba", label: "Cuiabá (GMT-4)" },
-  { value: "America/Rio_Branco", label: "Rio Branco (GMT-5)" },
+  { value: 'America/Sao_Paulo', label: 'São Paulo (GMT-3)' },
+  { value: 'America/Manaus', label: 'Manaus (GMT-4)' },
+  { value: 'America/Fortaleza', label: 'Fortaleza (GMT-3)' },
+  { value: 'America/Recife', label: 'Recife (GMT-3)' },
+  { value: 'America/Cuiaba', label: 'Cuiabá (GMT-4)' },
+  { value: 'America/Rio_Branco', label: 'Rio Branco (GMT-5)' },
 ];
 
 const hours = Array.from({ length: 24 }, (_, i) => ({
   value: i.toString(),
-  label: `${i.toString().padStart(2, "0")}:00`,
+  label: `${i.toString().padStart(2, '0')}:00`,
 }));
 
 function AuditConfigTabBase() {
@@ -30,12 +36,12 @@ function AuditConfigTabBase() {
   const updateConfig = useUpdateAuditConfig();
 
   const [domains, setDomains] = useState<string[]>([]);
-  const [newDomain, setNewDomain] = useState("");
-  const [businessStart, setBusinessStart] = useState("8");
-  const [businessEnd, setBusinessEnd] = useState("18");
-  const [timezone, setTimezone] = useState("America/Sao_Paulo");
-  const [volumeHourly, setVolumeHourly] = useState("50");
-  const [volumeDaily, setVolumeDaily] = useState("200");
+  const [newDomain, setNewDomain] = useState('');
+  const [businessStart, setBusinessStart] = useState('8');
+  const [businessEnd, setBusinessEnd] = useState('18');
+  const [timezone, setTimezone] = useState('America/Sao_Paulo');
+  const [volumeHourly, setVolumeHourly] = useState('50');
+  const [volumeDaily, setVolumeDaily] = useState('200');
 
   useEffect(() => {
     if (config) {
@@ -52,7 +58,7 @@ function AuditConfigTabBase() {
     const domain = newDomain.trim().toLowerCase();
     if (domain && !domains.includes(domain)) {
       setDomains([...domains, domain]);
-      setNewDomain("");
+      setNewDomain('');
     }
   };
 
@@ -73,17 +79,21 @@ function AuditConfigTabBase() {
         volume_threshold_hourly: parseInt(volumeHourly),
         volume_threshold_daily: parseInt(volumeDaily),
       });
-      toast.success("Configurações salvas com sucesso");
+      toast.success('Configurações salvas com sucesso');
     } catch (error) {
-      log.error("AuditConfigTab: falha ao salvar configurações", error);
-      toast.error("Erro ao salvar configurações");
+      log.error('AuditConfigTab: falha ao salvar configurações', error);
+      toast.error('Erro ao salvar configurações');
     }
   };
 
   if (isLoading) {
     return (
-      <div role="region" aria-label="Configurações de Auditoria" className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div
+        role="region"
+        aria-label="Configurações de Auditoria"
+        className="flex items-center justify-center py-12"
+      >
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -106,11 +116,11 @@ function AuditConfigTabBase() {
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
             {domains.map((domain) => (
-              <Badge key={domain} variant="secondary" className="gap-1 py-1.5 px-3">
+              <Badge key={domain} variant="secondary" className="gap-1 px-3 py-1.5">
                 @{domain}
                 <button
                   onClick={() => handleRemoveDomain(domain)}
-                  className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
+                  className="ml-1 rounded-full p-0.5 hover:bg-muted-foreground/20"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -122,11 +132,11 @@ function AuditConfigTabBase() {
               placeholder="exemplo.com.br"
               value={newDomain}
               onChange={(e) => setNewDomain(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddDomain()}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddDomain()}
               className="max-w-xs"
             />
             <Button variant="outline" onClick={handleAddDomain}>
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="mr-1 h-4 w-4" />
               Adicionar
             </Button>
           </div>
@@ -195,8 +205,9 @@ function AuditConfigTabBase() {
             </div>
           </div>
           <p className="text-sm text-muted-foreground">
-            Horário atual configurado: <strong>{businessStart.padStart(2, "0")}:00</strong> às{" "}
-            <strong>{businessEnd.padStart(2, "0")}:00</strong> (finais de semana também são considerados suspeitos)
+            Horário atual configurado: <strong>{businessStart.padStart(2, '0')}:00</strong> às{' '}
+            <strong>{businessEnd.padStart(2, '0')}:00</strong> (finais de semana também são
+            considerados suspeitos)
           </p>
         </CardContent>
       </Card>
@@ -225,9 +236,7 @@ function AuditConfigTabBase() {
                 min={1}
                 max={1000}
               />
-              <p className="text-xs text-muted-foreground">
-                Alertas de alta severidade
-              </p>
+              <p className="text-xs text-muted-foreground">Alertas de alta severidade</p>
             </div>
             <div className="space-y-2">
               <Label>Limite Diário</Label>
@@ -238,9 +247,7 @@ function AuditConfigTabBase() {
                 min={1}
                 max={10000}
               />
-              <p className="text-xs text-muted-foreground">
-                Alertas de média severidade
-              </p>
+              <p className="text-xs text-muted-foreground">Alertas de média severidade</p>
             </div>
           </div>
         </CardContent>
@@ -251,9 +258,9 @@ function AuditConfigTabBase() {
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={updateConfig.isPending}>
           {updateConfig.isPending ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <Save className="h-4 w-4 mr-2" />
+            <Save className="mr-2 h-4 w-4" />
           )}
           Salvar Configurações
         </Button>

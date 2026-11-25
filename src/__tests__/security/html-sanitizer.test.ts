@@ -11,7 +11,22 @@ function sanitizeHtml(html: string): string {
   s = s.replace(/src\s*=\s*(?:"data:(?!image\/)[^"]*"|'data:(?!image\/)[^']*')/gi, '');
   s = s.replace(/expression\s*\(/gi, 'expr-blocked(');
   s = s.replace(/url\s*\(\s*(?:"|')?\s*javascript:/gi, 'url(blocked:');
-  const DANGEROUS = ['object', 'embed', 'applet', 'iframe', 'form', 'input', 'button', 'textarea', 'select', 'link', 'meta', 'base', 'svg', 'math'];
+  const DANGEROUS = [
+    'object',
+    'embed',
+    'applet',
+    'iframe',
+    'form',
+    'input',
+    'button',
+    'textarea',
+    'select',
+    'link',
+    'meta',
+    'base',
+    'svg',
+    'math',
+  ];
   for (const tag of DANGEROUS) {
     s = s.replace(new RegExp(`<${tag}\\b[^<]*(?:(?!<\\/${tag}>)<[^<]*)*<\\/${tag}>`, 'gi'), '');
     s = s.replace(new RegExp(`<${tag}\\b[^>]*\\/?>`, 'gi'), '');

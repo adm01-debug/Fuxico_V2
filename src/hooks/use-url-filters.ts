@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 /**
  * Sincroniza um objeto de filtros com os `search params` da URL.
@@ -8,7 +8,7 @@ import { useSearchParams } from "react-router-dom";
  * Valores `undefined`, `null`, `""` ou iguais ao default são removidos da URL.
  */
 export function useUrlFilters<T extends Record<string, string | number | boolean | undefined>>(
-  defaults: T,
+  defaults: T
 ): [T, (patch: Partial<T>) => void, () => void] {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -18,11 +18,11 @@ export function useUrlFilters<T extends Record<string, string | number | boolean
       const raw = searchParams.get(key);
       if (raw === null) continue;
       const def = defaults[key];
-      if (typeof def === "number") {
+      if (typeof def === 'number') {
         const n = Number(raw);
         out[key] = Number.isFinite(n) ? n : def;
-      } else if (typeof def === "boolean") {
-        out[key] = raw === "true";
+      } else if (typeof def === 'boolean') {
+        out[key] = raw === 'true';
       } else {
         out[key] = raw;
       }
@@ -40,17 +40,17 @@ export function useUrlFilters<T extends Record<string, string | number | boolean
             const isEmpty =
               value === undefined ||
               value === null ||
-              value === "" ||
-              (typeof def !== "undefined" && value === def);
+              value === '' ||
+              (typeof def !== 'undefined' && value === def);
             if (isEmpty) next.delete(key);
             else next.set(key, String(value));
           }
           return next;
         },
-        { replace: true },
+        { replace: true }
       );
     },
-    [setSearchParams, defaults],
+    [setSearchParams, defaults]
   );
 
   const reset = useCallback(() => {

@@ -1,8 +1,14 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart3 } from 'lucide-react';
 import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
 } from 'recharts';
 
 interface WeeklyTrendChartProps {
@@ -18,7 +24,7 @@ interface WeeklyTrendChartProps {
 export function WeeklyTrendChart({ data, isLoading }: WeeklyTrendChartProps) {
   if (isLoading) {
     return (
-      <div className="h-[280px] flex items-center justify-center">
+      <div className="flex h-[280px] items-center justify-center">
         <Skeleton className="h-full w-full" />
       </div>
     );
@@ -26,8 +32,8 @@ export function WeeklyTrendChart({ data, isLoading }: WeeklyTrendChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="h-[280px] flex flex-col items-center justify-center text-muted-foreground">
-        <BarChart3 className="h-10 w-10 mb-2 opacity-50" />
+      <div className="flex h-[280px] flex-col items-center justify-center text-muted-foreground">
+        <BarChart3 className="mb-2 h-10 w-10 opacity-50" />
         <p className="text-sm">Sem dados suficientes</p>
         <p className="text-xs">Envie emails para ver as tendências</p>
       </div>
@@ -59,8 +65,22 @@ export function WeeklyTrendChart({ data, isLoading }: WeeklyTrendChartProps) {
           }}
         />
         <Legend />
-        <Area type="monotone" dataKey="opens" name="Aberturas" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorOpens)" />
-        <Area type="monotone" dataKey="clicks" name="Cliques" stroke="hsl(142, 76%, 36%)" fillOpacity={1} fill="url(#colorClicks)" />
+        <Area
+          type="monotone"
+          dataKey="opens"
+          name="Aberturas"
+          stroke="hsl(var(--primary))"
+          fillOpacity={1}
+          fill="url(#colorOpens)"
+        />
+        <Area
+          type="monotone"
+          dataKey="clicks"
+          name="Cliques"
+          stroke="hsl(142, 76%, 36%)"
+          fillOpacity={1}
+          fill="url(#colorClicks)"
+        />
       </AreaChart>
     </ResponsiveContainer>
   );

@@ -11,10 +11,32 @@ interface AuditStats {
 
 export function AuditStatsCards({ stats }: { stats?: AuditStats | null }) {
   const cards = [
-    { title: 'Emails Enviados', value: stats?.totalSent || 0, icon: ArrowUpRight, subtitle: 'Hoje' },
-    { title: 'Emails Recebidos', value: stats?.totalReceived || 0, icon: ArrowDownLeft, subtitle: 'Hoje' },
-    { title: 'Emails Externos', value: stats?.externalEmails || 0, icon: ExternalLink, subtitle: 'Hoje' },
-    { title: 'Alertas Pendentes', value: stats?.unresolvedAlerts || 0, icon: AlertTriangle, subtitle: 'Não resolvidos', valueClass: 'text-orange-600', iconClass: 'text-orange-500' },
+    {
+      title: 'Emails Enviados',
+      value: stats?.totalSent || 0,
+      icon: ArrowUpRight,
+      subtitle: 'Hoje',
+    },
+    {
+      title: 'Emails Recebidos',
+      value: stats?.totalReceived || 0,
+      icon: ArrowDownLeft,
+      subtitle: 'Hoje',
+    },
+    {
+      title: 'Emails Externos',
+      value: stats?.externalEmails || 0,
+      icon: ExternalLink,
+      subtitle: 'Hoje',
+    },
+    {
+      title: 'Alertas Pendentes',
+      value: stats?.unresolvedAlerts || 0,
+      icon: AlertTriangle,
+      subtitle: 'Não resolvidos',
+      valueClass: 'text-orange-600',
+      iconClass: 'text-orange-500',
+    },
     { title: 'Usuários Ativos', value: stats?.userCount || 0, icon: Users, subtitle: 'Hoje' },
   ];
 

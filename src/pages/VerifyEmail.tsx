@@ -2,7 +2,14 @@ import { log } from '@/lib/logger';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, XCircle, Mail } from 'lucide-react';
 import { toast } from 'sonner';
@@ -35,15 +42,17 @@ export default function VerifyEmail() {
 
           setStatus('success');
           toast.success('Email verificado com sucesso!');
-          
+
           // Redirect to dashboard after success
           setTimeout(() => {
             navigate('/');
           }, 3000);
         } else {
           // No token, check if user is already verified
-          const { data: { session } } = await supabase.auth.getSession();
-          
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
           if (session?.user?.email_confirmed_at) {
             setStatus('success');
             setTimeout(() => navigate('/'), 2000);
@@ -94,25 +103,23 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         {status === 'loading' && (
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <Loader2 className="w-6 h-6 text-primary animate-spin" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
             <CardTitle>Verificando Email</CardTitle>
-            <CardDescription>
-              Aguarde enquanto verificamos seu email...
-            </CardDescription>
+            <CardDescription>Aguarde enquanto verificamos seu email...</CardDescription>
           </CardHeader>
         )}
 
         {status === 'success' && (
           <>
             <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle className="w-6 h-6 text-green-500" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
+                <CheckCircle className="h-6 w-6 text-green-500" />
               </div>
               <CardTitle>Email Verificado!</CardTitle>
               <CardDescription>
@@ -130,33 +137,32 @@ export default function VerifyEmail() {
         {status === 'error' && (
           <>
             <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
-                <XCircle className="w-6 h-6 text-destructive" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+                <XCircle className="h-6 w-6 text-destructive" />
               </div>
               <CardTitle>Verificação Pendente</CardTitle>
               <CardDescription>
-                {email 
+                {email
                   ? `Enviamos um email de verificação para ${email}. Verifique sua caixa de entrada e spam.`
-                  : 'Não foi possível verificar seu email. O link pode ter expirado.'
-                }
+                  : 'Não foi possível verificar seu email. O link pode ter expirado.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {email && (
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
+                <Button
+                  variant="outline"
+                  className="w-full"
                   onClick={handleResendVerification}
                   disabled={resending}
                 >
                   {resending ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Reenviando...
                     </>
                   ) : (
                     <>
-                      <Mail className="w-4 h-4 mr-2" />
+                      <Mail className="mr-2 h-4 w-4" />
                       Reenviar email de verificação
                     </>
                   )}
@@ -174,17 +180,22 @@ export default function VerifyEmail() {
         {status === 'resent' && (
           <>
             <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <Mail className="w-6 h-6 text-primary" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                <Mail className="h-6 w-6 text-primary" />
               </div>
               <CardTitle>Email Reenviado!</CardTitle>
               <CardDescription>
-                Um novo email de verificação foi enviado para <strong>{email}</strong>. 
-                Verifique sua caixa de entrada e spam.
+                Um novo email de verificação foi enviado para <strong>{email}</strong>. Verifique
+                sua caixa de entrada e spam.
               </CardDescription>
             </CardHeader>
             <CardFooter className="flex flex-col gap-2">
-              <Button variant="outline" className="w-full" onClick={handleResendVerification} disabled={resending}>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleResendVerification}
+                disabled={resending}
+              >
                 {resending ? 'Reenviando...' : 'Reenviar novamente'}
               </Button>
               <Button variant="ghost" className="w-full" onClick={() => navigate('/auth')}>

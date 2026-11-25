@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Client-side wrapper para chamar funções admin_* via edge function service_role.
@@ -7,15 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export async function adminRpc<T = unknown>(
   fn: string,
-  args: Record<string, unknown> = {},
+  args: Record<string, unknown> = {}
 ): Promise<T> {
   const { data, error } = await supabase.functions.invoke<{ data: T; error?: string }>(
-    "admin-rpc",
-    { body: { fn, args } },
+    'admin-rpc',
+    { body: { fn, args } }
   );
   if (error) throw error;
   if (!data || (data as { error?: string }).error) {
-    throw new Error((data as { error?: string })?.error ?? "admin_rpc_failed");
+    throw new Error((data as { error?: string })?.error ?? 'admin_rpc_failed');
   }
   return (data as { data: T }).data;
 }

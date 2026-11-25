@@ -37,23 +37,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'] as const;
-    events.forEach(e => window.addEventListener(e, resetIdleTimer, { passive: true }));
+    events.forEach((e) => window.addEventListener(e, resetIdleTimer, { passive: true }));
     resetIdleTimer();
 
     return () => {
-      events.forEach(e => window.removeEventListener(e, resetIdleTimer));
+      events.forEach((e) => window.removeEventListener(e, resetIdleTimer));
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
   }, [user, resetIdleTimer]);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, currentSession) => {
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setLoading(false);
+    });
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth('google', {
       redirect_uri: window.location.origin,
     });
     if (result?.error) throw result.error;
@@ -91,17 +91,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      loading,
-      signInWithGoogle,
-      signInWithEmail,
-      signUpWithEmail,
-      signOut,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        signInWithGoogle,
+        signInWithEmail,
+        signUpWithEmail,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
-

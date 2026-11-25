@@ -16,7 +16,7 @@ describe('useFulltextSearch - XSS prevention', () => {
     const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedTerm})`, 'gi');
     const parts = text.split(regex);
-    return parts.filter(Boolean).map(part => ({
+    return parts.filter(Boolean).map((part) => ({
       text: part,
       highlighted: new RegExp(`^${escapedTerm}$`, 'i').test(part),
     }));
@@ -47,7 +47,7 @@ describe('useFulltextSearch - XSS prevention', () => {
   it('should return segments for safe React rendering', () => {
     const segments = getHighlightSegments('Hello World Test', 'World');
     expect(segments.length).toBeGreaterThan(1);
-    const highlighted = segments.find(s => s.highlighted);
+    const highlighted = segments.find((s) => s.highlighted);
     expect(highlighted?.text).toBe('World');
   });
 
@@ -55,7 +55,7 @@ describe('useFulltextSearch - XSS prevention', () => {
     const segments = getHighlightSegments('Some text here', '<img onerror=alert(1)>');
     // Should not crash or produce XSS
     expect(segments).toBeDefined();
-    expect(segments.every(s => typeof s.text === 'string')).toBe(true);
+    expect(segments.every((s) => typeof s.text === 'string')).toBe(true);
   });
 
   it('should handle empty text', () => {

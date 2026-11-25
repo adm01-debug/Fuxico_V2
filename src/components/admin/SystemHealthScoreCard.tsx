@@ -35,7 +35,6 @@ const LABELS: Record<string, string> = {
   signing_key_age_days: 'Idade da signing key (dias)',
 };
 
-
 function SystemHealthScoreCardBase() {
   const [data, setData] = useState<HealthResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -51,7 +50,9 @@ function SystemHealthScoreCardBase() {
     setData(result as unknown as HealthResult);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <Card>
@@ -72,7 +73,7 @@ function SystemHealthScoreCardBase() {
               <span className="text-muted-foreground">/ 10</span>
               <Badge className={gradeColor(data.grade)}>Nota {data.grade}</Badge>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
               {Object.entries(data.breakdown).map(([k, v]) => (
                 <div key={k} className="rounded-lg border p-3">
                   <div className="text-xs text-muted-foreground">{LABELS[k] ?? k}</div>

@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook for responsive design with media queries
- * 
+ *
  * @description Subscribes to media query changes and returns the current state.
- * 
+ *
  * @example
  * ```tsx
  * const isMobile = useMediaQuery('(max-width: 768px)');
  * const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
- * 
+ *
  * return isMobile ? <MobileNav /> : <DesktopNav />;
  * ```
  */

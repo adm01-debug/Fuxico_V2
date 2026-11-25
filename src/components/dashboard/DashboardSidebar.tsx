@@ -2,7 +2,7 @@
 // FUXICO - Dashboard Sidebar with Notification Badges
 // =============================================================================
 
-import React from 'react'
+import React from 'react';
 import {
   Mail,
   Link as LinkIcon,
@@ -41,7 +41,7 @@ import {
   UsersRound,
   BellDot,
   type LucideIcon,
-} from 'lucide-react'
+} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -55,19 +55,15 @@ import {
   SidebarFooter,
   SidebarTrigger,
   useSidebar,
-} from '@/components/ui/sidebar'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import { cn } from '@/lib/utils'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useBounceAlerts } from '@/hooks/use-bounce-alerts'
-import { Badge } from '@/components/ui/badge'
-import { motion, AnimatePresence } from 'framer-motion'
-import logoImg from '@/assets/logo.webp'
-import { matchFirst } from "@/lib/variant";
+} from '@/components/ui/sidebar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useBounceAlerts } from '@/hooks/use-bounce-alerts';
+import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
+import logoImg from '@/assets/logo.webp';
+import { matchFirst } from '@/lib/variant';
 
 // =============================================================================
 // TIPOS
@@ -107,61 +103,73 @@ export type TabId =
   | 'whatsapp'
   | 'benchmark'
   | 'segmentation'
-  | 'tracking_history'
+  | 'tracking_history';
 
 interface MenuItem {
-  id: TabId
-  label: string
-  icon: LucideIcon
-  badge?: number | 'new' | 'beta'
+  id: TabId;
+  label: string;
+  icon: LucideIcon;
+  badge?: number | 'new' | 'beta';
 }
 
 interface MenuCategory {
-  id: string
-  label: string
-  icon: LucideIcon
-  items: MenuItem[]
-  defaultOpen?: boolean
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  items: MenuItem[];
+  defaultOpen?: boolean;
 }
 
 // =============================================================================
 // NOTIFICATION BADGE COMPONENT
 // =============================================================================
 
-function NotificationBadge({ count, variant = 'default' }: { count: number | 'new' | 'beta'; variant?: 'default' | 'warning' | 'destructive' }) {
+function NotificationBadge({
+  count,
+  variant = 'default',
+}: {
+  count: number | 'new' | 'beta';
+  variant?: 'default' | 'warning' | 'destructive';
+}) {
   if (count === 0) return null;
-  
+
   const isNew = count === 'new';
   const isBeta = count === 'beta';
-  
+
   return (
     <motion.div
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       exit={{ scale: 0 }}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
     >
-      <Badge 
-        variant={matchFirst([
-  [isNew, () => ('default')],
-  [isBeta, () => ('secondary')],
-  [variant === 'destructive', () => ('destructive')],
-], () => ('outline'))}
+      <Badge
+        variant={matchFirst(
+          [
+            [isNew, () => 'default'],
+            [isBeta, () => 'secondary'],
+            [variant === 'destructive', () => 'destructive'],
+          ],
+          () => 'outline'
+        )}
         className={cn(
-          "h-5 min-w-5 flex items-center justify-center px-1.5 text-[10px] font-bold",
-          isNew && "bg-primary text-primary-foreground",
-          isBeta && "bg-violet-500/20 text-violet-500 border-violet-500/30",
-          variant === 'warning' && "bg-warning/20 text-warning border-warning/30",
-          variant === 'destructive' && "animate-pulse"
+          'flex h-5 min-w-5 items-center justify-center px-1.5 text-[10px] font-bold',
+          isNew && 'bg-primary text-primary-foreground',
+          isBeta && 'border-violet-500/30 bg-violet-500/20 text-violet-500',
+          variant === 'warning' && 'border-warning/30 bg-warning/20 text-warning',
+          variant === 'destructive' && 'animate-pulse'
         )}
       >
-        {matchFirst<React.ReactNode>([
-  [isNew, () => ('NEW')],
-  [isBeta, () => ('BETA')],
-], () => (count))}
+        {matchFirst<React.ReactNode>(
+          [
+            [isNew, () => 'NEW'],
+            [isBeta, () => 'BETA'],
+          ],
+          () => count
+        )}
       </Badge>
     </motion.div>
-  )
+  );
 }
 
 // =============================================================================
@@ -170,16 +178,14 @@ function NotificationBadge({ count, variant = 'default' }: { count: number | 'ne
 
 function useMenuCategories(): MenuCategory[] {
   const { unreadCount: bounceAlertCount } = useBounceAlerts();
-  
+
   return [
     {
       id: 'overview',
       label: 'Visão Geral',
       icon: LayoutDashboard,
       defaultOpen: true,
-      items: [
-        { id: 'home', label: 'Início', icon: Home },
-      ],
+      items: [{ id: 'home', label: 'Início', icon: Home }],
     },
     {
       id: 'tracking',
@@ -229,7 +235,12 @@ function useMenuCategories(): MenuCategory[] {
       icon: HeartPulse,
       items: [
         { id: 'deliverability', label: 'Reputação', icon: HeartPulse },
-        { id: 'bouncealerts', label: 'Alertas Bounce', icon: AlertTriangle, badge: bounceAlertCount },
+        {
+          id: 'bouncealerts',
+          label: 'Alertas Bounce',
+          icon: AlertTriangle,
+          badge: bounceAlertCount,
+        },
         { id: 'push-notifications', label: 'Push Notif.', icon: BellDot, badge: 'new' as const },
         { id: 'notifications', label: 'Histórico', icon: BellRing },
       ],
@@ -265,8 +276,8 @@ function useMenuCategories(): MenuCategory[] {
 // =============================================================================
 
 interface DashboardSidebarProps {
-  activeTab: TabId
-  onTabChange: (tab: TabId) => void
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
 }
 
 function SidebarMenuItemButton({
@@ -274,12 +285,12 @@ function SidebarMenuItemButton({
   isActive,
   onClick,
 }: {
-  item: MenuItem
-  isActive: boolean
-  onClick: () => void
+  item: MenuItem;
+  isActive: boolean;
+  onClick: () => void;
 }) {
-  const { state } = useSidebar()
-  const isCollapsed = state === 'collapsed'
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
 
   return (
     <SidebarMenuItem>
@@ -288,33 +299,37 @@ function SidebarMenuItemButton({
         isActive={isActive}
         tooltip={isCollapsed ? item.label : undefined}
         className={cn(
-          'transition-all duration-200 group/item relative',
-          isActive && 'bg-primary/10 text-primary font-medium'
+          'group/item relative transition-all duration-200',
+          isActive && 'bg-primary/10 font-medium text-primary'
         )}
       >
-        <div className={cn(
-          "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 bg-primary rounded-full transition-all duration-300",
-          isActive && "h-4"
-        )} />
-        <item.icon className={cn(
-          "h-4 w-4 shrink-0 transition-transform duration-200",
-          isActive && "scale-110"
-        )} />
-        <span className="truncate flex-1">{item.label}</span>
+        <div
+          className={cn(
+            'absolute left-0 top-1/2 h-0 w-0.5 -translate-y-1/2 rounded-full bg-primary transition-all duration-300',
+            isActive && 'h-4'
+          )}
+        />
+        <item.icon
+          className={cn(
+            'h-4 w-4 shrink-0 transition-transform duration-200',
+            isActive && 'scale-110'
+          )}
+        />
+        <span className="flex-1 truncate">{item.label}</span>
         <AnimatePresence>
           {item.badge && !isCollapsed && (
-            <NotificationBadge 
-              count={item.badge} 
+            <NotificationBadge
+              count={item.badge}
               variant={typeof item.badge === 'number' && item.badge > 0 ? 'warning' : 'default'}
             />
           )}
         </AnimatePresence>
         {item.badge && isCollapsed && typeof item.badge === 'number' && item.badge > 0 && (
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />
+          <span className="absolute -right-1 -top-1 h-2 w-2 animate-pulse rounded-full bg-destructive" />
         )}
       </SidebarMenuButton>
     </SidebarMenuItem>
-  )
+  );
 }
 
 function CategoryGroup({
@@ -322,15 +337,15 @@ function CategoryGroup({
   activeTab,
   onTabChange,
 }: {
-  category: MenuCategory
-  activeTab: TabId
-  onTabChange: (tab: TabId) => void
+  category: MenuCategory;
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
 }) {
-  const { state } = useSidebar()
-  const isCollapsed = state === 'collapsed'
-  const hasActiveItem = category.items.some(item => item.id === activeTab)
-  const [isOpen, setIsOpen] = React.useState(category.defaultOpen || hasActiveItem)
-  
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
+  const hasActiveItem = category.items.some((item) => item.id === activeTab);
+  const [isOpen, setIsOpen] = React.useState(category.defaultOpen || hasActiveItem);
+
   // Calculate total badges in category
   const totalBadges = category.items.reduce((acc, item) => {
     if (typeof item.badge === 'number') return acc + item.badge;
@@ -340,9 +355,9 @@ function CategoryGroup({
   // Keep open if has active item
   React.useEffect(() => {
     if (hasActiveItem) {
-      setIsOpen(true)
+      setIsOpen(true);
     }
-  }, [hasActiveItem])
+  }, [hasActiveItem]);
 
   if (isCollapsed) {
     // In collapsed mode, show only icons
@@ -359,24 +374,26 @@ function CategoryGroup({
           ))}
         </SidebarMenu>
       </SidebarGroup>
-    )
+    );
   }
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="group/collapsible">
       <SidebarGroup>
         <CollapsibleTrigger asChild>
-          <SidebarGroupLabel 
+          <SidebarGroupLabel
             className={cn(
-              'cursor-pointer hover:bg-sidebar-accent rounded-md transition-all duration-200 flex items-center justify-between pr-2',
-              hasActiveItem && 'text-primary font-medium'
+              'flex cursor-pointer items-center justify-between rounded-md pr-2 transition-all duration-200 hover:bg-sidebar-accent',
+              hasActiveItem && 'font-medium text-primary'
             )}
           >
             <div className="flex items-center gap-2">
-              <category.icon className={cn(
-                "h-4 w-4 transition-colors duration-200",
-                hasActiveItem && "text-primary"
-              )} />
+              <category.icon
+                className={cn(
+                  'h-4 w-4 transition-colors duration-200',
+                  hasActiveItem && 'text-primary'
+                )}
+              />
               <span>{category.label}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -387,17 +404,17 @@ function CategoryGroup({
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                   >
-                    <Badge variant="outline" className="h-4 min-w-4 px-1 text-[9px] bg-warning/20 text-warning border-warning/30">
+                    <Badge
+                      variant="outline"
+                      className="h-4 min-w-4 border-warning/30 bg-warning/20 px-1 text-[9px] text-warning"
+                    >
                       {totalBadges}
                     </Badge>
                   </motion.div>
                 )}
               </AnimatePresence>
-              <ChevronDown 
-                className={cn(
-                  'h-4 w-4 transition-transform duration-200',
-                  isOpen && 'rotate-180'
-                )} 
+              <ChevronDown
+                className={cn('h-4 w-4 transition-transform duration-200', isOpen && 'rotate-180')}
               />
             </div>
           </SidebarGroupLabel>
@@ -418,39 +435,40 @@ function CategoryGroup({
         </CollapsibleContent>
       </SidebarGroup>
     </Collapsible>
-  )
+  );
 }
 
 export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarProps) {
-  const { state } = useSidebar()
-  const isCollapsed = state === 'collapsed'
-  const menuCategories = useMenuCategories()
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
+  const menuCategories = useMenuCategories();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50 bg-sidebar/95 backdrop-blur-xl dark:bg-sidebar/90 dark:border-primary/10">
+    <Sidebar
+      collapsible="icon"
+      className="border-r border-sidebar-border/50 bg-sidebar/95 backdrop-blur-xl dark:border-primary/10 dark:bg-sidebar/90"
+    >
       <SidebarHeader className="border-b border-sidebar-border/50 dark:border-primary/10">
         <div className="flex items-center gap-3 px-2 py-3">
-          <motion.div 
+          <motion.div
             className="relative"
             whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 400 }}
+            transition={{ type: 'spring', stiffness: 400 }}
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-accent/20 rounded-xl blur-md opacity-60 dark:opacity-80" />
-            <img 
-              src={logoImg} 
-              alt="FUXICO" 
-              className="relative h-9 w-9 rounded-xl shadow-lg"
-            />
+            <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-primary/30 to-accent/20 opacity-60 blur-md dark:opacity-80" />
+            <img src={logoImg} alt="FUXICO" className="relative h-9 w-9 rounded-xl shadow-lg" />
           </motion.div>
           {!isCollapsed && (
-            <motion.div 
-              role="navigation" aria-label="Menu Principal" className="flex flex-col"
+            <motion.div
+              role="navigation"
+              aria-label="Menu Principal"
+              className="flex flex-col"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
             >
               <div className="flex items-center gap-1.5">
-                <span className="font-display font-bold text-sm dark:text-neon">FUXICO</span>
+                <span className="dark:text-neon font-display text-sm font-bold">FUXICO</span>
                 <Sparkles className="h-3 w-3 text-primary" />
               </div>
               <span className="text-[10px] text-muted-foreground">Email Tracking Pro</span>
@@ -475,18 +493,20 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
       <SidebarFooter className="border-t border-sidebar-border/50 dark:border-primary/10">
         <div className="flex items-center justify-between px-2 py-2">
           {!isCollapsed && (
-            <motion.span 
+            <motion.span
               className="text-[10px] text-muted-foreground/60"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <kbd className="px-1 py-0.5 rounded bg-muted/50 text-muted-foreground text-[9px] font-mono">⌘B</kbd> colapsar
+              <kbd className="rounded bg-muted/50 px-1 py-0.5 font-mono text-[9px] text-muted-foreground">
+                ⌘B
+              </kbd>{' '}
+              colapsar
             </motion.span>
           )}
           <SidebarTrigger className="ml-auto hover:bg-sidebar-accent" />
         </div>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
-

@@ -6,7 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Plus, Trash2, Upload, UserX, Mail, Loader2, Search, AlertTriangle } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from 'sonner';
@@ -16,7 +23,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 function UnsubscribeTabBase() {
-  const { unsubscribedEmails, isLoading, addUnsubscribe, removeUnsubscribe, bulkAddUnsubscribe } = useUnsubscribedEmails();
+  const { unsubscribedEmails, isLoading, addUnsubscribe, removeUnsubscribe, bulkAddUnsubscribe } =
+    useUnsubscribedEmails();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isBulkOpen, setIsBulkOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,8 +45,8 @@ function UnsubscribeTabBase() {
   const handleBulkAdd = async () => {
     const emails = bulkEmails
       .split(/[\n,;]/)
-      .map(e => e.trim())
-      .filter(e => e.includes('@'));
+      .map((e) => e.trim())
+      .filter((e) => e.includes('@'));
 
     if (emails.length === 0) {
       toast.error('Nenhum email válido encontrado');
@@ -50,7 +58,7 @@ function UnsubscribeTabBase() {
     setIsBulkOpen(false);
   };
 
-  const filteredEmails = unsubscribedEmails.filter(u =>
+  const filteredEmails = unsubscribedEmails.filter((u) =>
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -71,7 +79,7 @@ function UnsubscribeTabBase() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1, 2, 3].map(i => (
+              {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
@@ -84,37 +92,41 @@ function UnsubscribeTabBase() {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div role="region" aria-label="UnsubscribeTab" className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div
+        role="region"
+        aria-label="UnsubscribeTab"
+        className="grid grid-cols-2 gap-4 md:grid-cols-4"
+      >
         <Card role="article">
           <CardContent className="p-4 text-center">
-            <UserX className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+            <UserX className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
             <p className="text-2xl font-bold">{unsubscribedEmails.length}</p>
             <p className="text-xs text-muted-foreground">Total descadastrados</p>
           </CardContent>
         </Card>
         <Card role="article">
           <CardContent className="p-4 text-center">
-            <Mail className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+            <Mail className="mx-auto mb-2 h-8 w-8 text-blue-500" />
             <p className="text-2xl font-bold">
-              {unsubscribedEmails.filter(u => u.source === 'manual').length}
+              {unsubscribedEmails.filter((u) => u.source === 'manual').length}
             </p>
             <p className="text-xs text-muted-foreground">Manuais</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-orange-500" />
+            <AlertTriangle className="mx-auto mb-2 h-8 w-8 text-orange-500" />
             <p className="text-2xl font-bold">
-              {unsubscribedEmails.filter(u => u.source === 'bounce').length}
+              {unsubscribedEmails.filter((u) => u.source === 'bounce').length}
             </p>
             <p className="text-xs text-muted-foreground">Por bounce</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <UserX className="h-8 w-8 mx-auto mb-2 text-green-500" />
+            <UserX className="mx-auto mb-2 h-8 w-8 text-green-500" />
             <p className="text-2xl font-bold">
-              {unsubscribedEmails.filter(u => u.source === 'link').length}
+              {unsubscribedEmails.filter((u) => u.source === 'link').length}
             </p>
             <p className="text-xs text-muted-foreground">Via link</p>
           </CardContent>
@@ -129,15 +141,13 @@ function UnsubscribeTabBase() {
                 <UserX className="h-5 w-5" />
                 Lista de Exclusão (Unsubscribe)
               </CardTitle>
-              <CardDescription>
-                Emails que não devem receber comunicações
-              </CardDescription>
+              <CardDescription>Emails que não devem receber comunicações</CardDescription>
             </div>
             <div className="flex gap-2">
               <Dialog open={isBulkOpen} onOpenChange={setIsBulkOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
-                    <Upload className="h-4 w-4 mr-2" />
+                    <Upload className="mr-2 h-4 w-4" />
                     Importar
                   </Button>
                 </DialogTrigger>
@@ -153,10 +163,11 @@ function UnsubscribeTabBase() {
                       placeholder="email1@exemplo.com&#10;email2@exemplo.com&#10;email3@exemplo.com"
                       className="min-h-[200px]"
                       value={bulkEmails}
-                      onChange={e => setBulkEmails(e.target.value)}
+                      onChange={(e) => setBulkEmails(e.target.value)}
                     />
                     <p className="text-xs text-muted-foreground">
-                      {bulkEmails.split(/[\n,;]/).filter(e => e.trim().includes('@')).length} emails válidos detectados
+                      {bulkEmails.split(/[\n,;]/).filter((e) => e.trim().includes('@')).length}{' '}
+                      emails válidos detectados
                     </p>
                     <Button
                       onClick={handleBulkAdd}
@@ -164,9 +175,9 @@ function UnsubscribeTabBase() {
                       disabled={bulkAddUnsubscribe.isPending}
                     >
                       {bulkAddUnsubscribe.isPending ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
-                        <Upload className="h-4 w-4 mr-2" />
+                        <Upload className="mr-2 h-4 w-4" />
                       )}
                       Importar Emails
                     </Button>
@@ -177,16 +188,14 @@ function UnsubscribeTabBase() {
               <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
                 <DialogTrigger asChild>
                   <Button>
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="mr-2 h-4 w-4" />
                     Adicionar
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Adicionar Email à Lista de Exclusão</DialogTitle>
-                    <DialogDescription>
-                      Este email não receberá mais comunicações
-                    </DialogDescription>
+                    <DialogDescription>Este email não receberá mais comunicações</DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
@@ -195,7 +204,9 @@ function UnsubscribeTabBase() {
                         type="email"
                         placeholder="email@exemplo.com"
                         value={newEmail.email}
-                        onChange={e => setNewEmail(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) =>
+                          setNewEmail((prev) => ({ ...prev, email: e.target.value }))
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -203,7 +214,9 @@ function UnsubscribeTabBase() {
                       <Input
                         placeholder="Ex: Solicitou remoção por telefone"
                         value={newEmail.reason}
-                        onChange={e => setNewEmail(prev => ({ ...prev, reason: e.target.value }))}
+                        onChange={(e) =>
+                          setNewEmail((prev) => ({ ...prev, reason: e.target.value }))
+                        }
                       />
                     </div>
                     <Button
@@ -212,9 +225,9 @@ function UnsubscribeTabBase() {
                       disabled={addUnsubscribe.isPending}
                     >
                       {addUnsubscribe.isPending ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="mr-2 h-4 w-4" />
                       )}
                       Adicionar à Lista
                     </Button>
@@ -227,11 +240,11 @@ function UnsubscribeTabBase() {
         <CardContent>
           {/* Search */}
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Buscar email..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -239,21 +252,33 @@ function UnsubscribeTabBase() {
           {filteredEmails.length === 0 ? (
             <EmptyState
               type="unsubscribe"
-              title={searchTerm ? `Nenhum email encontrado para "${searchTerm}"` : 'Nenhum email na lista de exclusão'}
-              description={searchTerm ? 'Tente ajustar sua busca.' : 'Adicione emails que não devem receber comunicações.'}
-              action={!searchTerm ? {
-                label: 'Adicionar Email',
-                onClick: () => setIsAddOpen(true),
-                icon: <Plus className="h-4 w-4" />
-              } : undefined}
+              title={
+                searchTerm
+                  ? `Nenhum email encontrado para "${searchTerm}"`
+                  : 'Nenhum email na lista de exclusão'
+              }
+              description={
+                searchTerm
+                  ? 'Tente ajustar sua busca.'
+                  : 'Adicione emails que não devem receber comunicações.'
+              }
+              action={
+                !searchTerm
+                  ? {
+                      label: 'Adicionar Email',
+                      onClick: () => setIsAddOpen(true),
+                      icon: <Plus className="h-4 w-4" />,
+                    }
+                  : undefined
+              }
             />
           ) : (
             <ScrollArea className="h-[400px]">
               <div className="space-y-2">
-                {filteredEmails.map(item => (
+                {filteredEmails.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50"
+                    className="flex items-center justify-between rounded-lg bg-muted/30 p-3 hover:bg-muted/50"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -262,9 +287,11 @@ function UnsubscribeTabBase() {
                           {sourceLabels[item.source]?.label || item.source}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                      <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
                         <span>
-                          {format(new Date(item.unsubscribed_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          {format(new Date(item.unsubscribed_at), "dd/MM/yyyy 'às' HH:mm", {
+                            locale: ptBR,
+                          })}
                         </span>
                         {item.reason && <span>• {item.reason}</span>}
                       </div>
@@ -290,12 +317,14 @@ function UnsubscribeTabBase() {
         <CardHeader>
           <CardTitle className="text-base">Como usar a lista de exclusão</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
+        <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
-            • <strong>Manual:</strong> Adicione emails manualmente quando um contato solicitar remoção.
+            • <strong>Manual:</strong> Adicione emails manualmente quando um contato solicitar
+            remoção.
           </p>
           <p>
-            • <strong>Via Link:</strong> Emails adicionados automaticamente quando o destinatário clica no link de descadastramento.
+            • <strong>Via Link:</strong> Emails adicionados automaticamente quando o destinatário
+            clica no link de descadastramento.
           </p>
           <p>
             • <strong>Bounce:</strong> Emails inválidos detectados automaticamente.
@@ -304,7 +333,8 @@ function UnsubscribeTabBase() {
             • <strong>Reclamação:</strong> Emails que marcaram sua mensagem como spam.
           </p>
           <p className="pt-2 text-xs">
-            💡 Dica: Ao criar um novo rastreamento, verifique se o destinatário não está nesta lista.
+            💡 Dica: Ao criar um novo rastreamento, verifique se o destinatário não está nesta
+            lista.
           </p>
         </CardContent>
       </Card>

@@ -64,8 +64,8 @@ export function SecurityOverviewCards() {
         .eq('email', user.email)
         .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
       if (error) throw error;
-      const success = data?.filter(a => a.success).length || 0;
-      const failed = data?.filter(a => !a.success).length || 0;
+      const success = data?.filter((a) => a.success).length || 0;
+      const failed = data?.filter((a) => !a.success).length || 0;
       return { success, failed };
     },
     enabled: !!user?.email,
@@ -95,9 +95,7 @@ export function SecurityOverviewCards() {
     {
       title: 'Autenticação MFA',
       value: mfaSettings?.is_enabled ? 'Ativo' : 'Inativo',
-      description: mfaSettings?.is_enabled
-        ? mfaLastUseLabel
-        : 'Configure para maior segurança',
+      description: mfaSettings?.is_enabled ? mfaLastUseLabel : 'Configure para maior segurança',
 
       icon: Key,
       color: mfaSettings?.is_enabled ? 'text-green-500' : 'text-muted-foreground',
@@ -107,7 +105,9 @@ export function SecurityOverviewCards() {
     {
       title: 'Alertas (7 dias)',
       value: alertsCount?.toString() || '0',
-      description: loginAttempts?.failed ? `${loginAttempts.failed} tentativas falhas (24h)` : 'Nenhuma tentativa falha',
+      description: loginAttempts?.failed
+        ? `${loginAttempts.failed} tentativas falhas (24h)`
+        : 'Nenhuma tentativa falha',
       icon: AlertTriangle,
       color: alertsCount && alertsCount > 0 ? 'text-orange-500' : 'text-green-500',
       bgColor: alertsCount && alertsCount > 0 ? 'bg-orange-500/10' : 'bg-green-500/10',
@@ -116,28 +116,28 @@ export function SecurityOverviewCards() {
   ];
 
   return (
-    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {cards.map((card, index) => (
         <Card key={index}>
           <CardContent className="p-3 sm:p-4 lg:pt-6">
             {card.loading ? (
               <div className="space-y-2">
-                <Skeleton className="h-3 sm:h-4 w-16 sm:w-24" />
-                <Skeleton className="h-6 sm:h-8 w-12 sm:w-16" />
-                <Skeleton className="h-2.5 sm:h-3 w-20 sm:w-32" />
+                <Skeleton className="h-3 w-16 sm:h-4 sm:w-24" />
+                <Skeleton className="h-6 w-12 sm:h-8 sm:w-16" />
+                <Skeleton className="h-2.5 w-20 sm:h-3 sm:w-32" />
               </div>
             ) : (
               <div className="flex items-start justify-between gap-2">
-                <div className="space-y-0.5 sm:space-y-1 min-w-0">
-                  <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground truncate">
+                <div className="min-w-0 space-y-0.5 sm:space-y-1">
+                  <p className="truncate text-[10px] font-medium text-muted-foreground sm:text-xs lg:text-sm">
                     {card.title}
                   </p>
-                  <p className="text-lg sm:text-xl lg:text-2xl font-bold truncate">{card.value}</p>
-                  <p className="text-[9px] sm:text-[10px] lg:text-xs text-muted-foreground line-clamp-2">
+                  <p className="truncate text-lg font-bold sm:text-xl lg:text-2xl">{card.value}</p>
+                  <p className="line-clamp-2 text-[9px] text-muted-foreground sm:text-[10px] lg:text-xs">
                     {card.description}
                   </p>
                 </div>
-                <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${card.bgColor}`}>
+                <div className={`shrink-0 rounded-lg p-1.5 sm:p-2 ${card.bgColor}`}>
                   <card.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 lg:h-5 lg:w-5 ${card.color}`} />
                 </div>
               </div>

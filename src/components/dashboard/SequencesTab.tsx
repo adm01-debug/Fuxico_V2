@@ -14,7 +14,13 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { log } from '@/lib/logger';
-import { useEmailSequences, useUpdateSequence, useDeleteSequence, useCreateSequence, EmailSequence } from '@/features/sequences/hooks/useEmailSequences';
+import {
+  useEmailSequences,
+  useUpdateSequence,
+  useDeleteSequence,
+  useCreateSequence,
+  EmailSequence,
+} from '@/features/sequences/hooks/useEmailSequences';
 import { SequenceCard } from './sequences/SequenceCard';
 import { SequenceDetail } from './sequences/SequenceDetail';
 import { CreateSequenceDialog } from './sequences/CreateSequenceDialog';
@@ -22,7 +28,7 @@ import { SequenceStatsChart } from './sequences/SequenceStatsChart';
 import { SequenceWebhookLogs } from './sequences/SequenceWebhookLogs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfirmDialog } from './ConfirmDialog';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 function SequencesTabBase() {
   const [selectedSequenceId, setSelectedSequenceId] = useState<string | null>(null);
@@ -37,9 +43,12 @@ function SequencesTabBase() {
   const deleteSequence = useDeleteSequence();
   const createSequence = useCreateSequence();
 
-  const handleStatusChange = useCallback(async (id: string, status: EmailSequence['status']) => {
-    await updateSequence.mutateAsync({ id, status });
-  }, [updateSequence]);
+  const handleStatusChange = useCallback(
+    async (id: string, status: EmailSequence['status']) => {
+      await updateSequence.mutateAsync({ id, status });
+    },
+    [updateSequence]
+  );
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return;
@@ -47,13 +56,16 @@ function SequencesTabBase() {
     setDeleteId(null);
   }, [deleteId, deleteSequence]);
 
-  const handleDuplicate = useCallback(async (sequence: EmailSequence) => {
-    await createSequence.mutateAsync({
-      name: `${sequence.name} (cópia)`,
-      description: sequence.description || undefined,
-      trigger_type: sequence.trigger_type,
-    });
-  }, [createSequence]);
+  const handleDuplicate = useCallback(
+    async (sequence: EmailSequence) => {
+      await createSequence.mutateAsync({
+        name: `${sequence.name} (cópia)`,
+        description: sequence.description || undefined,
+        trigger_type: sequence.trigger_type,
+      });
+    },
+    [createSequence]
+  );
 
   const handleSequenceCreated = useCallback((sequence: EmailSequence) => {
     setSelectedSequenceId(sequence.id);
@@ -63,9 +75,9 @@ function SequencesTabBase() {
     setIsProcessing(true);
     try {
       const { data, error } = await supabase.functions.invoke('process-sequences');
-      
+
       if (error) throw error;
-      
+
       toast.success(`Processamento concluído: ${data?.processed || 0} emails enviados`);
       refetch();
     } catch (error) {
@@ -81,30 +93,38 @@ function SequencesTabBase() {
     if (!sequences || sequences.length === 0) {
       return { totalEnrolled: 0, totalCompleted: 0, totalReplied: 0, replyRate: 0 };
     }
-    
-    const totalEnrolled = sequences.reduce((sum: number, seq: EmailSequence) => sum + (seq.total_enrolled || 0), 0);
-    const totalCompleted = sequences.reduce((sum: number, seq: EmailSequence) => sum + (seq.total_completed || 0), 0);
-    const totalReplied = sequences.reduce((sum: number, seq: EmailSequence) => sum + (seq.total_replied || 0), 0);
+
+    const totalEnrolled = sequences.reduce(
+      (sum: number, seq: EmailSequence) => sum + (seq.total_enrolled || 0),
+      0
+    );
+    const totalCompleted = sequences.reduce(
+      (sum: number, seq: EmailSequence) => sum + (seq.total_completed || 0),
+      0
+    );
+    const totalReplied = sequences.reduce(
+      (sum: number, seq: EmailSequence) => sum + (seq.total_replied || 0),
+      0
+    );
     const replyRate = totalEnrolled > 0 ? (totalReplied / totalEnrolled) * 100 : 0;
-    
+
     return { totalEnrolled, totalCompleted, totalReplied, replyRate };
   }, [sequences]);
 
   // Filter sequences
-  const filteredSequences = sequences?.filter((seq: EmailSequence) => {
-    const matchesSearch = seq.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (seq.description?.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesStatus = statusFilter === 'all' || seq.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  }) || [];
+  const filteredSequences =
+    sequences?.filter((seq: EmailSequence) => {
+      const matchesSearch =
+        seq.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        seq.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || seq.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    }) || [];
 
   // Show detail view if a sequence is selected
   if (selectedSequenceId) {
     return (
-      <SequenceDetail 
-        sequenceId={selectedSequenceId} 
-        onBack={() => setSelectedSequenceId(null)}
-      />
+      <SequenceDetail sequenceId={selectedSequenceId} onBack={() => setSelectedSequenceId(null)} />
     );
   }
 
@@ -119,31 +139,27 @@ function SequencesTabBase() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleProcessSequences}
-            disabled={isProcessing}
-          >
+          <Button variant="outline" onClick={handleProcessSequences} disabled={isProcessing}>
             {isProcessing ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Play className="h-4 w-4 mr-2" />
+              <Play className="mr-2 h-4 w-4" />
             )}
             Processar Agora
           </Button>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Nova Sequência
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
+              <div className="rounded-lg bg-primary/10 p-2">
                 <Users className="h-5 w-5 text-primary" />
               </div>
               <div>
@@ -156,7 +172,7 @@ function SequencesTabBase() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
+              <div className="rounded-lg bg-blue-500/10 p-2">
                 <Send className="h-5 w-5 text-blue-500" />
               </div>
               <div>
@@ -169,7 +185,7 @@ function SequencesTabBase() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/10">
+              <div className="rounded-lg bg-green-500/10 p-2">
                 <MessageSquare className="h-5 w-5 text-green-500" />
               </div>
               <div>
@@ -189,8 +205,8 @@ function SequencesTabBase() {
 
       {/* Filters */}
       <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar sequências..."
             value={searchQuery}
@@ -213,44 +229,61 @@ function SequencesTabBase() {
       </div>
 
       {/* Sequences Grid */}
-      {matchFirst([
-  [isLoading, () => ((
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48" />
-          ))}
-        </div>
-      ))],
-  [filteredSequences.length === 0, () => ((
-        <EmptyState
-          type="sequences"
-          title={sequences?.length === 0 
-            ? 'Nenhuma sequência criada' 
-            : 'Nenhuma sequência encontrada'}
-          description={sequences?.length === 0 
-            ? 'Crie sua primeira sequência de email automatizada para aumentar suas taxas de resposta.'
-            : 'Tente ajustar os filtros de busca.'}
-          action={sequences?.length === 0 ? {
-            label: 'Criar Primeira Sequência',
-            onClick: () => setIsCreateDialogOpen(true),
-            icon: <Plus className="h-4 w-4" />
-          } : undefined}
-        />
-      ))],
-], () => ((
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredSequences.map((sequence) => (
-            <SequenceCard
-              key={sequence.id}
-              sequence={sequence}
-              onSelect={setSelectedSequenceId}
-              onStatusChange={handleStatusChange}
-              onDelete={setDeleteId}
-              onDuplicate={handleDuplicate}
-            />
-          ))}
-        </div>
-      )))}
+      {matchFirst(
+        [
+          [
+            isLoading,
+            () => (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-48" />
+                ))}
+              </div>
+            ),
+          ],
+          [
+            filteredSequences.length === 0,
+            () => (
+              <EmptyState
+                type="sequences"
+                title={
+                  sequences?.length === 0
+                    ? 'Nenhuma sequência criada'
+                    : 'Nenhuma sequência encontrada'
+                }
+                description={
+                  sequences?.length === 0
+                    ? 'Crie sua primeira sequência de email automatizada para aumentar suas taxas de resposta.'
+                    : 'Tente ajustar os filtros de busca.'
+                }
+                action={
+                  sequences?.length === 0
+                    ? {
+                        label: 'Criar Primeira Sequência',
+                        onClick: () => setIsCreateDialogOpen(true),
+                        icon: <Plus className="h-4 w-4" />,
+                      }
+                    : undefined
+                }
+              />
+            ),
+          ],
+        ],
+        () => (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredSequences.map((sequence) => (
+              <SequenceCard
+                key={sequence.id}
+                sequence={sequence}
+                onSelect={setSelectedSequenceId}
+                onStatusChange={handleStatusChange}
+                onDelete={setDeleteId}
+                onDuplicate={handleDuplicate}
+              />
+            ))}
+          </div>
+        )
+      )}
 
       {/* Create Dialog */}
       <CreateSequenceDialog

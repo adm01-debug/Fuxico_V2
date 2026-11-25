@@ -28,7 +28,9 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: '/', search: '', hash: '' }),
   useSearchParams: () => [new URLSearchParams(), vi.fn()],
-  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+    <a href={to}>{children}</a>
+  ),
   Navigate: ({ to }: { to: string }) => <div data-testid="navigate" data-to={to} />,
 }));
 

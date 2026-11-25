@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Target, Zap, Mail, Clock } from "lucide-react";
-import { staggerContainer, scaleIn } from "./animations";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Target, Zap, Mail, Clock } from 'lucide-react';
+import { staggerContainer, scaleIn } from './animations';
 
 const stats = [
-  { value: "99.9", suffix: "%", label: "Precisão de Rastreamento", icon: Target },
-  { value: "<1", suffix: "s", label: "Tempo de Notificação", icon: Zap },
-  { value: "100", suffix: "%", label: "Compatível com Gmail", icon: Mail },
-  { value: "24", suffix: "/7", label: "Monitoramento Ativo", icon: Clock }
+  { value: '99.9', suffix: '%', label: 'Precisão de Rastreamento', icon: Target },
+  { value: '<1', suffix: 's', label: 'Tempo de Notificação', icon: Zap },
+  { value: '100', suffix: '%', label: 'Compatível com Gmail', icon: Mail },
+  { value: '24', suffix: '/7', label: 'Monitoramento Ativo', icon: Clock },
 ];
 
 const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) => {
@@ -40,15 +40,17 @@ const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) =
 
   return (
     <span className="font-mono tabular-nums">
-      {value.includes('<') ? '<' : ''}{numericValue % 1 !== 0 ? count.toFixed(1) : Math.round(count)}{suffix}
+      {value.includes('<') ? '<' : ''}
+      {numericValue % 1 !== 0 ? count.toFixed(1) : Math.round(count)}
+      {suffix}
     </span>
   );
 };
 
 export const StatsSection = () => (
-  <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
+  <section className="container mx-auto px-4 py-12 sm:px-6 sm:py-16">
     <motion.div
-      className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 max-w-4xl mx-auto"
+      className="mx-auto grid max-w-4xl grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
@@ -59,15 +61,15 @@ export const StatsSection = () => (
           key={index}
           variants={scaleIn}
           whileHover={{ y: -4, scale: 1.02 }}
-          className="text-center p-5 sm:p-6 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group"
+          className="group rounded-2xl border border-border/50 bg-card/60 p-5 text-center backdrop-blur-sm transition-all duration-300 hover:border-primary/30 sm:p-6"
         >
-          <div className="inline-flex p-2 rounded-xl bg-primary/10 mb-3 group-hover:bg-primary/20 transition-colors">
+          <div className="mb-3 inline-flex rounded-xl bg-primary/10 p-2 transition-colors group-hover:bg-primary/20">
             <stat.icon className="h-4 w-4 text-primary" />
           </div>
-          <div className="text-2xl sm:text-4xl font-bold gradient-text font-display">
+          <div className="gradient-text font-display text-2xl font-bold sm:text-4xl">
             <AnimatedCounter value={stat.value} suffix={stat.suffix} />
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</div>
+          <div className="mt-1 text-xs text-muted-foreground sm:text-sm">{stat.label}</div>
         </motion.div>
       ))}
     </motion.div>

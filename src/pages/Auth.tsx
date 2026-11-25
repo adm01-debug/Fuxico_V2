@@ -6,7 +6,14 @@ import { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react
 import { log } from '@/lib/logger';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,7 +69,7 @@ const Auth = () => {
       { test: (p: string) => /\d/.test(p) },
       { test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
     ];
-    const passed = pwRequirements.filter(req => req.test(signupPassword));
+    const passed = pwRequirements.filter((req) => req.test(signupPassword));
     return {
       score: passed.length,
       isValid: passed.length >= 4 && isBreached !== true,
@@ -79,8 +86,11 @@ const Auth = () => {
   useEffect(() => {
     if (lockoutSeconds > 0) {
       const timer = setInterval(() => {
-        setLockoutSeconds(prev => {
-          if (prev <= 1) { setIsLockedOut(false); return 0; }
+        setLockoutSeconds((prev) => {
+          if (prev <= 1) {
+            setIsLockedOut(false);
+            return 0;
+          }
           return prev - 1;
         });
       }, 1000);
@@ -91,7 +101,9 @@ const Auth = () => {
   const checkLockoutStatus = useCallback(async (emailToCheck: string) => {
     if (!emailToCheck) return;
     try {
-      const { data, error } = await supabase.rpc('check_lockout_status', { _email: emailToCheck.toLowerCase() });
+      const { data, error } = await supabase.rpc('check_lockout_status', {
+        _email: emailToCheck.toLowerCase(),
+      });
       if (!error && data && data.length > 0) {
         const status = data[0];
         if (status.is_locked) {
@@ -104,33 +116,54 @@ const Auth = () => {
           setFailedAttempts(status.failed_attempts || 0);
         }
       }
-    } catch (err) { log.warn('Error checking lockout status', err); }
+    } catch (err) {
+      log.warn('Error checking lockout status', err);
+    }
   }, []);
 
   useEffect(() => {
-    const debounce = setTimeout(() => { if (email) checkLockoutStatus(email); }, 500);
+    const debounce = setTimeout(() => {
+      if (email) checkLockoutStatus(email);
+    }, 500);
     return () => clearTimeout(debounce);
   }, [email, checkLockoutStatus]);
 
-  useEffect(() => { if (user) navigate('/'); }, [user, navigate]);
+  useEffect(() => {
+    if (user) navigate('/');
+  }, [user, navigate]);
   if (user) return null;
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    try { await signInWithGoogle(); }
-    catch (error) {
-      toast({ title: 'Erro ao entrar com Google', description: error instanceof Error ? error.message : 'Tente novamente mais tarde', variant: 'destructive' });
-    } finally { setIsGoogleLoading(false); }
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      toast({
+        title: 'Erro ao entrar com Google',
+        description: error instanceof Error ? error.message : 'Tente novamente mais tarde',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
   const handleEmailSignIn = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast({ title: 'Campos obrigatórios', description: 'Preencha email e senha', variant: 'destructive' });
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Preencha email e senha',
+        variant: 'destructive',
+      });
       return;
     }
     if (isLockedOut) {
-      toast({ title: 'Conta bloqueada', description: `Aguarde ${formatLockoutTime(lockoutSeconds)} para tentar novamente`, variant: 'destructive' });
+      toast({
+        title: 'Conta bloqueada',
+        description: `Aguarde ${formatLockoutTime(lockoutSeconds)} para tentar novamente`,
+        variant: 'destructive',
+      });
       return;
     }
     setIsLoading(true);
@@ -144,19 +177,40 @@ const Auth = () => {
           if (result.is_now_locked) {
             setIsLockedOut(true);
             setLockoutSeconds(result.lockout_seconds);
-            toast({ title: 'Conta bloqueada temporariamente', description: `Muitas tentativas falhadas. Aguarde ${formatLockoutTime(result.lockout_seconds)}.`, variant: 'destructive' });
+            toast({
+              title: 'Conta bloqueada temporariamente',
+              description: `Muitas tentativas falhadas. Aguarde ${formatLockoutTime(result.lockout_seconds)}.`,
+              variant: 'destructive',
+            });
           } else {
             const remaining = 5 - result.total_attempts;
-            toast({ title: 'Erro ao entrar', description: remaining > 0 ? `Email ou senha incorretos. ${remaining} tentativa(s) restante(s).` : 'Email ou senha incorretos.', variant: 'destructive' });
+            toast({
+              title: 'Erro ao entrar',
+              description:
+                remaining > 0
+                  ? `Email ou senha incorretos. ${remaining} tentativa(s) restante(s).`
+                  : 'Email ou senha incorretos.',
+              variant: 'destructive',
+            });
           }
         }
       } catch (err) {
         log.warn('Error recording failed login', err);
-        toast({ title: 'Erro ao entrar', description: error.message === 'Invalid login credentials' ? 'Email ou senha incorretos' : error.message, variant: 'destructive' });
+        toast({
+          title: 'Erro ao entrar',
+          description:
+            error.message === 'Invalid login credentials'
+              ? 'Email ou senha incorretos'
+              : error.message,
+          variant: 'destructive',
+        });
       }
     } else {
-      try { await supabase.rpc('reset_login_lockout', { _email: email.toLowerCase() }); }
-      catch (err) { log.warn('Error resetting lockout', err); }
+      try {
+        await supabase.rpc('reset_login_lockout', { _email: email.toLowerCase() });
+      } catch (err) {
+        log.warn('Error resetting lockout', err);
+      }
       navigate('/');
     }
     setIsLoading(false);
@@ -165,13 +219,19 @@ const Auth = () => {
   const handleEmailSignUp = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !signupPassword) {
-      toast({ title: 'Campos obrigatórios', description: 'Preencha email e senha', variant: 'destructive' });
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Preencha email e senha',
+        variant: 'destructive',
+      });
       return;
     }
     if (!passwordStrength.isValid) {
       toast({
         title: passwordStrength.isBreached ? 'Senha comprometida' : 'Senha muito fraca',
-        description: passwordStrength.isBreached ? 'Esta senha foi encontrada em vazamentos de dados. Escolha outra.' : 'A senha deve atender pelo menos 4 requisitos de segurança',
+        description: passwordStrength.isBreached
+          ? 'Esta senha foi encontrada em vazamentos de dados. Escolha outra.'
+          : 'A senha deve atender pelo menos 4 requisitos de segurança',
         variant: 'destructive',
       });
       return;
@@ -180,36 +240,50 @@ const Auth = () => {
     const { error } = await signUpWithEmail(email, signupPassword);
     if (error) {
       toast({
-        title: error.message.includes('already registered') ? 'Email já cadastrado' : 'Erro ao criar conta',
-        description: error.message.includes('already registered') ? 'Este email já possui uma conta. Tente fazer login.' : error.message,
+        title: error.message.includes('already registered')
+          ? 'Email já cadastrado'
+          : 'Erro ao criar conta',
+        description: error.message.includes('already registered')
+          ? 'Este email já possui uma conta. Tente fazer login.'
+          : error.message,
         variant: 'destructive',
       });
     } else {
-      toast({ title: 'Conta criada!', description: 'Verifique seu email para confirmar o cadastro.' });
+      toast({
+        title: 'Conta criada!',
+        description: 'Verifique seu email para confirmar o cadastro.',
+      });
     }
     setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-background p-4 relative overflow-hidden">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-4 px-4 sm:px-6 lg:px-8">
       <GridPattern />
       <FloatingOrbs />
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
 
-      <div className="w-full px-4 sm:px-0 max-w-md relative z-10">
+      <div className="relative z-10 w-full max-w-md px-4 sm:px-0">
         <AuthHeader />
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           {authReason && (
-            <Alert variant="destructive" className="mb-4 bg-destructive/10 border-destructive/20 text-destructive">
+            <Alert
+              variant="destructive"
+              className="mb-4 border-destructive/20 bg-destructive/10 text-destructive"
+            >
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Sessão Expirada</AlertTitle>
               <AlertDescription>{authReason}</AlertDescription>
             </Alert>
           )}
-          <Card className="backdrop-blur-xl bg-card/80 border-border/50 shadow-2xl">
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="text-xl font-display">Bem-vindo</CardTitle>
+          <Card className="border-border/50 bg-card/80 shadow-2xl backdrop-blur-xl">
+            <CardHeader className="pb-2 text-center">
+              <CardTitle className="font-display text-xl">Bem-vindo</CardTitle>
               <CardDescription>Entre para acessar o dashboard</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -220,14 +294,24 @@ const Auth = () => {
                   <span className="w-full border-t border-border/50" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-3 text-muted-foreground/70 font-medium">ou</span>
+                  <span className="bg-card px-3 font-medium text-muted-foreground/70">ou</span>
                 </div>
               </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                  <TabsTrigger value="login" className="data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">Entrar</TabsTrigger>
-                  <TabsTrigger value="signup" className="data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">Criar conta</TabsTrigger>
+                  <TabsTrigger
+                    value="login"
+                    className="transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                  >
+                    Entrar
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="signup"
+                    className="transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                  >
+                    Criar conta
+                  </TabsTrigger>
                 </TabsList>
 
                 <AnimatePresence mode="wait">
@@ -240,20 +324,29 @@ const Auth = () => {
                   >
                     <TabsContent value="login" className="mt-0">
                       <LoginForm
-                        email={email} setEmail={setEmail}
-                        password={password} setPassword={setPassword}
-                        showPassword={showLoginPassword} setShowPassword={setShowLoginPassword}
-                        isLoading={isLoading} isLockedOut={isLockedOut}
-                        lockoutSeconds={lockoutSeconds} failedAttempts={failedAttempts}
+                        email={email}
+                        setEmail={setEmail}
+                        password={password}
+                        setPassword={setPassword}
+                        showPassword={showLoginPassword}
+                        setShowPassword={setShowLoginPassword}
+                        isLoading={isLoading}
+                        isLockedOut={isLockedOut}
+                        lockoutSeconds={lockoutSeconds}
+                        failedAttempts={failedAttempts}
                         onSubmit={handleEmailSignIn}
                       />
                     </TabsContent>
                     <TabsContent value="signup" className="mt-0">
                       <SignupForm
-                        email={email} setEmail={setEmail}
-                        password={signupPassword} setPassword={setSignupPassword}
-                        showPassword={showSignupPassword} setShowPassword={setShowSignupPassword}
-                        isLoading={isLoading} isValid={passwordStrength.isValid}
+                        email={email}
+                        setEmail={setEmail}
+                        password={signupPassword}
+                        setPassword={setSignupPassword}
+                        showPassword={showSignupPassword}
+                        setShowPassword={setShowSignupPassword}
+                        isLoading={isLoading}
+                        isValid={passwordStrength.isValid}
                         onBreachCheck={setIsBreached}
                         onSubmit={handleEmailSignUp}
                       />
@@ -263,19 +356,38 @@ const Auth = () => {
               </Tabs>
             </CardContent>
             <CardFooter className="flex flex-col gap-3 pt-2">
-              <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
                 Esqueceu sua senha?
               </Link>
-              <p className="text-xs text-center text-muted-foreground/60">
+              <p className="text-center text-xs text-muted-foreground/60">
                 Ao entrar, você concorda com nossos{' '}
-                <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">Termos de Uso</Link>{' '}e{' '}
-                <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground transition-colors">Política de Privacidade</Link>
+                <Link
+                  to="/privacy"
+                  className="underline underline-offset-2 transition-colors hover:text-foreground"
+                >
+                  Termos de Uso
+                </Link>{' '}
+                e{' '}
+                <Link
+                  to="/privacy"
+                  className="underline underline-offset-2 transition-colors hover:text-foreground"
+                >
+                  Política de Privacidade
+                </Link>
               </p>
             </CardFooter>
           </Card>
         </motion.div>
 
-        <motion.p className="text-center text-xs text-muted-foreground/40 mt-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+        <motion.p
+          className="mt-6 text-center text-xs text-muted-foreground/40"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
           © {new Date().getFullYear()} FUXICO. Todos os direitos reservados.
         </motion.p>
       </div>

@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 
 export interface TrackedLink {
@@ -29,15 +29,15 @@ export function useTrackedLinks() {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ["tracked-links", user?.id],
+    queryKey: ['tracked-links', user?.id],
     queryFn: async (): Promise<TrackedLink[]> => {
       if (!user) return [];
 
       const { data: links, error } = await supabase
-        .from("standalone_tracked_links")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .from('standalone_tracked_links')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       if (!links?.length) return [];
@@ -45,10 +45,10 @@ export function useTrackedLinks() {
       // Get last click for each link
       const linkIds = links.map((l) => l.link_id);
       const { data: events } = await supabase
-        .from("link_click_events")
-        .select("link_id, created_at")
-        .in("link_id", linkIds)
-        .order("created_at", { ascending: false });
+        .from('link_click_events')
+        .select('link_id, created_at')
+        .in('link_id', linkIds)
+        .order('created_at', { ascending: false });
 
       const lastClickMap = new Map<string, string>();
       events?.forEach((event) => {
@@ -70,21 +70,22 @@ export function useTrackedLinks() {
     },
     enabled: !!user,
     refetchInterval: 120000, // Otimizado: 2 min (era 30s),
-    gcTime: 1000 * 60 * 30, staleTime: 60000, // Considerar fresco por 1 min
+    gcTime: 1000 * 60 * 30,
+    staleTime: 60000, // Considerar fresco por 1 min
   });
 }
 
 export function useLinkClickEvents(linkId: string | null) {
   return useQuery({
-    queryKey: ["link-click-events", linkId],
+    queryKey: ['link-click-events', linkId],
     queryFn: async (): Promise<LinkClickEvent[]> => {
       if (!linkId) return [];
 
       const { data, error } = await supabase
-        .from("link_click_events")
-        .select("*")
-        .eq("link_id", linkId)
-        .order("created_at", { ascending: false })
+        .from('link_click_events')
+        .select('*')
+        .eq('link_id', linkId)
+        .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;

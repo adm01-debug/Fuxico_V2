@@ -4,12 +4,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { z } from 'zod';
 
-const passwordSchema = z.string()
+const passwordSchema = z
+  .string()
   .min(8, 'Senha deve ter no mínimo 8 caracteres')
   .regex(/[A-Z]/, 'Senha deve ter pelo menos uma letra maiúscula')
   .regex(/[a-z]/, 'Senha deve ter pelo menos uma letra minúscula')
@@ -25,7 +33,7 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,7 +68,7 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validatePassword()) return;
 
     setLoading(true);
@@ -74,7 +82,7 @@ export default function ResetPassword() {
 
       setSuccess(true);
       toast.success('Senha alterada com sucesso!');
-      
+
       // Redirect to auth after 3 seconds
       setTimeout(() => {
         navigate('/auth');
@@ -98,29 +106,35 @@ export default function ResetPassword() {
     return strength;
   };
 
-  const strengthColors = ['bg-destructive', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
+  const strengthColors = [
+    'bg-destructive',
+    'bg-orange-500',
+    'bg-yellow-500',
+    'bg-lime-500',
+    'bg-green-500',
+  ];
   const strengthLabels = ['Muito fraca', 'Fraca', 'Razoável', 'Boa', 'Forte'];
 
   if (tokenValid === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (tokenValid === false) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
-              <AlertTriangle className="w-6 h-6 text-destructive" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <CardTitle>Link Inválido ou Expirado</CardTitle>
             <CardDescription>
-              O link de recuperação de senha é inválido ou expirou. 
-              Por favor, solicite um novo link.
+              O link de recuperação de senha é inválido ou expirou. Por favor, solicite um novo
+              link.
             </CardDescription>
           </CardHeader>
           <CardFooter>
@@ -135,11 +149,11 @@ export default function ResetPassword() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="w-6 h-6 text-primary" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <CheckCircle className="h-6 w-6 text-primary" />
             </div>
             <CardTitle>Senha Alterada!</CardTitle>
             <CardDescription>
@@ -152,20 +166,18 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Redefinir Senha</CardTitle>
-          <CardDescription>
-            Digite sua nova senha. Ela deve ser forte e segura.
-          </CardDescription>
+          <CardDescription>Digite sua nova senha. Ela deve ser forte e segura.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">Nova Senha</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -181,10 +193,10 @@ export default function ResetPassword() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              
+
               {/* Password strength indicator */}
               {password && (
                 <div className="space-y-2">
@@ -193,7 +205,9 @@ export default function ResetPassword() {
                       <div
                         key={i}
                         className={`h-1 flex-1 rounded-full ${
-                          i < getPasswordStrength() ? strengthColors[getPasswordStrength() - 1] : 'bg-muted'
+                          i < getPasswordStrength()
+                            ? strengthColors[getPasswordStrength() - 1]
+                            : 'bg-muted'
                         }`}
                       />
                     ))}
@@ -208,7 +222,7 @@ export default function ResetPassword() {
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar Senha</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -224,23 +238,33 @@ export default function ResetPassword() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
 
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <div className="text-xs text-muted-foreground space-y-1">
+            <div className="space-y-1 text-xs text-muted-foreground">
               <p>A senha deve conter:</p>
-              <ul className="list-disc list-inside space-y-0.5">
-                <li className={password.length >= 8 ? 'text-green-600' : ''}>Mínimo 8 caracteres</li>
-                <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>Uma letra maiúscula</li>
-                <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>Uma letra minúscula</li>
+              <ul className="list-inside list-disc space-y-0.5">
+                <li className={password.length >= 8 ? 'text-green-600' : ''}>
+                  Mínimo 8 caracteres
+                </li>
+                <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>
+                  Uma letra maiúscula
+                </li>
+                <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>
+                  Uma letra minúscula
+                </li>
                 <li className={/\d/.test(password) ? 'text-green-600' : ''}>Um número</li>
-                <li className={/[^A-Za-z\d]/.test(password) ? 'text-green-600' : ''}>Um caractere especial</li>
+                <li className={/[^A-Za-z\d]/.test(password) ? 'text-green-600' : ''}>
+                  Um caractere especial
+                </li>
               </ul>
             </div>
           </CardContent>
@@ -248,7 +272,7 @@ export default function ResetPassword() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Alterando senha...
                 </>
               ) : (

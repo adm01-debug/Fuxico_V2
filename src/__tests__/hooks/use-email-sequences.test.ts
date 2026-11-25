@@ -23,7 +23,9 @@ describe('useEmailSequences - enrollment logic', () => {
     // The fix uses supabase.rpc('increment_sequence_enrolled')
     // This test validates the atomic pattern concept
     let counter = 0;
-    const atomicIncrement = () => { counter += 1; };
+    const atomicIncrement = () => {
+      counter += 1;
+    };
     atomicIncrement();
     atomicIncrement();
     expect(counter).toBe(2);

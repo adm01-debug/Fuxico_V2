@@ -12,7 +12,7 @@ const INJECTION_PATTERNS = [
 ];
 
 function detectPromptInjection(input: string): boolean {
-  return INJECTION_PATTERNS.some(p => p.test(input));
+  return INJECTION_PATTERNS.some((p) => p.test(input));
 }
 
 function sanitizeLlmInput(input: string): string {

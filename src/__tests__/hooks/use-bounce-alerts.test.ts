@@ -8,10 +8,10 @@ describe('useBounceAlerts - batch alert checking', () => {
       { domain: 'risky.com', bounce_rate: 0.25 },
     ];
     const warningThreshold = 0.1;
-    const alertDomains = domains.filter(d => d.bounce_rate >= warningThreshold);
+    const alertDomains = domains.filter((d) => d.bounce_rate >= warningThreshold);
     expect(alertDomains).toHaveLength(2);
-    expect(alertDomains.map(d => d.domain)).toContain('example.com');
-    expect(alertDomains.map(d => d.domain)).toContain('risky.com');
+    expect(alertDomains.map((d) => d.domain)).toContain('example.com');
+    expect(alertDomains.map((d) => d.domain)).toContain('risky.com');
   });
 
   it('should not create duplicate alerts for existing unresolved domains', () => {

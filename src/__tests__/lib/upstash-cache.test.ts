@@ -4,8 +4,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 // Sem isso, o Vite tenta resolver o módulo em tempo de transform e falha.
 vi.mock('@upstash/redis', () => {
   class Redis {
-    async get(_k: string) { return 'mocked-value'; }
-    async set(_k: string, _v: unknown, _opts?: unknown) { /* noop */ }
+    async get(_k: string) {
+      return 'mocked-value';
+    }
+    async set(_k: string, _v: unknown, _opts?: unknown) {
+      /* noop */
+    }
   }
   return { Redis };
 });

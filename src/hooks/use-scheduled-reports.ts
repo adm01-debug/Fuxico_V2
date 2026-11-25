@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
-import { requireUserId } from "@/lib/auth-guards";
+import { requireUserId } from '@/lib/auth-guards';
 
 export type ReportType = 'daily' | 'weekly' | 'monthly';
 export type ReportFormat = 'email' | 'pdf' | 'csv';
@@ -59,19 +59,23 @@ export function useScheduledReports() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: reports = [], isLoading, error } = useQuery({
+  const {
+    data: reports = [],
+    isLoading,
+    error,
+  } = useQuery({
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     queryKey: ['scheduled-reports', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('scheduled_reports')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       return data as ScheduledReport[];
     },
@@ -81,9 +85,9 @@ export function useScheduledReports() {
   const createReport = useMutation({
     mutationFn: async (reportData: CreateReportData) => {
       if (!user?.id) throw new Error('Usuário não autenticado');
-      
+
       const nextSend = calculateNextSend(reportData.report_type);
-      
+
       const { data, error } = await supabase
         .from('scheduled_reports')
         .insert({
@@ -97,7 +101,7 @@ export function useScheduledReports() {
         })
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
@@ -113,12 +117,12 @@ export function useScheduledReports() {
   const updateReport = useMutation({
     mutationFn: async ({ id, ...updateData }: UpdateReportData) => {
       const update: Record<string, unknown> = { ...updateData };
-      
+
       // Recalculate next send if type changes
       if (updateData.report_type) {
         update.next_send_at = calculateNextSend(updateData.report_type);
       }
-      
+
       // SECURITY: Verify ownership with user_id filter
       const { data, error } = await supabase
         .from('scheduled_reports')
@@ -127,7 +131,7 @@ export function useScheduledReports() {
         .eq('user_id', requireUserId(user))
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
@@ -148,7 +152,7 @@ export function useScheduledReports() {
         .delete()
         .eq('id', id)
         .eq('user_id', requireUserId(user));
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -168,7 +172,7 @@ export function useScheduledReports() {
         .update({ enabled })
         .eq('id', id)
         .eq('user_id', requireUserId(user));
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -186,7 +190,7 @@ export function useScheduledReports() {
       const emailRegex = /^[^\s@]{1,64}@[^\s@.]{1,63}(?:\.[^\s@.]{1,63}){1,4}$/;
       if (!emailRegex.test(email)) throw new Error('Formato de email inválido');
 
-      const report = reports.find(r => r.id === id);
+      const report = reports.find((r) => r.id === id);
       if (!report) throw new Error('Relatório não encontrado');
 
       // Prevent duplicate recipients
@@ -198,7 +202,7 @@ export function useScheduledReports() {
         .update({ recipients: [...report.recipients, email] })
         .eq('id', id)
         .eq('user_id', requireUserId(user));
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -212,14 +216,14 @@ export function useScheduledReports() {
 
   const removeRecipient = useMutation({
     mutationFn: async ({ id, email }: { id: string; email: string }) => {
-      const report = reports.find(r => r.id === id);
+      const report = reports.find((r) => r.id === id);
       if (!report) throw new Error('Relatório não encontrado');
-      
+
       const { error } = await supabase
         .from('scheduled_reports')
-        .update({ recipients: report.recipients.filter(e => e !== email) })
+        .update({ recipients: report.recipients.filter((e) => e !== email) })
         .eq('id', id);
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -242,4 +246,3 @@ export function useScheduledReports() {
     removeRecipient,
   };
 }
-

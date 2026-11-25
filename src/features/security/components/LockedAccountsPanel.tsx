@@ -4,8 +4,25 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Lock, Unlock, Search, RefreshCw, AlertTriangle, Clock, Shield } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -28,7 +45,11 @@ export function LockedAccountsPanel() {
   const queryClient = useQueryClient();
 
   // Fetch all locked accounts
-  const { data: lockouts, isLoading, refetch } = useQuery({
+  const {
+    data: lockouts,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['login-lockouts'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -57,18 +78,20 @@ export function LockedAccountsPanel() {
   });
 
   // Filter lockouts
-  const filteredLockouts = lockouts?.filter(lockout =>
-    lockout.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lockout.ip_address?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredLockouts =
+    lockouts?.filter(
+      (lockout) =>
+        lockout.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lockout.ip_address?.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
   // Separate active lockouts from history
   const now = new Date();
-  const activeLockouts = filteredLockouts.filter(l => 
-    l.lockout_until && new Date(l.lockout_until) > now
+  const activeLockouts = filteredLockouts.filter(
+    (l) => l.lockout_until && new Date(l.lockout_until) > now
   );
-  const historicalLockouts = filteredLockouts.filter(l => 
-    !l.lockout_until || new Date(l.lockout_until) <= now
+  const historicalLockouts = filteredLockouts.filter(
+    (l) => !l.lockout_until || new Date(l.lockout_until) <= now
   );
 
   const getTimeRemaining = (lockoutUntil: string) => {
@@ -91,7 +114,7 @@ export function LockedAccountsPanel() {
             </CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Atualizar
           </Button>
         </div>
@@ -99,7 +122,7 @@ export function LockedAccountsPanel() {
       <CardContent className="space-y-4">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar por email ou IP..."
             value={searchTerm}
@@ -110,15 +133,15 @@ export function LockedAccountsPanel() {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-destructive/10 rounded-lg p-4 text-center">
+          <div className="rounded-lg bg-destructive/10 p-4 text-center">
             <div className="text-2xl font-bold text-destructive">{activeLockouts.length}</div>
             <div className="text-sm text-muted-foreground">Bloqueados Agora</div>
           </div>
-          <div className="bg-warning/10 rounded-lg p-4 text-center">
+          <div className="rounded-lg bg-warning/10 p-4 text-center">
             <div className="text-2xl font-bold text-warning">{historicalLockouts.length}</div>
             <div className="text-sm text-muted-foreground">Histórico</div>
           </div>
-          <div className="bg-muted rounded-lg p-4 text-center">
+          <div className="rounded-lg bg-muted p-4 text-center">
             <div className="text-2xl font-bold">{lockouts?.length || 0}</div>
             <div className="text-sm text-muted-foreground">Total</div>
           </div>
@@ -127,7 +150,7 @@ export function LockedAccountsPanel() {
         {/* Active Lockouts Section */}
         {activeLockouts.length > 0 && (
           <div className="space-y-2">
-            <h3 className="font-semibold flex items-center gap-2 text-destructive">
+            <h3 className="flex items-center gap-2 font-semibold text-destructive">
               <AlertTriangle className="h-4 w-4" />
               Contas Bloqueadas Ativamente ({activeLockouts.length})
             </h3>
@@ -162,7 +185,7 @@ export function LockedAccountsPanel() {
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="outline" size="sm">
-                              <Unlock className="h-4 w-4 mr-1" />
+                              <Unlock className="mr-1 h-4 w-4" />
                               Desbloquear
                             </Button>
                           </AlertDialogTrigger>
@@ -170,8 +193,9 @@ export function LockedAccountsPanel() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Desbloquear conta?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Você está prestes a desbloquear a conta <strong>{lockout.email}</strong>.
-                                Isso permitirá que o usuário tente fazer login novamente.
+                                Você está prestes a desbloquear a conta{' '}
+                                <strong>{lockout.email}</strong>. Isso permitirá que o usuário tente
+                                fazer login novamente.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -197,7 +221,7 @@ export function LockedAccountsPanel() {
         {/* Historical Lockouts Section */}
         {historicalLockouts.length > 0 && (
           <div className="space-y-2">
-            <h3 className="font-semibold flex items-center gap-2 text-muted-foreground">
+            <h3 className="flex items-center gap-2 font-semibold text-muted-foreground">
               <Shield className="h-4 w-4" />
               Histórico de Bloqueios ({historicalLockouts.length})
             </h3>
@@ -222,9 +246,11 @@ export function LockedAccountsPanel() {
                       <TableCell className="text-muted-foreground">
                         {lockout.ip_address || '-'}
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {lockout.last_failed_at 
-                          ? format(new Date(lockout.last_failed_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                      <TableCell className="text-sm text-muted-foreground">
+                        {lockout.last_failed_at
+                          ? format(new Date(lockout.last_failed_at), 'dd/MM/yyyy HH:mm', {
+                              locale: ptBR,
+                            })
                           : '-'}
                       </TableCell>
                       <TableCell>
@@ -241,15 +267,11 @@ export function LockedAccountsPanel() {
         )}
 
         {/* Empty State */}
-        {isLoading && (
-          <div className="text-center py-8 text-muted-foreground">
-            Carregando...
-          </div>
-        )}
-        
+        {isLoading && <div className="py-8 text-center text-muted-foreground">Carregando...</div>}
+
         {!isLoading && filteredLockouts.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <Lock className="h-12 w-12 mx-auto mb-3 opacity-50" />
+          <div className="py-8 text-center text-muted-foreground">
+            <Lock className="mx-auto mb-3 h-12 w-12 opacity-50" />
             <p>Nenhuma conta bloqueada encontrada</p>
           </div>
         )}

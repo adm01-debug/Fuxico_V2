@@ -1,65 +1,65 @@
-import React, { Suspense, lazy, useState, useCallback, useMemo, useEffect } from 'react'
-import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar'
-import { Button } from '@/components/ui/button'
-import { DashboardSidebar, type TabId } from './DashboardSidebar'
-import MobileBottomNav from './MobileBottomNav'
-import DashboardBreadcrumbs from './DashboardBreadcrumbs'
-import { JoyrideTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour'
-import { useOnboardingTour } from '@/hooks/use-onboarding-tour'
-import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
-import { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog'
-import { useKeyboardShortcutsDialog } from '@/hooks/use-keyboard-shortcuts-dialog'
-import { GlobalSearchDialog } from './GlobalSearchDialog'
-import { useGlobalSearch } from '@/hooks/use-global-search'
-import { CreateTrackingDialog } from './CreateTrackingDialog'
-import { NotificationCenter } from './NotificationCenter'
-import { ModeToggle } from '@/components/ui/mode-toggle'
-import { useIsMobile } from '@/hooks/use-media-query'
-import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
-import { useLocalStorage } from '@/hooks/use-local-storage'
-import { Keyboard, Plus, Search } from 'lucide-react'
-import { TooltipWrapper } from '@/components/ui/tooltip-wrapper'
-import { BackButton } from '@/components/ui/back-button'
-import { TopProgressBar } from '@/components/ui/top-progress-bar'
-import TabSkeleton from './TabSkeleton'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { Suspense, lazy, useState, useCallback, useMemo, useEffect } from 'react';
+import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { DashboardSidebar, type TabId } from './DashboardSidebar';
+import MobileBottomNav from './MobileBottomNav';
+import DashboardBreadcrumbs from './DashboardBreadcrumbs';
+import { JoyrideTour, TourTriggerButton, TourSelector } from '@/components/onboarding/JoyrideTour';
+import { useOnboardingTour } from '@/hooks/use-onboarding-tour';
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog';
+import { useKeyboardShortcutsDialog } from '@/hooks/use-keyboard-shortcuts-dialog';
+import { GlobalSearchDialog } from './GlobalSearchDialog';
+import { useGlobalSearch } from '@/hooks/use-global-search';
+import { CreateTrackingDialog } from './CreateTrackingDialog';
+import { NotificationCenter } from './NotificationCenter';
+import { ModeToggle } from '@/components/ui/mode-toggle';
+import { useIsMobile } from '@/hooks/use-media-query';
+import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { Keyboard, Plus, Search } from 'lucide-react';
+import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
+import { BackButton } from '@/components/ui/back-button';
+import { TopProgressBar } from '@/components/ui/top-progress-bar';
+import TabSkeleton from './TabSkeleton';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // =============================================================================
 // LAZY LOADING
 // =============================================================================
 
-const DashboardHome = lazy(() => import('@/components/dashboard/DashboardHome'))
-const EmailTable = lazy(() => import('@/components/dashboard/EmailTable'))
-const LinksTab = lazy(() => import('@/components/dashboard/LinksTab'))
-const DocumentsTab = lazy(() => import('@/components/dashboard/DocumentsTab'))
-const ReportsTab = lazy(() => import('@/components/dashboard/ReportsTab'))
-const TemplatesTab = lazy(() => import('@/components/dashboard/TemplatesTab'))
-const AuditTab = lazy(() => import('@/pages/AuditLogs'))
-const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'))
-const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'))
-const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'))
-const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'))
-const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'))
-const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab'))
-const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'))
-const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'))
-const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'))
-const SequencesTab = lazy(() => import('@/components/dashboard/SequencesTab'))
-const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTab'))
-const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab'))
-const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab'))
-const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab'))
-const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'))
-const TrendPredictionTab = lazy(() => import('@/components/dashboard/TrendPredictionTab'))
-const FeatureFlagsTab = lazy(() => import('@/components/dashboard/FeatureFlagsTab'))
+const DashboardHome = lazy(() => import('@/components/dashboard/DashboardHome'));
+const EmailTable = lazy(() => import('@/components/dashboard/EmailTable'));
+const LinksTab = lazy(() => import('@/components/dashboard/LinksTab'));
+const DocumentsTab = lazy(() => import('@/components/dashboard/DocumentsTab'));
+const ReportsTab = lazy(() => import('@/components/dashboard/ReportsTab'));
+const TemplatesTab = lazy(() => import('@/components/dashboard/TemplatesTab'));
+const AuditTab = lazy(() => import('@/pages/AuditLogs'));
+const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'));
+const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'));
+const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'));
+const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'));
+const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'));
+const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab'));
+const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'));
+const ABTestingTab = lazy(() => import('@/components/dashboard/ABTestingTab'));
+const UnsubscribeTab = lazy(() => import('@/components/dashboard/UnsubscribeTab'));
+const SequencesTab = lazy(() => import('@/components/dashboard/SequencesTab'));
+const GeoAnalyticsTab = lazy(() => import('@/components/dashboard/GeoAnalyticsTab'));
+const EmailSchedulingTab = lazy(() => import('@/components/dashboard/EmailSchedulingTab'));
+const DeliverabilityTab = lazy(() => import('@/components/dashboard/DeliverabilityTab'));
+const BounceAlertsTab = lazy(() => import('@/components/dashboard/BounceAlertsTab'));
+const NotificationHistoryTab = lazy(() => import('@/components/dashboard/NotificationHistoryTab'));
+const TrendPredictionTab = lazy(() => import('@/components/dashboard/TrendPredictionTab'));
+const FeatureFlagsTab = lazy(() => import('@/components/dashboard/FeatureFlagsTab'));
 // New feature tabs
-const RealtimeAnalyticsTab = lazy(() => import('@/components/dashboard/RealtimeAnalyticsTab'))
-const AISubjectOptimizerTab = lazy(() => import('@/components/dashboard/AISubjectOptimizerTab'))
-const PushNotificationsTab = lazy(() => import('@/components/dashboard/PushNotificationsTab'))
-const WhatsAppIntegrationTab = lazy(() => import('@/components/dashboard/WhatsAppIntegrationTab'))
-const BenchmarkReportsTab = lazy(() => import('@/components/dashboard/BenchmarkReportsTab'))
-const SmartSegmentationTab = lazy(() => import('@/components/dashboard/SmartSegmentationTab'))
-const TrackingHistoryTab = lazy(() => import('@/pages/TrackingAnalytics'))
+const RealtimeAnalyticsTab = lazy(() => import('@/components/dashboard/RealtimeAnalyticsTab'));
+const AISubjectOptimizerTab = lazy(() => import('@/components/dashboard/AISubjectOptimizerTab'));
+const PushNotificationsTab = lazy(() => import('@/components/dashboard/PushNotificationsTab'));
+const WhatsAppIntegrationTab = lazy(() => import('@/components/dashboard/WhatsAppIntegrationTab'));
+const BenchmarkReportsTab = lazy(() => import('@/components/dashboard/BenchmarkReportsTab'));
+const SmartSegmentationTab = lazy(() => import('@/components/dashboard/SmartSegmentationTab'));
+const TrackingHistoryTab = lazy(() => import('@/pages/TrackingAnalytics'));
 
 // =============================================================================
 // MAPEAMENTO DE COMPONENTES
@@ -101,7 +101,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   benchmark: BenchmarkReportsTab,
   segmentation: SmartSegmentationTab,
   tracking_history: TrackingHistoryTab,
-}
+};
 
 const TAB_LABELS: Record<TabId, string> = {
   home: 'Início',
@@ -138,13 +138,15 @@ const TAB_LABELS: Record<TabId, string> = {
   benchmark: 'Benchmark',
   segmentation: 'Segmentação',
   tracking_history: 'Histórico de Tracking',
-}
+};
 
 // =============================================================================
 // SKELETON VARIANTS PER TAB
 // =============================================================================
 
-const TAB_SKELETON_VARIANTS: Partial<Record<TabId, 'table' | 'metrics' | 'chart' | 'form' | 'activity' | 'dashboard'>> = {
+const TAB_SKELETON_VARIANTS: Partial<
+  Record<TabId, 'table' | 'metrics' | 'chart' | 'form' | 'activity' | 'dashboard'>
+> = {
   home: 'dashboard',
   emails: 'table',
   links: 'table',
@@ -179,7 +181,7 @@ const TAB_SKELETON_VARIANTS: Partial<Record<TabId, 'table' | 'metrics' | 'chart'
   benchmark: 'chart',
   segmentation: 'table',
   tracking_history: 'table',
-}
+};
 
 // =============================================================================
 // COMPONENTE PRINCIPAL
@@ -193,111 +195,116 @@ const TAB_TO_TOUR_MAP: Partial<Record<TabId, string>> = {
   leads: 'leads',
   emails: 'emails',
   geo: 'geo',
-}
+};
 
 export default function DashboardLayout() {
-  const [activeTab, setActiveTab] = useState<TabId>('home')
-  const [tabHistory, setTabHistory] = useState<TabId[]>(['home'])
-  const [showCreateTracking, setShowCreateTracking] = useState(false)
-  const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } = useOnboardingTour()
-  const { open: shortcutsOpen, setOpen: setShortcutsOpen } = useKeyboardShortcutsDialog()
-  const { open: searchOpen, setOpen: setSearchOpen } = useGlobalSearch()
-  const isMobile = useIsMobile()
-  const [hasSeenWizard, setHasSeenWizard] = useLocalStorage('fuxico-wizard-completed', false)
-  const [showWizard, setShowWizard] = useState(false)
+  const [activeTab, setActiveTab] = useState<TabId>('home');
+  const [tabHistory, setTabHistory] = useState<TabId[]>(['home']);
+  const [showCreateTracking, setShowCreateTracking] = useState(false);
+  const { tourState, setTourState, startTour, completeTour, hasCompletedTour, completedTours } =
+    useOnboardingTour();
+  const { open: shortcutsOpen, setOpen: setShortcutsOpen } = useKeyboardShortcutsDialog();
+  const { open: searchOpen, setOpen: setSearchOpen } = useGlobalSearch();
+  const isMobile = useIsMobile();
+  const [hasSeenWizard, setHasSeenWizard] = useLocalStorage('fuxico-wizard-completed', false);
+  const [showWizard, setShowWizard] = useState(false);
 
   // Show wizard for first-time users
   useEffect(() => {
     if (!hasSeenWizard) {
       // Delay to let UI settle
-      const timer = setTimeout(() => setShowWizard(true), 500)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => setShowWizard(true), 500);
+      return () => clearTimeout(timer);
     }
-  }, [hasSeenWizard])
+  }, [hasSeenWizard]);
 
   const handleWizardComplete = useCallback(() => {
-    setHasSeenWizard(true)
-    setShowWizard(false)
-  }, [setHasSeenWizard])
+    setHasSeenWizard(true);
+    setShowWizard(false);
+  }, [setHasSeenWizard]);
 
   const handleWizardSkip = useCallback(() => {
-    setHasSeenWizard(true)
-    setShowWizard(false)
-  }, [setHasSeenWizard])
+    setHasSeenWizard(true);
+    setShowWizard(false);
+  }, [setHasSeenWizard]);
 
   // Mapa de tab para tour correspondente
 
   // Handle tab change with transition animation
-  const handleTabChange = useCallback((value: TabId) => {
-    if (value === activeTab) return
-    setTabHistory(prev => [...prev, value])
-    setActiveTab(value)
-  }, [activeTab])
+  const handleTabChange = useCallback(
+    (value: TabId) => {
+      if (value === activeTab) return;
+      setTabHistory((prev) => [...prev, value]);
+      setActiveTab(value);
+    },
+    [activeTab]
+  );
 
   const handleBack = useCallback(() => {
-    if (tabHistory.length <= 1) return
-    
-    const newHistory = [...tabHistory]
-    newHistory.pop() // Remove current
-    const prevTab = newHistory[newHistory.length - 1]
-    
-    setTabHistory(newHistory)
-    setActiveTab(prevTab)
-  }, [tabHistory])
+    if (tabHistory.length <= 1) return;
+
+    const newHistory = [...tabHistory];
+    newHistory.pop(); // Remove current
+    const prevTab = newHistory[newHistory.length - 1];
+
+    setTabHistory(newHistory);
+    setActiveTab(prevTab);
+  }, [tabHistory]);
 
   // Keyboard shortcuts for navigation
-  const keyboardBindings = useMemo(() => ({
-    'alt+h': () => setActiveTab('home'),
-    'alt+e': () => setActiveTab('emails'),
-    'alt+a': () => setActiveTab('analytics'),
-    'alt+l': () => setActiveTab('leads'),
-    'alt+s': () => setActiveTab('config'),
-    'alt+n': () => setShowCreateTracking(true),
-    'escape': () => handleBack(),
-  }), [handleBack])
+  const keyboardBindings = useMemo(
+    () => ({
+      'alt+h': () => setActiveTab('home'),
+      'alt+e': () => setActiveTab('emails'),
+      'alt+a': () => setActiveTab('analytics'),
+      'alt+l': () => setActiveTab('leads'),
+      'alt+s': () => setActiveTab('config'),
+      'alt+n': () => setShowCreateTracking(true),
+      escape: () => handleBack(),
+    }),
+    [handleBack]
+  );
 
-  useKeyboardNavigation(keyboardBindings)
+  useKeyboardNavigation(keyboardBindings);
 
   // Handle create tracking modal
   const handleCreateTracking = useCallback(() => {
-    setShowCreateTracking(true)
-  }, [])
+    setShowCreateTracking(true);
+  }, []);
 
   // Função para iniciar tour específico da tab atual
   const handleStartModuleTour = useCallback(() => {
-    const tourId = TAB_TO_TOUR_MAP[activeTab]
+    const tourId = TAB_TO_TOUR_MAP[activeTab];
     if (tourId) {
-      startTour(tourId)
+      startTour(tourId);
     } else {
-      startTour('dashboard')
+      startTour('dashboard');
     }
-  }, [activeTab, startTour])
+  }, [activeTab, startTour]);
 
   // Verificar se a tab atual tem um tour
-  const currentTabHasTour = !!TAB_TO_TOUR_MAP[activeTab]
-  const currentTourId = TAB_TO_TOUR_MAP[activeTab] || 'dashboard'
+  const currentTabHasTour = !!TAB_TO_TOUR_MAP[activeTab];
+  const currentTourId = TAB_TO_TOUR_MAP[activeTab] || 'dashboard';
 
   // Renderizar componente ativo
-  const ActiveComponent = TAB_COMPONENTS[activeTab]
+  const ActiveComponent = TAB_COMPONENTS[activeTab];
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex min-h-screen w-full">
         <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
-        
+
         <SidebarInset role="main" aria-label="Conteúdo Principal" className="flex-1">
           <TopProgressBar key={activeTab} />
           {/* Header */}
           <header className="sticky top-0 z-10 flex flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6">
-              <SidebarTrigger className="md:hidden h-10 w-10 shrink-0" />
-              
-              {activeTab !== 'home' && (
-                <BackButton onClick={handleBack} />
-              )}
-              
-              <div className="flex-1 min-w-0">
-                <h1 className="text-base sm:text-lg font-semibold lg:text-xl truncate">
+            <div className="flex h-14 items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-4 lg:px-6">
+              <SidebarTrigger className="h-10 w-10 shrink-0 md:hidden" />
+
+              {activeTab !== 'home' && <BackButton onClick={handleBack} />}
+
+              <div className="min-w-0 flex-1">
+                <h1 className="truncate text-base font-semibold sm:text-lg lg:text-xl">
                   {TAB_LABELS[activeTab]}
                 </h1>
               </div>
@@ -305,22 +312,24 @@ export default function DashboardLayout() {
               <div className="flex items-center gap-1 sm:gap-2">
                 {/* Global Search Button - Desktop */}
                 <TooltipWrapper content="Busca global" shortcut="Alt+F">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
-                    className="gap-2 text-muted-foreground hover:text-foreground w-[140px] lg:w-[180px] justify-start hidden md:flex"
+                    className="hidden w-[140px] justify-start gap-2 text-muted-foreground hover:text-foreground md:flex lg:w-[180px]"
                     onClick={() => setSearchOpen(true)}
                   >
                     <Search className="h-4 w-4 flex-shrink-0" />
-                    <span className="text-sm truncate">Buscar...</span>
-                    <kbd className="ml-auto text-[10px] bg-muted px-1.5 py-0.5 rounded hidden lg:inline">Alt+F</kbd>
+                    <span className="truncate text-sm">Buscar...</span>
+                    <kbd className="ml-auto hidden rounded bg-muted px-1.5 py-0.5 text-[10px] lg:inline">
+                      Alt+F
+                    </kbd>
                   </Button>
                 </TooltipWrapper>
-                
+
                 {/* Mobile Search Button */}
                 <TooltipWrapper content="Busca global" shortcut="Alt+F">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="icon"
                     className="h-10 w-10 md:hidden"
                     onClick={() => setSearchOpen(true)}
@@ -331,9 +340,9 @@ export default function DashboardLayout() {
 
                 {/* Create Tracking Button */}
                 <TooltipWrapper content="Novo rastreamento" shortcut="Alt+N">
-                  <Button 
-                    size="sm" 
-                    className="gap-1.5 h-10 w-10 sm:w-auto sm:h-10 px-0 sm:px-3"
+                  <Button
+                    size="sm"
+                    className="h-10 w-10 gap-1.5 px-0 sm:h-10 sm:w-auto sm:px-3"
                     onClick={() => setShowCreateTracking(true)}
                   >
                     <Plus className="h-5 w-5" />
@@ -349,10 +358,10 @@ export default function DashboardLayout() {
 
                 {/* Keyboard Shortcuts Button - Hidden on small mobile */}
                 <TooltipWrapper content="Atalhos de teclado" shortcut="?">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-10 w-10 hidden sm:flex"
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hidden h-10 w-10 sm:flex"
                     onClick={() => setShortcutsOpen(true)}
                   >
                     <Keyboard className="h-5 w-5" />
@@ -360,26 +369,23 @@ export default function DashboardLayout() {
                 </TooltipWrapper>
 
                 {/* Tour buttons - Hidden on mobile */}
-                <div className="hidden sm:flex items-center gap-1">
+                <div className="hidden items-center gap-1 sm:flex">
                   {currentTabHasTour && (
                     <TourTriggerButton
                       onClick={handleStartModuleTour}
                       hasCompleted={hasCompletedTour(currentTourId)}
                     />
                   )}
-                  <TourSelector
-                    onStartTour={startTour}
-                    completedTours={completedTours}
-                  />
+                  <TourSelector onStartTour={startTour} completedTours={completedTours} />
                 </div>
               </div>
             </div>
-            
+
             {/* Breadcrumbs - responsive */}
             {activeTab !== 'home' && (
-              <div className="px-3 sm:px-4 lg:px-6 pb-2">
-                <DashboardBreadcrumbs 
-                  activeTab={activeTab} 
+              <div className="px-3 pb-2 sm:px-4 lg:px-6">
+                <DashboardBreadcrumbs
+                  activeTab={activeTab}
                   onNavigate={handleTabChange}
                   className="text-xs sm:text-sm"
                 />
@@ -388,20 +394,22 @@ export default function DashboardLayout() {
           </header>
 
           {/* Main Content with Tab Transition */}
-          <main className="flex-1 p-4 lg:p-6 xl:p-8 pb-20 md:pb-8 overflow-x-hidden">
+          <main className="flex-1 overflow-x-hidden p-4 pb-20 md:pb-8 lg:p-6 xl:p-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, x: 10, y: 0 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 exit={{ opacity: 0, x: -10, y: 0 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
                 className="w-full"
               >
-                <Suspense fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}>
+                <Suspense
+                  fallback={<TabSkeleton variant={TAB_SKELETON_VARIANTS[activeTab] || 'table'} />}
+                >
                   {activeTab === 'home' ? (
-                    <ActiveComponent 
-                      onNavigate={handleTabChange} 
+                    <ActiveComponent
+                      onNavigate={handleTabChange}
                       onCreateTracking={handleCreateTracking}
                     />
                   ) : (
@@ -418,25 +426,15 @@ export default function DashboardLayout() {
       </div>
 
       {/* Componente do Tour */}
-      <JoyrideTour
-        tourState={tourState}
-        setTourState={setTourState}
-        onComplete={completeTour}
-      />
+      <JoyrideTour tourState={tourState} setTourState={setTourState} onComplete={completeTour} />
 
       {/* Onboarding Wizard for first-time users */}
       {showWizard && (
-        <OnboardingWizard 
-          onComplete={handleWizardComplete}
-          onSkip={handleWizardSkip}
-        />
+        <OnboardingWizard onComplete={handleWizardComplete} onSkip={handleWizardSkip} />
       )}
 
       {/* Keyboard Shortcuts Dialog */}
-      <KeyboardShortcutsDialog 
-        open={shortcutsOpen} 
-        onOpenChange={setShortcutsOpen} 
-      />
+      <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
 
       {/* Global Search Dialog */}
       <GlobalSearchDialog
@@ -448,11 +446,11 @@ export default function DashboardLayout() {
       />
 
       {/* Create Tracking Dialog - Controlled mode */}
-      <CreateTrackingDialog 
+      <CreateTrackingDialog
         open={showCreateTracking}
         onOpenChange={setShowCreateTracking}
         trigger={null}
       />
     </SidebarProvider>
-  )
+  );
 }

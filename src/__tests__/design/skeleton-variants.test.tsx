@@ -85,7 +85,8 @@ describe('MetricsSkeleton', () => {
     // jsdom doesn't always propagate React style props to querySelectorAll
     // Verify the pattern exists in source code instead
     const sourceCode = require('fs').readFileSync(
-      require('path').resolve(__dirname, '../../components/dashboard/TabSkeleton.tsx'), 'utf-8'
+      require('path').resolve(__dirname, '../../components/dashboard/TabSkeleton.tsx'),
+      'utf-8'
     );
     expect(sourceCode).toContain('animationDelay');
   });
@@ -99,7 +100,8 @@ describe('ChartSkeleton', () => {
 
   it('renders chart header with title and controls', () => {
     const { container } = render(<ChartSkeleton />);
-    const header = container.querySelector('[class*="CardHeader"]') || container.children[0]?.children[0];
+    const header =
+      container.querySelector('[class*="CardHeader"]') || container.children[0]?.children[0];
     expect(header).toBeTruthy();
   });
 
@@ -113,7 +115,7 @@ describe('ChartSkeleton', () => {
     const { container } = render(<ChartSkeleton />);
     const bars = container.querySelectorAll('.rounded-t');
     const heights = new Set<string>();
-    bars.forEach(bar => {
+    bars.forEach((bar) => {
       const style = (bar as HTMLElement).style.height;
       if (style) heights.add(style);
     });

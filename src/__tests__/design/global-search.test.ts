@@ -20,34 +20,64 @@ const searchHookContent = fs.readFileSync(
 
 describe('GlobalSearchDialog - Navigation Items', () => {
   const requiredTabs = [
-    'home', 'emails', 'links', 'documents', 'scheduling',
-    'reports', 'analytics', 'realtime', 'geo', 'trends', 'benchmark',
-    'ai-optimizer', 'leads', 'segmentation', 'followup', 'sequences',
-    'campaigns', 'abtesting', 'unsubscribe', 'deliverability',
-    'bouncealerts', 'push-notifications', 'notifications',
-    'templates', 'featureflags', 'audit', 'users', 'config',
-    'integrations', 'bitrix', 'whatsapp', 'webhooks',
+    'home',
+    'emails',
+    'links',
+    'documents',
+    'scheduling',
+    'reports',
+    'analytics',
+    'realtime',
+    'geo',
+    'trends',
+    'benchmark',
+    'ai-optimizer',
+    'leads',
+    'segmentation',
+    'followup',
+    'sequences',
+    'campaigns',
+    'abtesting',
+    'unsubscribe',
+    'deliverability',
+    'bouncealerts',
+    'push-notifications',
+    'notifications',
+    'templates',
+    'featureflags',
+    'audit',
+    'users',
+    'config',
+    'integrations',
+    'bitrix',
+    'whatsapp',
+    'webhooks',
   ];
 
-  requiredTabs.forEach(tab => {
+  requiredTabs.forEach((tab) => {
     it(`should include navigation item for tab '${tab}'`, () => {
       expect(searchDialogContent).toContain(`id: '${tab}'`);
     });
   });
 
   it('should have 30+ navigation items', () => {
-    const matches = searchDialogContent.match(/\{ id: '/g);
+    const matches = searchDialogContent.match(/\bid:\s*'[a-zA-Z0-9-]+'/g);
     expect(matches?.length).toBeGreaterThanOrEqual(30);
   });
 });
 
 describe('GlobalSearchDialog - Categories', () => {
   const requiredCategories = [
-    'Visão Geral', 'Rastreamento', 'Analytics', 'Engajamento',
-    'Entregabilidade', 'Administração', 'Integrações',
+    'Visão Geral',
+    'Rastreamento',
+    'Analytics',
+    'Engajamento',
+    'Entregabilidade',
+    'Administração',
+    'Integrações',
   ];
 
-  requiredCategories.forEach(category => {
+  requiredCategories.forEach((category) => {
     it(`should define category '${category}'`, () => {
       expect(searchDialogContent).toContain(`category: '${category}'`);
     });
@@ -56,13 +86,25 @@ describe('GlobalSearchDialog - Categories', () => {
 
 describe('GlobalSearchDialog - Labels', () => {
   const requiredLabels = [
-    'Início', 'Emails Rastreados', 'Links Rastreados', 'Documentos',
-    'Relatórios', 'Tempo Real', 'Geo Analytics', 'Tendências',
-    'Lead Scoring', 'Follow-up', 'Sequências', 'Campanhas',
-    'Teste A/B', 'Reputação', 'Auditoria', 'Webhooks',
+    'Início',
+    'Emails Rastreados',
+    'Links Rastreados',
+    'Documentos',
+    'Relatórios',
+    'Tempo Real',
+    'Geo Analytics',
+    'Tendências',
+    'Lead Scoring',
+    'Follow-up',
+    'Sequências',
+    'Campanhas',
+    'Teste A/B',
+    'Reputação',
+    'Auditoria',
+    'Webhooks',
   ];
 
-  requiredLabels.forEach(label => {
+  requiredLabels.forEach((label) => {
     it(`should have label '${label}'`, () => {
       expect(searchDialogContent).toContain(`label: '${label}'`);
     });
@@ -71,13 +113,32 @@ describe('GlobalSearchDialog - Labels', () => {
 
 describe('GlobalSearchDialog - Keywords', () => {
   const keywordSamples = [
-    'dashboard', 'email', 'tracking', 'link', 'url', 'documento',
-    'analytics', 'realtime', 'geo', 'tendencia', 'lead', 'automacao',
-    'campanha', 'webhook', 'template', 'auditoria', 'whatsapp',
-    'bitrix', 'crm', 'segmento', 'bounce', 'push', 'notificacao',
+    'dashboard',
+    'email',
+    'tracking',
+    'link',
+    'url',
+    'documento',
+    'analytics',
+    'realtime',
+    'geo',
+    'tendencia',
+    'lead',
+    'automacao',
+    'campanha',
+    'webhook',
+    'template',
+    'auditoria',
+    'whatsapp',
+    'bitrix',
+    'crm',
+    'segmento',
+    'bounce',
+    'push',
+    'notificacao',
   ];
 
-  keywordSamples.forEach(keyword => {
+  keywordSamples.forEach((keyword) => {
     it(`should include keyword '${keyword}'`, () => {
       expect(searchDialogContent).toContain(`'${keyword}'`);
     });
@@ -104,7 +165,7 @@ describe('GlobalSearchDialog - Keyboard Shortcuts', () => {
   });
 
   it('should support Cmd/Ctrl+K shortcut', () => {
-    expect(searchHookContent).toContain("e.metaKey || e.ctrlKey");
+    expect(searchHookContent).toContain('e.metaKey || e.ctrlKey');
     expect(searchHookContent).toContain("e.key.toLowerCase() === 'k'");
   });
 });
@@ -153,12 +214,27 @@ describe('GlobalSearchDialog - UI Elements', () => {
 
 describe('GlobalSearchDialog - Icons', () => {
   const requiredIcons = [
-    'Home', 'Mail', 'Link2', 'FileText', 'BarChart3', 'Calendar',
-    'MapPin', 'Zap', 'Target', 'Users', 'MessageSquare', 'Layout',
-    'UserMinus', 'Shield', 'Bell', 'Settings', 'Globe', 'Webhook',
+    'Home',
+    'Mail',
+    'Link2',
+    'FileText',
+    'BarChart3',
+    'Calendar',
+    'MapPin',
+    'Zap',
+    'Target',
+    'Users',
+    'MessageSquare',
+    'Layout',
+    'UserMinus',
+    'Shield',
+    'Bell',
+    'Settings',
+    'Globe',
+    'Webhook',
   ];
 
-  requiredIcons.forEach(icon => {
+  requiredIcons.forEach((icon) => {
     it(`should import ${icon} icon`, () => {
       expect(searchDialogContent).toContain(icon);
     });

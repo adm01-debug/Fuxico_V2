@@ -31,11 +31,12 @@ describe('Toaster Component', () => {
   });
 
   it('should render icon based on variant', () => {
-    expect(toasterContent).toContain("variant === \"destructive\"");
+    expect(toasterContent).toMatch(/variant\s*===\s*['"]destructive['"]/);
   });
 
   it('should render icon with proper spacing', () => {
-    expect(toasterContent).toContain('flex gap-3');
+    expect(toasterContent).toContain('flex');
+    expect(toasterContent).toContain('gap-3');
   });
 
   it('should include ToastClose button', () => {

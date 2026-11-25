@@ -1,14 +1,14 @@
 /**
  * Hook para insights gerados por IA
- * 
+ *
  * @description Este hook fornece funcionalidades para hook para insights gerados por ia.
  * Inclui gerenciamento de estado, cache e tratamento de erros.
- * 
+ *
  * @example
  * ```tsx
  * const { data, isLoading, error } = useaiinsights();
  * ```
- * 
+ *
  * @returns Object contendo data, isLoading, error e funções auxiliares
  */
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -34,8 +34,10 @@ export function useAIInsights() {
   return useQuery({
     queryKey: ['ai-insights', user?.id],
     queryFn: async (): Promise<InsightsData> => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
@@ -46,7 +48,7 @@ export function useAIInsights() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
         }
       );
@@ -69,8 +71,10 @@ export function useRefreshInsights() {
 
   return useMutation({
     mutationFn: async (): Promise<InsightsData> => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
@@ -81,7 +85,7 @@ export function useRefreshInsights() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
         }
       );

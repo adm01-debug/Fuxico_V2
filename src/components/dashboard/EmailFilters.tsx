@@ -1,5 +1,13 @@
 import { memo, useState, useEffect } from 'react';
-import { Search, X, Calendar, Eye, MousePointerClick, ArrowUpDown, ChevronDown } from 'lucide-react';
+import {
+  Search,
+  X,
+  Calendar,
+  Eye,
+  MousePointerClick,
+  ArrowUpDown,
+  ChevronDown,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,11 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +34,6 @@ import { defaultFilters, type EmailFilters as EmailFiltersState } from '@/hooks/
 
 export type { EmailFiltersState };
 
-
 /** Rótulo compacto do intervalo customizado ("dd/MM - dd/MM"). */
 function formatCustomRangeLabel(range: EmailFiltersState['dateRange']): string {
   if (!range.from) return '';
@@ -42,12 +45,11 @@ function formatCustomRangeLabel(range: EmailFiltersState['dateRange']): string {
 /** Alterna a direção quando a mesma coluna é reordenada; caso contrário, inicia em 'desc'. */
 function nextSortOrder(
   filters: EmailFiltersState,
-  nextSortBy: string,
+  nextSortBy: string
 ): EmailFiltersState['sortOrder'] {
   if (filters.sortBy !== nextSortBy) return 'desc';
   return filters.sortOrder === 'desc' ? 'asc' : 'desc';
 }
-
 
 interface EmailFiltersProps {
   filters: EmailFiltersState;
@@ -56,15 +58,14 @@ interface EmailFiltersProps {
   filteredCount: number;
 }
 
-
-function EmailFiltersBaseComponent({ 
-  filters, 
-  onFiltersChange, 
-  totalCount, 
-  filteredCount 
+function EmailFiltersBaseComponent({
+  filters,
+  onFiltersChange,
+  totalCount,
+  filteredCount,
 }: EmailFiltersProps) {
   const [searchValue, setSearchValue] = useState(filters.search);
-  
+
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -72,14 +73,14 @@ function EmailFiltersBaseComponent({
         onFiltersChange({ ...filters, search: searchValue });
       }
     }, 300);
-    
+
     return () => clearTimeout(timer);
     // `filters`/`onFiltersChange` são intencionalmente omitidos: o efeito deve
     // disparar apenas quando o texto digitado muda (debounce de busca).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
 
-  const hasActiveFilters = 
+  const hasActiveFilters =
     filters.search !== '' ||
     filters.status !== 'all' ||
     filters.period !== 'all' ||
@@ -93,8 +94,16 @@ function EmailFiltersBaseComponent({
   const statusOptions = [
     { value: 'all', label: 'Todos', icon: null },
     { value: 'opened', label: 'Abertos', icon: <Eye className="h-3 w-3 text-green-500" /> },
-    { value: 'not-opened', label: 'Não abertos', icon: <Eye className="h-3 w-3 text-muted-foreground" /> },
-    { value: 'clicked', label: 'Com cliques', icon: <MousePointerClick className="h-3 w-3 text-primary" /> },
+    {
+      value: 'not-opened',
+      label: 'Não abertos',
+      icon: <Eye className="h-3 w-3 text-muted-foreground" />,
+    },
+    {
+      value: 'clicked',
+      label: 'Com cliques',
+      icon: <MousePointerClick className="h-3 w-3 text-primary" />,
+    },
   ];
 
   const periodOptions = [
@@ -118,12 +127,12 @@ function EmailFiltersBaseComponent({
       <div className="flex flex-col gap-3">
         {/* Search input - Full width */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar por destinatário ou assunto..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="pl-9 pr-9 h-11"
+            className="h-11 pl-9 pr-9"
           />
           {searchValue && (
             <button
@@ -131,7 +140,7 @@ function EmailFiltersBaseComponent({
                 setSearchValue('');
                 onFiltersChange({ ...filters, search: '' });
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 min-h-[44px] min-w-[44px] flex items-center justify-center -mr-1"
+              className="absolute right-3 top-1/2 -mr-1 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center p-1 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </button>
@@ -139,17 +148,19 @@ function EmailFiltersBaseComponent({
         </div>
 
         {/* Filter row - Horizontal scroll on mobile */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mb-1 scrollbar-thin">
+        <div className="scrollbar-thin -mb-1 flex gap-2 overflow-x-auto pb-1">
           {/* Status filter */}
           <Select
             value={filters.status}
-            onValueChange={(value) => onFiltersChange({ ...filters, status: value as EmailFiltersState['status'] })}
+            onValueChange={(value) =>
+              onFiltersChange({ ...filters, status: value as EmailFiltersState['status'] })
+            }
           >
-            <SelectTrigger className="min-w-[130px] sm:w-[160px] h-10 shrink-0">
+            <SelectTrigger className="h-10 min-w-[130px] shrink-0 sm:w-[160px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              {statusOptions.map(option => (
+              {statusOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   <div className="flex items-center gap-2">
                     {option.icon}
@@ -163,37 +174,35 @@ function EmailFiltersBaseComponent({
           {/* Period filter */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button 
-                aria-label="Selecionar período" 
-                variant="outline" 
-                className="min-w-[140px] sm:w-[180px] h-10 justify-between shrink-0"
+              <Button
+                aria-label="Selecionar período"
+                variant="outline"
+                className="h-10 min-w-[140px] shrink-0 justify-between sm:w-[180px]"
               >
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 shrink-0" />
                   <span className="truncate text-sm">
                     {filters.period === 'custom' && filters.dateRange.from
                       ? formatCustomRangeLabel(filters.dateRange)
-                      : periodOptions.find(o => o.value === filters.period)?.label
-                    }
-
+                      : periodOptions.find((o) => o.value === filters.period)?.label}
                   </span>
                 </div>
-                <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <div className="p-2 space-y-1">
-                {periodOptions.map(option => (
+              <div className="space-y-1 p-2">
+                {periodOptions.map((option) => (
                   <Button
                     key={option.value}
-                    variant={filters.period === option.value ? "secondary" : "ghost"}
-                    className="w-full justify-start min-h-[44px]"
+                    variant={filters.period === option.value ? 'secondary' : 'ghost'}
+                    className="min-h-[44px] w-full justify-start"
                     onClick={() => {
                       if (option.value !== 'custom') {
-                        onFiltersChange({ 
-                          ...filters, 
+                        onFiltersChange({
+                          ...filters,
                           period: option.value as EmailFiltersState['period'],
-                          dateRange: { from: undefined, to: undefined }
+                          dateRange: { from: undefined, to: undefined },
                         });
                       } else {
                         onFiltersChange({ ...filters, period: 'custom' });
@@ -210,10 +219,12 @@ function EmailFiltersBaseComponent({
                   <CalendarComponent
                     mode="range"
                     selected={{ from: filters.dateRange.from, to: filters.dateRange.to }}
-                    onSelect={(range) => onFiltersChange({ 
-                      ...filters, 
-                      dateRange: { from: range?.from, to: range?.to }
-                    })}
+                    onSelect={(range) =>
+                      onFiltersChange({
+                        ...filters,
+                        dateRange: { from: range?.from, to: range?.to },
+                      })
+                    }
                     locale={ptBR}
                     numberOfMonths={1}
                     className="p-3"
@@ -226,7 +237,11 @@ function EmailFiltersBaseComponent({
           {/* Sort dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button aria-label="Ordenar resultados" variant="outline" className="h-10 shrink-0 px-3">
+              <Button
+                aria-label="Ordenar resultados"
+                variant="outline"
+                className="h-10 shrink-0 px-3"
+              >
                 <ArrowUpDown className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Ordenar</span>
               </Button>
@@ -234,15 +249,16 @@ function EmailFiltersBaseComponent({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {sortOptions.map(option => (
+              {sortOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.value}
-                  onClick={() => onFiltersChange({ 
-                    ...filters, 
-                    sortBy: option.value as EmailFiltersState['sortBy'],
-                    sortOrder: nextSortOrder(filters, option.value)
-
-                  })}
+                  onClick={() =>
+                    onFiltersChange({
+                      ...filters,
+                      sortBy: option.value as EmailFiltersState['sortBy'],
+                      sortOrder: nextSortOrder(filters, option.value),
+                    })
+                  }
                   className="min-h-[44px]"
                 >
                   <span className="flex-1">{option.label}</span>
@@ -259,77 +275,81 @@ function EmailFiltersBaseComponent({
       </div>
 
       {/* Active filters and results count - Stack on mobile */}
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2">
+      <div className="flex flex-col-reverse justify-between gap-2 sm:flex-row sm:items-center">
         {/* Active filter badges */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {hasActiveFilters && (
             <>
-              <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">Filtros:</span>
-              
+              <span className="hidden text-xs text-muted-foreground sm:inline sm:text-sm">
+                Filtros:
+              </span>
+
               {filters.search && (
-                <Badge variant="secondary" className="gap-1 text-xs max-w-[150px]">
+                <Badge variant="secondary" className="max-w-[150px] gap-1 text-xs">
                   <span className="truncate">"{filters.search}"</span>
-                  <button 
+                  <button
                     onClick={() => {
                       setSearchValue('');
                       onFiltersChange({ ...filters, search: '' });
                     }}
-                    className="p-0.5 hover:bg-background/50 rounded"
+                    className="rounded p-0.5 hover:bg-background/50"
                     aria-label="Remover filtro de busca"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
-              
+
               {filters.status !== 'all' && (
                 <Badge variant="secondary" className="gap-1 text-xs">
-                  {statusOptions.find(o => o.value === filters.status)?.label}
-                  <button 
+                  {statusOptions.find((o) => o.value === filters.status)?.label}
+                  <button
                     onClick={() => onFiltersChange({ ...filters, status: 'all' })}
-                    className="p-0.5 hover:bg-background/50 rounded"
+                    className="rounded p-0.5 hover:bg-background/50"
                     aria-label="Remover filtro de status"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
-              
+
               {filters.period !== 'all' && (
                 <Badge variant="secondary" className="gap-1 text-xs">
-                  {periodOptions.find(o => o.value === filters.period)?.label}
-                  <button 
-                    onClick={() => onFiltersChange({ 
-                      ...filters, 
-                      period: 'all',
-                      dateRange: { from: undefined, to: undefined }
-                    })}
-                    className="p-0.5 hover:bg-background/50 rounded"
+                  {periodOptions.find((o) => o.value === filters.period)?.label}
+                  <button
+                    onClick={() =>
+                      onFiltersChange({
+                        ...filters,
+                        period: 'all',
+                        dateRange: { from: undefined, to: undefined },
+                      })
+                    }
+                    className="rounded p-0.5 hover:bg-background/50"
                     aria-label="Remover filtro de período"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
-              
+
               {filters.minOpens > 0 && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   Min. {filters.minOpens}
-                  <button 
+                  <button
                     onClick={() => onFiltersChange({ ...filters, minOpens: 0 })}
-                    className="p-0.5 hover:bg-background/50 rounded"
+                    className="rounded p-0.5 hover:bg-background/50"
                     aria-label="Remover filtro de aberturas mínimas"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
-              
+
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={clearAllFilters}
-                className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
               >
                 Limpar
               </Button>
@@ -338,7 +358,7 @@ function EmailFiltersBaseComponent({
         </div>
 
         {/* Results count */}
-        <div className="text-xs sm:text-sm text-muted-foreground shrink-0">
+        <div className="shrink-0 text-xs text-muted-foreground sm:text-sm">
           {hasActiveFilters ? (
             <span>
               <strong>{filteredCount}</strong>/<strong>{totalCount}</strong> emails

@@ -1,6 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Trash2, CheckCircle2 } from 'lucide-react';
+import {
+  Monitor,
+  Smartphone,
+  Tablet,
+  Globe,
+  MapPin,
+  Clock,
+  Trash2,
+  CheckCircle2,
+} from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
@@ -8,7 +17,17 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface ActiveSessionsListProps {
   limit?: number;
@@ -29,11 +48,11 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
         .eq('user_id', user.id)
         .gt('expires_at', new Date().toISOString())
         .order('last_activity_at', { ascending: false });
-      
+
       if (limit) {
         query = query.limit(limit);
       }
-      
+
       const { data, error } = await query;
       if (error) throw error;
       return data || [];
@@ -94,7 +113,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
   const getDeviceName = (deviceInfo: DeviceInfo | null, userAgent: string | null) => {
     if (deviceInfo?.device_name) return deviceInfo.device_name;
     if (!userAgent) return 'Dispositivo desconhecido';
-    
+
     if (userAgent.includes('Windows')) return 'Windows PC';
     if (userAgent.includes('Mac')) return 'Mac';
     if (userAgent.includes('iPhone')) return 'iPhone';
@@ -116,7 +135,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
+          <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
             <Skeleton className="h-10 w-10 rounded-full" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-32" />
@@ -130,8 +149,8 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
 
   if (!sessions || sessions.length === 0) {
     return (
-      <div className="text-center py-6 text-muted-foreground">
-        <Monitor className="h-8 w-8 mx-auto mb-2 opacity-50" />
+      <div className="py-6 text-center text-muted-foreground">
+        <Monitor className="mx-auto mb-2 h-8 w-8 opacity-50" />
         <p>Nenhuma sessão ativa encontrada</p>
       </div>
     );
@@ -153,12 +172,16 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-lg">Encerrar outras sessões?</AlertDialogTitle>
                 <AlertDialogDescription className="text-sm">
-                  Isso irá desconectar todos os outros dispositivos da sua conta. Apenas esta sessão atual permanecerá ativa.
+                  Isso irá desconectar todos os outros dispositivos da sua conta. Apenas esta sessão
+                  atual permanecerá ativa.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
                 <AlertDialogCancel className="h-11 w-full sm:w-auto">Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={() => terminateAllOtherSessions.mutate()} className="h-11 w-full sm:w-auto">
+                <AlertDialogAction
+                  onClick={() => terminateAllOtherSessions.mutate()}
+                  className="h-11 w-full sm:w-auto"
+                >
                   Encerrar todas
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -176,54 +199,60 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
           return (
             <div
               key={s.id}
-              className={`flex items-start sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border ${
+              className={`flex items-start gap-2 rounded-lg border p-3 sm:items-center sm:gap-3 sm:p-4 ${
                 isCurrentSession ? 'border-primary bg-primary/5' : ''
               }`}
             >
-              <div className={`p-2 rounded-full shrink-0 ${isCurrentSession ? 'bg-primary/10' : 'bg-muted'}`}>
-                <DeviceIcon className={`h-4 w-4 sm:h-5 sm:w-5 ${isCurrentSession ? 'text-primary' : 'text-muted-foreground'}`} />
+              <div
+                className={`shrink-0 rounded-full p-2 ${isCurrentSession ? 'bg-primary/10' : 'bg-muted'}`}
+              >
+                <DeviceIcon
+                  className={`h-4 w-4 sm:h-5 sm:w-5 ${isCurrentSession ? 'text-primary' : 'text-muted-foreground'}`}
+                />
               </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  <p className="font-medium truncate text-sm sm:text-base">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <p className="truncate text-sm font-medium sm:text-base">
                     {getDeviceName(deviceInfo, s.user_agent)}
                   </p>
                   {isCurrentSession && (
-                    <Badge variant="default" className="text-[10px] sm:text-xs px-1.5 py-0.5">
-                      <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
+                    <Badge variant="default" className="px-1.5 py-0.5 text-[10px] sm:text-xs">
+                      <CheckCircle2 className="mr-0.5 h-2.5 w-2.5 sm:mr-1 sm:h-3 sm:w-3" />
                       Atual
                     </Badge>
                   )}
                 </div>
-                
+
                 {!compact && (
-                  <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground mt-1 flex-wrap">
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground sm:gap-3 sm:text-xs">
                     <span className="flex items-center gap-1">
                       <Globe className="h-3 w-3 shrink-0" />
-                      <span className="truncate max-w-[80px] sm:max-w-none">{getBrowserName(s.user_agent)}</span>
+                      <span className="max-w-[80px] truncate sm:max-w-none">
+                        {getBrowserName(s.user_agent)}
+                      </span>
                     </span>
                     {s.ip_address && (
-                      <span className="flex items-center gap-1 hidden xs:flex">
+                      <span className="flex hidden items-center gap-1 xs:flex">
                         <MapPin className="h-3 w-3 shrink-0" />
-                        <span className="truncate max-w-[100px]">{s.ip_address}</span>
+                        <span className="max-w-[100px] truncate">{s.ip_address}</span>
                       </span>
                     )}
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3 shrink-0" />
-                      {formatDistanceToNow(new Date(s.last_activity_at), { 
-                        addSuffix: true, 
-                        locale: ptBR 
+                      {formatDistanceToNow(new Date(s.last_activity_at), {
+                        addSuffix: true,
+                        locale: ptBR,
                       })}
                     </span>
                   </div>
                 )}
 
                 {compact && (
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(s.last_activity_at), { 
-                      addSuffix: true, 
-                      locale: ptBR 
+                  <p className="text-[10px] text-muted-foreground sm:text-xs">
+                    {formatDistanceToNow(new Date(s.last_activity_at), {
+                      addSuffix: true,
+                      locale: ptBR,
                     })}
                   </p>
                 )}
@@ -247,7 +276,7 @@ export function ActiveSessionsList({ limit, compact = false }: ActiveSessionsLis
       </div>
 
       {compact && sessions.length > 0 && (
-        <Button variant="link" className="w-full h-10" size="sm">
+        <Button variant="link" className="h-10 w-full" size="sm">
           Ver todas as sessões →
         </Button>
       )}

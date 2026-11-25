@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Shield, Loader2 } from 'lucide-react';
@@ -25,11 +32,11 @@ export default function MFAVerify() {
     try {
       // Get the TOTP factor
       const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
-      
+
       if (factorsError) throw factorsError;
 
       const totpFactor = factors?.totp?.[0];
-      
+
       if (!totpFactor) {
         toast.error('MFA não configurado');
         navigate('/auth');
@@ -53,11 +60,16 @@ export default function MFAVerify() {
       if (verifyError) throw verifyError;
 
       // Update last verified timestamp
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
-        await supabase.from('mfa_settings').update({
-          last_verified_at: new Date().toISOString(),
-        }).eq('user_id', user.id);
+        await supabase
+          .from('mfa_settings')
+          .update({
+            last_verified_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id);
       }
 
       toast.success('Verificação bem-sucedida!');
@@ -78,7 +90,9 @@ export default function MFAVerify() {
 
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não encontrado');
 
       // Get backup codes
@@ -102,13 +116,16 @@ export default function MFAVerify() {
       const newCodes = [...backupCodes];
       newCodes.splice(codeIndex, 1);
 
-      await supabase.from('mfa_settings').update({
-        backup_codes: newCodes,
-        last_verified_at: new Date().toISOString(),
-      }).eq('user_id', user.id);
+      await supabase
+        .from('mfa_settings')
+        .update({
+          backup_codes: newCodes,
+          last_verified_at: new Date().toISOString(),
+        })
+        .eq('user_id', user.id);
 
       toast.success('Verificação bem-sucedida!');
-      
+
       if (newCodes.length <= 2) {
         toast.warning('Você tem poucos códigos de backup restantes. Considere gerar novos.');
       }
@@ -123,26 +140,25 @@ export default function MFAVerify() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Shield className="w-6 h-6 text-primary" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <Shield className="h-6 w-6 text-primary" />
           </div>
           <CardTitle>Verificação de Dois Fatores</CardTitle>
           <CardDescription>
-            {useBackupCode 
+            {useBackupCode
               ? 'Digite um dos seus códigos de backup'
-              : 'Digite o código do seu app autenticador'
-            }
+              : 'Digite o código do seu app autenticador'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {useBackupCode ? (
             <div className="space-y-2">
-              <InputOTP 
-                maxLength={6} 
-                value={code} 
+              <InputOTP
+                maxLength={6}
+                value={code}
                 onChange={(value) => setCode(value.toUpperCase())}
               >
                 <InputOTPGroup className="justify-center font-mono">
@@ -156,11 +172,7 @@ export default function MFAVerify() {
               </InputOTP>
             </div>
           ) : (
-            <InputOTP 
-              maxLength={6} 
-              value={code} 
-              onChange={setCode}
-            >
+            <InputOTP maxLength={6} value={code} onChange={setCode}>
               <InputOTPGroup className="justify-center">
                 <InputOTPSlot index={0} />
                 <InputOTPSlot index={1} />
@@ -173,33 +185,30 @@ export default function MFAVerify() {
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button 
-            className="w-full" 
+          <Button
+            className="w-full"
             onClick={useBackupCode ? handleBackupCodeVerify : handleVerify}
             disabled={loading || code.length < 6}
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Verificando...
               </>
             ) : (
               'Verificar'
             )}
           </Button>
-          
-          <Button 
-            variant="ghost" 
+
+          <Button
+            variant="ghost"
             className="w-full text-sm"
             onClick={() => {
               setUseBackupCode(!useBackupCode);
               setCode('');
             }}
           >
-            {useBackupCode 
-              ? 'Usar código do app autenticador'
-              : 'Usar código de backup'
-            }
+            {useBackupCode ? 'Usar código do app autenticador' : 'Usar código de backup'}
           </Button>
         </CardFooter>
       </Card>

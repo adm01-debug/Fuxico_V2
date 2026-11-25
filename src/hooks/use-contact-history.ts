@@ -3,8 +3,8 @@
  * @description Hook para histórico de contatos e interações. Inclui gerenciamento de estado e cache.
  * @returns Object com data, isLoading, error
  */
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface ContactEmail {
   id: string;
@@ -49,7 +49,9 @@ export function useContactHistory(email: string | null) {
     queryFn: async () => {
       if (!email) return { emails: [], events: [], timeline: [] };
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       // Fetch all emails sent to this contact
@@ -62,20 +64,24 @@ export function useContactHistory(email: string | null) {
 
       if (emailsError) throw emailsError;
 
-      const emails = (emailsRaw ?? []).map(e => ({
+      const emails = (emailsRaw ?? []).map((e) => ({
         ...e,
         open_count: 0 as number | null,
         click_count: 0 as number | null,
       }));
 
-      const trackingIds = emails.map(e => e.tracking_id).filter((id): id is string => id !== null);
+      const trackingIds = emails
+        .map((e) => e.tracking_id)
+        .filter((id): id is string => id !== null);
 
       // Fetch all events for these emails
       let events: ContactEvent[] = [];
       if (trackingIds.length > 0) {
         const { data: eventsData, error: eventsError } = await supabase
           .from('tracking_events')
-          .select('id, tracking_id, event_type, created_at, ip_address, user_agent, link_url, is_self_open')
+          .select(
+            'id, tracking_id, event_type, created_at, ip_address, user_agent, link_url, is_self_open'
+          )
           .in('tracking_id', trackingIds)
           .order('created_at', { ascending: false });
 
@@ -87,7 +93,7 @@ export function useContactHistory(email: string | null) {
       const timeline: ContactHistoryItem[] = [];
 
       // Add email sent events
-      emails.forEach(email => {
+      emails.forEach((email) => {
         timeline.push({
           id: `sent-${email.id}`,
           type: 'email_sent',
@@ -108,8 +114,8 @@ export function useContactHistory(email: string | null) {
       });
 
       // Add open/click events
-      events.forEach(event => {
-        const email = emails.find(e => e.tracking_id === event.tracking_id);
+      events.forEach((event) => {
+        const email = emails.find((e) => e.tracking_id === event.tracking_id);
         timeline.push({
           id: event.id,
           type: event.event_type === 'open' ? 'email_open' : 'link_click',

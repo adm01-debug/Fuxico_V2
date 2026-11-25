@@ -5,24 +5,32 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MetricCardProps } from './types';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
-function MiniSparkline({ data, color = 'hsl(var(--primary))' }: { data: number[]; color?: string }) {
+function MiniSparkline({
+  data,
+  color = 'hsl(var(--primary))',
+}: {
+  data: number[];
+  color?: string;
+}) {
   if (!data || data.length < 2) return null;
-  
+
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
   const width = 60;
   const height = 24;
   const padding = 2;
-  
-  const points = data.map((val, i) => {
-    const x = padding + (i / (data.length - 1)) * (width - padding * 2);
-    const y = height - padding - ((val - min) / range) * (height - padding * 2);
-    return `${x},${y}`;
-  }).join(' ');
-  
+
+  const points = data
+    .map((val, i) => {
+      const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+      const y = height - padding - ((val - min) / range) * (height - padding * 2);
+      return `${x},${y}`;
+    })
+    .join(' ');
+
   return (
     <svg width={width} height={height} className="overflow-visible">
       <defs>
@@ -60,9 +68,17 @@ function AnimatedNumber({ value, className }: { value: number | string; classNam
   );
 }
 
-export function MetricCard({ 
-  title, value, change, changeLabel, icon, 
-  trend = 'neutral', isLoading, className = '', gradient, sparklineData,
+export function MetricCard({
+  title,
+  value,
+  change,
+  changeLabel,
+  icon,
+  trend = 'neutral',
+  isLoading,
+  className = '',
+  gradient,
+  sparklineData,
 }: MetricCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -83,14 +99,20 @@ export function MetricCard({
     );
   }
 
-  const trendColor = matchFirst([
-  [trend === 'up', () => ('text-emerald-500')],
-  [trend === 'down', () => ('text-red-500')],
-], () => ('text-muted-foreground'));
-  const trendBg = matchFirst([
-  [trend === 'up', () => ('bg-emerald-500/10')],
-  [trend === 'down', () => ('bg-red-500/10')],
-], () => ('bg-muted'));
+  const trendColor = matchFirst(
+    [
+      [trend === 'up', () => 'text-emerald-500'],
+      [trend === 'down', () => 'text-red-500'],
+    ],
+    () => 'text-muted-foreground'
+  );
+  const trendBg = matchFirst(
+    [
+      [trend === 'up', () => 'bg-emerald-500/10'],
+      [trend === 'down', () => 'bg-red-500/10'],
+    ],
+    () => 'bg-muted'
+  );
 
   return (
     <motion.div
@@ -98,13 +120,13 @@ export function MetricCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Card 
-        role="region" 
-        aria-label="Estatísticas" 
+      <Card
+        role="region"
+        aria-label="Estatísticas"
         className={cn(
-          'relative overflow-hidden transition-all duration-300 card-futuristic',
-          'hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30',
-          'dark:hover:shadow-primary/15 dark:hover:shadow-glow',
+          'card-futuristic relative overflow-hidden transition-all duration-300',
+          'hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10',
+          'dark:hover:shadow-glow dark:hover:shadow-primary/15',
           className
         )}
       >
@@ -119,34 +141,47 @@ export function MetricCard({
           )}
         </AnimatePresence>
 
-        <CardContent className="pt-6 relative z-10">
+        <CardContent className="relative z-10 pt-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <p className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 {title}
                 {sparklineData && sparklineData.length > 0 && (
-                  <MiniSparkline 
-                    data={sparklineData} 
-                    color={matchFirst([
-  [trend === 'up', () => ('hsl(142, 76%, 36%)')],
-  [trend === 'down', () => ('hsl(0, 84%, 60%)')],
-], () => ('hsl(var(--primary))'))} 
+                  <MiniSparkline
+                    data={sparklineData}
+                    color={matchFirst(
+                      [
+                        [trend === 'up', () => 'hsl(142, 76%, 36%)'],
+                        [trend === 'down', () => 'hsl(0, 84%, 60%)'],
+                      ],
+                      () => 'hsl(var(--primary))'
+                    )}
                   />
                 )}
               </p>
               <div className="mt-2">
-                <AnimatedNumber value={value} className="text-2xl sm:text-3xl font-bold tracking-tight" />
+                <AnimatedNumber
+                  value={value}
+                  className="text-2xl font-bold tracking-tight sm:text-3xl"
+                />
               </div>
               {change !== undefined && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-1.5 mt-2"
+                  className="mt-2 flex items-center gap-1.5"
                 >
-                  <span className={cn('flex items-center gap-0.5 text-sm font-medium px-1.5 py-0.5 rounded-md', trendBg, trendColor)}>
+                  <span
+                    className={cn(
+                      'flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-sm font-medium',
+                      trendBg,
+                      trendColor
+                    )}
+                  >
                     {trend === 'up' && <ArrowUpRight className="h-3.5 w-3.5" />}
                     {trend === 'down' && <ArrowDownRight className="h-3.5 w-3.5" />}
-                    {change > 0 ? '+' : ''}{change}%
+                    {change > 0 ? '+' : ''}
+                    {change}%
                   </span>
                   {changeLabel && (
                     <span className="text-xs text-muted-foreground">{changeLabel}</span>
@@ -154,15 +189,15 @@ export function MetricCard({
                 </motion.div>
               )}
             </div>
-            
-            <motion.div 
-              animate={{ 
+
+            <motion.div
+              animate={{
                 rotate: isHovered ? [0, -5, 5, 0] : 0,
                 scale: isHovered ? 1.05 : 1,
               }}
               transition={{ duration: 0.3 }}
               className={cn(
-                "h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0",
+                'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl shadow-lg sm:h-12 sm:w-12',
                 gradient ? `bg-gradient-to-br ${gradient} text-white` : 'bg-primary/10'
               )}
             >

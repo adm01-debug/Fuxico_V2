@@ -7,15 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { 
-  Shield, 
-  Plus, 
-  Trash2, 
-  Search,
-  Globe,
-  Clock,
-  Loader2
-} from 'lucide-react';
+import { Shield, Plus, Trash2, Search, Globe, Clock, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -33,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 interface BlockedIP {
   id: string;
@@ -72,7 +64,7 @@ export default function BlockedIPsPanel() {
   const addMutation = useMutation({
     mutationFn: async () => {
       let expiresAt: string | null = null;
-      
+
       if (!isPermanent) {
         const hours = parseInt(duration);
         expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
@@ -116,8 +108,8 @@ export default function BlockedIPsPanel() {
     },
   });
 
-  const filteredIPs = blockedIPs?.filter(ip =>
-    ip.ip_address.includes(search) || ip.reason.toLowerCase().includes(search.toLowerCase())
+  const filteredIPs = blockedIPs?.filter(
+    (ip) => ip.ip_address.includes(search) || ip.reason.toLowerCase().includes(search.toLowerCase())
   );
 
   const isExpired = (expiresAt: string | null) => {
@@ -130,8 +122,8 @@ export default function BlockedIPsPanel() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-destructive/10 rounded-lg">
-              <Shield className="w-5 h-5 text-destructive" />
+            <div className="rounded-lg bg-destructive/10 p-2">
+              <Shield className="h-5 w-5 text-destructive" />
             </div>
             <div>
               <CardTitle>IPs Bloqueados</CardTitle>
@@ -141,7 +133,7 @@ export default function BlockedIPsPanel() {
             </div>
           </div>
           <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Bloquear IP
           </Button>
         </div>
@@ -149,7 +141,7 @@ export default function BlockedIPsPanel() {
       <CardContent className="space-y-4">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar por IP ou motivo..."
             value={search}
@@ -159,67 +151,82 @@ export default function BlockedIPsPanel() {
         </div>
 
         {/* List */}
-        {matchFirst([
-  [isLoading, () => ((
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
-        ))],
-  [filteredIPs?.length === 0, () => ((
-          <div className="text-center py-8 text-muted-foreground">
-            Nenhum IP bloqueado
-          </div>
-        ))],
-], () => ((
-          <div className="space-y-2">
-            {filteredIPs?.map((ip) => (
-              <div
-                key={ip.id}
-                className={`flex items-center justify-between p-4 rounded-lg border ${
-                  isExpired(ip.expires_at) ? 'bg-muted/30 opacity-60' : 'bg-muted/50'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <Globe className="w-5 h-5 text-muted-foreground" />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-mono font-medium">{ip.ip_address}</p>
-                      {matchFirst([
-                        [ip.is_permanent, () => <Badge variant="destructive">Permanente</Badge>],
-                        [isExpired(ip.expires_at), () => <Badge variant="outline">Expirado</Badge>],
-                      ], () => <Badge variant="secondary">Temporário</Badge>)}
-
-                    </div>
-                    <p className="text-sm text-muted-foreground">{ip.reason}</p>
-                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        Bloqueado em {new Date(ip.blocked_at).toLocaleDateString()}
-                      </span>
-                      {ip.expires_at && !ip.is_permanent && (
-                        <span>
-                          Expira em {new Date(ip.expires_at).toLocaleDateString()}
+        {matchFirst(
+          [
+            [
+              isLoading,
+              () => (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ),
+            ],
+            [
+              filteredIPs?.length === 0,
+              () => (
+                <div className="py-8 text-center text-muted-foreground">Nenhum IP bloqueado</div>
+              ),
+            ],
+          ],
+          () => (
+            <div className="space-y-2">
+              {filteredIPs?.map((ip) => (
+                <div
+                  key={ip.id}
+                  className={`flex items-center justify-between rounded-lg border p-4 ${
+                    isExpired(ip.expires_at) ? 'bg-muted/30 opacity-60' : 'bg-muted/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <Globe className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-mono font-medium">{ip.ip_address}</p>
+                        {matchFirst(
+                          [
+                            [
+                              ip.is_permanent,
+                              () => <Badge variant="destructive">Permanente</Badge>,
+                            ],
+                            [
+                              isExpired(ip.expires_at),
+                              () => <Badge variant="outline">Expirado</Badge>,
+                            ],
+                          ],
+                          () => (
+                            <Badge variant="secondary">Temporário</Badge>
+                          )
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{ip.reason}</p>
+                      <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          Bloqueado em {new Date(ip.blocked_at).toLocaleDateString()}
                         </span>
-                      )}
+                        {ip.expires_at && !ip.is_permanent && (
+                          <span>Expira em {new Date(ip.expires_at).toLocaleDateString()}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => {
+                      if (confirm('Deseja desbloquear este IP?')) {
+                        removeMutation.mutate(ip.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => {
-                    if (confirm('Deseja desbloquear este IP?')) {
-                      removeMutation.mutate(ip.id);
-                    }
-                  }}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )))}
+              ))}
+            </div>
+          )
+        )}
       </CardContent>
 
       {/* Add Dialog */}
@@ -227,9 +234,7 @@ export default function BlockedIPsPanel() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Bloquear IP</DialogTitle>
-            <DialogDescription>
-              Adicione um IP à lista de bloqueio
-            </DialogDescription>
+            <DialogDescription>Adicione um IP à lista de bloqueio</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">

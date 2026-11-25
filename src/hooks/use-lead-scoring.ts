@@ -26,7 +26,9 @@ export function useContactScores() {
   return useQuery<ContactScore[]>({
     queryKey: ['contact-scores'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return [];
 
       const { data, error } = await supabase
@@ -46,7 +48,9 @@ export function useRecalculateScores() {
 
   return useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase.rpc('recalculate_all_contact_scores', {
@@ -67,7 +71,9 @@ export function useUpdateContactScore() {
 
   return useMutation({
     mutationFn: async (email: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { error } = await supabase.rpc('update_contact_score', {

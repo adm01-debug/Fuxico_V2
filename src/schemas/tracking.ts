@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const emailAuditLogSchema = z.object({
   id: z.string().uuid(),
@@ -12,7 +12,7 @@ export const emailAuditLogSchema = z.object({
   is_external: z.boolean(),
   external_domain: z.string().nullable(),
   metadata: z.record(z.unknown()),
-  created_at: z.string().datetime()
+  created_at: z.string().datetime(),
 });
 
 export const fraudAlertSchema = z.object({
@@ -27,7 +27,7 @@ export const fraudAlertSchema = z.object({
   resolved_by: z.string().uuid().nullable(),
   resolved_at: z.string().datetime().nullable(),
   metadata: z.record(z.unknown()),
-  created_at: z.string().datetime()
+  created_at: z.string().datetime(),
 });
 
 export type EmailAuditLog = z.infer<typeof emailAuditLogSchema>;

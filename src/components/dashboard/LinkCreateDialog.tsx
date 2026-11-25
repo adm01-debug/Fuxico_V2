@@ -1,9 +1,9 @@
 import { log } from '@/lib/logger';
-import { useState } from "react";
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -11,17 +11,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Link2, Plus, Loader2 } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Link2, Plus, Loader2 } from 'lucide-react';
 
 export function LinkCreateDialog() {
   const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [url, setUrl] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -33,7 +33,7 @@ export function LinkCreateDialog() {
 
     // Validate URL
     let validUrl = url.trim();
-    if (!validUrl.startsWith("http://") && !validUrl.startsWith("https://")) {
+    if (!validUrl.startsWith('http://') && !validUrl.startsWith('https://')) {
       validUrl = `https://${validUrl}`;
     }
 
@@ -41,9 +41,9 @@ export function LinkCreateDialog() {
       new URL(validUrl);
     } catch {
       toast({
-        title: "Erro",
-        description: "URL inválida",
-        variant: "destructive",
+        title: 'Erro',
+        description: 'URL inválida',
+        variant: 'destructive',
       });
       return;
     }
@@ -53,36 +53,33 @@ export function LinkCreateDialog() {
     try {
       const linkId = crypto.randomUUID().slice(0, 8);
 
-      const { error } = await supabase
-        .from("standalone_tracked_links")
-        .insert({
-          user_id: user.id,
-          link_id: linkId,
-          original_url: validUrl,
-          title: title.trim() || null,
-          description: description.trim() || null,
-        });
+      const { error } = await supabase.from('standalone_tracked_links').insert({
+        user_id: user.id,
+        link_id: linkId,
+        original_url: validUrl,
+        title: title.trim() || null,
+        description: description.trim() || null,
+      });
 
       if (error) throw error;
 
       toast({
-        title: "Sucesso!",
-        description: "Link criado com sucesso",
+        title: 'Sucesso!',
+        description: 'Link criado com sucesso',
       });
 
-      setUrl("");
-      setTitle("");
-      setDescription("");
+      setUrl('');
+      setTitle('');
+      setDescription('');
       setOpen(false);
 
-      queryClient.invalidateQueries({ queryKey: ["tracked-links"] });
-
+      queryClient.invalidateQueries({ queryKey: ['tracked-links'] });
     } catch (error) {
-      log.error("Error creating link:", error);
+      log.error('Error creating link:', error);
       toast({
-        title: "Erro",
-        description: "Falha ao criar link",
-        variant: "destructive",
+        title: 'Erro',
+        description: 'Falha ao criar link',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -100,9 +97,7 @@ export function LinkCreateDialog() {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Criar Link Rastreável</DialogTitle>
-          <DialogDescription>
-            Crie um link para rastrear cliques
-          </DialogDescription>
+          <DialogDescription>Crie um link para rastrear cliques</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div role="region" aria-label="Criação de Links" className="space-y-2">

@@ -1,11 +1,19 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { AlertTriangle, ArrowUpRight, ArrowDownLeft, Clock, Globe, TrendingUp, CheckCircle } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Clock,
+  Globe,
+  TrendingUp,
+  CheckCircle,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { FraudAlert, EmailAuditLog } from '../hooks/use-email-audit';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 const alertTypeLabels: Record<string, { label: string; icon: React.ReactNode }> = {
   suspicious_hours: { label: 'Horário Suspeito', icon: <Clock className="h-4 w-4" /> },
@@ -19,7 +27,11 @@ const severityColors: Record<string, string> = {
   high: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
-export function AlertRow({ alert, onResolve, isResolving }: {
+export function AlertRow({
+  alert,
+  onResolve,
+  isResolving,
+}: {
   alert: FraudAlert;
   onResolve: (id: string) => void;
   isResolving: boolean;
@@ -32,16 +44,22 @@ export function AlertRow({ alert, onResolve, isResolving }: {
   return (
     <TableRow>
       <TableCell>
-        <div className="flex items-center gap-2">{alertType.icon}<span className="text-sm">{alertType.label}</span></div>
+        <div className="flex items-center gap-2">
+          {alertType.icon}
+          <span className="text-sm">{alertType.label}</span>
+        </div>
       </TableCell>
       <TableCell className="font-medium">{alert.user_email}</TableCell>
       <TableCell className="max-w-[300px] truncate">{alert.description}</TableCell>
       <TableCell>
         <Badge className={severityColors[alert.severity]}>
-          {matchFirst([
-  [alert.severity === 'low', () => ('Baixa')],
-  [alert.severity === 'medium', () => ('Média')],
-], () => ('Alta'))}
+          {matchFirst(
+            [
+              [alert.severity === 'low', () => 'Baixa'],
+              [alert.severity === 'medium', () => 'Média'],
+            ],
+            () => 'Alta'
+          )}
         </Badge>
       </TableCell>
       <TableCell className="text-sm text-muted-foreground">
@@ -49,14 +67,26 @@ export function AlertRow({ alert, onResolve, isResolving }: {
       </TableCell>
       <TableCell>
         {alert.is_resolved ? (
-          <Badge variant="outline" className="text-green-600"><CheckCircle className="h-3 w-3 mr-1" />Resolvido</Badge>
+          <Badge variant="outline" className="text-green-600">
+            <CheckCircle className="mr-1 h-3 w-3" />
+            Resolvido
+          </Badge>
         ) : (
-          <Badge variant="outline" className="text-orange-600">Pendente</Badge>
+          <Badge variant="outline" className="text-orange-600">
+            Pendente
+          </Badge>
         )}
       </TableCell>
       <TableCell>
         {!alert.is_resolved && (
-          <Button variant="ghost" size="sm" onClick={() => onResolve(alert.id)} disabled={isResolving}>Resolver</Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onResolve(alert.id)}
+            disabled={isResolving}
+          >
+            Resolver
+          </Button>
         )}
       </TableCell>
     </TableRow>
@@ -70,9 +100,15 @@ export function LogRow({ log }: { log: EmailAuditLog }) {
     <TableRow>
       <TableCell>
         {log.direction === 'sent' ? (
-          <Badge variant="outline" className="gap-1"><ArrowUpRight className="h-3 w-3" />Enviado</Badge>
+          <Badge variant="outline" className="gap-1">
+            <ArrowUpRight className="h-3 w-3" />
+            Enviado
+          </Badge>
         ) : (
-          <Badge variant="secondary" className="gap-1"><ArrowDownLeft className="h-3 w-3" />Recebido</Badge>
+          <Badge variant="secondary" className="gap-1">
+            <ArrowDownLeft className="h-3 w-3" />
+            Recebido
+          </Badge>
         )}
       </TableCell>
       <TableCell className="font-medium">{log.user_email}</TableCell>
@@ -80,9 +116,12 @@ export function LogRow({ log }: { log: EmailAuditLog }) {
       <TableCell className="max-w-[200px] truncate">{log.subject || '-'}</TableCell>
       <TableCell>
         {log.is_external ? (
-          <Badge variant="outline" className="text-orange-600 gap-1"><Globe className="h-3 w-3" />{log.external_domain}</Badge>
+          <Badge variant="outline" className="gap-1 text-orange-600">
+            <Globe className="h-3 w-3" />
+            {log.external_domain}
+          </Badge>
         ) : (
-          <span className="text-muted-foreground text-sm">Interno</span>
+          <span className="text-sm text-muted-foreground">Interno</span>
         )}
       </TableCell>
       <TableCell className="text-sm text-muted-foreground">

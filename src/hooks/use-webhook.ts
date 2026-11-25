@@ -30,7 +30,9 @@ export function useWebhookConfig() {
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return null;
 
       const { data } = await supabase
@@ -50,7 +52,9 @@ export function useWebhookLogs(limit = 20) {
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return [];
 
       const { data } = await supabase
@@ -69,17 +73,27 @@ export function useSaveWebhookConfig() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (config: { url: string; secret?: string; events: string[]; is_active: boolean }) => {
-      const { data: { user } } = await supabase.auth.getUser();
+    mutationFn: async (config: {
+      url: string;
+      secret?: string;
+      events: string[];
+      is_active: boolean;
+    }) => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
         .from('webhook_configs')
-        .upsert({
-          user_id: user.id,
-          ...config,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'user_id' })
+        .upsert(
+          {
+            user_id: user.id,
+            ...config,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        )
         .select()
         .single();
 
@@ -107,7 +121,7 @@ export function useTestWebhook() {
           throw new Error('Localhost URLs are not allowed');
         }
       } catch (e) {
-        if (e instanceof TypeError) throw new Error('Invalid URL format');
+        if (e instanceof TypeError) throw new Error('Invalid URL format', { cause: e });
         throw e;
       }
 

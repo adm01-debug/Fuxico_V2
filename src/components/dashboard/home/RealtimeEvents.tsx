@@ -23,7 +23,10 @@ export function RealtimeEvents({ events, isLoading }: RealtimeEventsProps) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 xl:p-4 xl:gap-4 bg-muted/50 rounded-lg">
+          <div
+            key={i}
+            className="flex items-center gap-3 rounded-lg bg-muted/50 p-3 xl:gap-4 xl:p-4"
+          >
             <Skeleton className="h-8 w-8 rounded-full" />
             <div className="flex-1 space-y-1">
               <Skeleton className="h-4 w-32" />
@@ -38,8 +41,12 @@ export function RealtimeEvents({ events, isLoading }: RealtimeEventsProps) {
 
   if (events.length === 0) {
     return (
-      <div role="region" aria-label="DashboardHome" className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-        <Zap className="h-8 w-8 mb-2 opacity-50" />
+      <div
+        role="region"
+        aria-label="DashboardHome"
+        className="flex flex-col items-center justify-center py-8 text-muted-foreground"
+      >
+        <Zap className="mb-2 h-8 w-8 opacity-50" />
         <p className="text-sm">Nenhum evento recente</p>
         <p className="text-xs">Eventos aparecerão aqui em tempo real</p>
       </div>
@@ -55,15 +62,15 @@ export function RealtimeEvents({ events, isLoading }: RealtimeEventsProps) {
           return (
             <div
               key={event.id}
-              className="flex items-center gap-3 p-3 xl:p-4 xl:gap-4 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
+              className="flex items-center gap-3 rounded-lg bg-muted/30 p-3 transition-colors hover:bg-muted/50 xl:gap-4 xl:p-4"
             >
-              <div className="h-8 w-8 rounded-full bg-background flex items-center justify-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background">
                 <Icon className={`h-4 w-4 ${config.color}`} />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{event.email}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{event.email}</p>
                 {event.subject && (
-                  <p className="text-xs text-muted-foreground truncate">{event.subject}</p>
+                  <p className="truncate text-xs text-muted-foreground">{event.subject}</p>
                 )}
               </div>
               <div className="flex flex-col items-end gap-1">
@@ -71,7 +78,10 @@ export function RealtimeEvents({ events, isLoading }: RealtimeEventsProps) {
                   {config.label}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true, locale: ptBR })}
+                  {formatDistanceToNow(new Date(event.timestamp), {
+                    addSuffix: true,
+                    locale: ptBR,
+                  })}
                 </span>
               </div>
             </div>

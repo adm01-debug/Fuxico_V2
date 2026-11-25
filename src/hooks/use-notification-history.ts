@@ -20,7 +20,11 @@ export function useNotificationHistory(limit = 50) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: notifications, isLoading, error } = useQuery({
+  const {
+    data: notifications,
+    isLoading,
+    error,
+  } = useQuery({
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     queryKey: ['notification-history', user?.id, limit],
@@ -40,7 +44,7 @@ export function useNotificationHistory(limit = 50) {
     enabled: !!user?.id,
   });
 
-  const unreadCount = notifications?.filter(n => !n.is_read).length ?? 0;
+  const unreadCount = notifications?.filter((n) => !n.is_read).length ?? 0;
 
   const markAsRead = useMutation({
     mutationFn: async (notificationId: string) => {
@@ -97,10 +101,7 @@ export function useNotificationHistory(limit = 50) {
     mutationFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      const { error } = await supabase
-        .from('notification_history')
-        .delete()
-        .eq('user_id', user.id);
+      const { error } = await supabase.from('notification_history').delete().eq('user_id', user.id);
 
       if (error) throw error;
     },
@@ -110,19 +111,25 @@ export function useNotificationHistory(limit = 50) {
   });
 
   const addNotification = useMutation({
-    mutationFn: async (notification: { type: string; severity: string; title: string; message: string; metadata?: Json }) => {
+    mutationFn: async (notification: {
+      type: string;
+      severity: string;
+      title: string;
+      message: string;
+      metadata?: Json;
+    }) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      const { error } = await supabase
-        .from('notification_history')
-        .insert([{
+      const { error } = await supabase.from('notification_history').insert([
+        {
           user_id: user.id,
           type: notification.type,
           severity: notification.severity,
           title: notification.title,
           message: notification.message,
           metadata: notification.metadata ?? {},
-        }]);
+        },
+      ]);
 
       if (error) throw error;
     },
@@ -143,4 +150,3 @@ export function useNotificationHistory(limit = 50) {
     addNotification: addNotification.mutate,
   };
 }
-

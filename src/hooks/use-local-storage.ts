@@ -3,9 +3,9 @@ import { useState, useEffect, useCallback } from 'react';
 
 /**
  * Hook for syncing state with localStorage
- * 
+ *
  * @description Persists state to localStorage and syncs across tabs.
- * 
+ *
  * @example
  * ```tsx
  * const [filters, setFilters] = useLocalStorage('email-filters', {
@@ -41,7 +41,7 @@ export function useLocalStorage<T>(
       try {
         const valueToStore = value instanceof Function ? value(storedValue) : value;
         setStoredValue(valueToStore);
-        
+
         if (typeof window !== 'undefined') {
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
           window.dispatchEvent(new StorageEvent('local-storage', { key }));

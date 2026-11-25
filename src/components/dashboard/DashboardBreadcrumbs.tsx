@@ -1,16 +1,16 @@
-import { ChevronRight, Home } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { TabId } from '@/components/dashboard/DashboardSidebar'
+import { ChevronRight, Home } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { TabId } from '@/components/dashboard/DashboardSidebar';
 
 interface BreadcrumbItem {
-  label: string
-  tabId?: TabId
+  label: string;
+  tabId?: TabId;
 }
 
 interface DashboardBreadcrumbsProps {
-  activeTab: TabId
-  onNavigate?: (tab: TabId) => void
-  className?: string
+  activeTab: TabId;
+  onNavigate?: (tab: TabId) => void;
+  className?: string;
 }
 
 // Mapeamento de categorias para tabs
@@ -49,7 +49,7 @@ const TAB_CATEGORIES: Record<TabId, { category: string; categoryTab?: TabId }> =
   whatsapp: { category: 'Integrações', categoryTab: 'integrations' },
   trends: { category: 'Analytics', categoryTab: 'reports' },
   tracking_history: { category: 'Rastreamento', categoryTab: 'emails' },
-}
+};
 
 const TAB_LABELS: Record<TabId, string> = {
   home: 'Início',
@@ -86,111 +86,99 @@ const TAB_LABELS: Record<TabId, string> = {
   benchmark: 'Benchmark',
   segmentation: 'Segmentação',
   tracking_history: 'Histórico de Tracking',
-}
+};
 
 export function DashboardBreadcrumbs({
   activeTab,
   onNavigate,
   className,
 }: DashboardBreadcrumbsProps) {
-  const config = TAB_CATEGORIES[activeTab]
-  
+  const config = TAB_CATEGORIES[activeTab];
+
   // Build breadcrumb items
-  const items: BreadcrumbItem[] = [
-    { label: 'Dashboard', tabId: 'home' },
-  ]
+  const items: BreadcrumbItem[] = [{ label: 'Dashboard', tabId: 'home' }];
 
   // Add category if not home
   if (activeTab !== 'home') {
     items.push({
       label: config.category,
       tabId: config.categoryTab,
-    })
-    
+    });
+
     // Add current page
     items.push({
       label: TAB_LABELS[activeTab],
-    })
+    });
   }
 
   // For mobile, show simplified breadcrumb (just category > current)
-  const mobileItems = items.length > 2 
-    ? [items[0], items[items.length - 1]] 
-    : items
+  const mobileItems = items.length > 2 ? [items[0], items[items.length - 1]] : items;
 
   return (
     <nav aria-label="Breadcrumb" className={cn('flex items-center', className)}>
       {/* Desktop: Full breadcrumb */}
-      <ol className="hidden sm:flex items-center gap-1.5">
+      <ol className="hidden items-center gap-1.5 sm:flex">
         {items.map((item, index) => {
-          const isLast = index === items.length - 1
-          const isClickable = item.tabId && !isLast && onNavigate
+          const isLast = index === items.length - 1;
+          const isClickable = item.tabId && !isLast && onNavigate;
 
           return (
             <li key={index} className="flex items-center gap-1.5">
-              {index === 0 && (
-                <Home className="h-3.5 w-3.5 text-muted-foreground mr-0.5" />
-              )}
-              
+              {index === 0 && <Home className="mr-0.5 h-3.5 w-3.5 text-muted-foreground" />}
+
               {isClickable ? (
                 <button
                   onClick={() => item.tabId && onNavigate?.(item.tabId)}
-                  className="text-muted-foreground hover:text-foreground transition-colors touch-target-inline"
+                  className="touch-target-inline text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </button>
               ) : (
                 <span
-                  className={cn(
-                    isLast ? 'text-foreground font-medium' : 'text-muted-foreground'
-                  )}
+                  className={cn(isLast ? 'font-medium text-foreground' : 'text-muted-foreground')}
                 >
                   {item.label}
                 </span>
               )}
 
               {!isLast && (
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
               )}
             </li>
-          )
+          );
         })}
       </ol>
 
       {/* Mobile: Simplified breadcrumb */}
-      <ol className="flex sm:hidden items-center gap-1">
+      <ol className="flex items-center gap-1 sm:hidden">
         {mobileItems.map((item, index) => {
-          const isLast = index === mobileItems.length - 1
-          const isClickable = item.tabId && !isLast && onNavigate
+          const isLast = index === mobileItems.length - 1;
+          const isClickable = item.tabId && !isLast && onNavigate;
 
           return (
             <li key={index} className="flex items-center gap-1">
-              {index === 0 && (
-                <Home className="h-3 w-3 text-muted-foreground" />
-              )}
-              
+              {index === 0 && <Home className="h-3 w-3 text-muted-foreground" />}
+
               {isClickable ? (
                 <button
                   onClick={() => item.tabId && onNavigate?.(item.tabId)}
-                  className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center -my-2"
+                  className="-my-2 flex min-h-[44px] min-w-[44px] items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <span className="sr-only">{item.label}</span>
                 </button>
               ) : (
-                <span className="text-foreground font-medium truncate max-w-[200px]">
+                <span className="max-w-[200px] truncate font-medium text-foreground">
                   {item.label}
                 </span>
               )}
 
-              {!isLast && (
-                <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-              )}
+              {!isLast && <ChevronRight className="h-3 w-3 flex-shrink-0 text-muted-foreground" />}
             </li>
-          )
+          );
         })}
       </ol>
     </nav>
-  )
+  );
 }
 
-export default DashboardBreadcrumbs
+export default DashboardBreadcrumbs;
