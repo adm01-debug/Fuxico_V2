@@ -117,7 +117,7 @@ Documentação completa: [docs/openapi.yaml](docs/openapi.yaml)
 
 ```env
 VITE_SUPABASE_URL=https://xxx.supabase.co
-VITE_SUPABASE_ANON_KEY=xxx
+VITE_SUPABASE_PUBLISHABLE_KEY=xxx
 ```
 
 ### CRM Integration
@@ -218,7 +218,7 @@ git commit -m "docs: atualiza documentação"
 2. **Configure as variáveis de ambiente:**
    ```
    VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key
+   VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
    ```
 3. **Deploy automático** a cada push na branch main
 
