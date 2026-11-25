@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
-import { startOfDay, subDays, format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { startOfDay, subDays, format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export interface DailyTrend {
   date: string;
@@ -31,7 +31,7 @@ export function useTrackingTrends(days: number = 7) {
 
       if (!emails?.length) return generateEmptyDays(days);
 
-      const trackingIds = emails.map(e => e.tracking_id);
+      const trackingIds = emails.map((e) => e.tracking_id);
 
       // Fetch events for these tracking IDs
       const { data: events } = await supabase
@@ -50,7 +50,7 @@ export function useTrackingTrends(days: number = 7) {
       }
 
       // Count events
-      events?.forEach(event => {
+      events?.forEach((event) => {
         const date = format(new Date(event.created_at), 'yyyy-MM-dd');
         const day = dailyMap.get(date);
         if (day) {
@@ -71,7 +71,9 @@ export function useTrackingTrends(days: number = 7) {
       }));
     },
     enabled: !!user,
-    gcTime: 1000 * 60 * 30, staleTime: 1000 * 60 * 5, refetchInterval: 60000,
+    gcTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 5,
+    refetchInterval: 60000,
   });
 }
 

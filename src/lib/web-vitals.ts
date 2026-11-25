@@ -1,9 +1,9 @@
-import { onCLS, onINP, onLCP, onFCP, onTTFB, type Metric } from "web-vitals";
-import { logger } from "./logger";
+import { onCLS, onINP, onLCP, onFCP, onTTFB, type Metric } from 'web-vitals';
+import { logger } from './logger';
 
 const reportMetric = (metric: Metric) => {
   const { name, value, rating, id } = metric;
-  
+
   logger.info(`[Web Vitals] ${name}: ${Math.round(value)}ms (${rating})`, {
     metric: name,
     value: Math.round(value),
@@ -21,7 +21,7 @@ const reportMetric = (metric: Metric) => {
       url: window.location.pathname,
       timestamp: Date.now(),
     });
-    navigator.sendBeacon("/api/vitals", body);
+    navigator.sendBeacon('/api/vitals', body);
   }
 };
 

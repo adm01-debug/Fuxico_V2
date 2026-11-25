@@ -5,12 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  RefreshCw, 
-  Shield, 
-  Mail, 
-  AlertTriangle, 
-  CheckCircle2, 
+import {
+  RefreshCw,
+  Shield,
+  Mail,
+  AlertTriangle,
+  CheckCircle2,
   XCircle,
   TrendingUp,
   TrendingDown,
@@ -18,24 +18,24 @@ import {
   Globe,
   ShieldAlert,
   ShieldCheck,
-  Search
+  Search,
 } from 'lucide-react';
 import { useDeliverability, DomainStats } from '@/hooks/use-deliverability';
 import { toast } from 'sonner';
 
 function DeliverabilityTabBase() {
-  const { 
-    data, 
-    isLoading, 
-    refetch, 
-    checkDNS, 
-    isCheckingDNS, 
+  const {
+    data,
+    isLoading,
+    refetch,
+    checkDNS,
+    isCheckingDNS,
     dnsResult,
     checkBlacklist,
     isCheckingBlacklist,
     blacklistResult,
     getReputationLevel,
-    getDeliveryHealthStatus 
+    getDeliveryHealthStatus,
   } = useDeliverability();
   const [domainToCheck, setDomainToCheck] = useState('');
   const [blacklistDomain, setBlacklistDomain] = useState('');
@@ -59,7 +59,7 @@ function DeliverabilityTabBase() {
   if (isLoading) {
     return (
       <div role="region" aria-label="DeliverabilityTab" className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-32" />
           ))}
@@ -71,15 +71,23 @@ function DeliverabilityTabBase() {
 
   const totals = data?.totals;
   const domains = data?.domains || [];
-  const reputationInfo = totals ? getReputationLevel(totals.reputationScore) : { level: 'N/A', color: 'text-muted-foreground' };
-  const healthStatus = totals ? getDeliveryHealthStatus(totals.deliveryRate) : { status: 'N/A', color: 'bg-muted' };
+  const reputationInfo = totals
+    ? getReputationLevel(totals.reputationScore)
+    : { level: 'N/A', color: 'text-muted-foreground' };
+  const healthStatus = totals
+    ? getDeliveryHealthStatus(totals.deliveryRate)
+    : { status: 'N/A', color: 'bg-muted' };
 
   const getRiskBadge = (riskLevel: string) => {
     switch (riskLevel) {
-      case 'critical': return <Badge variant="destructive">Crítico</Badge>;
-      case 'high': return <Badge className="bg-orange-500">Alto</Badge>;
-      case 'medium': return <Badge className="bg-yellow-500">Médio</Badge>;
-      default: return <Badge className="bg-green-500">Baixo</Badge>;
+      case 'critical':
+        return <Badge variant="destructive">Crítico</Badge>;
+      case 'high':
+        return <Badge className="bg-orange-500">Alto</Badge>;
+      case 'medium':
+        return <Badge className="bg-yellow-500">Médio</Badge>;
+      default:
+        return <Badge className="bg-green-500">Baixo</Badge>;
     }
   };
 
@@ -89,16 +97,18 @@ function DeliverabilityTabBase() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Monitoramento de Deliverability</h2>
-          <p className="text-muted-foreground">Acompanhe a reputação dos seus domínios e taxa de entrega</p>
+          <p className="text-muted-foreground">
+            Acompanhe a reputação dos seus domínios e taxa de entrega
+          </p>
         </div>
         <Button onClick={() => refetch()} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="mr-2 h-4 w-4" />
           Atualizar
         </Button>
       </div>
 
       {/* Métricas Gerais */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card role="article">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
@@ -130,8 +140,9 @@ function DeliverabilityTabBase() {
               <span className="text-3xl font-bold">{totals?.deliveryRate.toFixed(1) || 0}%</span>
               <Badge className={healthStatus.color}>{healthStatus.status}</Badge>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {totals?.totalDelivered.toLocaleString() || 0} de {totals?.totalSent.toLocaleString() || 0} entregues
+            <p className="mt-1 text-sm text-muted-foreground">
+              {totals?.totalDelivered.toLocaleString() || 0} de{' '}
+              {totals?.totalSent.toLocaleString() || 0} entregues
             </p>
           </CardContent>
         </Card>
@@ -145,7 +156,9 @@ function DeliverabilityTabBase() {
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <span className={`text-3xl font-bold ${(totals?.bounceRate || 0) > 5 ? 'text-red-600' : 'text-green-600'}`}>
+              <span
+                className={`text-3xl font-bold ${(totals?.bounceRate || 0) > 5 ? 'text-red-600' : 'text-green-600'}`}
+              >
                 {totals?.bounceRate.toFixed(1) || 0}%
               </span>
               {(totals?.bounceRate || 0) > 5 ? (
@@ -154,7 +167,7 @@ function DeliverabilityTabBase() {
                 <TrendingDown className="h-4 w-4 text-green-600" />
               )}
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="mt-1 text-sm text-muted-foreground">
               {totals?.totalBounced.toLocaleString() || 0} bounces
             </p>
           </CardContent>
@@ -171,7 +184,7 @@ function DeliverabilityTabBase() {
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold">{totals?.openRate.toFixed(1) || 0}%</span>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="mt-1 text-sm text-muted-foreground">
               {totals?.totalOpened.toLocaleString() || 0} aberturas
             </p>
           </CardContent>
@@ -186,7 +199,8 @@ function DeliverabilityTabBase() {
             Verificação de Blacklist (DNSBL)
           </CardTitle>
           <CardDescription>
-            Verifique se seu domínio está em listas negras de email (Spamhaus, Barracuda, SpamCop, etc.)
+            Verifique se seu domínio está em listas negras de email (Spamhaus, Barracuda, SpamCop,
+            etc.)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -200,23 +214,25 @@ function DeliverabilityTabBase() {
             />
             <Button onClick={handleCheckBlacklist} disabled={isCheckingBlacklist}>
               {isCheckingBlacklist ? (
-                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Search className="h-4 w-4 mr-2" />
+                <Search className="mr-2 h-4 w-4" />
               )}
               Verificar Blacklists
             </Button>
           </div>
 
           {isCheckingBlacklist && (
-            <div className="border rounded-lg p-6 flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-3 rounded-lg border p-6">
               <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
-              <span className="text-muted-foreground">Verificando {BLACKLIST_COUNT} blacklists...</span>
+              <span className="text-muted-foreground">
+                Verificando {BLACKLIST_COUNT} blacklists...
+              </span>
             </div>
           )}
 
           {blacklistResult && !isCheckingBlacklist && (
-            <div className="border rounded-lg p-4 space-y-4">
+            <div className="space-y-4 rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {blacklistResult.listed ? (
@@ -225,7 +241,7 @@ function DeliverabilityTabBase() {
                     <ShieldCheck className="h-6 w-6 text-green-600" />
                   )}
                   <div>
-                    <h4 className="font-semibold text-lg">{blacklistResult.domain}</h4>
+                    <h4 className="text-lg font-semibold">{blacklistResult.domain}</h4>
                     <p className="text-sm text-muted-foreground">
                       Verificado em {new Date(blacklistResult.checkedAt).toLocaleString('pt-BR')}
                     </p>
@@ -240,24 +256,24 @@ function DeliverabilityTabBase() {
               </div>
 
               {/* Blacklist Results Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {blacklistResult.results.map((result) => (
                   <div
                     key={result.host}
-                    className={`flex items-center gap-2 p-3 rounded-lg border ${
-                      result.listed 
-                        ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950' 
+                    className={`flex items-center gap-2 rounded-lg border p-3 ${
+                      result.listed
+                        ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950'
                         : 'border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950'
                     }`}
                   >
                     {result.listed ? (
-                      <XCircle className="h-4 w-4 text-red-600 shrink-0" />
+                      <XCircle className="h-4 w-4 shrink-0 text-red-600" />
                     ) : (
-                      <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
                     )}
                     <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{result.blacklist}</p>
-                      <p className="text-xs text-muted-foreground truncate">{result.host}</p>
+                      <p className="truncate text-sm font-medium">{result.blacklist}</p>
+                      <p className="truncate text-xs text-muted-foreground">{result.host}</p>
                     </div>
                   </div>
                 ))}
@@ -265,10 +281,12 @@ function DeliverabilityTabBase() {
 
               {/* Recommendations */}
               {blacklistResult.recommendations.length > 0 && (
-                <div className="mt-3 space-y-1 p-3 bg-muted/50 rounded-lg">
+                <div className="mt-3 space-y-1 rounded-lg bg-muted/50 p-3">
                   <p className="text-sm font-medium">Recomendações:</p>
                   {blacklistResult.recommendations.map((rec, i) => (
-                    <p key={i} className="text-sm text-muted-foreground">{rec}</p>
+                    <p key={i} className="text-sm text-muted-foreground">
+                      {rec}
+                    </p>
                   ))}
                 </div>
               )}
@@ -299,16 +317,16 @@ function DeliverabilityTabBase() {
             />
             <Button onClick={handleCheckDNS} disabled={isCheckingDNS}>
               {isCheckingDNS ? (
-                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Shield className="h-4 w-4 mr-2" />
+                <Shield className="mr-2 h-4 w-4" />
               )}
               Verificar DNS
             </Button>
           </div>
 
           {dnsResult && (
-            <div className="border rounded-lg p-4 space-y-3">
+            <div className="space-y-3 rounded-lg border p-4">
               <h4 className="font-medium">Resultados para {dnsResult.domain}</h4>
               <div className="grid grid-cols-3 gap-4">
                 <div className="flex items-center gap-2">
@@ -340,7 +358,9 @@ function DeliverabilityTabBase() {
                 <div className="mt-3 space-y-1">
                   <p className="text-sm font-medium">Recomendações:</p>
                   {dnsResult.recommendations.map((rec, i) => (
-                    <p key={i} className="text-sm text-muted-foreground">• {rec}</p>
+                    <p key={i} className="text-sm text-muted-foreground">
+                      • {rec}
+                    </p>
                   ))}
                 </div>
               )}
@@ -357,8 +377,8 @@ function DeliverabilityTabBase() {
         </CardHeader>
         <CardContent>
           {domains.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <div className="py-8 text-center text-muted-foreground">
+              <Mail className="mx-auto mb-4 h-12 w-12 opacity-50" />
               <p>Nenhum domínio de envio encontrado</p>
               <p className="text-sm">Envie emails rastreados para ver as métricas</p>
             </div>
@@ -367,13 +387,13 @@ function DeliverabilityTabBase() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-2 font-medium">Domínio</th>
-                    <th className="text-right py-3 px-2 font-medium">Enviados</th>
-                    <th className="text-right py-3 px-2 font-medium">Entregues</th>
-                    <th className="text-right py-3 px-2 font-medium">Bounces</th>
-                    <th className="text-right py-3 px-2 font-medium">Taxa Entrega</th>
-                    <th className="text-right py-3 px-2 font-medium">Taxa Bounce</th>
-                    <th className="text-right py-3 px-2 font-medium">Reputação</th>
+                    <th className="px-2 py-3 text-left font-medium">Domínio</th>
+                    <th className="px-2 py-3 text-right font-medium">Enviados</th>
+                    <th className="px-2 py-3 text-right font-medium">Entregues</th>
+                    <th className="px-2 py-3 text-right font-medium">Bounces</th>
+                    <th className="px-2 py-3 text-right font-medium">Taxa Entrega</th>
+                    <th className="px-2 py-3 text-right font-medium">Taxa Bounce</th>
+                    <th className="px-2 py-3 text-right font-medium">Reputação</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -381,21 +401,33 @@ function DeliverabilityTabBase() {
                     const repInfo = getReputationLevel(domain.reputation_score);
                     return (
                       <tr key={domain.domain} className="border-b hover:bg-muted/50">
-                        <td className="py-3 px-2 font-medium">{domain.domain}</td>
-                        <td className="py-3 px-2 text-right">{Number(domain.total_sent).toLocaleString()}</td>
-                        <td className="py-3 px-2 text-right">{Number(domain.total_delivered).toLocaleString()}</td>
-                        <td className="py-3 px-2 text-right">{Number(domain.total_bounced).toLocaleString()}</td>
-                        <td className="py-3 px-2 text-right">
-                          <span className={domain.delivery_rate >= 90 ? 'text-green-600' : 'text-yellow-600'}>
+                        <td className="px-2 py-3 font-medium">{domain.domain}</td>
+                        <td className="px-2 py-3 text-right">
+                          {Number(domain.total_sent).toLocaleString()}
+                        </td>
+                        <td className="px-2 py-3 text-right">
+                          {Number(domain.total_delivered).toLocaleString()}
+                        </td>
+                        <td className="px-2 py-3 text-right">
+                          {Number(domain.total_bounced).toLocaleString()}
+                        </td>
+                        <td className="px-2 py-3 text-right">
+                          <span
+                            className={
+                              domain.delivery_rate >= 90 ? 'text-green-600' : 'text-yellow-600'
+                            }
+                          >
                             {Number(domain.delivery_rate).toFixed(1)}%
                           </span>
                         </td>
-                        <td className="py-3 px-2 text-right">
-                          <span className={domain.bounce_rate <= 2 ? 'text-green-600' : 'text-red-600'}>
+                        <td className="px-2 py-3 text-right">
+                          <span
+                            className={domain.bounce_rate <= 2 ? 'text-green-600' : 'text-red-600'}
+                          >
                             {Number(domain.bounce_rate).toFixed(1)}%
                           </span>
                         </td>
-                        <td className="py-3 px-2 text-right">
+                        <td className="px-2 py-3 text-right">
                           <Badge variant="outline" className={repInfo.color}>
                             {domain.reputation_score}
                           </Badge>

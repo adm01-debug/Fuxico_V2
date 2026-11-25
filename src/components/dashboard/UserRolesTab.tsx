@@ -1,12 +1,25 @@
 import { log } from '@/lib/logger';
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { 
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -15,17 +28,22 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Shield, ShieldCheck, User, Search, UserMinus, UserPlus } from "lucide-react";
-import { useUsersWithRoles, useAssignRole, useRemoveRole, type UserWithRole } from "@/features/security/hooks/use-user-roles";
-import { toast } from "sonner";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { matchFirst } from "@/lib/variant";
+} from '@/components/ui/alert-dialog';
+import { Shield, ShieldCheck, User, Search, UserMinus, UserPlus } from 'lucide-react';
+import {
+  useUsersWithRoles,
+  useAssignRole,
+  useRemoveRole,
+  type UserWithRole,
+} from '@/features/security/hooks/use-user-roles';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { matchFirst } from '@/lib/variant';
 
 export function UserRolesTab() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [confirmAction, setConfirmAction] = useState<{
     type: 'assign' | 'remove';
     user: UserWithRole;
@@ -36,10 +54,11 @@ export function UserRolesTab() {
   const assignRole = useAssignRole();
   const removeRole = useRemoveRole();
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user) => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === "all" || 
-      (roleFilter === "none" && user.role === null) ||
+    const matchesRole =
+      roleFilter === 'all' ||
+      (roleFilter === 'none' && user.role === null) ||
       user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
@@ -57,9 +76,9 @@ export function UserRolesTab() {
 
     try {
       if (confirmAction.type === 'assign' && confirmAction.newRole) {
-        await assignRole.mutateAsync({ 
-          userId: confirmAction.user.user_id, 
-          role: confirmAction.newRole 
+        await assignRole.mutateAsync({
+          userId: confirmAction.user.user_id,
+          role: confirmAction.newRole,
         });
         toast.success(`Role ${confirmAction.newRole} atribuído a ${confirmAction.user.email}`);
       } else if (confirmAction.type === 'remove') {
@@ -67,7 +86,7 @@ export function UserRolesTab() {
         toast.success(`Role removido de ${confirmAction.user.email}`);
       }
     } catch (error) {
-      toast.error("Erro ao atualizar role");
+      toast.error('Erro ao atualizar role');
       log.error(error instanceof Error ? error.message : String(error));
     } finally {
       setConfirmAction(null);
@@ -77,7 +96,7 @@ export function UserRolesTab() {
   const getRoleBadge = (role: 'admin' | 'user' | null) => {
     if (role === 'admin') {
       return (
-        <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 gap-1">
+        <Badge className="gap-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
           <ShieldCheck className="h-3 w-3" />
           Admin
         </Badge>
@@ -85,14 +104,14 @@ export function UserRolesTab() {
     }
     if (role === 'user') {
       return (
-        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 gap-1">
+        <Badge className="gap-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
           <User className="h-3 w-3" />
           Usuário
         </Badge>
       );
     }
     return (
-      <Badge variant="outline" className="text-muted-foreground gap-1">
+      <Badge variant="outline" className="gap-1 text-muted-foreground">
         <User className="h-3 w-3" />
         Sem role
       </Badge>
@@ -113,8 +132,8 @@ export function UserRolesTab() {
             </CardDescription>
           </div>
           <div className="flex flex-wrap gap-3">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative min-w-[200px] flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
               <Input
                 placeholder="Buscar por email..."
                 value={searchTerm}
@@ -137,127 +156,133 @@ export function UserRolesTab() {
         </div>
       </CardHeader>
       <CardContent>
-        {matchFirst([
-  [isLoading, () => ((
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-          </div>
-        ))],
-  [filteredUsers.length === 0, () => ((
-          <div className="text-center py-8 text-muted-foreground">
-            <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Nenhum usuário encontrado</p>
-          </div>
-        ))],
-], () => ((
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Email</TableHead>
-                <TableHead>Role Atual</TableHead>
-                <TableHead>Desde</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.map((user) => (
-                <TableRow key={user.user_id}>
-                  <TableCell className="font-medium">{user.email}</TableCell>
-                  <TableCell>{getRoleBadge(user.role)}</TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {user.created_at 
-                      ? format(new Date(user.created_at), "dd/MM/yyyy", { locale: ptBR })
-                      : "-"
-                    }
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      {user.role !== 'admin' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleAssignRole(user, 'admin')}
-                          className="gap-1"
-                        >
-                          <ShieldCheck className="h-4 w-4" />
-                          Tornar Admin
-                        </Button>
-                      )}
-                      {user.role === 'admin' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleAssignRole(user, 'user')}
-                          className="gap-1"
-                        >
-                          <User className="h-4 w-4" />
-                          Rebaixar
-                        </Button>
-                      )}
-                      {user.role && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveRole(user)}
-                          className="gap-1 text-destructive hover:text-destructive"
-                        >
-                          <UserMinus className="h-4 w-4" />
-                          Remover
-                        </Button>
-                      )}
-                      {!user.role && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleAssignRole(user, 'user')}
-                          className="gap-1"
-                        >
-                          <UserPlus className="h-4 w-4" />
-                          Atribuir
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
+        {matchFirst(
+          [
+            [
+              isLoading,
+              () => (
+                <div className="flex justify-center py-8">
+                  <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div>
+                </div>
+              ),
+            ],
+            [
+              filteredUsers.length === 0,
+              () => (
+                <div className="py-8 text-center text-muted-foreground">
+                  <User className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                  <p>Nenhum usuário encontrado</p>
+                </div>
+              ),
+            ],
+          ],
+          () => (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role Atual</TableHead>
+                  <TableHead>Desde</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )))}
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.user_id}>
+                    <TableCell className="font-medium">{user.email}</TableCell>
+                    <TableCell>{getRoleBadge(user.role)}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {user.created_at
+                        ? format(new Date(user.created_at), 'dd/MM/yyyy', { locale: ptBR })
+                        : '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        {user.role !== 'admin' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAssignRole(user, 'admin')}
+                            className="gap-1"
+                          >
+                            <ShieldCheck className="h-4 w-4" />
+                            Tornar Admin
+                          </Button>
+                        )}
+                        {user.role === 'admin' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAssignRole(user, 'user')}
+                            className="gap-1"
+                          >
+                            <User className="h-4 w-4" />
+                            Rebaixar
+                          </Button>
+                        )}
+                        {user.role && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveRole(user)}
+                            className="gap-1 text-destructive hover:text-destructive"
+                          >
+                            <UserMinus className="h-4 w-4" />
+                            Remover
+                          </Button>
+                        )}
+                        {!user.role && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAssignRole(user, 'user')}
+                            className="gap-1"
+                          >
+                            <UserPlus className="h-4 w-4" />
+                            Atribuir
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )
+        )}
       </CardContent>
 
       <AlertDialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirmAction?.type === 'assign' 
+              {confirmAction?.type === 'assign'
                 ? `Atribuir role ${confirmAction.newRole}?`
-                : 'Remover role?'
-              }
+                : 'Remover role?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmAction?.type === 'assign' ? (
                 <>
-                  Você está prestes a atribuir o role <strong>{confirmAction.newRole}</strong> para{" "}
+                  Você está prestes a atribuir o role <strong>{confirmAction.newRole}</strong> para{' '}
                   <strong>{confirmAction.user.email}</strong>.
                   {confirmAction.newRole === 'admin' && (
-                    <span className="block mt-2 text-orange-600">
-                      Administradores têm acesso completo ao painel de auditoria e gerenciamento de roles.
+                    <span className="mt-2 block text-orange-600">
+                      Administradores têm acesso completo ao painel de auditoria e gerenciamento de
+                      roles.
                     </span>
                   )}
                 </>
               ) : (
                 <>
-                  Você está prestes a remover o role de <strong>{confirmAction?.user.email}</strong>.
-                  O usuário perderá todas as permissões especiais.
+                  Você está prestes a remover o role de <strong>{confirmAction?.user.email}</strong>
+                  . O usuário perderá todas as permissões especiais.
                 </>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmRoleChange}>
-              Confirmar
-            </AlertDialogAction>
+            <AlertDialogAction onClick={confirmRoleChange}>Confirmar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 
 export interface TrackedEmail {
   id: string;
@@ -65,12 +65,14 @@ export interface EmailDetailResponse {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 async function getAuthHeaders(): Promise<HeadersInit> {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   if (!session?.access_token) {
     throw new Error('Not authenticated');
   }
   return {
-    'Authorization': `Bearer ${session.access_token}`,
+    Authorization: `Bearer ${session.access_token}`,
     'Content-Type': 'application/json',
   };
 }
@@ -89,7 +91,9 @@ export async function getTrackedEmails(): Promise<EmailsResponse> {
 
 export async function getEmailDetail(trackingId: string): Promise<EmailDetailResponse> {
   const headers = await getAuthHeaders();
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/get-tracking-stats?id=${trackingId}`, { headers });
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/get-tracking-stats?id=${trackingId}`, {
+    headers,
+  });
   if (!response.ok) {
     if (response.status === 401) {
       throw new Error('Not authenticated');

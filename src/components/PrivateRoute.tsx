@@ -15,7 +15,11 @@ export function PrivateRoute({ children }: PrivateRouteProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4" role="status" aria-label="Verificando autenticação">
+      <div
+        className="flex min-h-screen items-center justify-center p-4"
+        role="status"
+        aria-label="Verificando autenticação"
+      >
         <div className="w-full max-w-4xl space-y-4">
           <Skeleton className="h-12 w-3/4" />
           <Skeleton className="h-64 w-full" />

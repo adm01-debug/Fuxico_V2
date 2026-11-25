@@ -9,17 +9,14 @@ describe('mfaReducer › transições válidas', () => {
 
   it('sending_code → awaiting_code via CODE_SENT', () => {
     const expiresAt = Date.now() + 60_000;
-    const next = mfaReducer(
-      { status: 'sending_code' },
-      { type: 'CODE_SENT', expiresAt },
-    );
+    const next = mfaReducer({ status: 'sending_code' }, { type: 'CODE_SENT', expiresAt });
     expect(next).toEqual({ status: 'awaiting_code', expiresAt });
   });
 
   it('sending_code → error via REJECTED', () => {
     const next = mfaReducer(
       { status: 'sending_code' },
-      { type: 'REJECTED', message: 'SMS provider down' },
+      { type: 'REJECTED', message: 'SMS provider down' }
     );
     expect(next).toEqual({ status: 'error', message: 'SMS provider down' });
   });
@@ -27,17 +24,14 @@ describe('mfaReducer › transições válidas', () => {
   it('awaiting_code → verifying via SUBMIT_CODE', () => {
     const next = mfaReducer(
       { status: 'awaiting_code', expiresAt: 1 },
-      { type: 'SUBMIT_CODE', code: '123456' },
+      { type: 'SUBMIT_CODE', code: '123456' }
     );
     expect(next).toEqual({ status: 'verifying' });
   });
 
   it('awaiting_code → locked via LOCKOUT', () => {
     const until = Date.now() + 30_000;
-    const next = mfaReducer(
-      { status: 'awaiting_code', expiresAt: 1 },
-      { type: 'LOCKOUT', until },
-    );
+    const next = mfaReducer({ status: 'awaiting_code', expiresAt: 1 }, { type: 'LOCKOUT', until });
     expect(next).toEqual({ status: 'locked', until });
   });
 
@@ -47,27 +41,18 @@ describe('mfaReducer › transições válidas', () => {
   });
 
   it('verifying → error via REJECTED', () => {
-    const next = mfaReducer(
-      { status: 'verifying' },
-      { type: 'REJECTED', message: 'bad code' },
-    );
+    const next = mfaReducer({ status: 'verifying' }, { type: 'REJECTED', message: 'bad code' });
     expect(next).toEqual({ status: 'error', message: 'bad code' });
   });
 
   it('verifying → locked via LOCKOUT', () => {
     const until = Date.now() + 5000;
-    const next = mfaReducer(
-      { status: 'verifying' },
-      { type: 'LOCKOUT', until },
-    );
+    const next = mfaReducer({ status: 'verifying' }, { type: 'LOCKOUT', until });
     expect(next).toEqual({ status: 'locked', until });
   });
 
   it('error → idle via RESET', () => {
-    const next = mfaReducer(
-      { status: 'error', message: 'x' },
-      { type: 'RESET' },
-    );
+    const next = mfaReducer({ status: 'error', message: 'x' }, { type: 'RESET' });
     expect(next).toEqual({ status: 'idle' });
   });
 

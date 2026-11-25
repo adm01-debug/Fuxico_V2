@@ -9,7 +9,8 @@ interface WindowWithWebkitAudioContext extends Window {
 
 function getAudioContext(): AudioContext {
   if (!audioContext) {
-    const AudioContextClass = window.AudioContext || (window as WindowWithWebkitAudioContext).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext || (window as WindowWithWebkitAudioContext).webkitAudioContext;
     if (AudioContextClass) {
       audioContext = new AudioContextClass();
     } else {
@@ -48,7 +49,10 @@ export function playNotificationSound(
       critical: [880, 659.25, 440],
     };
 
-    const soundPatterns: Record<NotificationSoundType, 'sine' | 'triangle' | 'square' | 'sawtooth'> = {
+    const soundPatterns: Record<
+      NotificationSoundType,
+      'sine' | 'triangle' | 'square' | 'sawtooth'
+    > = {
       gentle: 'sine',
       bell: 'triangle',
       chime: 'sine',
@@ -56,7 +60,7 @@ export function playNotificationSound(
     };
 
     const freqs = frequencies[type] || frequencies.success;
-    
+
     oscillator.type = soundPatterns[soundType];
     gainNode.gain.setValueAtTime(Math.min(volume, 1), ctx.currentTime);
 

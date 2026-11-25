@@ -3,7 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, Copy, Clock, Lightbulb, CheckCircle, Loader2, Mail, Zap } from 'lucide-react';
@@ -36,7 +42,12 @@ interface AIResponse {
   tips: string[];
 }
 
-function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: AIFollowUpDialogProps) {
+function AIFollowUpDialogBase({
+  open,
+  onOpenChange,
+  email,
+  onCreateReminder,
+}: AIFollowUpDialogProps) {
   const [tone, setTone] = useState<'formal' | 'friendly' | 'urgent'>('friendly');
   const [context, setContext] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +56,7 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
 
   const handleGenerate = async () => {
     if (!email) return;
-    
+
     setIsLoading(true);
     setResult(null);
 
@@ -57,8 +68,8 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
           daysSinceOriginal: email.days_since_sent,
           originalContext: context,
           tone,
-          language: 'pt-BR'
-        }
+          language: 'pt-BR',
+        },
       });
 
       if (error) throw error;
@@ -107,7 +118,7 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -142,7 +153,10 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Tom do email</label>
-                  <Select value={tone} onValueChange={(v) => setTone(v as 'formal' | 'friendly' | 'urgent')}>
+                  <Select
+                    value={tone}
+                    onValueChange={(v) => setTone(v as 'formal' | 'friendly' | 'urgent')}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -165,11 +179,7 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
                 />
               </div>
 
-              <Button 
-                onClick={handleGenerate} 
-                className="w-full gap-2" 
-                disabled={isLoading}
-              >
+              <Button onClick={handleGenerate} className="w-full gap-2" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -189,10 +199,10 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
           {result && (
             <div className="space-y-4">
               {/* Tips and Best Time */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-sm">
                       <Clock className="h-4 w-4" />
                       Melhor horário para envio
                     </CardTitle>
@@ -204,15 +214,17 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-sm">
                       <Lightbulb className="h-4 w-4" />
                       Dicas
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ul className="text-sm space-y-1">
+                    <ul className="space-y-1 text-sm">
                       {result.tips.map((tip, i) => (
-                        <li key={i} className="text-muted-foreground">• {tip}</li>
+                        <li key={i} className="text-muted-foreground">
+                          • {tip}
+                        </li>
                       ))}
                     </ul>
                   </CardContent>
@@ -226,7 +238,10 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
                     <TabsTrigger key={i} value={String(i)} className="gap-2">
                       <Zap className="h-3 w-3" />
                       Opção {i + 1}
-                      <Badge variant="outline" className={`text-xs ${getEffectivenessColor(suggestion.effectiveness)}`}>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${getEffectivenessColor(suggestion.effectiveness)}`}
+                      >
                         {suggestion.effectiveness}%
                       </Badge>
                     </TabsTrigger>
@@ -236,11 +251,13 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
                 {result.suggestions.map((suggestion, i) => (
                   <TabsContent key={i} value={String(i)} className="mt-4">
                     <Card>
-                      <CardContent className="pt-4 space-y-4">
+                      <CardContent className="space-y-4 pt-4">
                         <div className="flex items-center justify-between">
                           <Badge variant="secondary">{suggestion.approach}</Badge>
                           <div className="flex items-center gap-2">
-                            <span className={`text-sm font-medium ${getEffectivenessColor(suggestion.effectiveness)}`}>
+                            <span
+                              className={`text-sm font-medium ${getEffectivenessColor(suggestion.effectiveness)}`}
+                            >
                               Eficácia: {suggestion.effectiveness}%
                             </span>
                           </div>
@@ -254,11 +271,11 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
                               variant="ghost"
                               onClick={() => handleCopySubject(suggestion.subject)}
                             >
-                              <Copy className="h-3 w-3 mr-1" />
+                              <Copy className="mr-1 h-3 w-3" />
                               Copiar
                             </Button>
                           </div>
-                          <div className="p-3 bg-muted rounded-md">
+                          <div className="rounded-md bg-muted p-3">
                             <p className="font-medium">{suggestion.subject}</p>
                           </div>
                         </div>
@@ -271,11 +288,11 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
                               variant="ghost"
                               onClick={() => handleCopyBody(suggestion.body)}
                             >
-                              <Copy className="h-3 w-3 mr-1" />
+                              <Copy className="mr-1 h-3 w-3" />
                               Copiar
                             </Button>
                           </div>
-                          <div className="p-3 bg-muted rounded-md whitespace-pre-wrap text-sm">
+                          <div className="whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">
                             {suggestion.body}
                           </div>
                         </div>
@@ -327,6 +344,5 @@ function AIFollowUpDialogBase({ open, onOpenChange, email, onCreateReminder }: A
     </Dialog>
   );
 }
-
 
 export const AIFollowUpDialog = memo(AIFollowUpDialogBase);

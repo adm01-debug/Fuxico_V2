@@ -43,7 +43,10 @@ function calculateTrend(values: number[]): 'up' | 'down' | 'stable' {
 function linearRegression(values: number[]): { slope: number; intercept: number } {
   const n = values.length;
   if (n < 2) return { slope: 0, intercept: values[0] || 0 };
-  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+  let sumX = 0,
+    sumY = 0,
+    sumXY = 0,
+    sumX2 = 0;
   for (let i = 0; i < n; i++) {
     sumX += i;
     sumY += values[i];
@@ -89,12 +92,12 @@ export function useTrendPrediction() {
         dailyData[key] = { date: key, emails: 0, opens: 0, clicks: 0 };
       }
 
-      (emails || []).forEach(e => {
+      (emails || []).forEach((e) => {
         const key = e.created_at.split('T')[0];
         if (dailyData[key]) dailyData[key].emails++;
       });
 
-      (events || []).forEach(e => {
+      (events || []).forEach((e) => {
         const key = e.created_at.split('T')[0];
         if (dailyData[key]) {
           if (e.event_type === 'open') dailyData[key].opens++;
@@ -105,9 +108,9 @@ export function useTrendPrediction() {
       const historical = Object.values(dailyData).sort((a, b) => a.date.localeCompare(b.date));
 
       // Linear regression for predictions
-      const emailValues = historical.map(d => d.emails);
-      const openValues = historical.map(d => d.opens);
-      const clickValues = historical.map(d => d.clicks);
+      const emailValues = historical.map((d) => d.emails);
+      const openValues = historical.map((d) => d.opens);
+      const clickValues = historical.map((d) => d.clicks);
 
       const emailReg = linearRegression(emailValues);
       const openReg = linearRegression(openValues);

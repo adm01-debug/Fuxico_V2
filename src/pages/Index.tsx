@@ -1,15 +1,24 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { motion, useScroll } from "framer-motion";
-import { Helmet } from "react-helmet-async";
+import { motion, useScroll } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 // VARIANTS and TRANSITIONS imports removed to fix unused import error
 import {
-  HeaderSection, HeroSection, StatsSection, FeaturesSection,
-  BeforeAfterSection, HowItWorksSection, BenefitsSection,
-  TestimonialsSection, CTASection, FooterSection, OrbBackground, DemoModal,
-} from "@/components/landing";
-import { TrustBar, SecurityBadges } from "@/components/landing/TrustSignals";
+  HeaderSection,
+  HeroSection,
+  StatsSection,
+  FeaturesSection,
+  BeforeAfterSection,
+  HowItWorksSection,
+  BenefitsSection,
+  TestimonialsSection,
+  CTASection,
+  FooterSection,
+  OrbBackground,
+  DemoModal,
+} from '@/components/landing';
+import { TrustBar, SecurityBadges } from '@/components/landing/TrustSignals';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -19,27 +28,30 @@ const Index = () => {
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard", { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
 
   if (user) return null;
 
-  const goAuth = () => navigate("/auth");
-  const goPricing = () => navigate("/pricing");
+  const goAuth = () => navigate('/auth');
+  const goPricing = () => navigate('/pricing');
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
+    <div className="min-h-screen overflow-hidden bg-background">
       <Helmet>
         <title>FUXICO | Rastreamento de Emails Profissional</title>
-        <meta name="description" content="Saiba exatamente quando seus emails são lidos com a plataforma FUXICO. Inteligência para seu comercial." />
+        <meta
+          name="description"
+          content="Saiba exatamente quando seus emails são lidos com a plataforma FUXICO. Inteligência para seu comercial."
+        />
       </Helmet>
-      
+
       <OrbBackground />
 
       {/* Progress bar */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-0.5 gradient-primary z-[60] origin-left"
+        className="gradient-primary fixed left-0 right-0 top-0 z-[60] h-0.5 origin-left"
         style={{ scaleX: scrollYProgress }}
       />
 

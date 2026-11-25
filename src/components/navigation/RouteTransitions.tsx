@@ -1,6 +1,6 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
-import { useEffect, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
+import { useEffect, useState, type ReactNode } from 'react';
 
 interface RouteTransitionsProps {
   children: ReactNode;
@@ -14,12 +14,12 @@ export function RouteTransitions({ children }: RouteTransitionsProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => setReducedMotion(mq.matches);
     update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
+    mq.addEventListener?.('change', update);
+    return () => mq.removeEventListener?.('change', update);
   }, []);
 
   if (reducedMotion) {
@@ -34,7 +34,7 @@ export function RouteTransitions({ children }: RouteTransitionsProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-        className="min-h-full relative"
+        className="relative min-h-full"
       >
         {children}
       </motion.div>

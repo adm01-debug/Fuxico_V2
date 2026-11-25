@@ -1,17 +1,17 @@
-import React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
-import { 
-  Mail, 
-  MailOpen, 
-  MousePointerClick, 
-  AlertTriangle, 
-  Clock, 
+import React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+import {
+  Mail,
+  MailOpen,
+  MousePointerClick,
+  AlertTriangle,
+  Clock,
   Reply,
   CheckCircle,
-  type LucideIcon 
-} from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+  type LucideIcon,
+} from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const emailStatusBadgeVariants = cva(
   'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-all duration-200',
@@ -37,7 +37,7 @@ const emailStatusBadgeVariants = cva(
       size: 'default',
     },
   }
-)
+);
 
 const statusIcons: Record<string, LucideIcon> = {
   sent: Mail,
@@ -47,7 +47,7 @@ const statusIcons: Record<string, LucideIcon> = {
   bounced: AlertTriangle,
   pending: Clock,
   replied: Reply,
-}
+};
 
 const statusLabels: Record<string, string> = {
   sent: 'Enviado',
@@ -57,20 +57,20 @@ const statusLabels: Record<string, string> = {
   bounced: 'Bounce',
   pending: 'Pendente',
   replied: 'Respondido',
-}
+};
 
-export type EmailStatus = 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' | 'pending' | 'replied';
+export type EmailStatus =
+  'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' | 'pending' | 'replied';
 
 export interface EmailStatusBadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof emailStatusBadgeVariants> {
+  extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof emailStatusBadgeVariants> {
   status?: EmailStatus;
-  showIcon?: boolean
-  showLabel?: boolean
-  customLabel?: string
-  pulse?: boolean
-  bounceType?: string
-  bounceReason?: string
+  showIcon?: boolean;
+  showLabel?: boolean;
+  customLabel?: string;
+  pulse?: boolean;
+  bounceType?: string;
+  bounceReason?: string;
 }
 
 export function EmailStatusBadge({
@@ -85,8 +85,8 @@ export function EmailStatusBadge({
   bounceReason,
   ...props
 }: EmailStatusBadgeProps) {
-  const Icon = status ? statusIcons[status] : Mail
-  const label = customLabel || (status ? statusLabels[status] : 'Enviado')
+  const Icon = status ? statusIcons[status] : Mail;
+  const label = customLabel || (status ? statusLabels[status] : 'Enviado');
 
   const badge = (
     <span
@@ -100,7 +100,7 @@ export function EmailStatusBadge({
       {showIcon && <Icon className="h-3 w-3" />}
       {showLabel && <span>{label}</span>}
     </span>
-  )
+  );
 
   // Show tooltip for bounced emails with reason
   if (status === 'bounced' && (bounceType || bounceReason)) {
@@ -111,14 +111,14 @@ export function EmailStatusBadge({
           <TooltipContent>
             <p className="font-medium">Email não entregue</p>
             {bounceType && <p className="text-xs">Tipo: {bounceType}</p>}
-            {bounceReason && <p className="text-xs max-w-48">{bounceReason}</p>}
+            {bounceReason && <p className="max-w-48 text-xs">{bounceReason}</p>}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
+    );
   }
 
-  return badge
+  return badge;
 }
 
 // Engagement Score Badge
@@ -142,18 +142,17 @@ const engagementBadgeVariants = cva(
       size: 'default',
     },
   }
-)
+);
 
 const engagementLabels: Record<string, string> = {
   hot: '🔥 Quente',
   warm: '⚡ Morno',
   cold: '❄️ Frio',
-}
+};
 
 export interface EngagementBadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof engagementBadgeVariants> {
-  customLabel?: string
+  extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof engagementBadgeVariants> {
+  customLabel?: string;
 }
 
 export function EngagementBadge({
@@ -163,14 +162,11 @@ export function EngagementBadge({
   customLabel,
   ...props
 }: EngagementBadgeProps) {
-  const label = customLabel || (level ? engagementLabels[level] : 'Frio')
+  const label = customLabel || (level ? engagementLabels[level] : 'Frio');
 
   return (
-    <span
-      className={cn(engagementBadgeVariants({ level, size }), className)}
-      {...props}
-    >
+    <span className={cn(engagementBadgeVariants({ level, size }), className)} {...props}>
       {label}
     </span>
-  )
+  );
 }

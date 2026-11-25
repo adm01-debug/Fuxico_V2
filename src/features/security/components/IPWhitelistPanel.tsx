@@ -8,14 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { 
-  CheckCircle, 
-  Plus, 
-  Trash2, 
-  Search,
-  Globe,
-  Loader2
-} from 'lucide-react';
+import { CheckCircle, Plus, Trash2, Search, Globe, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -25,7 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 interface WhitelistedIP {
   id: string;
@@ -112,9 +105,9 @@ export default function IPWhitelistPanel() {
     },
   });
 
-  const filteredIPs = whitelistedIPs?.filter(ip =>
-    ip.ip_address.includes(search) || 
-    ip.description?.toLowerCase().includes(search.toLowerCase())
+  const filteredIPs = whitelistedIPs?.filter(
+    (ip) =>
+      ip.ip_address.includes(search) || ip.description?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -122,8 +115,8 @@ export default function IPWhitelistPanel() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-500/10 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-green-500" />
+            <div className="rounded-lg bg-green-500/10 p-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
             </div>
             <div>
               <CardTitle>IP Whitelist</CardTitle>
@@ -133,7 +126,7 @@ export default function IPWhitelistPanel() {
             </div>
           </div>
           <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Adicionar IP
           </Button>
         </div>
@@ -141,7 +134,7 @@ export default function IPWhitelistPanel() {
       <CardContent className="space-y-4">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar por IP ou descrição..."
             value={search}
@@ -151,67 +144,74 @@ export default function IPWhitelistPanel() {
         </div>
 
         {/* List */}
-        {matchFirst([
-  [isLoading, () => ((
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
-        ))],
-  [filteredIPs?.length === 0, () => ((
-          <div className="text-center py-8 text-muted-foreground">
-            Nenhum IP na whitelist
-          </div>
-        ))],
-], () => ((
-          <div className="space-y-2">
-            {filteredIPs?.map((ip) => (
-              <div
-                key={ip.id}
-                className={`flex items-center justify-between p-4 rounded-lg border ${
-                  ip.is_active ? 'bg-muted/50' : 'bg-muted/30 opacity-60'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <Globe className="w-5 h-5 text-muted-foreground" />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-mono font-medium">{ip.ip_address}</p>
-                      <Badge variant={ip.is_active ? 'default' : 'secondary'}>
-                        {ip.is_active ? 'Ativo' : 'Inativo'}
-                      </Badge>
+        {matchFirst(
+          [
+            [
+              isLoading,
+              () => (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ),
+            ],
+            [
+              filteredIPs?.length === 0,
+              () => (
+                <div className="py-8 text-center text-muted-foreground">Nenhum IP na whitelist</div>
+              ),
+            ],
+          ],
+          () => (
+            <div className="space-y-2">
+              {filteredIPs?.map((ip) => (
+                <div
+                  key={ip.id}
+                  className={`flex items-center justify-between rounded-lg border p-4 ${
+                    ip.is_active ? 'bg-muted/50' : 'bg-muted/30 opacity-60'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <Globe className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-mono font-medium">{ip.ip_address}</p>
+                        <Badge variant={ip.is_active ? 'default' : 'secondary'}>
+                          {ip.is_active ? 'Ativo' : 'Inativo'}
+                        </Badge>
+                      </div>
+                      {ip.description && (
+                        <p className="text-sm text-muted-foreground">{ip.description}</p>
+                      )}
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Adicionado em {new Date(ip.created_at).toLocaleDateString()}
+                      </p>
                     </div>
-                    {ip.description && (
-                      <p className="text-sm text-muted-foreground">{ip.description}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Adicionado em {new Date(ip.created_at).toLocaleDateString()}
-                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={ip.is_active}
+                      onCheckedChange={(checked) =>
+                        toggleMutation.mutate({ id: ip.id, isActive: checked })
+                      }
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => {
+                        if (confirm('Deseja remover este IP da whitelist?')) {
+                          removeMutation.mutate(ip.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={ip.is_active}
-                    onCheckedChange={(checked) => 
-                      toggleMutation.mutate({ id: ip.id, isActive: checked })
-                    }
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => {
-                      if (confirm('Deseja remover este IP da whitelist?')) {
-                        removeMutation.mutate(ip.id);
-                      }
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )))}
+              ))}
+            </div>
+          )
+        )}
       </CardContent>
 
       {/* Add Dialog */}
@@ -245,10 +245,7 @@ export default function IPWhitelistPanel() {
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
               Cancelar
             </Button>
-            <Button
-              onClick={() => addMutation.mutate()}
-              disabled={!newIP || addMutation.isPending}
-            >
+            <Button onClick={() => addMutation.mutate()} disabled={!newIP || addMutation.isPending}>
               {addMutation.isPending ? 'Adicionando...' : 'Adicionar'}
             </Button>
           </DialogFooter>

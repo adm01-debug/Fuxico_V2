@@ -17,10 +17,7 @@ const responsiveCss = fs.readFileSync(
   'utf-8'
 );
 
-const indexCss = fs.readFileSync(
-  path.resolve(__dirname, '../../index.css'),
-  'utf-8'
-);
+const indexCss = fs.readFileSync(path.resolve(__dirname, '../../index.css'), 'utf-8');
 
 describe('Accessibility CSS', () => {
   it('should exist and have content', () => {

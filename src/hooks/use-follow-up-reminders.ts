@@ -31,10 +31,12 @@ export function useFollowUpReminders() {
 
       const { data, error } = await supabase
         .from('follow_up_reminders')
-        .select(`
+        .select(
+          `
           *,
           tracked_emails!inner(recipient_email, subject, created_at)
-        `)
+        `
+        )
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -55,7 +57,7 @@ export function useFollowUpReminders() {
           created_at: string;
         };
       }
-      
+
       return (data || []).map((item: ReminderQueryResult) => ({
         ...item,
         recipient_email: item.tracked_emails.recipient_email,
@@ -80,10 +82,12 @@ export function usePendingReminders() {
 
       const { data, error } = await supabase
         .from('follow_up_reminders')
-        .select(`
+        .select(
+          `
           *,
           tracked_emails!inner(recipient_email, subject, created_at)
-        `)
+        `
+        )
         .eq('user_id', user.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
@@ -105,7 +109,7 @@ export function usePendingReminders() {
           created_at: string;
         };
       }
-      
+
       return (data || []).map((item: ReminderQueryResult2) => {
         const daysSinceSent = Math.floor(
           (Date.now() - new Date(item.tracked_emails.created_at).getTime()) / (1000 * 60 * 60 * 24)
@@ -148,7 +152,13 @@ export function useCreateReminder() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ trackingId, reminderDays }: { trackingId: string; reminderDays: number }) => {
+    mutationFn: async ({
+      trackingId,
+      reminderDays,
+    }: {
+      trackingId: string;
+      reminderDays: number;
+    }) => {
       if (!user?.id) throw new Error('User not authenticated');
 
       const { data, error } = await supabase
@@ -175,10 +185,16 @@ export function useUpdateReminderStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: 'pending' | 'sent' | 'cancelled' | 'opened' }) => {
+    mutationFn: async ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: 'pending' | 'sent' | 'cancelled' | 'opened';
+    }) => {
       const { data, error } = await supabase
         .from('follow_up_reminders')
-        .update({ 
+        .update({
           status,
           reminded_at: status === 'sent' ? new Date().toISOString() : null,
         })
@@ -202,10 +218,7 @@ export function useDeleteReminder() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('follow_up_reminders')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('follow_up_reminders').delete().eq('id', id);
 
       if (error) throw error;
     },

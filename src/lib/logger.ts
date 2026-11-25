@@ -7,35 +7,35 @@
 /**
  * Níveis de log disponíveis
  */
-type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'
+type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
 
 /**
  * Entrada de log estruturada
  */
 interface LogEntry {
-  level: LogLevel
-  message: string
-  timestamp: string
-  context?: string
-  data?: unknown
+  level: LogLevel;
+  message: string;
+  timestamp: string;
+  context?: string;
+  data?: unknown;
   error?: {
-    name: string
-    message: string
-    stack?: string
-  }
-  duration?: number
-  userId?: string
+    name: string;
+    message: string;
+    stack?: string;
+  };
+  duration?: number;
+  userId?: string;
 }
 
 /**
  * Configuração do logger
  */
 interface LoggerConfig {
-  level: LogLevel
-  enableConsole: boolean
-  enableRemote: boolean
-  remoteEndpoint?: string
-  contextPrefix?: string
+  level: LogLevel;
+  enableConsole: boolean;
+  enableRemote: boolean;
+  remoteEndpoint?: string;
+  contextPrefix?: string;
 }
 
 // =============================================================================
@@ -51,7 +51,7 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   warn: 2,
   error: 3,
   silent: 4,
-}
+};
 
 /**
  * Configuração padrão baseada no ambiente
@@ -65,62 +65,57 @@ const DEFAULT_CONFIG: LoggerConfig = {
   enableRemote: import.meta.env.PROD,
   remoteEndpoint: import.meta.env.VITE_LOG_ENDPOINT,
   contextPrefix: 'FUXICO',
-}
+};
 
 // =============================================================================
 // CLASSE LOGGER
 // =============================================================================
 
 class Logger {
-  private config: LoggerConfig
-  private queue: LogEntry[] = []
-  private flushInterval: number | null = null
-  
+  private config: LoggerConfig;
+  private queue: LogEntry[] = [];
+  private flushInterval: number | null = null;
+
   constructor(config: Partial<LoggerConfig> = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config }
-    
+    this.config = { ...DEFAULT_CONFIG, ...config };
+
     // Iniciar flush periódico para logs remotos
     if (this.config.enableRemote) {
-      this.startFlushInterval()
+      this.startFlushInterval();
     }
   }
-  
+
   /**
    * Verifica se o nível de log deve ser registrado
    */
   private shouldLog(level: LogLevel): boolean {
-    return LOG_LEVELS[level] >= LOG_LEVELS[this.config.level]
+    return LOG_LEVELS[level] >= LOG_LEVELS[this.config.level];
   }
-  
+
   /**
    * Formata erro para serialização
    */
   private formatError(error: unknown): LogEntry['error'] | undefined {
-    if (!error) return undefined
-    
+    if (!error) return undefined;
+
     if (error instanceof Error) {
       return {
         name: error.name,
         message: error.message,
         stack: import.meta.env.DEV ? error.stack : undefined,
-      }
+      };
     }
-    
+
     return {
       name: 'UnknownError',
       message: String(error),
-    }
+    };
   }
-  
+
   /**
    * Cria entrada de log
    */
-  private createEntry(
-    level: LogLevel,
-    message: string,
-    data?: unknown,
-    error?: unknown
-  ): LogEntry {
+  private createEntry(level: LogLevel, message: string, data?: unknown, error?: unknown): LogEntry {
     return {
       level,
       message,
@@ -128,212 +123,230 @@ class Logger {
       context: this.config.contextPrefix,
       data: import.meta.env.DEV ? data : this.sanitizeData(data),
       error: this.formatError(error),
-    }
+    };
   }
-  
+
   /**
    * Remove dados sensíveis antes de enviar para logs remotos
    */
   private sanitizeData(data: unknown, depth = 0): unknown {
-    if (!data) return undefined
-    if (typeof data !== 'object') return data
+    if (!data) return undefined;
+    if (typeof data !== 'object') return data;
     // Prevent infinite recursion on deeply nested objects
-    if (depth > 10) return '[TRUNCATED]'
-    
+    if (depth > 10) return '[TRUNCATED]';
+
     const sensitiveKeys = [
-      'password', 'token', 'secret', 'apiKey', 'api_key',
-      'authorization', 'auth', 'credential', 'credit_card',
-      'ssn', 'cpf', 'cnpj',
-    ]
-    
+      'password',
+      'token',
+      'secret',
+      'apiKey',
+      'api_key',
+      'authorization',
+      'auth',
+      'credential',
+      'credit_card',
+      'ssn',
+      'cpf',
+      'cnpj',
+    ];
+
     // Handle arrays recursively
     if (Array.isArray(data)) {
-      return data.map(item => this.sanitizeData(item, depth + 1))
+      return data.map((item) => this.sanitizeData(item, depth + 1));
     }
-    
-    const sanitized = { ...(data as Record<string, unknown>) }
-    
+
+    const sanitized = { ...(data as Record<string, unknown>) };
+
     for (const key of Object.keys(sanitized)) {
-      if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk.toLowerCase()))) {
-        sanitized[key] = '[REDACTED]'
+      if (sensitiveKeys.some((sk) => key.toLowerCase().includes(sk.toLowerCase()))) {
+        sanitized[key] = '[REDACTED]';
       } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
         // Recursively sanitize nested objects and arrays
-        sanitized[key] = this.sanitizeData(sanitized[key], depth + 1)
+        sanitized[key] = this.sanitizeData(sanitized[key], depth + 1);
       }
     }
-    
-    return sanitized
+
+    return sanitized;
   }
-  
+
   /**
    * Envia log para console e Sentry (para erros/warnings)
    */
   private logToConsole(entry: LogEntry): void {
-    if (!this.config.enableConsole) return
+    if (!this.config.enableConsole) return;
 
-    const prefix = `[${entry.context}][${entry.level.toUpperCase()}]`
-    const args: unknown[] = [prefix, entry.message]
+    const prefix = `[${entry.context}][${entry.level.toUpperCase()}]`;
+    const args: unknown[] = [prefix, entry.message];
 
     if (entry.data) {
-      args.push(entry.data)
+      args.push(entry.data);
     }
 
     switch (entry.level) {
       case 'debug':
-        console.debug(...args)
-        break
+        console.debug(...args);
+        break;
       case 'info':
-        console.info(...args)
-        break
+        console.info(...args);
+        break;
       case 'warn':
-        console.warn(...args)
-        break
+        console.warn(...args);
+        break;
       case 'error':
-        console.error(...args, entry.error?.stack)
-        break
+        console.error(...args, entry.error?.stack);
+        break;
     }
 
     // Forward errors and warnings to Sentry for centralized observability
     if (entry.level === 'error' || entry.level === 'warn') {
       try {
         // Dynamic import to avoid circular dependency
-        import('./sentry').then(({ captureException, captureMessage, addBreadcrumb }) => {
-          addBreadcrumb({
-            category: entry.context || 'logger',
-            message: entry.message,
-            level: entry.level === 'error' ? 'error' : 'warning',
-            data: entry.data as Record<string, unknown> | undefined,
+        import('./sentry')
+          .then(({ captureException, captureMessage, addBreadcrumb }) => {
+            addBreadcrumb({
+              category: entry.context || 'logger',
+              message: entry.message,
+              level: entry.level === 'error' ? 'error' : 'warning',
+              data: entry.data as Record<string, unknown> | undefined,
+            });
+            if (entry.level === 'error' && entry.error) {
+              const err = new Error(entry.error.message);
+              err.name = entry.error.name;
+              captureException(err, { context: entry.context, data: entry.data } as Record<
+                string,
+                unknown
+              >);
+            } else if (entry.level === 'warn') {
+              captureMessage(entry.message, 'warning');
+            }
           })
-          if (entry.level === 'error' && entry.error) {
-            const err = new Error(entry.error.message)
-            err.name = entry.error.name
-            captureException(err, { context: entry.context, data: entry.data } as Record<string, unknown>)
-          } else if (entry.level === 'warn') {
-            captureMessage(entry.message, 'warning')
-          }
-        }).catch(() => { /* Sentry not available, ignore */ })
-      } catch { /* ignore */ }
+          .catch(() => {
+            /* Sentry not available, ignore */
+          });
+      } catch {
+        /* ignore */
+      }
     }
   }
-  
+
   /**
    * Adiciona log à fila para envio remoto
    */
   private queueForRemote(entry: LogEntry): void {
-    if (!this.config.enableRemote) return
-    
-    this.queue.push(entry)
-    
+    if (!this.config.enableRemote) return;
+
+    this.queue.push(entry);
+
     // Flush imediato para erros
     if (entry.level === 'error') {
-      this.flush()
+      this.flush();
     }
   }
-  
+
   /**
    * Inicia intervalo de flush para logs remotos
    */
   private startFlushInterval(): void {
-    if (this.flushInterval) return
-    
+    if (this.flushInterval) return;
+
     // Flush a cada 30 segundos
     this.flushInterval = window.setInterval(() => {
-      this.flush()
-    }, 30000)
-    
+      this.flush();
+    }, 30000);
+
     // Flush ao sair da página
     window.addEventListener('beforeunload', () => {
-      this.flush()
-    })
+      this.flush();
+    });
   }
-  
+
   /**
    * Envia logs acumulados para endpoint remoto
    */
   private async flush(): Promise<void> {
-    if (this.queue.length === 0 || !this.config.remoteEndpoint) return
-    
-    const entries = [...this.queue]
-    this.queue = []
-    
+    if (this.queue.length === 0 || !this.config.remoteEndpoint) return;
+
+    const entries = [...this.queue];
+    this.queue = [];
+
     try {
       await fetch(this.config.remoteEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ logs: entries }),
         keepalive: true, // Permite envio durante beforeunload
-      })
+      });
     } catch {
       // Re-adiciona à fila em caso de falha
-      this.queue.unshift(...entries)
+      this.queue.unshift(...entries);
     }
   }
-  
+
   /**
    * Processa log
    */
   private log(level: LogLevel, message: string, data?: unknown, error?: unknown): void {
-    if (!this.shouldLog(level)) return
-    
-    const entry = this.createEntry(level, message, data, error)
-    
-    this.logToConsole(entry)
-    this.queueForRemote(entry)
+    if (!this.shouldLog(level)) return;
+
+    const entry = this.createEntry(level, message, data, error);
+
+    this.logToConsole(entry);
+    this.queueForRemote(entry);
   }
-  
+
   // =========================================================================
   // API PÚBLICA
   // =========================================================================
-  
+
   /**
    * Log de debug (apenas desenvolvimento)
    */
   debug(message: string, data?: unknown): void {
-    this.log('debug', message, data)
+    this.log('debug', message, data);
   }
-  
+
   /**
    * Log informativo
    */
   info(message: string, data?: unknown): void {
-    this.log('info', message, data)
+    this.log('info', message, data);
   }
-  
+
   /**
    * Log de aviso
    */
   warn(message: string, data?: unknown): void {
-    this.log('warn', message, data)
+    this.log('warn', message, data);
   }
-  
+
   /**
    * Log de erro
    */
   error(message: string, error?: unknown, data?: unknown): void {
-    this.log('error', message, data, error)
+    this.log('error', message, data, error);
   }
-  
+
   /**
    * Timer para medir duração de operações
    * @returns Função para encerrar o timer
-   * 
+   *
    * @example
    * const end = logger.time('fetchData')
    * await fetchData()
    * end() // Loga: "fetchData completed in 123.45ms"
    */
   time(label: string): () => void {
-    const start = performance.now()
-    
+    const start = performance.now();
+
     return () => {
-      const duration = performance.now() - start
-      this.debug(`${label} completed`, { duration: `${duration.toFixed(2)}ms` })
-    }
+      const duration = performance.now() - start;
+      this.debug(`${label} completed`, { duration: `${duration.toFixed(2)}ms` });
+    };
   }
-  
+
   /**
    * Cria logger com contexto específico
-   * 
+   *
    * @example
    * const authLogger = logger.child('Auth')
    * authLogger.info('User logged in') // [FUXICO:Auth][INFO] User logged in
@@ -342,14 +355,14 @@ class Logger {
     return new Logger({
       ...this.config,
       contextPrefix: `${this.config.contextPrefix}:${context}`,
-    })
+    });
   }
-  
+
   /**
    * Atualiza configuração do logger
    */
   configure(config: Partial<LoggerConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.config = { ...this.config, ...config };
   }
 }
 
@@ -360,7 +373,7 @@ class Logger {
 /**
  * Instância global do logger
  */
-export const logger = new Logger()
+export const logger = new Logger();
 
 /**
  * Helpers para uso rápido
@@ -371,11 +384,11 @@ export const log = {
   warn: (message: string, data?: unknown) => logger.warn(message, data),
   error: (message: string, error?: unknown, data?: unknown) => logger.error(message, error, data),
   time: (label: string) => logger.time(label),
-}
+};
 
 // =============================================================================
 // EXPORTAÇÕES DE TIPO
 // =============================================================================
 
-export type { LogLevel, LogEntry, LoggerConfig }
-export { Logger }
+export type { LogLevel, LogEntry, LoggerConfig };
+export { Logger };

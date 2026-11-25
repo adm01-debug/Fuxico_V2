@@ -1,9 +1,9 @@
 import { log } from '@/lib/logger';
-import { useState } from "react";
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -11,18 +11,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { FileUp, Upload, Loader2 } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { FileUp, Upload, Loader2 } from 'lucide-react';
 
 export function DocumentUploadDialog() {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [recipientName, setRecipientName] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
-  const [description, setDescription] = useState("");
+  const [recipientName, setRecipientName] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [description, setDescription] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -30,13 +30,13 @@ export function DocumentUploadDialog() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === "application/pdf") {
+    if (selectedFile && selectedFile.type === 'application/pdf') {
       setFile(selectedFile);
     } else {
       toast({
-        title: "Erro",
-        description: "Por favor, selecione um arquivo PDF",
-        variant: "destructive",
+        title: 'Erro',
+        description: 'Por favor, selecione um arquivo PDF',
+        variant: 'destructive',
       });
     }
   };
@@ -54,48 +54,45 @@ export function DocumentUploadDialog() {
 
       // Upload file to storage
       const { error: uploadError } = await supabase.storage
-        .from("tracked-documents")
+        .from('tracked-documents')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       // Create document record
-      const { error: dbError } = await supabase
-        .from("tracked_documents")
-        .insert({
-          user_id: user.id,
-          document_id: documentId,
-          file_path: filePath,
-          file_name: file.name,
-          file_size: file.size,
-          recipient_name: recipientName || null,
-          recipient_email: recipientEmail || null,
-          description: description || null,
-        });
+      const { error: dbError } = await supabase.from('tracked_documents').insert({
+        user_id: user.id,
+        document_id: documentId,
+        file_path: filePath,
+        file_name: file.name,
+        file_size: file.size,
+        recipient_name: recipientName || null,
+        recipient_email: recipientEmail || null,
+        description: description || null,
+      });
 
       if (dbError) throw dbError;
 
       toast({
-        title: "Sucesso!",
-        description: "Documento enviado com sucesso",
+        title: 'Sucesso!',
+        description: 'Documento enviado com sucesso',
       });
 
       // Reset form
       setFile(null);
-      setRecipientName("");
-      setRecipientEmail("");
-      setDescription("");
+      setRecipientName('');
+      setRecipientEmail('');
+      setDescription('');
       setOpen(false);
 
       // Refresh documents list
-      queryClient.invalidateQueries({ queryKey: ["tracked-documents"] });
-
+      queryClient.invalidateQueries({ queryKey: ['tracked-documents'] });
     } catch (error) {
-      log.error("Error uploading document:", error);
+      log.error('Error uploading document:', error);
       toast({
-        title: "Erro",
-        description: "Falha ao enviar documento",
-        variant: "destructive",
+        title: 'Erro',
+        description: 'Falha ao enviar documento',
+        variant: 'destructive',
       });
     } finally {
       setIsUploading(false);
@@ -113,9 +110,7 @@ export function DocumentUploadDialog() {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Enviar Documento PDF</DialogTitle>
-          <DialogDescription>
-            Envie um PDF para rastrear quando for visualizado
-          </DialogDescription>
+          <DialogDescription>Envie um PDF para rastrear quando for visualizado</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div role="region" aria-label="Upload de Documentos" className="space-y-2">

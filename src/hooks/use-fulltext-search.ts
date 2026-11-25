@@ -54,9 +54,7 @@ export function useFulltextSearch({
       }
 
       // Build OR filter for multiple columns
-      const orFilter = searchColumns
-        .map(col => `${col}.ilike.%${debouncedTerm}%`)
-        .join(',');
+      const orFilter = searchColumns.map((col) => `${col}.ilike.%${debouncedTerm}%`).join(',');
 
       const { data: result, error: queryError } = await supabase
         .from(table)
@@ -65,12 +63,12 @@ export function useFulltextSearch({
         .limit(100);
 
       if (queryError) throw queryError;
-      
+
       // Type guard to ensure result is an array of valid objects
       if (!result || !Array.isArray(result)) {
         return [];
       }
-      
+
       return result as unknown as SearchResult[];
     },
     enabled: enabled && debouncedTerm.length >= minChars,
@@ -79,34 +77,40 @@ export function useFulltextSearch({
 
   // Highlight matched text - returns segments for safe React rendering
   // SECURITY: Does NOT return HTML strings to prevent XSS injection
-  const getHighlightSegments = useCallback((text: string): Array<{ text: string; highlighted: boolean }> => {
-    if (!debouncedTerm || debouncedTerm.length < minChars) {
-      return [{ text, highlighted: false }];
-    }
-    if (text === '') {
-      return [{ text: '', highlighted: false }];
-    }
+  const getHighlightSegments = useCallback(
+    (text: string): Array<{ text: string; highlighted: boolean }> => {
+      if (!debouncedTerm || debouncedTerm.length < minChars) {
+        return [{ text, highlighted: false }];
+      }
+      if (text === '') {
+        return [{ text: '', highlighted: false }];
+      }
 
-    const escapedTerm = debouncedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedTerm})`, 'gi');
-    const parts = text.split(regex);
+      const escapedTerm = debouncedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapedTerm})`, 'gi');
+      const parts = text.split(regex);
 
-    return parts.filter(Boolean).map(part => ({
-      text: part,
-      highlighted: new RegExp(`^${escapedTerm}$`, 'i').test(part),
-    }));
-  }, [debouncedTerm, minChars]);
+      return parts.filter(Boolean).map((part) => ({
+        text: part,
+        highlighted: new RegExp(`^${escapedTerm}$`, 'i').test(part),
+      }));
+    },
+    [debouncedTerm, minChars]
+  );
 
   // Legacy highlightText kept for backward compatibility but escapes output
-  const highlightText = useCallback((text: string): string => {
-    if (!debouncedTerm || debouncedTerm.length < minChars) return text;
+  const highlightText = useCallback(
+    (text: string): string => {
+      if (!debouncedTerm || debouncedTerm.length < minChars) return text;
 
-    const escapedTerm = debouncedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedTerm})`, 'gi');
-    // Escape HTML entities to prevent XSS when used with dangerouslySetInnerHTML
-    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return escaped.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
-  }, [debouncedTerm, minChars]);
+      const escapedTerm = debouncedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapedTerm})`, 'gi');
+      // Escape HTML entities to prevent XSS when used with dangerouslySetInnerHTML
+      const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return escaped.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+    },
+    [debouncedTerm, minChars]
+  );
 
   return {
     searchTerm,

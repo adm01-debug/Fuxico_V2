@@ -1,7 +1,7 @@
 export const TRANSITIONS = {
-  default: { type: "spring", stiffness: 300, damping: 30 },
-  gentle: { type: "spring", stiffness: 100, damping: 20 },
-  slow: { duration: 0.5, ease: "easeInOut" },
+  default: { type: 'spring', stiffness: 300, damping: 30 },
+  gentle: { type: 'spring', stiffness: 100, damping: 20 },
+  slow: { duration: 0.5, ease: 'easeInOut' },
 };
 
 export const VARIANTS = {

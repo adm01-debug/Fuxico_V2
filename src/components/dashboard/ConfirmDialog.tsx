@@ -58,19 +58,15 @@ export function ConfirmDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-full bg-muted ${config.color}`}>
+            <div className={`rounded-full bg-muted p-2 ${config.color}`}>
               <Icon className="h-5 w-5" aria-hidden="true" />
             </div>
             <AlertDialogTitle>{title}</AlertDialogTitle>
           </div>
-          <AlertDialogDescription className="pt-2">
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription className="pt-2">{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>
-            {cancelLabel}
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isLoading}
@@ -83,6 +79,5 @@ export function ConfirmDialog({
     </AlertDialog>
   );
 }
-
 
 export default ConfirmDialog;

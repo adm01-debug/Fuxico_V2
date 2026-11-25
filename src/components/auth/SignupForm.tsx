@@ -1,10 +1,10 @@
-import { type FormEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, Mail, Eye, EyeOff, Lock, Sparkles } from "lucide-react";
-import { PasswordStrengthIndicator } from "@/components/ui/password-strength-indicator";
-import { motion } from "framer-motion";
+import { type FormEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, Mail, Eye, EyeOff, Lock, Sparkles } from 'lucide-react';
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
+import { motion } from 'framer-motion';
 
 interface SignupFormProps {
   email: string;
@@ -20,36 +20,47 @@ interface SignupFormProps {
 }
 
 export const SignupForm = ({
-  email, setEmail, password, setPassword,
-  showPassword, setShowPassword,
-  isLoading, isValid, onBreachCheck, onSubmit,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  showPassword,
+  setShowPassword,
+  isLoading,
+  isValid,
+  onBreachCheck,
+  onSubmit,
 }: SignupFormProps) => (
-  <form onSubmit={onSubmit} className="space-y-4 mt-4">
+  <form onSubmit={onSubmit} className="mt-4 space-y-4">
     <div className="space-y-2">
-      <Label htmlFor="signup-email" className="text-sm font-medium">Email</Label>
-      <div className="relative group">
-        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
+      <Label htmlFor="signup-email" className="text-sm font-medium">
+        Email
+      </Label>
+      <div className="group relative">
+        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
         <Input
           id="signup-email"
           type="email"
           placeholder="seu@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="pl-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+          className="h-11 border-border/50 bg-background/50 pl-10 transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
         />
       </div>
     </div>
     <div className="space-y-2">
-      <Label htmlFor="signup-password" className="text-sm font-medium">Senha</Label>
-      <div className="relative group">
-        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
+      <Label htmlFor="signup-password" className="text-sm font-medium">
+        Senha
+      </Label>
+      <div className="group relative">
+        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
         <Input
           id="signup-password"
-          type={showPassword ? "text" : "password"}
+          type={showPassword ? 'text' : 'password'}
           placeholder="Crie uma senha forte"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="pl-10 pr-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+          className="h-11 border-border/50 bg-background/50 pl-10 pr-10 transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
         />
         <Button
           type="button"
@@ -60,11 +71,11 @@ export const SignupForm = ({
           tabIndex={-1}
         >
           {showPassword ? (
-            <EyeOff className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+            <EyeOff className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
           ) : (
-            <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+            <Eye className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
           )}
-          <span className="sr-only">{showPassword ? "Ocultar senha" : "Mostrar senha"}</span>
+          <span className="sr-only">{showPassword ? 'Ocultar senha' : 'Mostrar senha'}</span>
         </Button>
       </div>
       <PasswordStrengthIndicator password={password} onBreachCheck={onBreachCheck} />
@@ -72,7 +83,7 @@ export const SignupForm = ({
     <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
       <Button
         type="submit"
-        className="w-full h-11 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+        className="h-11 w-full bg-primary shadow-lg shadow-primary/25 transition-all duration-300 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30"
         disabled={isLoading || !isValid}
       >
         {isLoading ? (
@@ -80,7 +91,7 @@ export const SignupForm = ({
         ) : (
           <>
             Criar conta
-            <Sparkles className="h-4 w-4 ml-2" />
+            <Sparkles className="ml-2 h-4 w-4" />
           </>
         )}
       </Button>

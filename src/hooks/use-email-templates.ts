@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
-import { requireUserId } from "@/lib/auth-guards";
+import { requireUserId } from '@/lib/auth-guards';
 
 export interface EmailTemplate {
   id: string;
@@ -32,19 +32,23 @@ export function useEmailTemplates() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: templates = [], isLoading, error } = useQuery({
+  const {
+    data: templates = [],
+    isLoading,
+    error,
+  } = useQuery({
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     queryKey: ['email-templates', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('email_templates')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       return data as EmailTemplate[];
     },
@@ -54,7 +58,7 @@ export function useEmailTemplates() {
   const createTemplate = useMutation({
     mutationFn: async (templateData: CreateTemplateData) => {
       if (!user?.id) throw new Error('Usuário não autenticado');
-      
+
       const { data, error } = await supabase
         .from('email_templates')
         .insert({
@@ -66,7 +70,7 @@ export function useEmailTemplates() {
         })
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
@@ -89,7 +93,7 @@ export function useEmailTemplates() {
         .eq('user_id', requireUserId(user))
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
@@ -110,7 +114,7 @@ export function useEmailTemplates() {
         .delete()
         .eq('id', id)
         .eq('user_id', requireUserId(user));
-      
+
       if (error) throw error;
     },
     onSuccess: () => {

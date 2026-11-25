@@ -1,7 +1,7 @@
-import { forwardRef, type ElementRef, type ComponentPropsWithoutRef } from "react";
-import * as SliderPrimitive from "@radix-ui/react-slider";
+import { forwardRef, type ElementRef, type ComponentPropsWithoutRef } from 'react';
+import * as SliderPrimitive from '@radix-ui/react-slider';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 const Slider = forwardRef<
   ElementRef<typeof SliderPrimitive.Root>,
@@ -9,7 +9,7 @@ const Slider = forwardRef<
 >(({ className, ...props }, ref) => (
   <SliderPrimitive.Root
     ref={ref}
-    className={cn("relative flex w-full touch-none select-none items-center", className)}
+    className={cn('relative flex w-full touch-none select-none items-center', className)}
     {...props}
   >
     <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">

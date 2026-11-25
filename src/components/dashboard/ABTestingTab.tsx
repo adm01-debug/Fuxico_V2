@@ -7,8 +7,26 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Play, Pause, Trophy, Trash2, Loader2, FlaskConical, Mail, Target, BarChart3 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Plus,
+  Play,
+  Pause,
+  Trophy,
+  Trash2,
+  Loader2,
+  FlaskConical,
+  Mail,
+  Target,
+  BarChart3,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useABTests } from '@/hooks/use-ab-tests';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,12 +34,19 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ABTestResultsDialog } from './ABTestResultsDialog';
 import { pickFirst } from '@/lib/variant';
 
-
 function ABTestingTabBase() {
-  const { tests = [], isLoading, createTest, startTest, pauseTest, completeTest, deleteTest } = useABTests();
+  const {
+    tests = [],
+    isLoading,
+    createTest,
+    startTest,
+    pauseTest,
+    completeTest,
+    deleteTest,
+  } = useABTests();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [resultsTestId, setResultsTestId] = useState<string | null>(null);
-  const resultsTest = tests.find(t => t.id === resultsTestId) ?? null;
+  const resultsTest = tests.find((t) => t.id === resultsTestId) ?? null;
   const [newTest, setNewTest] = useState({
     name: '',
     variant_a_subject: '',
@@ -56,9 +81,16 @@ function ABTestingTabBase() {
       },
     });
     setNewTest({
-      name: '', variant_a_subject: '', variant_b_subject: '',
-      variant_a_body: '', variant_b_body: '', recipient_email: '',
-      min_score: 0, last_open_days: 0, min_sample_size: 30, auto_promote: true,
+      name: '',
+      variant_a_subject: '',
+      variant_b_subject: '',
+      variant_a_body: '',
+      variant_b_body: '',
+      recipient_email: '',
+      min_score: 0,
+      last_open_days: 0,
+      min_sample_size: 30,
+      auto_promote: true,
     });
     setIsCreateOpen(false);
   };
@@ -73,17 +105,20 @@ function ABTestingTabBase() {
     return Math.round((clicks / opens) * 100);
   };
 
-  const getWinnerVariant = (test: typeof tests[0]) => {
+  const getWinnerVariant = (test: (typeof tests)[0]) => {
     const rateA = calculateOpenRate(test.variant_a_opens, test.variant_a_sends);
     const rateB = calculateOpenRate(test.variant_b_opens, test.variant_b_sends);
-    
+
     if (test.variant_a_sends < 10 && test.variant_b_sends < 10) return null;
     if (rateA > rateB) return 'A';
     if (rateB > rateA) return 'B';
     return null;
   };
 
-  const statusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
+  const statusLabels: Record<
+    string,
+    { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }
+  > = {
     draft: { label: 'Rascunho', variant: 'secondary' },
     running: { label: 'Em Execução', variant: 'default' },
     paused: { label: 'Pausado', variant: 'outline' },
@@ -100,7 +135,7 @@ function ABTestingTabBase() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1, 2].map(i => (
+              {[1, 2].map((i) => (
                 <Skeleton key={i} className="h-48 w-full" />
               ))}
             </div>
@@ -127,7 +162,7 @@ function ABTestingTabBase() {
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
                 <Button>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Novo Teste
                 </Button>
               </DialogTrigger>
@@ -144,31 +179,39 @@ function ABTestingTabBase() {
                     <Input
                       placeholder="Ex: Teste Promoção Black Friday"
                       value={newTest.name}
-                      onChange={e => setNewTest(prev => ({ ...prev, name: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600">A</Badge>
-                      Variante A - Assunto
-                    </Label>
-                    <Input
-                      placeholder="Ex: 🔥 Oferta Imperdível - 50% OFF"
-                      value={newTest.variant_a_subject}
-                      onChange={e => setNewTest(prev => ({ ...prev, variant_a_subject: e.target.value }))}
+                      onChange={(e) => setNewTest((prev) => ({ ...prev, name: e.target.value }))}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-purple-500/10 text-purple-600">B</Badge>
+                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600">
+                        A
+                      </Badge>
+                      Variante A - Assunto
+                    </Label>
+                    <Input
+                      placeholder="Ex: 🔥 Oferta Imperdível - 50% OFF"
+                      value={newTest.variant_a_subject}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, variant_a_subject: e.target.value }))
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-purple-500/10 text-purple-600">
+                        B
+                      </Badge>
                       Variante B - Assunto
                     </Label>
                     <Input
                       placeholder="Ex: Só hoje: Metade do preço em tudo!"
                       value={newTest.variant_b_subject}
-                      onChange={e => setNewTest(prev => ({ ...prev, variant_b_subject: e.target.value }))}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, variant_b_subject: e.target.value }))
+                      }
                     />
                   </div>
 
@@ -179,7 +222,9 @@ function ABTestingTabBase() {
                         rows={3}
                         placeholder="HTML/texto da variante A"
                         value={newTest.variant_a_body}
-                        onChange={e => setNewTest(prev => ({ ...prev, variant_a_body: e.target.value }))}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, variant_a_body: e.target.value }))
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -188,7 +233,9 @@ function ABTestingTabBase() {
                         rows={3}
                         placeholder="HTML/texto da variante B"
                         value={newTest.variant_b_body}
-                        onChange={e => setNewTest(prev => ({ ...prev, variant_b_body: e.target.value }))}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, variant_b_body: e.target.value }))
+                        }
                       />
                     </div>
                   </div>
@@ -200,19 +247,34 @@ function ABTestingTabBase() {
                     </Label>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Score mínimo (0-100)</Label>
+                        <Label className="text-xs text-muted-foreground">
+                          Score mínimo (0-100)
+                        </Label>
                         <Input
-                          type="number" min={0} max={100}
+                          type="number"
+                          min={0}
+                          max={100}
                           value={newTest.min_score}
-                          onChange={e => setNewTest(prev => ({ ...prev, min_score: Number(e.target.value) }))}
+                          onChange={(e) =>
+                            setNewTest((prev) => ({ ...prev, min_score: Number(e.target.value) }))
+                          }
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Abriu nos últimos (dias)</Label>
+                        <Label className="text-xs text-muted-foreground">
+                          Abriu nos últimos (dias)
+                        </Label>
                         <Input
-                          type="number" min={0} max={365}
+                          type="number"
+                          min={0}
+                          max={365}
                           value={newTest.last_open_days}
-                          onChange={e => setNewTest(prev => ({ ...prev, last_open_days: Number(e.target.value) }))}
+                          onChange={(e) =>
+                            setNewTest((prev) => ({
+                              ...prev,
+                              last_open_days: Number(e.target.value),
+                            }))
+                          }
                         />
                       </div>
                     </div>
@@ -222,17 +284,26 @@ function ABTestingTabBase() {
                     <div className="space-y-2">
                       <Label>Amostra mínima por variante</Label>
                       <Input
-                        type="number" min={10} max={10000}
+                        type="number"
+                        min={10}
+                        max={10000}
                         value={newTest.min_sample_size}
-                        onChange={e => setNewTest(prev => ({ ...prev, min_sample_size: Number(e.target.value) }))}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({
+                            ...prev,
+                            min_sample_size: Number(e.target.value),
+                          }))
+                        }
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Promover vencedor automaticamente</Label>
-                      <div className="flex items-center gap-2 h-10">
+                      <div className="flex h-10 items-center gap-2">
                         <Switch
                           checked={newTest.auto_promote}
-                          onCheckedChange={v => setNewTest(prev => ({ ...prev, auto_promote: v }))}
+                          onCheckedChange={(v) =>
+                            setNewTest((prev) => ({ ...prev, auto_promote: v }))
+                          }
                         />
                         <span className="text-xs text-muted-foreground">
                           Z-test 95% de confiança
@@ -249,7 +320,9 @@ function ABTestingTabBase() {
                     <Input
                       placeholder="teste@exemplo.com"
                       value={newTest.recipient_email}
-                      onChange={e => setNewTest(prev => ({ ...prev, recipient_email: e.target.value }))}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, recipient_email: e.target.value }))
+                      }
                     />
                   </div>
 
@@ -259,9 +332,9 @@ function ABTestingTabBase() {
                     disabled={createTest.isPending}
                   >
                     {createTest.isPending ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="mr-2 h-4 w-4" />
                     )}
                     Criar Teste
                   </Button>
@@ -271,7 +344,7 @@ function ABTestingTabBase() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {(!tests || tests.length === 0) ? (
+          {!tests || tests.length === 0 ? (
             <EmptyState
               type="abtesting"
               title="Nenhum teste A/B criado"
@@ -284,7 +357,7 @@ function ABTestingTabBase() {
               }
             />
           ) : (
-            tests.map(test => {
+            tests.map((test) => {
               const openRateA = calculateOpenRate(test.variant_a_opens, test.variant_a_sends);
               const openRateB = calculateOpenRate(test.variant_b_opens, test.variant_b_sends);
               const clickRateA = calculateClickRate(test.variant_a_clicks, test.variant_a_opens);
@@ -292,18 +365,21 @@ function ABTestingTabBase() {
               const suggestedWinner = getWinnerVariant(test);
 
               return (
-                <Card key={test.id} className={test.status === 'running' ? 'border-primary/50' : ''}>
+                <Card
+                  key={test.id}
+                  className={test.status === 'running' ? 'border-primary/50' : ''}
+                >
                   <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="mb-4 flex items-start justify-between">
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold text-lg">{test.name}</h4>
+                        <div className="mb-1 flex items-center gap-2">
+                          <h4 className="text-lg font-semibold">{test.name}</h4>
                           <Badge variant={statusLabels[test.status]?.variant || 'secondary'}>
                             {statusLabels[test.status]?.label}
                           </Badge>
                           {test.winner && (
                             <Badge className="bg-yellow-500/20 text-yellow-600">
-                              <Trophy className="h-3 w-3 mr-1" />
+                              <Trophy className="mr-1 h-3 w-3" />
                               Vencedor: {test.winner}
                             </Badge>
                           )}
@@ -317,22 +393,28 @@ function ABTestingTabBase() {
                       <div className="flex items-center gap-2">
                         {test.status === 'draft' && (
                           <Button size="sm" onClick={() => startTest.mutate(test.id)}>
-                            <Play className="h-4 w-4 mr-1" />
+                            <Play className="mr-1 h-4 w-4" />
                             Iniciar
                           </Button>
                         )}
                         {test.status === 'running' && (
                           <>
-                            <Button size="sm" variant="outline" onClick={() => pauseTest.mutate(test.id)}>
-                              <Pause className="h-4 w-4 mr-1" />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => pauseTest.mutate(test.id)}
+                            >
+                              <Pause className="mr-1 h-4 w-4" />
                               Pausar
                             </Button>
                             {suggestedWinner && (
-                              <Button 
-                                size="sm" 
-                                onClick={() => completeTest.mutate({ id: test.id, winner: suggestedWinner })}
+                              <Button
+                                size="sm"
+                                onClick={() =>
+                                  completeTest.mutate({ id: test.id, winner: suggestedWinner })
+                                }
                               >
-                                <Trophy className="h-4 w-4 mr-1" />
+                                <Trophy className="mr-1 h-4 w-4" />
                                 Finalizar
                               </Button>
                             )}
@@ -340,7 +422,7 @@ function ABTestingTabBase() {
                         )}
                         {test.status === 'paused' && (
                           <Button size="sm" onClick={() => startTest.mutate(test.id)}>
-                            <Play className="h-4 w-4 mr-1" />
+                            <Play className="mr-1 h-4 w-4" />
                             Retomar
                           </Button>
                         )}
@@ -362,24 +444,28 @@ function ABTestingTabBase() {
                       </div>
                     </div>
 
-
                     {/* Variantes comparison */}
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid gap-4 md:grid-cols-2">
                       {/* Variant A */}
-                      <div className={`p-4 rounded-lg border-2 ${pickFirst([
-                        [test.winner === 'A', 'border-green-500 bg-green-500/5'],
-                        [suggestedWinner === 'A' && !test.winner, 'border-blue-500/50 bg-blue-500/5'],
-                      ], 'border-border bg-muted/30')}`}>
-
-                        <div className="flex items-center justify-between mb-2">
+                      <div
+                        className={`rounded-lg border-2 p-4 ${pickFirst(
+                          [
+                            [test.winner === 'A', 'border-green-500 bg-green-500/5'],
+                            [
+                              suggestedWinner === 'A' && !test.winner,
+                              'border-blue-500/50 bg-blue-500/5',
+                            ],
+                          ],
+                          'border-border bg-muted/30'
+                        )}`}
+                      >
+                        <div className="mb-2 flex items-center justify-between">
                           <Badge variant="outline" className="bg-blue-500/10 text-blue-600">
                             Variante A
                           </Badge>
-                          {test.winner === 'A' && (
-                            <Trophy className="h-4 w-4 text-yellow-500" />
-                          )}
+                          {test.winner === 'A' && <Trophy className="h-4 w-4 text-yellow-500" />}
                         </div>
-                        <p className="text-sm font-medium mb-3 line-clamp-2">
+                        <p className="mb-3 line-clamp-2 text-sm font-medium">
                           "{test.variant_a_subject}"
                         </p>
                         <div className="space-y-2">
@@ -396,20 +482,25 @@ function ABTestingTabBase() {
                       </div>
 
                       {/* Variant B */}
-                      <div className={`p-4 rounded-lg border-2 ${pickFirst([
-                        [test.winner === 'B', 'border-green-500 bg-green-500/5'],
-                        [suggestedWinner === 'B' && !test.winner, 'border-purple-500/50 bg-purple-500/5'],
-                      ], 'border-border bg-muted/30')}`}>
-
-                        <div className="flex items-center justify-between mb-2">
+                      <div
+                        className={`rounded-lg border-2 p-4 ${pickFirst(
+                          [
+                            [test.winner === 'B', 'border-green-500 bg-green-500/5'],
+                            [
+                              suggestedWinner === 'B' && !test.winner,
+                              'border-purple-500/50 bg-purple-500/5',
+                            ],
+                          ],
+                          'border-border bg-muted/30'
+                        )}`}
+                      >
+                        <div className="mb-2 flex items-center justify-between">
                           <Badge variant="outline" className="bg-purple-500/10 text-purple-600">
                             Variante B
                           </Badge>
-                          {test.winner === 'B' && (
-                            <Trophy className="h-4 w-4 text-yellow-500" />
-                          )}
+                          {test.winner === 'B' && <Trophy className="h-4 w-4 text-yellow-500" />}
                         </div>
-                        <p className="text-sm font-medium mb-3 line-clamp-2">
+                        <p className="mb-3 line-clamp-2 text-sm font-medium">
                           "{test.variant_b_subject}"
                         </p>
                         <div className="space-y-2">
@@ -428,16 +519,26 @@ function ABTestingTabBase() {
 
                     {/* Stats summary */}
                     {(test.variant_a_sends > 0 || test.variant_b_sends > 0) && (
-                      <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                        <p className="text-xs text-muted-foreground text-center">
+                      <div className="mt-4 rounded-lg bg-muted/50 p-3">
+                        <p className="text-center text-xs text-muted-foreground">
                           {test.status === 'running' && suggestedWinner && (
-                            <>Variante <strong>{suggestedWinner}</strong> está com melhor performance ({suggestedWinner === 'A' ? openRateA : openRateB}% de abertura)</>
+                            <>
+                              Variante <strong>{suggestedWinner}</strong> está com melhor
+                              performance ({suggestedWinner === 'A' ? openRateA : openRateB}% de
+                              abertura)
+                            </>
                           )}
                           {test.status === 'running' && !suggestedWinner && (
-                            <>Aguardando mais dados para determinar vencedor (mínimo 10 envios por variante)</>
+                            <>
+                              Aguardando mais dados para determinar vencedor (mínimo 10 envios por
+                              variante)
+                            </>
                           )}
                           {test.status === 'completed' && test.winner && (
-                            <>Teste concluído! Variante <strong>{test.winner}</strong> foi a vencedora</>
+                            <>
+                              Teste concluído! Variante <strong>{test.winner}</strong> foi a
+                              vencedora
+                            </>
                           )}
                         </p>
                       </div>
@@ -456,24 +557,24 @@ function ABTestingTabBase() {
           <CardTitle className="text-base">Como funciona o Teste A/B</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-4 gap-4 text-sm">
-            <div className="p-3 bg-muted/50 rounded-lg text-center">
-              <div className="text-2xl mb-2">1️⃣</div>
+          <div className="grid gap-4 text-sm md:grid-cols-4">
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <div className="mb-2 text-2xl">1️⃣</div>
               <p className="font-medium">Crie o teste</p>
               <p className="text-xs text-muted-foreground">Defina dois assuntos diferentes</p>
             </div>
-            <div className="p-3 bg-muted/50 rounded-lg text-center">
-              <div className="text-2xl mb-2">2️⃣</div>
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <div className="mb-2 text-2xl">2️⃣</div>
               <p className="font-medium">Envie emails</p>
               <p className="text-xs text-muted-foreground">Use os assuntos alternadamente</p>
             </div>
-            <div className="p-3 bg-muted/50 rounded-lg text-center">
-              <div className="text-2xl mb-2">3️⃣</div>
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <div className="mb-2 text-2xl">3️⃣</div>
               <p className="font-medium">Acompanhe</p>
               <p className="text-xs text-muted-foreground">Monitore as métricas em tempo real</p>
             </div>
-            <div className="p-3 bg-muted/50 rounded-lg text-center">
-              <div className="text-2xl mb-2">4️⃣</div>
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <div className="mb-2 text-2xl">4️⃣</div>
               <p className="font-medium">Finalize</p>
               <p className="text-xs text-muted-foreground">Escolha o vencedor com base nos dados</p>
             </div>
@@ -488,7 +589,6 @@ function ABTestingTabBase() {
       />
     </div>
   );
-
 }
 
 export const ABTestingTab = memo(ABTestingTabBase);

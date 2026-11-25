@@ -2,25 +2,56 @@ import { memo, useState, type ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  useFollowUpReminders, 
-  useDueReminders, 
-  useCreateReminder, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  useFollowUpReminders,
+  useDueReminders,
+  useCreateReminder,
   useUpdateReminderStatus,
-  useDeleteReminder 
+  useDeleteReminder,
 } from '@/hooks/use-follow-up-reminders';
 import { useTrackedEmails } from '@/features/tracking/hooks/use-tracking';
-import { Bell, BellRing, Clock, Mail, Plus, Trash2, CheckCircle, XCircle, AlertTriangle, Sparkles, Wand2 } from 'lucide-react';
+import {
+  Bell,
+  BellRing,
+  Clock,
+  Mail,
+  Plus,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Sparkles,
+  Wand2,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { AIFollowUpDialog } from './AIFollowUpDialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { log } from '@/lib/logger';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 function FollowUpTabBase() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -42,12 +73,12 @@ function FollowUpTabBase() {
   const updateStatus = useUpdateReminderStatus();
   const deleteReminder = useDeleteReminder();
 
-  const filteredReminders = reminders.filter(r => filter === 'all' || r.status === filter);
-  
+  const filteredReminders = reminders.filter((r) => filter === 'all' || r.status === filter);
+
   const stats = {
-    pending: reminders.filter(r => r.status === 'pending').length,
+    pending: reminders.filter((r) => r.status === 'pending').length,
     due: dueReminders.length,
-    sent: reminders.filter(r => r.status === 'sent').length,
+    sent: reminders.filter((r) => r.status === 'sent').length,
   };
 
   const handleCreate = async () => {
@@ -55,7 +86,7 @@ function FollowUpTabBase() {
       toast.error('Selecione um email');
       return;
     }
-    
+
     try {
       await createReminder.mutateAsync({
         trackingId: selectedEmail,
@@ -102,20 +133,40 @@ function FollowUpTabBase() {
 
   const getStatusBadge = (status: string, daysSinceSent: number, reminderDays: number) => {
     const isDue = status === 'pending' && daysSinceSent >= reminderDays;
-    
+
     if (isDue) {
-      return <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" /> Vencido</Badge>;
+      return (
+        <Badge variant="destructive" className="gap-1">
+          <AlertTriangle className="h-3 w-3" /> Vencido
+        </Badge>
+      );
     }
-    
+
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" /> Pendente</Badge>;
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <Clock className="h-3 w-3" /> Pendente
+          </Badge>
+        );
       case 'sent':
-        return <Badge className="gap-1 bg-green-500"><CheckCircle className="h-3 w-3" /> Enviado</Badge>;
+        return (
+          <Badge className="gap-1 bg-green-500">
+            <CheckCircle className="h-3 w-3" /> Enviado
+          </Badge>
+        );
       case 'cancelled':
-        return <Badge variant="outline" className="gap-1"><XCircle className="h-3 w-3" /> Cancelado</Badge>;
+        return (
+          <Badge variant="outline" className="gap-1">
+            <XCircle className="h-3 w-3" /> Cancelado
+          </Badge>
+        );
       case 'opened':
-        return <Badge className="gap-1 bg-blue-500"><Mail className="h-3 w-3" /> Aberto</Badge>;
+        return (
+          <Badge className="gap-1 bg-blue-500">
+            <Mail className="h-3 w-3" /> Aberto
+          </Badge>
+        );
       default:
         return null;
     }
@@ -123,13 +174,13 @@ function FollowUpTabBase() {
 
   // Get emails that don't have a reminder yet
   const availableEmails = emails.filter(
-    (email) => !reminders.some(r => r.tracking_id === email.tracking_id && r.status === 'pending')
+    (email) => !reminders.some((r) => r.tracking_id === email.tracking_id && r.status === 'pending')
   );
 
   return (
     <div role="region" aria-label="FollowUpTab" className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card role="article">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
@@ -144,10 +195,14 @@ function FollowUpTabBase() {
         <Card className={stats.due > 0 ? 'border-destructive' : ''}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Vencidos</CardTitle>
-            <BellRing className={`h-4 w-4 ${stats.due > 0 ? 'text-destructive animate-pulse' : 'text-muted-foreground'}`} />
+            <BellRing
+              className={`h-4 w-4 ${stats.due > 0 ? 'animate-pulse text-destructive' : 'text-muted-foreground'}`}
+            />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${stats.due > 0 ? 'text-destructive' : ''}`}>{stats.due}</div>
+            <div className={`text-2xl font-bold ${stats.due > 0 ? 'text-destructive' : ''}`}>
+              {stats.due}
+            </div>
             <p className="text-xs text-muted-foreground">Precisam de ação</p>
           </CardContent>
         </Card>
@@ -168,7 +223,7 @@ function FollowUpTabBase() {
       {stats.due > 0 && (
         <Card className="border-destructive bg-destructive/10">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium">
               <BellRing className="h-4 w-4 text-destructive" />
               {stats.due} {stats.due === 1 ? 'email precisa' : 'emails precisam'} de follow-up!
             </CardTitle>
@@ -176,14 +231,19 @@ function FollowUpTabBase() {
           <CardContent>
             <div className="space-y-2">
               {dueReminders.slice(0, 3).map((reminder) => (
-                <div key={reminder.id} className="flex items-center justify-between p-2 bg-background rounded">
+                <div
+                  key={reminder.id}
+                  className="flex items-center justify-between rounded bg-background p-2"
+                >
                   <div>
                     <p className="text-sm font-medium">{reminder.recipient_email}</p>
-                    <p className="text-xs text-muted-foreground">{reminder.subject || 'Sem assunto'}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {reminder.subject || 'Sem assunto'}
+                    </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
                       className="gap-1"
                       onClick={() => {
@@ -191,9 +251,10 @@ function FollowUpTabBase() {
                           recipient_email: reminder.recipient_email,
                           subject: reminder.subject || 'Sem assunto',
                           days_since_sent: Math.floor(
-                            (Date.now() - new Date(reminder.created_at).getTime()) / (1000 * 60 * 60 * 24)
+                            (Date.now() - new Date(reminder.created_at).getTime()) /
+                              (1000 * 60 * 60 * 24)
                           ),
-                          tracking_id: reminder.tracking_id
+                          tracking_id: reminder.tracking_id,
                         });
                         setAiDialogOpen(true);
                       }}
@@ -213,9 +274,12 @@ function FollowUpTabBase() {
       )}
 
       {/* Actions */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          <Select value={filter} onValueChange={(v) => setFilter(v as 'all' | 'pending' | 'sent' | 'cancelled')}>
+          <Select
+            value={filter}
+            onValueChange={(v) => setFilter(v as 'all' | 'pending' | 'sent' | 'cancelled')}
+          >
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Filtrar" />
             </SelectTrigger>
@@ -247,7 +311,7 @@ function FollowUpTabBase() {
                     <SelectValue placeholder="Selecione um email" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableEmails.map(email => (
+                    {availableEmails.map((email) => (
                       <SelectItem key={email.tracking_id} value={email.tracking_id}>
                         {email.recipient_email} - {email.subject || 'Sem assunto'}
                       </SelectItem>
@@ -296,103 +360,115 @@ function FollowUpTabBase() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {matchFirst<ReactNode>([
-  [isLoading, () => ((
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
-                    <div className="flex items-center justify-center gap-2">
-                      <Bell className="h-5 w-5 text-primary animate-spin" />
-                      <span>Carregando lembretes...</span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))],
-  [filteredReminders.length === 0, () => ((
-                <TableRow>
-                  <TableCell colSpan={6} className="py-0">
-                    <EmptyState
-                      type="followup"
-                      title="Nenhum lembrete encontrado"
-                      description="Configure lembretes automáticos para fazer follow-up nos momentos certos."
-                      action={
-                        <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
-                          <Plus className="h-4 w-4" />
-                          Criar Lembrete
-                        </Button>
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              ))],
-], () => ((
-                filteredReminders.map((reminder) => (
-                  <TableRow key={reminder.id}>
-                    <TableCell className="font-medium">{reminder.recipient_email}</TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {reminder.subject || 'Sem assunto'}
-                    </TableCell>
-                    <TableCell>
-                      {formatDistanceToNow(new Date(reminder.email_created_at), { 
-                        addSuffix: true, 
-                        locale: ptBR 
-                      })}
-                    </TableCell>
-                    <TableCell>{reminder.reminder_days} dias</TableCell>
-                    <TableCell>
-                      {getStatusBadge(reminder.status, reminder.days_since_sent, reminder.reminder_days)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        {reminder.status === 'pending' && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedEmailForAI({
-                                  recipient_email: reminder.recipient_email,
-                                  subject: reminder.subject || 'Sem assunto',
-                                  days_since_sent: reminder.days_since_sent,
-                                  tracking_id: reminder.tracking_id
-                                });
-                                setAiDialogOpen(true);
-                              }}
-                              title="Sugestão de IA"
-                              className="gap-1"
-                            >
-                              <Wand2 className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleMarkAsSent(reminder.id)}
-                              title="Marcar como enviado"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleCancel(reminder.id)}
-                              title="Cancelar"
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </>
+              {matchFirst<ReactNode>(
+                [
+                  [
+                    isLoading,
+                    () => (
+                      <TableRow>
+                        <TableCell colSpan={6} className="py-8 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <Bell className="h-5 w-5 animate-spin text-primary" />
+                            <span>Carregando lembretes...</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ),
+                  ],
+                  [
+                    filteredReminders.length === 0,
+                    () => (
+                      <TableRow>
+                        <TableCell colSpan={6} className="py-0">
+                          <EmptyState
+                            type="followup"
+                            title="Nenhum lembrete encontrado"
+                            description="Configure lembretes automáticos para fazer follow-up nos momentos certos."
+                            action={
+                              <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+                                <Plus className="h-4 w-4" />
+                                Criar Lembrete
+                              </Button>
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ),
+                  ],
+                ],
+                () =>
+                  filteredReminders.map((reminder) => (
+                    <TableRow key={reminder.id}>
+                      <TableCell className="font-medium">{reminder.recipient_email}</TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {reminder.subject || 'Sem assunto'}
+                      </TableCell>
+                      <TableCell>
+                        {formatDistanceToNow(new Date(reminder.email_created_at), {
+                          addSuffix: true,
+                          locale: ptBR,
+                        })}
+                      </TableCell>
+                      <TableCell>{reminder.reminder_days} dias</TableCell>
+                      <TableCell>
+                        {getStatusBadge(
+                          reminder.status,
+                          reminder.days_since_sent,
+                          reminder.reminder_days
                         )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDelete(reminder.id)}
-                          title="Excluir"
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )))}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          {reminder.status === 'pending' && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedEmailForAI({
+                                    recipient_email: reminder.recipient_email,
+                                    subject: reminder.subject || 'Sem assunto',
+                                    days_since_sent: reminder.days_since_sent,
+                                    tracking_id: reminder.tracking_id,
+                                  });
+                                  setAiDialogOpen(true);
+                                }}
+                                title="Sugestão de IA"
+                                className="gap-1"
+                              >
+                                <Wand2 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleMarkAsSent(reminder.id)}
+                                title="Marcar como enviado"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCancel(reminder.id)}
+                                title="Cancelar"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDelete(reminder.id)}
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -418,7 +494,6 @@ function FollowUpTabBase() {
     </div>
   );
 }
-
 
 export const FollowUpTab = memo(FollowUpTabBase);
 export default FollowUpTab;

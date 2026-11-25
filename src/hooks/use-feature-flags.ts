@@ -22,10 +22,7 @@ export function useFeatureFlags() {
   const { data: flags = [], isLoading } = useQuery({
     queryKey: ['feature-flags'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('feature_flags')
-        .select('*')
-        .order('name');
+      const { data, error } = await supabase.from('feature_flags').select('*').order('name');
       if (error) throw error;
       return data as FeatureFlag[];
     },
@@ -34,12 +31,15 @@ export function useFeatureFlags() {
   });
 
   const isEnabled = (key: string): boolean => {
-    const flag = flags.find(f => f.key === key);
+    const flag = flags.find((f) => f.key === key);
     if (!flag) return false;
     if (!flag.enabled) return false;
     if (flag.percentage < 100) {
       // Simple hash-based percentage rollout
-      const hash = key.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+      const hash = key.split('').reduce((a, b) => {
+        a = (a << 5) - a + b.charCodeAt(0);
+        return a & a;
+      }, 0);
       return Math.abs(hash % 100) < flag.percentage;
     }
     return true;
@@ -61,7 +61,12 @@ export function useFeatureFlags() {
   });
 
   const createFlag = useMutation({
-    mutationFn: async (data: { key: string; name: string; description?: string; enabled?: boolean }) => {
+    mutationFn: async (data: {
+      key: string;
+      name: string;
+      description?: string;
+      enabled?: boolean;
+    }) => {
       const { error } = await supabase
         .from('feature_flags')
         .insert({ ...data, created_by: user?.id });

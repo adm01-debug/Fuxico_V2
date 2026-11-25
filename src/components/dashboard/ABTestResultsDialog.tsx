@@ -1,7 +1,22 @@
 import { memo, useMemo } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+} from 'recharts';
 import { Trophy, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 interface ABTest {
@@ -37,9 +52,7 @@ function computeStats(t: ABTest) {
   const pA = nA > 0 ? t.variant_a_opens / nA : 0;
   const pB = nB > 0 ? t.variant_b_opens / nB : 0;
   const pooled = nA + nB > 0 ? (t.variant_a_opens + t.variant_b_opens) / (nA + nB) : 0;
-  const se = nA > 0 && nB > 0
-    ? Math.sqrt(pooled * (1 - pooled) * (1 / nA + 1 / nB))
-    : 0;
+  const se = nA > 0 && nB > 0 ? Math.sqrt(pooled * (1 - pooled) * (1 / nA + 1 / nB)) : 0;
   const z = se > 0 ? Math.abs(pA - pB) / se : 0;
   const significant = z >= 1.96;
   const ciA = nA > 0 ? 1.96 * Math.sqrt((pA * (1 - pA)) / nA) * 100 : 0;
@@ -81,34 +94,41 @@ function ABTestResultsDialogBase({ test, open, onOpenChange }: Props) {
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-lg border p-4 space-y-1">
+          <div className="space-y-1 rounded-lg border p-4">
             <div className="text-xs text-muted-foreground">Variante A</div>
-            <div className="font-medium truncate">{test.variant_a_subject}</div>
+            <div className="truncate font-medium">{test.variant_a_subject}</div>
             <div className="text-sm">
               {test.variant_a_sends} envios · {stats.pA.toFixed(2)}% ± {stats.ciA.toFixed(2)}%
             </div>
           </div>
-          <div className="rounded-lg border p-4 space-y-1">
+          <div className="space-y-1 rounded-lg border p-4">
             <div className="text-xs text-muted-foreground">Variante B</div>
-            <div className="font-medium truncate">{test.variant_b_subject}</div>
+            <div className="truncate font-medium">{test.variant_b_subject}</div>
             <div className="text-sm">
               {test.variant_b_sends} envios · {stats.pB.toFixed(2)}% ± {stats.ciB.toFixed(2)}%
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant={stats.significant ? 'default' : 'secondary'} className="gap-1">
-            {stats.significant ? <CheckCircle2 className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
-            Z = {stats.z.toFixed(2)} · {stats.significant ? 'Significativo (95%)' : 'Sem significância'}
+            {stats.significant ? (
+              <CheckCircle2 className="h-3 w-3" />
+            ) : (
+              <AlertTriangle className="h-3 w-3" />
+            )}
+            Z = {stats.z.toFixed(2)} ·{' '}
+            {stats.significant ? 'Significativo (95%)' : 'Sem significância'}
           </Badge>
           {test.winner && (
             <Badge className="bg-yellow-500/20 text-yellow-600">
-              <Trophy className="h-3 w-3 mr-1" /> Vencedor: {test.winner}
+              <Trophy className="mr-1 h-3 w-3" /> Vencedor: {test.winner}
             </Badge>
           )}
           {test.winner_promoted_at && (
-            <Badge variant="outline">Promovido em {new Date(test.winner_promoted_at).toLocaleString('pt-BR')}</Badge>
+            <Badge variant="outline">
+              Promovido em {new Date(test.winner_promoted_at).toLocaleString('pt-BR')}
+            </Badge>
           )}
         </div>
 
@@ -119,19 +139,28 @@ function ABTestResultsDialogBase({ test, open, onOpenChange }: Props) {
               <XAxis dataKey="metric" className="text-xs" />
               <YAxis className="text-xs" unit="%" />
               <Tooltip
-                contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                contentStyle={{
+                  background: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                }}
                 formatter={(v: number) => `${v.toFixed(2)}%`}
               />
               <Legend />
               <Bar dataKey="A" fill="hsl(var(--primary))" name="Variante A" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="B" fill="hsl(var(--chart-2, 217 91% 60%))" name="Variante B" radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey="B"
+                fill="hsl(var(--chart-2, 217 91% 60%))"
+                name="Variante B"
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {!stats.significant && (
           <p className="text-xs text-muted-foreground">
-            Amostra atual insuficiente para significância. Meta mínima: {test.min_sample_size ?? 30} envios por variante.
+            Amostra atual insuficiente para significância. Meta mínima: {test.min_sample_size ?? 30}{' '}
+            envios por variante.
           </p>
         )}
       </DialogContent>

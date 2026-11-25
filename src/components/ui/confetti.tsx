@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { cosmeticInt, cosmeticRandom, cosmeticRange } from "@/lib/secure-random";
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cosmeticInt, cosmeticRandom, cosmeticRange } from '@/lib/secure-random';
 
 interface ConfettiPiece {
   id: number;
@@ -19,20 +19,20 @@ interface ConfettiProps {
 }
 
 const colors = [
-  "hsl(220, 90%, 56%)", // primary
-  "hsl(262, 83%, 58%)", // accent
-  "hsl(142, 71%, 45%)", // success
-  "hsl(38, 92%, 50%)",  // warning
-  "hsl(0, 84%, 60%)",   // destructive
-  "#FFD700", // gold
-  "#FF69B4", // pink
+  'hsl(220, 90%, 56%)', // primary
+  'hsl(262, 83%, 58%)', // accent
+  'hsl(142, 71%, 45%)', // success
+  'hsl(38, 92%, 50%)', // warning
+  'hsl(0, 84%, 60%)', // destructive
+  '#FFD700', // gold
+  '#FF69B4', // pink
 ];
 
-export const Confetti = ({ 
-  trigger, 
-  onComplete, 
+export const Confetti = ({
+  trigger,
+  onComplete,
   duration = 3000,
-  particleCount = 50 
+  particleCount = 50,
 }: ConfettiProps) => {
   const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
   const [isActive, setIsActive] = useState(false);
@@ -63,25 +63,25 @@ export const Confetti = ({
   return (
     <AnimatePresence>
       {isActive && (
-        <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+        <div className="pointer-events-none fixed inset-0 z-[100] overflow-hidden">
           {pieces.map((piece) => (
             <motion.div
               key={piece.id}
-              className="absolute w-3 h-3"
+              className="absolute h-3 w-3"
               style={{
                 left: `${piece.x}%`,
                 top: -20,
                 backgroundColor: piece.color,
-                borderRadius: cosmeticRandom() > 0.5 ? "50%" : "2px",
+                borderRadius: cosmeticRandom() > 0.5 ? '50%' : '2px',
                 transform: `scale(${piece.scale})`,
               }}
-              initial={{ 
-                y: -20, 
+              initial={{
+                y: -20,
                 opacity: 1,
                 rotate: 0,
               }}
-              animate={{ 
-                y: "100vh",
+              animate={{
+                y: '100vh',
                 opacity: [1, 1, 0],
                 rotate: piece.rotation * 3,
                 x: [0, cosmeticRange(-100, 100), cosmeticRange(-50, 50)],
@@ -108,8 +108,8 @@ export const SuccessCheck = ({ show }: { show: boolean }) => {
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20"
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20"
         >
           <motion.svg
             width="32"
@@ -148,18 +148,18 @@ export const CelebrationBurst = ({ trigger }: { trigger: boolean }) => {
   }, [trigger]);
 
   const particles = Array.from({ length: 12 }, (_, i) => ({
-    angle: (i * 30) * (Math.PI / 180),
+    angle: i * 30 * (Math.PI / 180),
     delay: i * 0.02,
   }));
 
   return (
     <AnimatePresence>
       {show && (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           {particles.map((particle, i) => (
             <motion.div
               key={i}
-              className="absolute w-2 h-2 rounded-full"
+              className="absolute h-2 w-2 rounded-full"
               style={{
                 background: colors[i % colors.length],
               }}
@@ -173,7 +173,7 @@ export const CelebrationBurst = ({ trigger }: { trigger: boolean }) => {
               transition={{
                 duration: 0.6,
                 delay: particle.delay,
-                ease: "easeOut",
+                ease: 'easeOut',
               }}
             />
           ))}
@@ -184,12 +184,12 @@ export const CelebrationBurst = ({ trigger }: { trigger: boolean }) => {
 };
 
 // Number counter animation
-export const AnimatedNumber = ({ 
-  value, 
+export const AnimatedNumber = ({
+  value,
   duration = 1000,
-  className = "" 
-}: { 
-  value: number; 
+  className = '',
+}: {
+  value: number;
   duration?: number;
   className?: string;
 }) => {
@@ -198,19 +198,19 @@ export const AnimatedNumber = ({
   useEffect(() => {
     const startTime = Date.now();
     const startValue = displayValue;
-    
+
     const animate = () => {
       const now = Date.now();
       const progress = Math.min((now - startTime) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-      
+
       setDisplayValue(Math.round(startValue + (value - startValue) * eased));
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
     };
-    
+
     requestAnimationFrame(animate);
     // `displayValue` é lido apenas como ponto de partida da animação; incluí-lo
     // reiniciaria a contagem a cada frame.
@@ -221,12 +221,12 @@ export const AnimatedNumber = ({
 };
 
 // Pulse ring effect for notifications
-export const PulseRing = ({ show, color = "primary" }: { show: boolean; color?: string }) => {
+export const PulseRing = ({ show, color = 'primary' }: { show: boolean; color?: string }) => {
   const colorClasses: Record<string, string> = {
-    primary: "bg-primary/30",
-    success: "bg-green-500/30",
-    warning: "bg-yellow-500/30",
-    destructive: "bg-red-500/30",
+    primary: 'bg-primary/30',
+    success: 'bg-green-500/30',
+    warning: 'bg-yellow-500/30',
+    destructive: 'bg-red-500/30',
   };
 
   return (

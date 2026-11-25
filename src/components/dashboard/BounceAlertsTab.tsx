@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { 
-  AlertTriangle, 
-  Bell, 
-  Check, 
-  RefreshCw, 
+import {
+  AlertTriangle,
+  Bell,
+  Check,
+  RefreshCw,
   Settings,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react';
 import { useBounceAlerts } from '@/hooks/use-bounce-alerts';
 import { format } from 'date-fns';
@@ -32,7 +32,9 @@ function BounceAlertsTabBase() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [warningThreshold, setWarningThreshold] = useState(thresholds?.bounce_rate_warning ?? 5);
-  const [criticalThreshold, setCriticalThreshold] = useState(thresholds?.bounce_rate_critical ?? 10);
+  const [criticalThreshold, setCriticalThreshold] = useState(
+    thresholds?.bounce_rate_critical ?? 10
+  );
 
   const handleSaveThresholds = () => {
     updateThresholds({
@@ -41,8 +43,8 @@ function BounceAlertsTabBase() {
     });
   };
 
-  const activeAlerts = alerts.filter(a => !a.is_resolved);
-  const resolvedAlerts = alerts.filter(a => a.is_resolved);
+  const activeAlerts = alerts.filter((a) => !a.is_resolved);
+  const resolvedAlerts = alerts.filter((a) => a.is_resolved);
 
   if (isLoading) {
     return (
@@ -58,28 +60,18 @@ function BounceAlertsTabBase() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Alertas de Bounce</h2>
-          <p className="text-muted-foreground">
-            Monitore taxas de bounce altas automaticamente
-          </p>
+          <p className="text-muted-foreground">Monitore taxas de bounce altas automaticamente</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSettings(!showSettings)}
-          >
-            <Settings className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={() => setShowSettings(!showSettings)}>
+            <Settings className="mr-2 h-4 w-4" />
             Configurar Limites
           </Button>
-          <Button
-            size="sm"
-            onClick={() => checkAlerts()}
-            disabled={isCheckingAlerts}
-          >
+          <Button size="sm" onClick={() => checkAlerts()} disabled={isCheckingAlerts}>
             {isCheckingAlerts ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Bell className="h-4 w-4 mr-2" />
+              <Bell className="mr-2 h-4 w-4" />
             )}
             Verificar Agora
           </Button>
@@ -140,7 +132,7 @@ function BounceAlertsTabBase() {
         <Card role="article">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-destructive/10">
+              <div className="rounded-full bg-destructive/10 p-3">
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
               <div>
@@ -153,7 +145,7 @@ function BounceAlertsTabBase() {
         <Card role="article">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-yellow-500/10">
+              <div className="rounded-full bg-yellow-500/10 p-3">
                 <Bell className="h-6 w-6 text-yellow-500" />
               </div>
               <div>
@@ -166,7 +158,7 @@ function BounceAlertsTabBase() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-green-500/10">
+              <div className="rounded-full bg-green-500/10 p-3">
                 <CheckCircle2 className="h-6 w-6 text-green-500" />
               </div>
               <div>
@@ -188,8 +180,8 @@ function BounceAlertsTabBase() {
         </CardHeader>
         <CardContent>
           {activeAlerts.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <CheckCircle2 className="h-12 w-12 mx-auto mb-4 text-green-500" />
+            <div className="py-8 text-center text-muted-foreground">
+              <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-500" />
               <p>Nenhum alerta ativo</p>
               <p className="text-sm">Todas as taxas de bounce estão dentro dos limites</p>
             </div>
@@ -198,61 +190,66 @@ function BounceAlertsTabBase() {
               {activeAlerts.map((alert) => (
                 <div
                   key={alert.id}
-                  className={`flex items-center justify-between p-4 rounded-lg border ${
+                  className={`flex items-center justify-between rounded-lg border p-4 ${
                     !alert.is_read ? 'bg-muted/50' : ''
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-full ${
-                      alert.alert_type === 'critical_bounce_rate' 
-                        ? 'bg-destructive/10' 
-                        : 'bg-yellow-500/10'
-                    }`}>
-                      <AlertTriangle className={`h-5 w-5 ${
+                    <div
+                      className={`rounded-full p-2 ${
                         alert.alert_type === 'critical_bounce_rate'
-                          ? 'text-destructive'
-                          : 'text-yellow-500'
-                      }`} />
+                          ? 'bg-destructive/10'
+                          : 'bg-yellow-500/10'
+                      }`}
+                    >
+                      <AlertTriangle
+                        className={`h-5 w-5 ${
+                          alert.alert_type === 'critical_bounce_rate'
+                            ? 'text-destructive'
+                            : 'text-yellow-500'
+                        }`}
+                      />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{alert.domain}</span>
-                        <Badge variant={
-                          alert.alert_type === 'critical_bounce_rate' 
-                            ? 'destructive' 
-                            : 'secondary'
-                        }>
+                        <Badge
+                          variant={
+                            alert.alert_type === 'critical_bounce_rate'
+                              ? 'destructive'
+                              : 'secondary'
+                          }
+                        >
                           {alert.alert_type === 'critical_bounce_rate' ? 'Crítico' : 'Aviso'}
                         </Badge>
                         {!alert.is_read && (
-                          <Badge variant="outline" className="text-xs">Novo</Badge>
+                          <Badge variant="outline" className="text-xs">
+                            Novo
+                          </Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Taxa de bounce: <span className="font-medium text-destructive">{alert.bounce_rate.toFixed(1)}%</span>
-                        {' '}(limite: {alert.threshold}%)
+                        Taxa de bounce:{' '}
+                        <span className="font-medium text-destructive">
+                          {alert.bounce_rate.toFixed(1)}%
+                        </span>{' '}
+                        (limite: {alert.threshold}%)
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(alert.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        {format(new Date(alert.created_at), "dd/MM/yyyy 'às' HH:mm", {
+                          locale: ptBR,
+                        })}
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     {!alert.is_read && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => markAsRead(alert.id)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => markAsRead(alert.id)}>
                         Marcar como lido
                       </Button>
                     )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => resolveAlert(alert.id)}
-                    >
-                      <Check className="h-4 w-4 mr-2" />
+                    <Button variant="outline" size="sm" onClick={() => resolveAlert(alert.id)}>
+                      <Check className="mr-2 h-4 w-4" />
                       Resolver
                     </Button>
                   </div>
@@ -277,16 +274,19 @@ function BounceAlertsTabBase() {
               {resolvedAlerts.slice(0, 5).map((alert) => (
                 <div
                   key={alert.id}
-                  className="flex items-center justify-between p-3 rounded-lg border opacity-60"
+                  className="flex items-center justify-between rounded-lg border p-3 opacity-60"
                 >
                   <div>
                     <span className="font-medium">{alert.domain}</span>
-                    <span className="text-sm text-muted-foreground ml-2">
+                    <span className="ml-2 text-sm text-muted-foreground">
                       {alert.bounce_rate.toFixed(1)}%
                     </span>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    Resolvido em {format(new Date(alert.resolved_at ?? Date.now()), "dd/MM/yyyy", { locale: ptBR })}
+                    Resolvido em{' '}
+                    {format(new Date(alert.resolved_at ?? Date.now()), 'dd/MM/yyyy', {
+                      locale: ptBR,
+                    })}
                   </span>
                 </div>
               ))}
@@ -297,7 +297,6 @@ function BounceAlertsTabBase() {
     </div>
   );
 }
-
 
 export const BounceAlertsTab = memo(BounceAlertsTabBase);
 export default BounceAlertsTab;

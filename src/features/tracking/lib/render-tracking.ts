@@ -6,8 +6,8 @@
  * pixel e links reescritos no padrão `/api/public/track/*`.
  */
 
-const PIXEL_PATH = "/api/public/track/open.gif";
-const CLICK_PATH = "/api/public/track/click";
+const PIXEL_PATH = '/api/public/track/open.gif';
+const CLICK_PATH = '/api/public/track/click';
 
 const ANCHOR_HREF_RE = /(<a\b[^>]*?\shref\s*=\s*)(["'])(.*?)\2/gi;
 
@@ -27,7 +27,7 @@ export function shouldRewriteHref(href: string): boolean {
   if (!href) return false;
   const trimmed = href.trim();
   if (!trimmed) return false;
-  if (trimmed.startsWith("#")) return false;
+  if (trimmed.startsWith('#')) return false;
   if (/^(mailto:|tel:|sms:|javascript:|data:)/i.test(trimmed)) return false;
   if (trimmed.includes(PIXEL_PATH) || trimmed.includes(CLICK_PATH)) return false;
   return /^https?:\/\//i.test(trimmed);
@@ -47,17 +47,11 @@ export function buildPixelHtml(baseUrl: string, trackingId: string): string {
 }
 
 export function injectTracking(html: string, opts: InjectTrackingOptions): string {
-  const {
-    trackingId,
-    baseUrl,
-    linkMap = {},
-    injectPixel = true,
-    rewriteLinks = true,
-  } = opts;
+  const { trackingId, baseUrl, linkMap = {}, injectPixel = true, rewriteLinks = true } = opts;
 
   if (!trackingId) return html;
 
-  let result = html ?? "";
+  let result = html ?? '';
 
   if (rewriteLinks && Object.keys(linkMap).length > 0) {
     result = result.replace(ANCHOR_HREF_RE, (match, prefix, quote, url) => {
@@ -92,5 +86,5 @@ export function extractTrackableLinks(html: string): string[] {
 }
 
 function stripTrailingSlash(u: string): string {
-  return u.endsWith("/") ? u.slice(0, -1) : u;
+  return u.endsWith('/') ? u.slice(0, -1) : u;
 }

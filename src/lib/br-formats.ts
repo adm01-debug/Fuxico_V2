@@ -3,15 +3,15 @@
  * Cobre CPF, CNPJ, telefone e CEP com máscaras e checagem de dígitos.
  */
 
-const onlyDigits = (v: string) => v.replace(/\D+/g, "");
+const onlyDigits = (v: string) => v.replace(/\D+/g, '');
 
 // ---------- CPF ----------
 export const maskCPF = (v: string) => {
   const d = onlyDigits(v).slice(0, 11);
   return d
-    .replace(/^(\d{3})(\d)/, "$1.$2")
-    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
-    .replace(/\.(\d{3})(\d{1,2})$/, ".$1-$2");
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2');
 };
 
 export const isValidCPF = (input: string): boolean => {
@@ -32,10 +32,10 @@ export const isValidCPF = (input: string): boolean => {
 export const maskCNPJ = (v: string) => {
   const d = onlyDigits(v).slice(0, 14);
   return d
-    .replace(/^(\d{2})(\d)/, "$1.$2")
-    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
-    .replace(/\.(\d{3})(\d)/, ".$1/$2")
-    .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+    .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
 };
 
 export const isValidCNPJ = (input: string): boolean => {
@@ -58,13 +58,9 @@ export const isValidCNPJ = (input: string): boolean => {
 export const maskPhoneBR = (v: string) => {
   const d = onlyDigits(v).slice(0, 11);
   if (d.length <= 10) {
-    return d
-      .replace(/^(\d{2})(\d)/, "($1) $2")
-      .replace(/(\d{4})(\d{1,4})$/, "$1-$2");
+    return d.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d{1,4})$/, '$1-$2');
   }
-  return d
-    .replace(/^(\d{2})(\d)/, "($1) $2")
-    .replace(/(\d{5})(\d{1,4})$/, "$1-$2");
+  return d.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d{1,4})$/, '$1-$2');
 };
 
 export const isValidPhoneBR = (input: string): boolean => {
@@ -74,14 +70,15 @@ export const isValidPhoneBR = (input: string): boolean => {
 
 // ---------- CEP ----------
 export const maskCEP = (v: string) =>
-  onlyDigits(v).slice(0, 8).replace(/^(\d{5})(\d)/, "$1-$2");
+  onlyDigits(v)
+    .slice(0, 8)
+    .replace(/^(\d{5})(\d)/, '$1-$2');
 
-export const isValidCEP = (input: string): boolean =>
-  onlyDigits(input).length === 8;
+export const isValidCEP = (input: string): boolean => onlyDigits(input).length === 8;
 
 // ---------- Moeda BRL ----------
 export const formatBRL = (value: number): string =>
-  new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
+  new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
   }).format(Number.isFinite(value) ? value : 0);

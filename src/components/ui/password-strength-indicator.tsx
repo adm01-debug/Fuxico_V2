@@ -2,7 +2,7 @@ import { log } from '@/lib/logger';
 import { useMemo, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Check, X, Loader2, AlertTriangle } from 'lucide-react';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 interface PasswordStrengthIndicatorProps {
   password: string;
@@ -42,26 +42,29 @@ async function checkPasswordBreach(password: string): Promise<boolean> {
     // eslint-disable-next-line sonarjs/hashing -- SHA-1 exigido pelo protocolo k-anonymity da API HaveIBeenPwned
     const hashBuffer = await crypto.subtle.digest('SHA-1', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-    
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+      .toUpperCase();
+
     // Only send first 5 characters (k-anonymity)
     const prefix = hashHex.substring(0, 5);
     const suffix = hashHex.substring(5);
-    
+
     const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
       headers: {
-        'Add-Padding': 'true' // Adds padding to prevent response length analysis
-      }
+        'Add-Padding': 'true', // Adds padding to prevent response length analysis
+      },
     });
-    
+
     if (!response.ok) {
       log.warn('HIBP API error:', response.status);
       return false;
     }
-    
+
     const text = await response.text();
     const lines = text.split('\n');
-    
+
     // Check if our hash suffix appears in the response
     for (const line of lines) {
       const [hashSuffix, count] = line.split(':');
@@ -69,7 +72,7 @@ async function checkPasswordBreach(password: string): Promise<boolean> {
         return parseInt(count.trim(), 10) > 0;
       }
     }
-    
+
     return false;
   } catch (error) {
     log.warn('Error checking password breach:', error);
@@ -77,20 +80,20 @@ async function checkPasswordBreach(password: string): Promise<boolean> {
   }
 }
 
-export function PasswordStrengthIndicator({ 
-  password, 
+export function PasswordStrengthIndicator({
+  password,
   className,
   showRequirements = true,
-  onBreachCheck
+  onBreachCheck,
 }: PasswordStrengthIndicatorProps) {
   const [isCheckingBreach, setIsCheckingBreach] = useState(false);
   const [isBreached, setIsBreached] = useState<boolean | null>(null);
-  
+
   const analysis = useMemo(() => {
-    const passedRequirements = requirements.filter(req => req.test(password));
+    const passedRequirements = requirements.filter((req) => req.test(password));
     const score = passedRequirements.length;
     const config = strengthConfig[score as keyof typeof strengthConfig];
-    
+
     return {
       score,
       maxScore: requirements.length,
@@ -107,7 +110,7 @@ export function PasswordStrengthIndicator({
       onBreachCheck?.(null);
       return;
     }
-    
+
     setIsCheckingBreach(true);
     const timeoutId = setTimeout(async () => {
       const breached = await checkPasswordBreach(password);
@@ -115,7 +118,7 @@ export function PasswordStrengthIndicator({
       setIsCheckingBreach(false);
       onBreachCheck?.(breached);
     }, 500); // Debounce 500ms
-    
+
     return () => clearTimeout(timeoutId);
   }, [password, onBreachCheck]);
 
@@ -125,21 +128,26 @@ export function PasswordStrengthIndicator({
     <div className={cn('space-y-3', className)}>
       {/* Breach warning */}
       {isBreached && (
-        <div className="flex items-center gap-2 p-2 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+        <div className="flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-2 text-sm text-destructive">
+          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
           <span>Esta senha foi encontrada em vazamentos de dados. Escolha outra senha.</span>
         </div>
       )}
-      
+
       {/* Strength bar */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Força da senha</span>
-          <span className={cn('font-medium', isBreached ? 'text-destructive' : analysis.config.textColor)}>
+          <span
+            className={cn(
+              'font-medium',
+              isBreached ? 'text-destructive' : analysis.config.textColor
+            )}
+          >
             {isBreached ? 'Comprometida' : analysis.config.label}
           </span>
         </div>
-        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
           <div
             className={cn(
               'h-full rounded-full transition-all duration-300',
@@ -155,10 +163,13 @@ export function PasswordStrengthIndicator({
               key={i}
               className={cn(
                 'h-1 flex-1 rounded-full transition-colors duration-200',
-                matchFirst([
-  [isBreached, () => ('bg-destructive')],
-  [i < analysis.score, () => (analysis.config.color)],
-], () => ('bg-muted'))
+                matchFirst(
+                  [
+                    [isBreached, () => 'bg-destructive'],
+                    [i < analysis.score, () => analysis.config.color],
+                  ],
+                  () => 'bg-muted'
+                )
               )}
             />
           ))}
@@ -180,56 +191,76 @@ export function PasswordStrengthIndicator({
                   )}
                 >
                   {passed ? (
-                    <Check className="w-3 h-3 flex-shrink-0" />
+                    <Check className="h-3 w-3 flex-shrink-0" />
                   ) : (
-                    <X className="w-3 h-3 flex-shrink-0" />
+                    <X className="h-3 w-3 flex-shrink-0" />
                   )}
                   <span>{req.label}</span>
                 </div>
               );
             })}
           </div>
-          
+
           {/* Breach check status */}
-          <div className={cn(
-            'flex items-center gap-1.5 text-xs transition-colors',
-            matchFirst([
-  [isCheckingBreach, () => ('text-muted-foreground')],
-  [isBreached === false, () => ('text-success')],
-  [isBreached === true, () => ('text-destructive')],
-], () => ('text-muted-foreground'))
-          )}>
-            {matchFirst([
-  [isCheckingBreach, () => ((
-              <>
-                <Loader2 className="w-3 h-3 flex-shrink-0 animate-spin" />
-                <span>Verificando vazamentos...</span>
-              </>
-            ))],
-  [isBreached === false, () => ((
-              <>
-                <Check className="w-3 h-3 flex-shrink-0" />
-                <span>Senha não encontrada em vazamentos</span>
-              </>
-            ))],
-  [isBreached === true, () => ((
-              <>
-                <AlertTriangle className="w-3 h-3 flex-shrink-0" />
-                <span>Senha encontrada em vazamentos</span>
-              </>
-            ))],
-  [password.length >= 8, () => ((
-              <>
-                <Loader2 className="w-3 h-3 flex-shrink-0" />
-                <span>Aguardando verificação...</span>
-              </>
-            ))],
-], () => ((
-              <>
-                <X className="w-3 h-3 flex-shrink-0" />
-                <span>Verificação de vazamentos (mín. 8 caracteres)</span>
-              </>
-            )))}
+          <div
+            className={cn(
+              'flex items-center gap-1.5 text-xs transition-colors',
+              matchFirst(
+                [
+                  [isCheckingBreach, () => 'text-muted-foreground'],
+                  [isBreached === false, () => 'text-success'],
+                  [isBreached === true, () => 'text-destructive'],
+                ],
+                () => 'text-muted-foreground'
+              )
+            )}
+          >
+            {matchFirst(
+              [
+                [
+                  isCheckingBreach,
+                  () => (
+                    <>
+                      <Loader2 className="h-3 w-3 flex-shrink-0 animate-spin" />
+                      <span>Verificando vazamentos...</span>
+                    </>
+                  ),
+                ],
+                [
+                  isBreached === false,
+                  () => (
+                    <>
+                      <Check className="h-3 w-3 flex-shrink-0" />
+                      <span>Senha não encontrada em vazamentos</span>
+                    </>
+                  ),
+                ],
+                [
+                  isBreached === true,
+                  () => (
+                    <>
+                      <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+                      <span>Senha encontrada em vazamentos</span>
+                    </>
+                  ),
+                ],
+                [
+                  password.length >= 8,
+                  () => (
+                    <>
+                      <Loader2 className="h-3 w-3 flex-shrink-0" />
+                      <span>Aguardando verificação...</span>
+                    </>
+                  ),
+                ],
+              ],
+              () => (
+                <>
+                  <X className="h-3 w-3 flex-shrink-0" />
+                  <span>Verificação de vazamentos (mín. 8 caracteres)</span>
+                </>
+              )
+            )}
           </div>
         </div>
       )}
@@ -240,13 +271,13 @@ export function PasswordStrengthIndicator({
 // Hook for password validation
 export function usePasswordStrength(password: string) {
   const [isBreached, setIsBreached] = useState<boolean | null>(null);
-  
+
   const analysis = useMemo(() => {
-    const passedRequirements = requirements.filter(req => req.test(password));
+    const passedRequirements = requirements.filter((req) => req.test(password));
     const score = passedRequirements.length;
     const isValid = score >= 4 && isBreached !== true; // At least 4 requirements met and not breached
     const isStrong = score === 5 && isBreached === false;
-    
+
     return {
       score,
       isValid,
@@ -256,7 +287,7 @@ export function usePasswordStrength(password: string) {
       totalCount: requirements.length,
     };
   }, [password, isBreached]);
-  
+
   return {
     ...analysis,
     setIsBreached,

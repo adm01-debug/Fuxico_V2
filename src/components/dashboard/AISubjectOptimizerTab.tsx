@@ -2,48 +2,51 @@
 // FUXICO - AI Subject Optimizer Tab
 // =============================================================================
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { supabase } from '@/integrations/supabase/client'
-import { toast } from 'sonner'
-import { 
-  Brain, Sparkles, Clock, Copy, 
-  Lightbulb, Loader2, Wand2
-} from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { matchFirst, thresholdVariant } from "@/lib/variant";
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Brain, Sparkles, Clock, Copy, Lightbulb, Loader2, Wand2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { matchFirst, thresholdVariant } from '@/lib/variant';
 
 interface Suggestion {
-  subject: string
-  score: number
-  reason: string
-  emoji?: string
-  bestTime?: string
+  subject: string;
+  score: number;
+  reason: string;
+  emoji?: string;
+  bestTime?: string;
 }
 
 export default function AISubjectOptimizerTab() {
-  const [originalSubject, setOriginalSubject] = useState('')
-  const [context, setContext] = useState('')
-  const [audience, setAudience] = useState('general')
-  const [tone, setTone] = useState('professional')
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-  const [loading, setLoading] = useState(false)
-  const [bestTimes, setBestTimes] = useState<{ hour: string; score: number }[]>([])
+  const [originalSubject, setOriginalSubject] = useState('');
+  const [context, setContext] = useState('');
+  const [audience, setAudience] = useState('general');
+  const [tone, setTone] = useState('professional');
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [bestTimes, setBestTimes] = useState<{ hour: string; score: number }[]>([]);
 
   const generateSuggestions = async () => {
     if (!originalSubject.trim()) {
-      toast.error('Digite um assunto para otimizar')
-      return
+      toast.error('Digite um assunto para otimizar');
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-insights', {
         body: {
@@ -53,13 +56,14 @@ export default function AISubjectOptimizerTab() {
           audience,
           tone,
         },
-      })
+      });
 
-      if (error) throw error
+      if (error) throw error;
 
       // Use AI response or fallback to generated suggestions
-      const aiSuggestions: Suggestion[] = data?.suggestions || generateFallbackSuggestions(originalSubject, tone, audience)
-      setSuggestions(aiSuggestions)
+      const aiSuggestions: Suggestion[] =
+        data?.suggestions || generateFallbackSuggestions(originalSubject, tone, audience);
+      setSuggestions(aiSuggestions);
 
       // Generate best send times
       setBestTimes([
@@ -68,34 +72,38 @@ export default function AISubjectOptimizerTab() {
         { hour: '14:00 - 15:00', score: 78 },
         { hour: '17:00 - 18:00', score: 71 },
         { hour: '20:00 - 21:00', score: 65 },
-      ])
+      ]);
 
-      toast.success('Sugestões geradas com sucesso!')
+      toast.success('Sugestões geradas com sucesso!');
     } catch {
       // Fallback with local generation
-      const fallback = generateFallbackSuggestions(originalSubject, tone, audience)
-      setSuggestions(fallback)
+      const fallback = generateFallbackSuggestions(originalSubject, tone, audience);
+      setSuggestions(fallback);
       setBestTimes([
         { hour: '08:00 - 09:00', score: 92 },
         { hour: '10:00 - 11:00', score: 87 },
         { hour: '14:00 - 15:00', score: 78 },
         { hour: '17:00 - 18:00', score: 71 },
         { hour: '20:00 - 21:00', score: 65 },
-      ])
-      toast.success('Sugestões geradas localmente')
+      ]);
+      toast.success('Sugestões geradas localmente');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const generateFallbackSuggestions = (subject: string, tone: string, audience: string): Suggestion[] => {
+  const generateFallbackSuggestions = (
+    subject: string,
+    tone: string,
+    audience: string
+  ): Suggestion[] => {
     const toneMap: Record<string, string[]> = {
       professional: ['Importante:', 'Atualização:', 'Informamos:'],
       casual: ['Ei,', 'Olha só:', 'Novidade:'],
       urgent: ['⚡ Urgente:', '🔥 Última chance:', '⏰ Prazo final:'],
       friendly: ['😊', '🎉', '✨'],
-    }
-    const prefixes = toneMap[tone] || toneMap.professional
+    };
+    const prefixes = toneMap[tone] || toneMap.professional;
 
     return [
       {
@@ -133,32 +141,34 @@ export default function AISubjectOptimizerTab() {
         emoji: '📅',
         bestTime: '09:00',
       },
-    ]
-  }
+    ];
+  };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success('Assunto copiado!')
-  }
+    navigator.clipboard.writeText(text);
+    toast.success('Assunto copiado!');
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20">
+        <div className="rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 p-2">
           <Brain className="h-6 w-6 text-violet-500" />
         </div>
         <div>
           <h2 className="text-lg font-semibold">Otimizador de Assuntos com IA</h2>
-          <p className="text-sm text-muted-foreground">Melhore suas taxas de abertura com sugestões inteligentes</p>
+          <p className="text-sm text-muted-foreground">
+            Melhore suas taxas de abertura com sugestões inteligentes
+          </p>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-6">
+      <div className="grid gap-6 lg:grid-cols-5">
         {/* Input Form */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Wand2 className="h-4 w-4" />
               Configuração
             </CardTitle>
@@ -236,14 +246,10 @@ export default function AISubjectOptimizerTab() {
         </Card>
 
         {/* Suggestions */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="space-y-4 lg:col-span-3">
           <AnimatePresence mode="wait">
             {suggestions.length > 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-3"
-              >
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
                 {suggestions.map((suggestion, i) => (
                   <motion.div
                     key={i}
@@ -251,21 +257,30 @@ export default function AISubjectOptimizerTab() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
                   >
-                    <Card className="hover:shadow-md transition-shadow">
+                    <Card className="transition-shadow hover:shadow-md">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
-                          <div className="text-2xl shrink-0">{suggestion.emoji}</div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
+                          <div className="shrink-0 text-2xl">{suggestion.emoji}</div>
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-1 flex items-center gap-2">
                               <span className="text-sm font-semibold">Sugestão {i + 1}</span>
-                              <Badge 
-                                variant={thresholdVariant(suggestion.score, [[85, 'default' as const], [75, 'secondary' as const]], 'outline' as const)}
+                              <Badge
+                                variant={thresholdVariant(
+                                  suggestion.score,
+                                  [
+                                    [85, 'default' as const],
+                                    [75, 'secondary' as const],
+                                  ],
+                                  'outline' as const
+                                )}
                                 className="text-xs"
                               >
                                 Score: {suggestion.score}/100
                               </Badge>
                             </div>
-                            <p className="text-base font-medium mb-2 break-words">{suggestion.subject}</p>
+                            <p className="mb-2 break-words text-base font-medium">
+                              {suggestion.subject}
+                            </p>
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Lightbulb className="h-3 w-3" />
@@ -273,7 +288,7 @@ export default function AISubjectOptimizerTab() {
                               </span>
                             </div>
                             {suggestion.bestTime && (
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                              <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                                 <Clock className="h-3 w-3" />
                                 Melhor horário: {suggestion.bestTime}
                               </div>
@@ -290,12 +305,18 @@ export default function AISubjectOptimizerTab() {
                         </div>
 
                         {/* Score Bar */}
-                        <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
                           <motion.div
                             className={cn(
-                              "h-full rounded-full",
-                              thresholdVariant(suggestion.score, [[85, "bg-emerald-500"], [75, "bg-amber-500"]], "bg-orange-500")
-
+                              'h-full rounded-full',
+                              thresholdVariant(
+                                suggestion.score,
+                                [
+                                  [85, 'bg-emerald-500'],
+                                  [75, 'bg-amber-500'],
+                                ],
+                                'bg-orange-500'
+                              )
                             )}
                             initial={{ width: 0 }}
                             animate={{ width: `${suggestion.score}%` }}
@@ -310,10 +331,11 @@ export default function AISubjectOptimizerTab() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-8 text-center">
-                  <Brain className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
-                  <h3 className="font-semibold mb-1">Otimize seus assuntos</h3>
+                  <Brain className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
+                  <h3 className="mb-1 font-semibold">Otimize seus assuntos</h3>
                   <p className="text-sm text-muted-foreground">
-                    Digite um assunto e clique em "Gerar Sugestões" para receber recomendações baseadas em IA
+                    Digite um assunto e clique em "Gerar Sugestões" para receber recomendações
+                    baseadas em IA
                   </p>
                 </CardContent>
               </Card>
@@ -324,7 +346,7 @@ export default function AISubjectOptimizerTab() {
           {bestTimes.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-base">
                   <Clock className="h-4 w-4" />
                   Melhores Horários para Envio
                 </CardTitle>
@@ -334,22 +356,25 @@ export default function AISubjectOptimizerTab() {
                 <div className="space-y-3">
                   {bestTimes.map((time, i) => (
                     <div key={i} className="flex items-center gap-3">
-                      <span className="text-sm font-mono w-28 shrink-0">{time.hour}</span>
-                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                      <span className="w-28 shrink-0 font-mono text-sm">{time.hour}</span>
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                         <motion.div
                           className={cn(
-                            "h-full rounded-full",
-                            matchFirst([
-  [time.score >= 85, () => ("bg-emerald-500")],
-  [time.score >= 70, () => ("bg-amber-500")],
-], () => ("bg-orange-500"))
+                            'h-full rounded-full',
+                            matchFirst(
+                              [
+                                [time.score >= 85, () => 'bg-emerald-500'],
+                                [time.score >= 70, () => 'bg-amber-500'],
+                              ],
+                              () => 'bg-orange-500'
+                            )
                           )}
                           initial={{ width: 0 }}
                           animate={{ width: `${time.score}%` }}
                           transition={{ delay: i * 0.1, duration: 0.5 }}
                         />
                       </div>
-                      <span className="text-sm font-medium w-10 text-right">{time.score}%</span>
+                      <span className="w-10 text-right text-sm font-medium">{time.score}%</span>
                     </div>
                   ))}
                 </div>
@@ -359,5 +384,5 @@ export default function AISubjectOptimizerTab() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -25,60 +25,63 @@ export const defaultFilters: EmailFilters = {
 /** Estado controlado dos filtros com reset e flag de filtros ativos. */
 export function useEmailFilters() {
   const [filters, setFilters] = useState<EmailFilters>(defaultFilters);
-  
+
   const resetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
-  
-  const hasActiveFilters = 
+
+  const hasActiveFilters =
     filters.search !== '' ||
     filters.status !== 'all' ||
     filters.period !== 'all' ||
     filters.minOpens > 0;
-  
+
   return { filters, setFilters, resetFilters, hasActiveFilters };
 }
 
 /** Aplica busca, status, período, mínimo de aberturas e ordenação. */
-export function filterEmails<T extends {
-  recipient_email: string;
-  subject: string | null;
-  created_at: string;
-  opens?: number;
-  clicks?: number;
-}>(emails: T[], filters: EmailFilters): T[] {
+export function filterEmails<
+  T extends {
+    recipient_email: string;
+    subject: string | null;
+    created_at: string;
+    opens?: number;
+    clicks?: number;
+  },
+>(emails: T[], filters: EmailFilters): T[] {
   let result = [...emails];
-  
+
   // Search filter
   if (filters.search) {
     const searchLower = filters.search.toLowerCase();
-    result = result.filter(email => 
-      email.recipient_email.toLowerCase().includes(searchLower) ||
-      (email.subject?.toLowerCase() || '').includes(searchLower)
+    result = result.filter(
+      (email) =>
+        email.recipient_email.toLowerCase().includes(searchLower) ||
+        (email.subject?.toLowerCase() || '').includes(searchLower)
     );
   }
-  
+
   // Status filter
   if (filters.status !== 'all') {
     switch (filters.status) {
       case 'opened':
-        result = result.filter(email => (email.opens || 0) > 0);
+        result = result.filter((email) => (email.opens || 0) > 0);
         break;
       case 'not-opened':
-        result = result.filter(email => (email.opens || 0) === 0);
+        result = result.filter((email) => (email.opens || 0) === 0);
         break;
       case 'clicked':
-        result = result.filter(email => (email.clicks || 0) > 0);
+        result = result.filter((email) => (email.clicks || 0) > 0);
         break;
     }
   }
-  
+
   // Period filter
   if (filters.period !== 'all') {
     const now = new Date();
     let startDate: Date | undefined;
     let endDate: Date = endOfDay(now);
-    
+
     switch (filters.period) {
       case 'today':
         startDate = startOfDay(now);
@@ -94,25 +97,25 @@ export function filterEmails<T extends {
         endDate = filters.dateRange.to ? endOfDay(filters.dateRange.to) : endDate;
         break;
     }
-    
+
     if (startDate) {
       const intervalStart = startDate;
-      result = result.filter(email => {
+      result = result.filter((email) => {
         const emailDate = new Date(email.created_at);
         return isWithinInterval(emailDate, { start: intervalStart, end: endDate });
       });
     }
   }
-  
+
   // Min opens filter
   if (filters.minOpens > 0) {
-    result = result.filter(email => (email.opens || 0) >= filters.minOpens);
+    result = result.filter((email) => (email.opens || 0) >= filters.minOpens);
   }
-  
+
   // Sorting
   result.sort((a, b) => {
     let comparison = 0;
-    
+
     switch (filters.sortBy) {
       case 'date':
         comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
@@ -127,9 +130,9 @@ export function filterEmails<T extends {
         comparison = a.recipient_email.localeCompare(b.recipient_email);
         break;
     }
-    
+
     return filters.sortOrder === 'desc' ? -comparison : comparison;
   });
-  
+
   return result;
 }

@@ -1,14 +1,14 @@
 /**
  * Hook para alertas de bounce de emails
- * 
+ *
  * @description Este hook fornece funcionalidades para hook para alertas de bounce de emails.
  * Inclui gerenciamento de estado, cache e tratamento de erros.
- * 
+ *
  * @example
  * ```tsx
  * const { data, isLoading, error } = usebouncealerts();
  * ```
- * 
+ *
  * @returns Object contendo data, isLoading, error e funções auxiliares
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -84,7 +84,7 @@ export function useBounceAlerts() {
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
-      
+
       if (!data) {
         // Create default thresholds
         const { data: newData, error: insertError } = await supabase
@@ -92,7 +92,7 @@ export function useBounceAlerts() {
           .insert({ user_id: user.id, ...defaultThresholds })
           .select()
           .single();
-        
+
         if (insertError) throw insertError;
         return newData as AlertThresholds;
       }
@@ -143,9 +143,9 @@ export function useBounceAlerts() {
     mutationFn: async (alertId: string) => {
       const { error } = await supabase
         .from('bounce_alerts')
-        .update({ 
-          is_resolved: true, 
-          resolved_at: new Date().toISOString() 
+        .update({
+          is_resolved: true,
+          resolved_at: new Date().toISOString(),
         })
         .eq('id', alertId);
 
@@ -172,7 +172,7 @@ export function useBounceAlerts() {
       const thresholds = thresholdsQuery.data || defaultThresholds;
 
       // Batch: fetch ALL unresolved alerts in ONE query (instead of N+1)
-      const domainNames = (domains || []).filter(d => d.domain).map(d => d.domain as string);
+      const domainNames = (domains || []).filter((d) => d.domain).map((d) => d.domain as string);
       const { data: existingAlerts } = await supabase
         .from('bounce_alerts')
         .select('domain')
@@ -180,7 +180,7 @@ export function useBounceAlerts() {
         .eq('is_resolved', false)
         .in('domain', domainNames);
 
-      const existingAlertDomains = new Set((existingAlerts || []).map(a => a.domain));
+      const existingAlertDomains = new Set((existingAlerts || []).map((a) => a.domain));
 
       const newAlerts: Array<{
         user_id: string;
@@ -198,7 +198,9 @@ export function useBounceAlerts() {
               user_id: user.id,
               domain: domain.domain as string,
               bounce_rate: domain.bounce_rate,
-              threshold: isCritical ? thresholds.bounce_rate_critical : thresholds.bounce_rate_warning,
+              threshold: isCritical
+                ? thresholds.bounce_rate_critical
+                : thresholds.bounce_rate_warning,
               alert_type: isCritical ? 'critical_bounce_rate' : 'high_bounce_rate',
             });
           }
@@ -206,9 +208,7 @@ export function useBounceAlerts() {
       }
 
       if (newAlerts.length > 0) {
-        const { error: insertError } = await supabase
-          .from('bounce_alerts')
-          .insert(newAlerts);
+        const { error: insertError } = await supabase.from('bounce_alerts').insert(newAlerts);
 
         if (insertError) throw insertError;
       }
@@ -223,7 +223,7 @@ export function useBounceAlerts() {
     },
   });
 
-  const unreadCount = alertsQuery.data?.filter(a => !a.is_read && !a.is_resolved).length || 0;
+  const unreadCount = alertsQuery.data?.filter((a) => !a.is_read && !a.is_resolved).length || 0;
 
   return {
     alerts: alertsQuery.data || [],

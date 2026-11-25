@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
-import { requireUserId } from "@/lib/auth-guards";
+import { requireUserId } from '@/lib/auth-guards';
 
 export interface Campaign {
   id: string;
@@ -46,7 +46,7 @@ export function useCampaigns() {
       if (!campaigns || campaigns.length === 0) return [];
 
       // Batch: fetch all emails for all campaigns in ONE query
-      const campaignIds = campaigns.map(c => c.id);
+      const campaignIds = campaigns.map((c) => c.id);
       const { data: allEmails } = await supabase
         .from('tracked_emails')
         .select('campaign_id, tracking_id')
@@ -80,7 +80,7 @@ export function useCampaigns() {
       }
 
       // Compute stats per campaign
-      return campaigns.map(campaign => {
+      return campaigns.map((campaign) => {
         const trackingIds = emailsByCampaign.get(campaign.id) || [];
         const totalEmails = trackingIds.length;
         let totalOpens = 0;
@@ -144,7 +144,15 @@ export function useUpdateCampaign() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...data }: { id: string; name?: string; description?: string; status?: string }) => {
+    mutationFn: async ({
+      id,
+      ...data
+    }: {
+      id: string;
+      name?: string;
+      description?: string;
+      status?: string;
+    }) => {
       const { data: campaign, error } = await supabase
         .from('campaigns')
         .update(data)
@@ -170,10 +178,7 @@ export function useDeleteCampaign() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('campaigns')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('campaigns').delete().eq('id', id);
 
       if (error) throw error;
     },
@@ -191,7 +196,13 @@ export function useAssignEmailToCampaign() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ trackingId, campaignId }: { trackingId: string; campaignId: string | null }) => {
+    mutationFn: async ({
+      trackingId,
+      campaignId,
+    }: {
+      trackingId: string;
+      campaignId: string | null;
+    }) => {
       const { error } = await supabase
         .from('tracked_emails')
         .update({ campaign_id: campaignId })

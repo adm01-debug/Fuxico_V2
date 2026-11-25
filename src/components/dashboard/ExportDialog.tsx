@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { log } from '@/lib/logger';
-import { format } from "date-fns";
-import { Download, FileSpreadsheet, FileText, Loader2, Calendar } from "lucide-react";
+import { format } from 'date-fns';
+import { Download, FileSpreadsheet, FileText, Loader2, Calendar } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -10,13 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface ExportDialogProps {
   onExport?: (options: ExportOptions) => Promise<void>;
@@ -46,17 +46,19 @@ function downloadFile(content: string, filename: string, mimeType: string) {
 
 function convertToCSV(data: Record<string, unknown>[]): string {
   if (data.length === 0) return '';
-  
+
   const headers = Object.keys(data[0]);
-  const rows = data.map(row => 
-    headers.map(header => {
-      const value = row[header];
-      if (value === null || value === undefined) return '';
-      if (typeof value === 'object') return JSON.stringify(value);
-      return String(value).includes(',') ? `"${value}"` : String(value);
-    }).join(',')
+  const rows = data.map((row) =>
+    headers
+      .map((header) => {
+        const value = row[header];
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'object') return JSON.stringify(value);
+        return String(value).includes(',') ? `"${value}"` : String(value);
+      })
+      .join(',')
   );
-  
+
   return [headers.join(','), ...rows].join('\n');
 }
 
@@ -73,13 +75,13 @@ function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) 
 
   const handleExport = async () => {
     setIsExporting(true);
-    
+
     try {
       if (onExport) {
         await onExport(options);
       } else if (data.length > 0) {
         const filename = `export_${format(new Date(), 'yyyy-MM-dd_HH-mm')}`;
-        
+
         switch (options.format) {
           case 'csv':
             downloadFile(convertToCSV(data), `${filename}.csv`, 'text/csv');
@@ -94,7 +96,7 @@ function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) 
             break;
         }
       }
-      
+
       toast.success('Exportação concluída com sucesso!');
       setOpen(false);
     } catch (error) {
@@ -115,40 +117,42 @@ function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) 
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto">
+      <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">Exportar Dados</DialogTitle>
           <DialogDescription className="text-sm">
             Configure as opções de exportação abaixo.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-5 py-4">
           {/* Format Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Formato do Arquivo</Label>
             <RadioGroup
               value={options.format}
-              onValueChange={(value) => setOptions(prev => ({ ...prev, format: value as ExportOptions['format'] }))}
+              onValueChange={(value) =>
+                setOptions((prev) => ({ ...prev, format: value as ExportOptions['format'] }))
+              }
               className="grid grid-cols-3 gap-2"
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="csv" id="csv" className="h-5 w-5" />
-                <Label htmlFor="csv" className="flex items-center gap-1.5 cursor-pointer text-sm">
+                <Label htmlFor="csv" className="flex cursor-pointer items-center gap-1.5 text-sm">
                   <FileSpreadsheet className="h-4 w-4 shrink-0" />
                   <span>CSV</span>
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="xlsx" id="xlsx" className="h-5 w-5" />
-                <Label htmlFor="xlsx" className="flex items-center gap-1.5 cursor-pointer text-sm">
+                <Label htmlFor="xlsx" className="flex cursor-pointer items-center gap-1.5 text-sm">
                   <FileSpreadsheet className="h-4 w-4 shrink-0" />
                   <span>Excel</span>
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="json" id="json" className="h-5 w-5" />
-                <Label htmlFor="json" className="flex items-center gap-1.5 cursor-pointer text-sm">
+                <Label htmlFor="json" className="flex cursor-pointer items-center gap-1.5 text-sm">
                   <FileText className="h-4 w-4 shrink-0" />
                   <span>JSON</span>
                 </Label>
@@ -164,22 +168,26 @@ function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) 
             </Label>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="dateFrom" className="text-xs text-muted-foreground">De</Label>
+                <Label htmlFor="dateFrom" className="text-xs text-muted-foreground">
+                  De
+                </Label>
                 <Input
                   id="dateFrom"
                   type="date"
                   value={options.dateFrom}
-                  onChange={(e) => setOptions(prev => ({ ...prev, dateFrom: e.target.value }))}
+                  onChange={(e) => setOptions((prev) => ({ ...prev, dateFrom: e.target.value }))}
                   className="h-11"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="dateTo" className="text-xs text-muted-foreground">Até</Label>
+                <Label htmlFor="dateTo" className="text-xs text-muted-foreground">
+                  Até
+                </Label>
                 <Input
                   id="dateTo"
                   type="date"
                   value={options.dateTo}
-                  onChange={(e) => setOptions(prev => ({ ...prev, dateTo: e.target.value }))}
+                  onChange={(e) => setOptions((prev) => ({ ...prev, dateTo: e.target.value }))}
                   className="h-11"
                 />
               </div>
@@ -194,10 +202,10 @@ function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) 
                 <Checkbox
                   id="includeStats"
                   checked={options.includeStats}
-                  onCheckedChange={(checked) => 
-                    setOptions(prev => ({ ...prev, includeStats: checked === true }))
+                  onCheckedChange={(checked) =>
+                    setOptions((prev) => ({ ...prev, includeStats: checked === true }))
                   }
-                  className="h-5 w-5 mt-0.5"
+                  className="mt-0.5 h-5 w-5"
                 />
                 <Label htmlFor="includeStats" className="cursor-pointer text-sm leading-relaxed">
                   Incluir estatísticas (aberturas, cliques)
@@ -207,10 +215,10 @@ function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) 
                 <Checkbox
                   id="includeEvents"
                   checked={options.includeEvents}
-                  onCheckedChange={(checked) => 
-                    setOptions(prev => ({ ...prev, includeEvents: checked === true }))
+                  onCheckedChange={(checked) =>
+                    setOptions((prev) => ({ ...prev, includeEvents: checked === true }))
                   }
-                  className="h-5 w-5 mt-0.5"
+                  className="mt-0.5 h-5 w-5"
                 />
                 <Label htmlFor="includeEvents" className="cursor-pointer text-sm leading-relaxed">
                   Incluir histórico de eventos
@@ -220,11 +228,19 @@ function ExportDialogBase({ onExport, data = [], children }: ExportDialogProps) 
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto h-11">
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="h-11 w-full sm:w-auto"
+          >
             Cancelar
           </Button>
-          <Button onClick={handleExport} disabled={isExporting} className="gap-2 w-full sm:w-auto h-11">
+          <Button
+            onClick={handleExport}
+            disabled={isExporting}
+            className="h-11 w-full gap-2 sm:w-auto"
+          >
             {isExporting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />

@@ -5,13 +5,22 @@ describe('useScheduledEmails - ownership validation', () => {
     const userId = 'user-123';
     const emailId = 'email-456';
     // Simulating the fixed query pattern
-    const query = { table: 'scheduled_emails', eq: [['id', emailId], ['user_id', userId]] };
+    const query = {
+      table: 'scheduled_emails',
+      eq: [
+        ['id', emailId],
+        ['user_id', userId],
+      ],
+    };
     expect(query.eq).toContainEqual(['user_id', userId]);
   });
 
   it('should include user_id in cancel queries', () => {
     const userId = 'user-123';
-    const filters = [['id', 'email-1'], ['user_id', userId]];
+    const filters = [
+      ['id', 'email-1'],
+      ['user_id', userId],
+    ];
     const hasOwnershipCheck = filters.some(([key]) => key === 'user_id');
     expect(hasOwnershipCheck).toBe(true);
   });

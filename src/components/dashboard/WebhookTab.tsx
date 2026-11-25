@@ -3,7 +3,12 @@
 // =============================================================================
 
 import { useState, useEffect } from 'react';
-import { useWebhookConfig, useWebhookLogs, useSaveWebhookConfig, useTestWebhook } from '@/hooks/use-webhook';
+import {
+  useWebhookConfig,
+  useWebhookLogs,
+  useSaveWebhookConfig,
+  useTestWebhook,
+} from '@/hooks/use-webhook';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,21 +17,40 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Send, CheckCircle, XCircle, Webhook, Clock } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { log } from '@/lib/logger';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 const AVAILABLE_EVENTS = [
-  { id: 'email_open', label: 'Email Aberto', description: 'Quando um email é aberto pelo destinatário' },
+  {
+    id: 'email_open',
+    label: 'Email Aberto',
+    description: 'Quando um email é aberto pelo destinatário',
+  },
   { id: 'link_click', label: 'Link Clicado', description: 'Quando um link rastreado é clicado' },
   { id: 'bounce', label: 'Bounce', description: 'Quando um email retorna como não entregue' },
-  { id: 'document_view', label: 'Documento Visualizado', description: 'Quando um documento é aberto' },
-  { id: 'document_download', label: 'Documento Baixado', description: 'Quando um documento é baixado' },
+  {
+    id: 'document_view',
+    label: 'Documento Visualizado',
+    description: 'Quando um documento é aberto',
+  },
+  {
+    id: 'document_download',
+    label: 'Documento Baixado',
+    description: 'Quando um documento é baixado',
+  },
 ];
 
 export default function WebhookTab() {
@@ -51,30 +75,47 @@ export default function WebhookTab() {
 
   const handleEventToggle = (eventId: string, checked: boolean) => {
     if (checked) {
-      setEvents(prev => [...prev, eventId]);
+      setEvents((prev) => [...prev, eventId]);
     } else {
-      setEvents(prev => prev.filter(e => e !== eventId));
+      setEvents((prev) => prev.filter((e) => e !== eventId));
     }
   };
 
   const handleSave = async () => {
     if (!url) {
-      toast({ title: 'URL obrigatória', description: 'Informe a URL do webhook', variant: 'destructive' });
+      toast({
+        title: 'URL obrigatória',
+        description: 'Informe a URL do webhook',
+        variant: 'destructive',
+      });
       return;
     }
 
     try {
-      await saveConfig.mutateAsync({ url, secret: secret || undefined, events, is_active: isActive });
+      await saveConfig.mutateAsync({
+        url,
+        secret: secret || undefined,
+        events,
+        is_active: isActive,
+      });
       toast({ title: 'Configuração salva', description: 'Webhook configurado com sucesso' });
     } catch (error) {
       log.error('WebhookTab: falha ao salvar configuração', error);
-      toast({ title: 'Erro ao salvar', description: 'Não foi possível salvar a configuração', variant: 'destructive' });
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar a configuração',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleTest = async () => {
     if (!url) {
-      toast({ title: 'URL obrigatória', description: 'Informe a URL do webhook para testar', variant: 'destructive' });
+      toast({
+        title: 'URL obrigatória',
+        description: 'Informe a URL do webhook para testar',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -84,13 +125,17 @@ export default function WebhookTab() {
       setTimeout(() => refetchLogs(), 2000);
     } catch (error) {
       log.error('WebhookTab: falha no teste de webhook', error);
-      toast({ title: 'Erro no teste', description: 'Falha ao enviar requisição de teste', variant: 'destructive' });
+      toast({
+        title: 'Erro no teste',
+        description: 'Falha ao enviar requisição de teste',
+        variant: 'destructive',
+      });
     }
   };
 
   if (configLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -106,7 +151,8 @@ export default function WebhookTab() {
             <CardTitle>Configuração de Webhook</CardTitle>
           </div>
           <CardDescription>
-            Configure um endpoint para receber notificações em tempo real sobre eventos de rastreamento.
+            Configure um endpoint para receber notificações em tempo real sobre eventos de
+            rastreamento.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -147,14 +193,17 @@ export default function WebhookTab() {
             <Label>Eventos para notificar</Label>
             <div role="region" aria-label="WebhookTab" className="grid gap-3">
               {AVAILABLE_EVENTS.map((event) => (
-                <div key={event.id} className="flex items-start space-x-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                <div
+                  key={event.id}
+                  className="flex items-start space-x-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent/50"
+                >
                   <Checkbox
                     id={event.id}
                     checked={events.includes(event.id)}
                     onCheckedChange={(checked) => handleEventToggle(event.id, checked as boolean)}
                   />
                   <div className="space-y-1">
-                    <Label htmlFor={event.id} className="font-medium cursor-pointer">
+                    <Label htmlFor={event.id} className="cursor-pointer font-medium">
                       {event.label}
                     </Label>
                     <p className="text-xs text-muted-foreground">{event.description}</p>
@@ -167,33 +216,29 @@ export default function WebhookTab() {
           <Separator />
 
           {/* Active Toggle */}
-          <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+          <div className="flex items-center justify-between rounded-lg border bg-card p-4">
             <div className="space-y-1">
-              <Label htmlFor="webhook-active" className="font-medium">Webhook ativo</Label>
+              <Label htmlFor="webhook-active" className="font-medium">
+                Webhook ativo
+              </Label>
               <p className="text-xs text-muted-foreground">
                 Desative para pausar o envio de notificações
               </p>
             </div>
-            <Switch
-              id="webhook-active"
-              checked={isActive}
-              onCheckedChange={setIsActive}
-            />
+            <Switch id="webhook-active" checked={isActive} onCheckedChange={setIsActive} />
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
             <Button onClick={handleSave} disabled={saveConfig.isPending} className="flex-1">
-              {saveConfig.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
+              {saveConfig.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Salvar Configuração
             </Button>
             <Button variant="outline" onClick={handleTest} disabled={testWebhook.isPending || !url}>
               {testWebhook.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="mr-2 h-4 w-4" />
               )}
               Testar Conexão
             </Button>
@@ -213,75 +258,88 @@ export default function WebhookTab() {
               Atualizar
             </Button>
           </div>
-          <CardDescription>
-            Últimos 50 webhooks enviados e seus status
-          </CardDescription>
+          <CardDescription>Últimos 50 webhooks enviados e seus status</CardDescription>
         </CardHeader>
         <CardContent>
-          {matchFirst([
-  [logsLoading, () => ((
-            <div className="flex items-center justify-center h-32">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ))],
-  [!logs || logs.length === 0, () => ((
-            <EmptyState
-              type="webhooks"
-              title="Nenhum webhook enviado ainda"
-              description="Configure um webhook e teste a conexão para ver os logs aqui."
-              size="sm"
-            />
-          ))],
-], () => ((
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Evento</TableHead>
-                  <TableHead>Código HTTP</TableHead>
-                  <TableHead>Data/Hora</TableHead>
-                  <TableHead>Erro</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(logs ?? []).map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell>
-                      {log.success ? (
-                        <Badge variant="default" className="bg-green-500/10 text-green-600 border-green-500/20">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Sucesso
-                        </Badge>
-                      ) : (
-                        <Badge variant="destructive" className="bg-red-500/10 text-red-600 border-red-500/20">
-                          <XCircle className="h-3 w-3 mr-1" />
-                          Falhou
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{log.event_type}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {log.response_status ? (
-                        <code className="text-sm bg-muted px-2 py-1 rounded">
-                          {log.response_status}
-                        </code>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {format(new Date(log.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
-                      {log.error || '—'}
-                    </TableCell>
+          {matchFirst(
+            [
+              [
+                logsLoading,
+                () => (
+                  <div className="flex h-32 items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ),
+              ],
+              [
+                !logs || logs.length === 0,
+                () => (
+                  <EmptyState
+                    type="webhooks"
+                    title="Nenhum webhook enviado ainda"
+                    description="Configure um webhook e teste a conexão para ver os logs aqui."
+                    size="sm"
+                  />
+                ),
+              ],
+            ],
+            () => (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Evento</TableHead>
+                    <TableHead>Código HTTP</TableHead>
+                    <TableHead>Data/Hora</TableHead>
+                    <TableHead>Erro</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )))}
+                </TableHeader>
+                <TableBody>
+                  {(logs ?? []).map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell>
+                        {log.success ? (
+                          <Badge
+                            variant="default"
+                            className="border-green-500/20 bg-green-500/10 text-green-600"
+                          >
+                            <CheckCircle className="mr-1 h-3 w-3" />
+                            Sucesso
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="destructive"
+                            className="border-red-500/20 bg-red-500/10 text-red-600"
+                          >
+                            <XCircle className="mr-1 h-3 w-3" />
+                            Falhou
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{log.event_type}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {log.response_status ? (
+                          <code className="rounded bg-muted px-2 py-1 text-sm">
+                            {log.response_status}
+                          </code>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(new Date(log.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
+                        {log.error || '—'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )
+          )}
         </CardContent>
       </Card>
     </div>

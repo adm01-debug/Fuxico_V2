@@ -1,4 +1,4 @@
-import type { User } from "@supabase/supabase-js";
+import type { User } from '@supabase/supabase-js';
 
 /**
  * Erro lançado quando uma operação que exige sessão autenticada é
@@ -7,9 +7,9 @@ import type { User } from "@supabase/supabase-js";
  * bug de orquestração de `enabled`/guards de rota.
  */
 export class UnauthenticatedError extends Error {
-  constructor(context = "operação") {
+  constructor(context = 'operação') {
     super(`Sessão expirada: ${context} requer usuário autenticado.`);
-    this.name = "UnauthenticatedError";
+    this.name = 'UnauthenticatedError';
   }
 }
 
@@ -21,8 +21,8 @@ export class UnauthenticatedError extends Error {
  * (raro, mas real) de a sessão expirar entre o render e o disparo da query.
  */
 export function requireUserId(
-  user: Pick<User, "id"> | null | undefined,
-  context = "esta ação",
+  user: Pick<User, 'id'> | null | undefined,
+  context = 'esta ação'
 ): string {
   if (!user?.id) throw new UnauthenticatedError(context);
   return user.id;

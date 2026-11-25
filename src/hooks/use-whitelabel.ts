@@ -35,16 +35,19 @@ export function useWhitelabel() {
   });
 
   const saveConfig = useMutation({
-    mutationFn: async (data: Partial<Omit<WhitelabelConfig, 'id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
+    mutationFn: async (
+      data: Partial<Omit<WhitelabelConfig, 'id' | 'user_id' | 'created_at' | 'updated_at'>>
+    ) => {
       if (!user?.id) throw new Error('Not authenticated');
-      
-      const { error } = await supabase
-        .from('whitelabel_config')
-        .upsert({
+
+      const { error } = await supabase.from('whitelabel_config').upsert(
+        {
           user_id: user.id,
           ...data,
           updated_at: new Date().toISOString(),
-        }, { onConflict: 'user_id' });
+        },
+        { onConflict: 'user_id' }
+      );
       if (error) throw error;
     },
     onSuccess: () => {

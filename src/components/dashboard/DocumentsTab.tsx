@@ -1,12 +1,12 @@
 import { memo, useState } from 'react';
-import { useTrackedDocuments, useDocumentEvents } from "@/hooks/use-tracked-documents";
-import { DocumentUploadDialog } from "./DocumentUploadDialog";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTrackedDocuments, useDocumentEvents } from '@/hooks/use-tracked-documents';
+import { DocumentUploadDialog } from './DocumentUploadDialog';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
   TableBody,
@@ -14,29 +14,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { 
-  FileText, 
-  Eye, 
-  Download, 
-  Copy, 
-  Check, 
+  FileText,
+  Eye,
+  Download,
+  Copy,
+  Check,
   Clock,
   Globe,
   Monitor,
   Smartphone,
   Tablet,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
-import { matchFirst } from "@/lib/variant";
+} from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
+import { matchFirst } from '@/lib/variant';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
@@ -54,14 +49,14 @@ function DocumentsTabBase() {
     const url = getTrackingUrl(documentId);
     await navigator.clipboard.writeText(url);
     setCopiedId(documentId);
-    toast({ title: "Link copiado!" });
+    toast({ title: 'Link copiado!' });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   if (isLoading) {
     return (
       <div className="space-y-4" role="region" aria-label="Documentos Rastreados">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-32" />
         </div>
@@ -74,12 +69,10 @@ function DocumentsTabBase() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Documentos Rastreados</h2>
-          <p className="text-sm text-muted-foreground">
-            Acompanhe visualizações dos seus PDFs
-          </p>
+          <p className="text-sm text-muted-foreground">Acompanhe visualizações dos seus PDFs</p>
         </div>
         <div data-tour="docs-upload-btn">
           <DocumentUploadDialog />
@@ -113,9 +106,9 @@ function DocumentsTabBase() {
                     <div className="flex items-center gap-3">
                       <FileText className="h-8 w-8 text-red-500" />
                       <div>
-                        <p className="font-medium truncate max-w-[200px]">{doc.file_name}</p>
+                        <p className="max-w-[200px] truncate font-medium">{doc.file_name}</p>
                         {doc.description && (
-                          <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                          <p className="max-w-[200px] truncate text-sm text-muted-foreground">
                             {doc.description}
                           </p>
                         )}
@@ -135,14 +128,17 @@ function DocumentsTabBase() {
                     )}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={doc.views > 0 ? "default" : "secondary"} data-tour="docs-views-badge">
-                      <Eye className="h-3 w-3 mr-1" />
+                    <Badge
+                      variant={doc.views > 0 ? 'default' : 'secondary'}
+                      data-tour="docs-views-badge"
+                    >
+                      <Eye className="mr-1 h-3 w-3" />
                       {doc.views}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="outline">
-                      <Download className="h-3 w-3 mr-1" />
+                      <Download className="mr-1 h-3 w-3" />
                       {doc.downloads}
                     </Badge>
                   </TableCell>
@@ -159,7 +155,7 @@ function DocumentsTabBase() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex justify-end gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -190,10 +186,7 @@ function DocumentsTabBase() {
       )}
 
       {/* Document Events Dialog */}
-      <DocumentEventsDialog
-        documentId={selectedDocId}
-        onClose={() => setSelectedDocId(null)}
-      />
+      <DocumentEventsDialog documentId={selectedDocId} onClose={() => setSelectedDocId(null)} />
     </div>
   );
 }
@@ -209,9 +202,9 @@ function DocumentEventsDialog({
 
   const getDeviceIcon = (deviceType: string | null) => {
     switch (deviceType) {
-      case "mobile":
+      case 'mobile':
         return <Smartphone className="h-4 w-4" />;
-      case "tablet":
+      case 'tablet':
         return <Tablet className="h-4 w-4" />;
       default:
         return <Monitor className="h-4 w-4" />;
@@ -220,83 +213,89 @@ function DocumentEventsDialog({
 
   return (
     <Dialog open={!!documentId} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-h-[80vh] max-w-2xl">
         <DialogHeader>
           <DialogTitle>Histórico de Visualizações</DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[500px] pr-4">
-          {matchFirst([
-  [isLoading, () => ((
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ))],
-  [!events?.length, () => ((
-            <div className="text-center py-8 text-muted-foreground">
-              <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhuma visualização registrada</p>
-            </div>
-          ))],
-], () => ((
-            <div className="space-y-3">
-              {(events ?? []).map((event) => (
-                <Card key={event.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-full bg-muted">
-                          {event.event_type === "download" ? (
-                            <Download className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {event.event_type === "download" ? "Download" : "Visualização"}
-                          </p>
-                          <div className="flex flex-wrap gap-2 mt-2 text-sm text-muted-foreground">
-                            {event.country && (
-                              <span className="flex items-center gap-1">
-                                <Globe className="h-3 w-3" />
-                                {event.city ? `${event.city}, ` : ""}{event.country}
-                              </span>
-                            )}
-                            {event.device_type && (
-                              <span className="flex items-center gap-1">
-                                {getDeviceIcon(event.device_type)}
-                                {event.device_type}
-                              </span>
-                            )}
-                            {event.browser && (
-                              <span>{event.browser}</span>
-                            )}
-                            {event.os && (
-                              <span>{event.os}</span>
+          {matchFirst(
+            [
+              [
+                isLoading,
+                () => (
+                  <div className="space-y-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
+                  </div>
+                ),
+              ],
+              [
+                !events?.length,
+                () => (
+                  <div className="py-8 text-center text-muted-foreground">
+                    <Eye className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                    <p>Nenhuma visualização registrada</p>
+                  </div>
+                ),
+              ],
+            ],
+            () => (
+              <div className="space-y-3">
+                {(events ?? []).map((event) => (
+                  <Card key={event.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          <div className="rounded-full bg-muted p-2">
+                            {event.event_type === 'download' ? (
+                              <Download className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
                             )}
                           </div>
-                          {event.ip_address && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              IP: {event.ip_address}
+                          <div>
+                            <p className="font-medium">
+                              {event.event_type === 'download' ? 'Download' : 'Visualização'}
                             </p>
-                          )}
+                            <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
+                              {event.country && (
+                                <span className="flex items-center gap-1">
+                                  <Globe className="h-3 w-3" />
+                                  {event.city ? `${event.city}, ` : ''}
+                                  {event.country}
+                                </span>
+                              )}
+                              {event.device_type && (
+                                <span className="flex items-center gap-1">
+                                  {getDeviceIcon(event.device_type)}
+                                  {event.device_type}
+                                </span>
+                              )}
+                              {event.browser && <span>{event.browser}</span>}
+                              {event.os && <span>{event.os}</span>}
+                            </div>
+                            {event.ip_address && (
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                IP: {event.ip_address}
+                              </p>
+                            )}
+                          </div>
                         </div>
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {formatDistanceToNow(new Date(event.created_at), {
+                            addSuffix: true,
+                            locale: ptBR,
+                          })}
+                        </span>
                       </div>
-                      <span className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(event.created_at), {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>

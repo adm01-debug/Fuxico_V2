@@ -8,15 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { 
-  Shield, 
-  Users, 
-  Plus, 
-  Search,
-  MoreVertical,
-  Trash2,
-  Edit
-} from 'lucide-react';
+import { Shield, Users, Plus, Search, MoreVertical, Trash2, Edit } from 'lucide-react';
 import { BackButton } from '@/components/ui/back-button';
 import {
   DropdownMenu,
@@ -40,7 +32,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 interface UserRole {
   id: string;
@@ -63,9 +55,9 @@ export default function Roles() {
     queryKey: ['isAdmin', user?.id],
     queryFn: async () => {
       if (!user?.id) return false;
-      const { data } = await supabase.rpc('has_role', { 
-        _user_id: user.id, 
-        _role: 'admin' 
+      const { data } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin',
       });
       return data;
     },
@@ -126,10 +118,7 @@ export default function Roles() {
   // Update role mutation
   const updateRoleMutation = useMutation({
     mutationFn: async ({ id, role }: { id: string; role: 'admin' | 'user' }) => {
-      const { error } = await supabase
-        .from('user_roles')
-        .update({ role })
-        .eq('id', id);
+      const { error } = await supabase.from('user_roles').update({ role }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -141,22 +130,22 @@ export default function Roles() {
     },
   });
 
-  const filteredRoles = (userRoles as UserRole[] | undefined)?.filter((role: UserRole) => 
+  const filteredRoles = (userRoles as UserRole[] | undefined)?.filter((role: UserRole) =>
     role.user_id.toLowerCase().includes(search.toLowerCase())
   );
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
-              <Shield className="w-6 h-6 text-destructive" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <Shield className="h-6 w-6 text-destructive" />
             </div>
             <CardTitle>Acesso Negado</CardTitle>
             <CardDescription>
-              Você não tem permissão para acessar esta página. 
-              Apenas administradores podem gerenciar roles.
+              Você não tem permissão para acessar esta página. Apenas administradores podem
+              gerenciar roles.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -171,18 +160,16 @@ export default function Roles() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mx-auto max-w-4xl space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <BackButton onClick={() => navigate(-1)} />
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Gerenciamento de Roles</h1>
-            <p className="text-muted-foreground">
-              Gerencie as funções e permissões dos usuários
-            </p>
+            <p className="text-muted-foreground">Gerencie as funções e permissões dos usuários</p>
           </div>
           <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Adicionar Role
           </Button>
         </div>
@@ -192,12 +179,14 @@ export default function Roles() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-500/10 rounded-lg">
-                  <Shield className="w-5 h-5 text-red-500" />
+                <div className="rounded-lg bg-red-500/10 p-2">
+                  <Shield className="h-5 w-5 text-red-500" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {(userRoles as UserRole[] | undefined)?.filter((r: UserRole) => r.role === 'admin').length || 0}
+                    {(userRoles as UserRole[] | undefined)?.filter(
+                      (r: UserRole) => r.role === 'admin'
+                    ).length || 0}
                   </p>
                   <p className="text-xs text-muted-foreground">Administradores</p>
                 </div>
@@ -208,12 +197,14 @@ export default function Roles() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Users className="w-5 h-5 text-blue-500" />
+                <div className="rounded-lg bg-blue-500/10 p-2">
+                  <Users className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {(userRoles as UserRole[] | undefined)?.filter((r: UserRole) => r.role === 'user').length || 0}
+                    {(userRoles as UserRole[] | undefined)?.filter(
+                      (r: UserRole) => r.role === 'user'
+                    ).length || 0}
                   </p>
                   <p className="text-xs text-muted-foreground">Usuários</p>
                 </div>
@@ -224,8 +215,8 @@ export default function Roles() {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
             placeholder="Buscar por ID do usuário..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -237,80 +228,87 @@ export default function Roles() {
         <Card>
           <CardHeader>
             <CardTitle>Usuários e Roles</CardTitle>
-            <CardDescription>
-              Lista de todos os usuários com suas respectivas roles
-            </CardDescription>
+            <CardDescription>Lista de todos os usuários com suas respectivas roles</CardDescription>
           </CardHeader>
           <CardContent>
-            {matchFirst([
-  [isLoading, () => ((
-              <div className="text-center py-8 text-muted-foreground">
-                Carregando...
-              </div>
-            ))],
-  [filteredRoles?.length === 0, () => ((
-              <div className="text-center py-8 text-muted-foreground">
-                Nenhum usuário encontrado
-              </div>
-            ))],
-], () => ((
-              <div className="space-y-2">
-                {filteredRoles?.map((userRole: UserRole) => (
-                  <div 
-                    key={userRole.id}
-                    className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${
-                        userRole.role === 'admin' ? 'bg-red-500' : 'bg-blue-500'
-                      }`} />
-                      <div>
-                        <p className="font-mono text-sm">{userRole.user_id}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Adicionado em {new Date(userRole.created_at).toLocaleDateString()}
-                        </p>
+            {matchFirst(
+              [
+                [
+                  isLoading,
+                  () => <div className="py-8 text-center text-muted-foreground">Carregando...</div>,
+                ],
+                [
+                  filteredRoles?.length === 0,
+                  () => (
+                    <div className="py-8 text-center text-muted-foreground">
+                      Nenhum usuário encontrado
+                    </div>
+                  ),
+                ],
+              ],
+              () => (
+                <div className="space-y-2">
+                  {filteredRoles?.map((userRole: UserRole) => (
+                    <div
+                      key={userRole.id}
+                      className="flex items-center justify-between rounded-lg bg-muted/50 p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`h-2 w-2 rounded-full ${
+                            userRole.role === 'admin' ? 'bg-red-500' : 'bg-blue-500'
+                          }`}
+                        />
+                        <div>
+                          <p className="font-mono text-sm">{userRole.user_id}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Adicionado em {new Date(userRole.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Badge variant={userRole.role === 'admin' ? 'destructive' : 'secondary'}>
+                          {userRole.role}
+                        </Badge>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                updateRoleMutation.mutate({
+                                  id: userRole.id,
+                                  role: userRole.role === 'admin' ? 'user' : 'admin',
+                                })
+                              }
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Alterar para {userRole.role === 'admin' ? 'User' : 'Admin'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => {
+                                if (confirm('Tem certeza que deseja remover esta role?')) {
+                                  deleteRoleMutation.mutate(userRole.id);
+                                }
+                              }}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Remover Role
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <Badge variant={userRole.role === 'admin' ? 'destructive' : 'secondary'}>
-                        {userRole.role}
-                      </Badge>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => updateRoleMutation.mutate({
-                              id: userRole.id,
-                              role: userRole.role === 'admin' ? 'user' : 'admin'
-                            })}
-                          >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Alterar para {userRole.role === 'admin' ? 'User' : 'Admin'}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => {
-                              if (confirm('Tem certeza que deseja remover esta role?')) {
-                                deleteRoleMutation.mutate(userRole.id);
-                              }
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Remover Role
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )))}
+                  ))}
+                </div>
+              )
+            )}
           </CardContent>
         </Card>
 
@@ -319,14 +317,12 @@ export default function Roles() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Adicionar Role</DialogTitle>
-              <DialogDescription>
-                Atribua uma role a um usuário existente
-              </DialogDescription>
+              <DialogDescription>Atribua uma role a um usuário existente</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>ID do Usuário</Label>
-                <Input 
+                <Input
                   placeholder="UUID do usuário"
                   value={newUserId}
                   onChange={(e) => setNewUserId(e.target.value)}
@@ -349,7 +345,7 @@ export default function Roles() {
               <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                 Cancelar
               </Button>
-              <Button 
+              <Button
                 onClick={() => addRoleMutation.mutate({ userId: newUserId, role: newRole })}
                 disabled={!newUserId || addRoleMutation.isPending}
               >

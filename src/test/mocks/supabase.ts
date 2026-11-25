@@ -1,20 +1,20 @@
-import { vi } from "vitest";
+import { vi } from 'vitest';
 
 export const mockUser = {
-  id: "user-123",
-  email: "test@fuxico.app",
+  id: 'user-123',
+  email: 'test@fuxico.app',
   app_metadata: {},
   user_metadata: {},
-  aud: "authenticated",
-  created_at: "2024-01-01T00:00:00Z",
+  aud: 'authenticated',
+  created_at: '2024-01-01T00:00:00Z',
 };
 
 export const mockSession = {
-  access_token: "mock-token",
-  refresh_token: "mock-refresh",
+  access_token: 'mock-token',
+  refresh_token: 'mock-refresh',
   user: mockUser,
   expires_in: 3600,
-  token_type: "bearer",
+  token_type: 'bearer',
 };
 
 const createMockQueryBuilder = () => {
@@ -71,6 +71,6 @@ export const createMockSupabase = () => ({
 });
 
 // Default mock for supabase module
-vi.mock("@/integrations/supabase/client", () => ({
+vi.mock('@/integrations/supabase/client', () => ({
   supabase: createMockSupabase(),
 }));

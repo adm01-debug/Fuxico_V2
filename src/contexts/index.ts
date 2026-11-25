@@ -1,6 +1,6 @@
 /**
  * FUXICO - Contexts Index
- * 
+ *
  * Central export for all context providers
  */
 

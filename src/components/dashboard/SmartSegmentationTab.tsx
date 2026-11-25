@@ -2,64 +2,72 @@
 // FUXICO - Smart Contact Segmentation Tab
 // =============================================================================
 
-import { useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { 
-  Users, Flame, Snowflake, TrendingUp, 
-  UserX, Sparkles, Download, Eye,
+import { useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Users,
+  Flame,
+  Snowflake,
+  TrendingUp,
+  UserX,
+  Sparkles,
+  Download,
+  Eye,
   MousePointerClick,
-} from 'lucide-react'
-import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/integrations/supabase/client'
-import { useAuth } from '@/hooks/use-auth'
-import { matchFirst } from "@/lib/variant";
-import { 
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend 
-} from 'recharts'
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
+import { matchFirst } from '@/lib/variant';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 interface Segment {
-  id: string
-  name: string
-  description: string
-  icon: typeof Users
-  color: string
-  bgColor: string
-  count: number
-  percentage: number
-  avgOpenRate: number
-  avgClickRate: number
-  criteria: string[]
+  id: string;
+  name: string;
+  description: string;
+  icon: typeof Users;
+  color: string;
+  bgColor: string;
+  count: number;
+  percentage: number;
+  avgOpenRate: number;
+  avgClickRate: number;
+  criteria: string[];
 }
 
 export default function SmartSegmentationTab() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   const { data: contacts = [] } = useQuery({
     queryKey: ['contact-scores', user?.id],
     queryFn: async () => {
-      if (!user) return []
+      if (!user) return [];
       const { data } = await supabase
         .from('contact_scores')
         .select('*')
         .eq('user_id', user.id)
         .order('engagement_score', { ascending: false })
-        .limit(500)
-      return data || []
+        .limit(500);
+      return data || [];
     },
     enabled: !!user,
-  })
+  });
 
   const segments: Segment[] = useMemo(() => {
-    const total = contacts.length || 100 // fallback for demo
-    
-    const hot = contacts.filter(c => (c.engagement_score ?? 0) >= 80).length || 15
-    const warm = contacts.filter(c => (c.engagement_score ?? 0) >= 50 && (c.engagement_score ?? 0) < 80).length || 35
-    const cold = contacts.filter(c => (c.engagement_score ?? 0) >= 20 && (c.engagement_score ?? 0) < 50).length || 30
-    const inactive = contacts.filter(c => (c.engagement_score ?? 0) < 20).length || 20
+    const total = contacts.length || 100; // fallback for demo
+
+    const hot = contacts.filter((c) => (c.engagement_score ?? 0) >= 80).length || 15;
+    const warm =
+      contacts.filter((c) => (c.engagement_score ?? 0) >= 50 && (c.engagement_score ?? 0) < 80)
+        .length || 35;
+    const cold =
+      contacts.filter((c) => (c.engagement_score ?? 0) >= 20 && (c.engagement_score ?? 0) < 50)
+        .length || 30;
+    const inactive = contacts.filter((c) => (c.engagement_score ?? 0) < 20).length || 20;
 
     return [
       {
@@ -114,18 +122,21 @@ export default function SmartSegmentationTab() {
         avgClickRate: 0.5,
         criteria: ['Score < 20', 'Sem atividade há 90+ dias', 'Possível bounce'],
       },
-    ]
-  }, [contacts])
+    ];
+  }, [contacts]);
 
-  const pieData = segments.map(s => ({
+  const pieData = segments.map((s) => ({
     name: s.name.split(' ')[0],
     value: s.count,
-    color: matchFirst([
-  [s.id === 'hot', () => ('#ef4444')],
-  [s.id === 'warm', () => ('#f59e0b')],
-  [s.id === 'cold', () => ('#3b82f6')],
-], () => ('#6b7280')),
-  }))
+    color: matchFirst(
+      [
+        [s.id === 'hot', () => '#ef4444'],
+        [s.id === 'warm', () => '#f59e0b'],
+        [s.id === 'cold', () => '#3b82f6'],
+      ],
+      () => '#6b7280'
+    ),
+  }));
 
   const recommendations = [
     {
@@ -152,19 +163,21 @@ export default function SmartSegmentationTab() {
       impact: '-50% bounces',
       priority: 'low',
     },
-  ]
+  ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20">
+          <div className="rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 p-2">
             <Users className="h-6 w-6 text-cyan-500" />
           </div>
           <div>
             <h2 className="text-lg font-semibold">Segmentação Inteligente</h2>
-            <p className="text-sm text-muted-foreground">Agrupamento automático por nível de engajamento</p>
+            <p className="text-sm text-muted-foreground">
+              Agrupamento automático por nível de engajamento
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -180,7 +193,7 @@ export default function SmartSegmentationTab() {
       </div>
 
       {/* Segments Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {segments.map((segment, i) => (
           <motion.div
             key={segment.id}
@@ -188,11 +201,11 @@ export default function SmartSegmentationTab() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
           >
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="cursor-pointer transition-shadow hover:shadow-md">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={cn("p-1.5 rounded-lg", segment.bgColor)}>
-                    <segment.icon className={cn("h-4 w-4", segment.color)} />
+                <div className="mb-3 flex items-center gap-2">
+                  <div className={cn('rounded-lg p-1.5', segment.bgColor)}>
+                    <segment.icon className={cn('h-4 w-4', segment.color)} />
                   </div>
                   <span className="text-sm font-medium">{segment.name.split(' ')[0]}</span>
                 </div>
@@ -218,7 +231,7 @@ export default function SmartSegmentationTab() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Pie Chart */}
         <Card>
           <CardHeader>
@@ -257,7 +270,7 @@ export default function SmartSegmentationTab() {
         {/* Recommendations */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Sparkles className="h-4 w-4" />
               Recomendações por Segmento
             </CardTitle>
@@ -271,21 +284,27 @@ export default function SmartSegmentationTab() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                  className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent/50"
                 >
-                  <Badge 
-                    variant={matchFirst([
-  [rec.priority === 'high', () => ('default')],
-  [rec.priority === 'medium', () => ('secondary')],
-], () => ('outline'))}
+                  <Badge
+                    variant={matchFirst(
+                      [
+                        [rec.priority === 'high', () => 'default'],
+                        [rec.priority === 'medium', () => 'secondary'],
+                      ],
+                      () => 'outline'
+                    )}
                     className="shrink-0 text-xs"
                   >
                     {rec.segment}
                   </Badge>
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm">{rec.action}</p>
                   </div>
-                  <Badge variant="outline" className="shrink-0 text-xs gap-1 text-emerald-500 border-emerald-500/20">
+                  <Badge
+                    variant="outline"
+                    className="shrink-0 gap-1 border-emerald-500/20 text-xs text-emerald-500"
+                  >
                     <TrendingUp className="h-3 w-3" />
                     {rec.impact}
                   </Badge>
@@ -303,17 +322,17 @@ export default function SmartSegmentationTab() {
           <CardDescription>Como os contatos são automaticamente classificados</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {segments.map((segment) => (
-              <div key={segment.id} className="p-3 rounded-lg border space-y-2">
+              <div key={segment.id} className="space-y-2 rounded-lg border p-3">
                 <div className="flex items-center gap-2">
-                  <segment.icon className={cn("h-4 w-4", segment.color)} />
+                  <segment.icon className={cn('h-4 w-4', segment.color)} />
                   <span className="text-sm font-medium">{segment.name}</span>
                 </div>
                 <ul className="space-y-1">
                   {segment.criteria.map((c, i) => (
-                    <li key={i} className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <span className="h-1 w-1 rounded-full bg-muted-foreground shrink-0" />
+                    <li key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />
                       {c}
                     </li>
                   ))}
@@ -324,5 +343,5 @@ export default function SmartSegmentationTab() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
