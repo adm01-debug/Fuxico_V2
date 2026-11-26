@@ -26,13 +26,54 @@ import {
   Mail,
   Target,
   BarChart3,
+  Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useABTests } from '@/hooks/use-ab-tests';
+import { useABTests, useABSegmentPreview } from '@/hooks/use-ab-tests';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ABTestResultsDialog } from './ABTestResultsDialog';
 import { pickFirst } from '@/lib/variant';
+
+function SegmentPreviewLine({
+  minScore,
+  lastOpenDays,
+  enabled,
+}: {
+  minScore: number;
+  lastOpenDays: number;
+  enabled: boolean;
+}) {
+  const debouncedMinScore = useDebouncedValue(minScore, 400);
+  const debouncedLastOpenDays = useDebouncedValue(lastOpenDays, 400);
+
+  const { data, isLoading, isError } = useABSegmentPreview(
+    {
+      ...(debouncedMinScore > 0 ? { min_score: debouncedMinScore } : {}),
+      ...(debouncedLastOpenDays > 0 ? { last_open_days: debouncedLastOpenDays } : {}),
+    },
+    enabled
+  );
+
+  const total = data?.length ?? 0;
+
+  let message = `${total} contato(s) elegíveis hoje. O disparo envia para no máximo 200 por rodada.`;
+  if (isLoading) message = 'Calculando o público elegível...';
+  else if (isError) message = 'Não foi possível calcular o público agora.';
+  else if (total === 0)
+    message = 'Nenhum contato atende a estes critérios — o disparo será ignorado.';
+
+  return (
+    <p
+      className="flex items-start gap-2 text-xs text-muted-foreground"
+      data-testid="ab-segment-preview"
+    >
+      <Users className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+      <span>{message}</span>
+    </p>
+  );
+}
 
 function ABTestingTabBase() {
   const {
@@ -278,6 +319,11 @@ function ABTestingTabBase() {
                         />
                       </div>
                     </div>
+                    <SegmentPreviewLine
+                      minScore={newTest.min_score}
+                      lastOpenDays={newTest.last_open_days}
+                      enabled={isCreateOpen}
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
