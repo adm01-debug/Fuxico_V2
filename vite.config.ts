@@ -17,6 +17,11 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      // stats.html e apenas o relatorio do bundle analyzer (2.24 MB) e estoura o
+      // limite de 2 MiB do workbox, quebrando o build. Nao deve ir para o precache.
+      workbox: {
+        globIgnores: ['**/stats.html'],
+      },
       manifest: {
         name: 'FUXICO - Rastreamento de Emails',
         short_name: 'FUXICO',
