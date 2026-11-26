@@ -5,6 +5,34 @@ import { protectedHandler } from '../_shared/security-middleware.ts';
 import { CommonDomainActionSchema } from "../_shared/schemas.ts";
 import { verifyOwnership } from "../_shared/domain-verification.ts";
 
+type DomainInstructions =
+  | { type: "dns"; recordName: string; recordType: "TXT"; recordValue: string }
+  | { type: "file"; fileUrl: string; fileContent: string }
+  | { type: "meta"; metaTag: string };
+
+const INSTRUCTION_BUILDERS: Record<string, (domain: string, token: string) => DomainInstructions> = {
+  dns: (domain, token) => ({
+    type: "dns",
+    recordName: `_fuxico.${domain}`,
+    recordType: "TXT",
+    recordValue: token
+  }),
+  file: (domain, token) => ({
+    type: "file",
+    fileUrl: `https://${domain}/${token}.txt`,
+    fileContent: token
+  }),
+  meta: (_domain, token) => ({
+    type: "meta",
+    metaTag: `<meta name="fuxico-site-verification" content="${token}" />`
+  })
+};
+
+function buildInstructions(verificationType: string, domain: string, token: string): DomainInstructions {
+  const builder = INSTRUCTION_BUILDERS[verificationType] ?? INSTRUCTION_BUILDERS.meta;
+  return builder(domain, token);
+}
+
 Deno.serve(protectedHandler(async (req, corsHeaders) => {
   try {
     const clientIP = req.headers.get("x-forwarded-for") || "unknown";
@@ -95,11 +123,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
       return secureErrorResponse("Falha ao registrar o dominio", 500, corsHeaders);
     }
 
-    const instructions = verificationType === "dns"
-      ? { type: "dns", recordName: `_fuxico.${domain}`, recordType: "TXT", recordValue: verificationToken }
-      : verificationType === "file"
-        ? { type: "file", fileUrl: `https://${domain}/${verificationToken}.txt`, fileContent: verificationToken }
-        : { type: "meta", metaTag: `<meta name="fuxico-site-verification" content="${verificationToken}" />` };
+    const instructions = buildInstructions(verificationType, domain, verificationToken);
 
     return secureJsonResponse({
       success: true,
