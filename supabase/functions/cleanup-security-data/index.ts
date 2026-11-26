@@ -5,9 +5,14 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { checkRateLimit, getClientIP } from "../_shared/rate-limit.ts";
-import { protectedHandler } from "../_shared/security-middleware.ts";
+import { publicHandler } from "../_shared/security-middleware.ts";
+import { verifyCronRequest, cronAuthStatus, cronAuthError } from "../_shared/cron-auth.ts";
 
-Deno.serve(protectedHandler(async (req: Request, corsHeaders: Record<string, string>): Promise<Response> => {
+// Autorizacao: token de cron (x-cron-secret) -- ver guard abaixo. A whitelist de
+// IP do protectedHandler nao serve para cron: o IP do pg_cron nao e estavel, e
+// com a lista padrao (127.0.0.1/::1) a funcao respondia 403 para todo mundo,
+// inclusive para um disparo legitimo. Era uma funcao inalcancavel.
+Deno.serve(publicHandler(async (req: Request, corsHeaders: Record<string, string>): Promise<Response> => {
   // Rate limiting - this is an admin function, limit to 10/minute
   const clientIP = getClientIP(req.headers);
   
@@ -30,26 +35,21 @@ Deno.serve(protectedHandler(async (req: Request, corsHeaders: Record<string, str
   }
 
   try {
-    // SECURITY: Verify admin authorization via service key header or cron secret
-    const cronSecret = Deno.env.get('CRON_SECRET');
-    const authHeader = req.headers.get('Authorization');
-    const providedSecret = req.headers.get('X-Cron-Secret');
-
-    if (cronSecret && providedSecret !== cronSecret) {
-      // If cron secret is configured, require it
-      // Otherwise fall back to admin user check
-      if (!authHeader) {
-        return new Response(JSON.stringify({ error: 'Unauthorized - admin access required' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-    }
-
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+        // SECURITY: funcao destrutiva (apaga dados de seguranca expirados). Antes o
+        // guard so era avaliado se CRON_SECRET existisse -- e nunca foi configurado --
+        // e mesmo assim aceitava qualquer header Authorization. Agora exige o token.
+        const cronAuth = await verifyCronRequest(req, supabase);
+        if (cronAuth !== 'ok') {
+          return new Response(JSON.stringify({ error: cronAuthError(cronAuth) }), {
+            status: cronAuthStatus(cronAuth),
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
 
     const now = new Date().toISOString();
     const stats = {

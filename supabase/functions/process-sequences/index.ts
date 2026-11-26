@@ -1,6 +1,7 @@
 /* eslint-disable no-console -- structured logging / background job / test diagnostics */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders } from '../_shared/cors.ts';
+import { verifyCronRequest, cronAuthStatus, cronAuthError } from '../_shared/cron-auth.ts';
 
 
 interface SequenceEnrollment {
@@ -67,22 +68,21 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // SECURITY: Verify this is called by cron or authorized source
-    const cronSecret = Deno.env.get('CRON_SECRET');
-    const providedSecret = req.headers.get('X-Cron-Secret');
-    const authHeader = req.headers.get('Authorization');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
-    if (cronSecret && providedSecret !== cronSecret && !authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        // SECURITY: apenas o pg_cron, com o token de internal_config, pode disparar
+        // o envio de sequencias. Antes o guard aceitava qualquer header Authorization
+        // e, sem CRON_SECRET configurado, nem era avaliado.
+        const cronAuth = await verifyCronRequest(req, supabase);
+        if (cronAuth !== 'ok') {
+          return new Response(JSON.stringify({ error: cronAuthError(cronAuth) }), {
+            status: cronAuthStatus(cronAuth),
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     console.log('Processing email sequences...');
 

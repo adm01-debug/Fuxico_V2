@@ -11,6 +11,7 @@
 
 export const CRON_SECRET_HEADER = 'x-cron-secret';
 export const CRON_SECRET_CONFIG_KEY = 'cron_secret';
+export const CRON_SECRET_ENV = 'CRON_SECRET';
 
 export type CronAuthResult = 'ok' | 'unauthorized' | 'not_configured';
 
@@ -24,10 +25,28 @@ export function timingSafeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-export function checkCronAuth(req: Request, expected: string | null | undefined): CronAuthResult {
-  if (!expected) return 'not_configured';
+export function checkCronAuth(
+  req: Request,
+  expected: readonly (string | null | undefined)[],
+): CronAuthResult {
+  const candidates = expected.filter((v): v is string => typeof v === 'string' && v.length > 0);
+  if (candidates.length === 0) return 'not_configured';
   const provided = req.headers.get(CRON_SECRET_HEADER) ?? '';
-  return timingSafeEqual(provided, expected) ? 'ok' : 'unauthorized';
+  if (!provided) return 'unauthorized';
+  let match = false;
+  for (const candidate of candidates) {
+    if (timingSafeEqual(provided, candidate)) match = true;
+  }
+  return match ? 'ok' : 'unauthorized';
+}
+
+/**
+ * Segredo legado em variavel de ambiente. Continua aceito para nao quebrar
+ * quem ja o tenha configurado, mas nao e necessario: o token do banco basta.
+ */
+function envCronSecret(): string | null {
+  if (typeof Deno === 'undefined') return null;
+  return Deno.env.get(CRON_SECRET_ENV) ?? null;
 }
 
 /**
@@ -51,8 +70,8 @@ export async function verifyCronRequest(
       .select('value')
       .eq('key', CRON_SECRET_CONFIG_KEY)
       .maybeSingle();
-    if (error) return 'not_configured';
-    return checkCronAuth(req, data?.value ?? null);
+    if (error) return checkCronAuth(req, [envCronSecret()]);
+    return checkCronAuth(req, [data?.value ?? null, envCronSecret()]);
   } catch {
     return 'not_configured';
   }
