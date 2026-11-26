@@ -2,51 +2,58 @@
 // Verifica JWT do chamador, valida role 'admin' via has_role, e só então
 // chama a função solicitada com service_role. Elimina exposição direta das
 // funções admin_* à role authenticated.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 // Allowlist explícito — nenhuma outra função é chamável via este endpoint
 const ALLOWED = new Set([
-  "admin_ops_dashboard",
-  "admin_data_integrity_check",
-  "admin_index_usage",
-  "admin_blocking_queries",
-  "admin_table_bloat",
-  "admin_query_regressions",
-  "admin_list_cron_failures",
-  "admin_replay_cron_failure",
-  "admin_alert_sanity_check",
-  "reset_slow_query_stats",
-  "db_health_check",
-  "admin_stale_indexes",
-  "admin_preview_index_drop",
-  "admin_execute_index_drop",
-  "admin_restore_dropped_index",
-  "admin_index_usage_trend",
-  "admin_index_ranking",
-  "admin_index_usage_by_table",
-  "analyze_index_pre_drop",
-  "analyze_index_post_drop",
-  "check_stagnant_indexes",
-  "admin_list_index_advisor_runs",
-  "admin_run_index_advisor",
-  "admin_cleanup_index_advisor_runs",
-  "admin_last_index_advisor_cleanup",
-  "admin_webhook_circuit_dashboard",
-  "admin_reset_webhook_circuit",
-  "admin_webhook_failure_rates",
-  "admin_webhook_retry_history",
-  "admin_capture_health_score_snapshot",
-  "admin_list_health_score_snapshots",
-  "admin_list_critical_alerts",
-  "admin_critical_alerts_summary",
-  "count_dsar_sla_misses",
+  'admin_ops_dashboard',
+  'admin_data_integrity_check',
+  'admin_index_usage',
+  'admin_blocking_queries',
+  'admin_table_bloat',
+  'admin_query_regressions',
+  'admin_list_cron_failures',
+  'admin_replay_cron_failure',
+  'admin_alert_sanity_check',
+  'reset_slow_query_stats',
+  'db_health_check',
+  'admin_stale_indexes',
+  'admin_preview_index_drop',
+  'admin_execute_index_drop',
+  'admin_restore_dropped_index',
+  'admin_index_usage_trend',
+  'admin_index_ranking',
+  'admin_index_usage_by_table',
+  'analyze_index_pre_drop',
+  'analyze_index_post_drop',
+  'check_stagnant_indexes',
+  'admin_list_index_advisor_runs',
+  'admin_run_index_advisor',
+  'admin_cleanup_index_advisor_runs',
+  'admin_last_index_advisor_cleanup',
+  'admin_webhook_circuit_dashboard',
+  'admin_reset_webhook_circuit',
+  'admin_webhook_failure_rates',
+  'admin_webhook_retry_history',
+  'admin_capture_health_score_snapshot',
+  'admin_list_health_score_snapshots',
+  'admin_list_critical_alerts',
+  'admin_critical_alerts_summary',
+  'count_dsar_sla_misses',
+  'admin_rls_canary_full',
+  'admin_rls_canary_write',
+  'admin_find_orphan_pii',
+  'admin_report_orphan_pii',
+  'admin_signing_key_status',
+  'admin_detect_schema_drift',
+  'admin_pool_stats',
+  'admin_stale_archive_verifications',
 ]);
 
 interface RpcBody {
@@ -55,19 +62,19 @@ interface RpcBody {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return json({ error: "missing_authorization" }, 401);
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return json({ error: 'missing_authorization' }, 401);
     }
 
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? '';
-    const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? '';
-    const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? '';
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+    const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
     // 1) Verifica JWT com o cliente anon
     const anonClient = createClient(SUPABASE_URL, ANON_KEY, {
@@ -75,7 +82,7 @@ Deno.serve(async (req) => {
     });
     const { data: userData, error: userErr } = await anonClient.auth.getUser();
     if (userErr || !userData?.user) {
-      return json({ error: "invalid_token" }, 401);
+      return json({ error: 'invalid_token' }, 401);
     }
     const userId = userData.user.id;
 
@@ -83,20 +90,20 @@ Deno.serve(async (req) => {
     const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const { data: isAdmin, error: roleErr } = await adminClient.rpc("has_role", {
+    const { data: isAdmin, error: roleErr } = await adminClient.rpc('has_role', {
       _user_id: userId,
-      _role: "admin",
+      _role: 'admin',
     });
-    if (roleErr) return json({ error: "role_check_failed" }, 500);
+    if (roleErr) return json({ error: 'role_check_failed' }, 500);
     if (!isAdmin) {
       // Audita a tentativa
-      await adminClient.rpc("log_security_event", {
+      await adminClient.rpc('log_security_event', {
         _user_id: userId,
-        _event_type: "admin_rpc_forbidden",
-        _severity: "high",
-        _description: "Non-admin attempted admin-rpc call",
+        _event_type: 'admin_rpc_forbidden',
+        _severity: 'high',
+        _description: 'Non-admin attempted admin-rpc call',
       });
-      return json({ error: "forbidden" }, 403);
+      return json({ error: 'forbidden' }, 403);
     }
 
     // 3) Valida body
@@ -104,10 +111,10 @@ Deno.serve(async (req) => {
     try {
       body = (await req.json()) as RpcBody;
     } catch {
-      return json({ error: "invalid_json" }, 400);
+      return json({ error: 'invalid_json' }, 400);
     }
-    if (!body?.fn || typeof body.fn !== "string" || !ALLOWED.has(body.fn)) {
-      return json({ error: "fn_not_allowed" }, 400);
+    if (!body?.fn || typeof body.fn !== 'string' || !ALLOWED.has(body.fn)) {
+      return json({ error: 'fn_not_allowed' }, 400);
     }
 
     // 4) Chama a função com service_role
@@ -116,13 +123,13 @@ Deno.serve(async (req) => {
 
     return json({ data });
   } catch (e) {
-    return json({ error: e instanceof Error ? e.message : "internal_error" }, 500);
+    return json({ error: e instanceof Error ? e.message : 'internal_error' }, 500);
   }
 });
 
 function json(payload: unknown, status = 200): Response {
   return new Response(JSON.stringify(payload), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     status,
   });
 }
