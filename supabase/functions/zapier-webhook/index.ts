@@ -36,14 +36,25 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
 
     const { event, trackingId, data } = validation.data;
 
-    await supabase.from("webhook_logs").insert({
+    const { error: logError } = await supabase.from("webhook_logs").insert({
       user_id: apiKeyRecord.user_id,
-      source: "zapier",
       event_type: event,
-      tracking_id: trackingId,
-      payload: data,
-      ip_address: clientIP
+      tracking_id: trackingId ?? null,
+      payload: data ?? {},
+      success: true,
+      response_status: 200,
+      response_body: JSON.stringify({ success: true, event }),
     });
+
+    if (logError) {
+      console.error("webhook_logs insert failed:", logError.message);
+      return secureErrorResponse("Failed to record webhook event", 500, corsHeaders);
+    }
+
+    await supabase
+      .from("api_keys")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", apiKeyRecord.id);
 
     return secureJsonResponse({ success: true, event, trackingId }, corsHeaders);
   } catch (_error) {

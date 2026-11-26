@@ -40,6 +40,7 @@ import {
   Award,
   UsersRound,
   BellDot,
+  KeyRound,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -95,6 +96,7 @@ export type TabId =
   | 'bitrix'
   | 'webhooks'
   | 'integrations'
+  | 'api-keys'
   | 'trends'
   | 'featureflags'
   | 'realtime'
@@ -266,6 +268,7 @@ function useMenuCategories(): MenuCategory[] {
         { id: 'bitrix', label: 'Bitrix24', icon: Building2 },
         { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, badge: 'new' as const },
         { id: 'webhooks', label: 'Webhooks', icon: Webhook },
+        { id: 'api-keys', label: 'API & Zapier', icon: KeyRound, badge: 'new' as const },
       ],
     },
   ];

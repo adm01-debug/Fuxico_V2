@@ -206,6 +206,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      api_keys: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          key: string;
+          last_used_at: string | null;
+          name: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          key: string;
+          last_used_at?: string | null;
+          name?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          key?: string;
+          last_used_at?: string | null;
+          name?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       audit_config: {
         Row: {
           business_hours_end: number;

@@ -60,6 +60,7 @@ const WhatsAppIntegrationTab = lazy(() => import('@/components/dashboard/WhatsAp
 const BenchmarkReportsTab = lazy(() => import('@/components/dashboard/BenchmarkReportsTab'));
 const SmartSegmentationTab = lazy(() => import('@/components/dashboard/SmartSegmentationTab'));
 const TrackingHistoryTab = lazy(() => import('@/pages/TrackingAnalytics'));
+const ApiKeysTab = lazy(() => import('@/components/dashboard/ApiKeysTab'));
 
 // =============================================================================
 // MAPEAMENTO DE COMPONENTES
@@ -101,6 +102,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   benchmark: BenchmarkReportsTab,
   segmentation: SmartSegmentationTab,
   tracking_history: TrackingHistoryTab,
+  'api-keys': ApiKeysTab,
 };
 
 const TAB_LABELS: Record<TabId, string> = {
@@ -138,6 +140,7 @@ const TAB_LABELS: Record<TabId, string> = {
   benchmark: 'Benchmark',
   segmentation: 'Segmentação',
   tracking_history: 'Histórico de Tracking',
+  'api-keys': 'API & Zapier',
 };
 
 // =============================================================================
@@ -181,6 +184,7 @@ const TAB_SKELETON_VARIANTS: Partial<
   benchmark: 'chart',
   segmentation: 'table',
   tracking_history: 'table',
+  'api-keys': 'form',
 };
 
 // =============================================================================
