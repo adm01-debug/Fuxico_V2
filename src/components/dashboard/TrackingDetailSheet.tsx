@@ -5,6 +5,7 @@
 import { memo } from 'react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { FollowUpReminderControl } from './FollowUpReminderControl';
 import {
   AlertCircle,
   ExternalLink,
@@ -179,6 +180,8 @@ function TrackingDetailSheetBase({ trackingId, open, onOpenChange }: TrackingDet
                   Enviado em {formatMoment(data.email.createdAt)}
                 </span>
               </div>
+
+              <FollowUpReminderControl trackingId={trackingId} />
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <StatCard label="Aberturas" value={String(data.summary.opens)} />
