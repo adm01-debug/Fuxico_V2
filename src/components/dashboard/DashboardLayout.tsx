@@ -39,6 +39,7 @@ const UserRolesTab = lazy(() => import('@/components/dashboard/UserRolesTab'));
 const AuditConfigTab = lazy(() => import('@/components/dashboard/AuditConfigTab'));
 const BitrixTab = lazy(() => import('@/components/dashboard/BitrixTab'));
 const WebhookTab = lazy(() => import('@/components/dashboard/WebhookTab'));
+const SlackTeamsTab = lazy(() => import('@/components/dashboard/SlackTeamsTab'));
 const LeadScoringTab = lazy(() => import('@/components/dashboard/LeadScoringTab'));
 const FollowUpTab = lazy(() => import('@/components/dashboard/FollowUpTab'));
 const CampaignsTab = lazy(() => import('@/components/dashboard/CampaignsTab'));
@@ -96,7 +97,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   config: AuditConfigTab,
   bitrix: BitrixTab,
   webhooks: WebhookTab,
-  integrations: BitrixTab,
+  integrations: SlackTeamsTab,
   trends: TrendPredictionTab,
   featureflags: FeatureFlagsTab,
   realtime: RealtimeAnalyticsTab,
@@ -136,7 +137,7 @@ const TAB_LABELS: Record<TabId, string> = {
   config: 'Configuração',
   bitrix: 'Bitrix24',
   webhooks: 'Webhooks',
-  integrations: 'Integrações',
+  integrations: 'Slack/Teams',
   trends: 'Tendências',
   featureflags: 'Feature Flags',
   realtime: 'Tempo Real',
