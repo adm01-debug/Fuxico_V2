@@ -61,7 +61,7 @@ export function SecurityOverviewCards() {
       const { data, error } = await supabase
         .from('login_attempts')
         .select('success')
-        .eq('email', user.email)
+        .eq('email', user.email.toLowerCase())
         .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
       if (error) throw error;
       const success = data?.filter((a) => a.success).length || 0;
