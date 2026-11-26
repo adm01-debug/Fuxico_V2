@@ -14,6 +14,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
+import type { Json } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 
 export interface SegmentFilters {
@@ -298,4 +299,36 @@ export function useABTests() {
     deleteTest,
     checkAutoWinner,
   };
+}
+
+export interface ABSegmentPreviewRow {
+  recipient_email: string;
+  engagement_score: number;
+  score_level: string;
+}
+
+/**
+ * Pré-visualiza a audiência real que a edge `ab-test-dispatch` vai usar,
+ * aplicando os mesmos filtros de `segment_filters` sobre `contact_scores`.
+ */
+export function useABSegmentPreview(filters: SegmentFilters, enabled = true) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['ab-segment-preview', user?.id, filters],
+    queryFn: async (): Promise<ABSegmentPreviewRow[]> => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase.rpc('preview_ab_segment', {
+        p_user_id: user.id,
+        p_filters: filters as Json,
+      });
+
+      if (error) throw error;
+
+      return (data ?? []) as ABSegmentPreviewRow[];
+    },
+    enabled: enabled && !!user?.id,
+    staleTime: 30_000,
+  });
 }
