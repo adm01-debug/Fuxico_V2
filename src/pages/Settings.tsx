@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,7 @@ import {
   Link2,
   Download,
   RefreshCw,
+  Unlink,
 } from 'lucide-react';
 import { BackButton } from '@/components/ui/back-button';
 import { useNavigate } from 'react-router-dom';
@@ -54,6 +56,12 @@ import {
   DSAR_STATUS_LABELS,
   DSAR_TYPE_LABELS,
 } from '@/hooks/use-dsar';
+import {
+  GMAIL_CONFIGURATION_QUERY_KEY,
+  buildGmailConnectUrl,
+  useDisconnectGmail,
+  useGmailConfiguration,
+} from '@/hooks/use-gmail-integration';
 
 export default function Settings() {
   const { preferences, isLoading, updatePreferences, isUpdating } = useUserPreferences();
@@ -66,6 +74,99 @@ export default function Settings() {
   const [showDeleteForm, setShowDeleteForm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const deletionPending = hasOpenDeletion(dsarRequests);
+  const queryClient = useQueryClient();
+  const { data: gmailConfig, isLoading: isGmailLoading } = useGmailConfiguration();
+  const disconnectGmail = useDisconnectGmail();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const gmailStatus = params.get('gmail');
+    if (!gmailStatus) return;
+
+    if (gmailStatus === 'success') {
+      toast.success('Gmail conectado', {
+        description: 'A conta conectada aparece logo abaixo.',
+      });
+      queryClient.invalidateQueries({ queryKey: GMAIL_CONFIGURATION_QUERY_KEY });
+    } else {
+      toast.error('Não foi possível conectar o Gmail', {
+        description: 'Autorize o acesso novamente para concluir a conexão.',
+      });
+    }
+
+    params.delete('gmail');
+    const query = params.toString();
+    const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    window.history.replaceState({}, '', nextUrl);
+  }, [queryClient]);
+
+  const gmailSection = (() => {
+    if (isGmailLoading) {
+      return <Skeleton className="h-9 w-full sm:w-56" />;
+    }
+
+    if (!gmailConfig) {
+      return (
+        <Button
+          onClick={() => {
+            if (!user?.id) {
+              toast.error('Faça login para conectar o Gmail');
+              return;
+            }
+            window.location.href = buildGmailConnectUrl(user.id);
+          }}
+          className="w-full sm:w-auto"
+        >
+          Conectar Gmail Corporativo
+        </Button>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={gmailConfig.is_active === false ? 'secondary' : 'default'}>
+            {gmailConfig.is_active === false ? 'Inativo' : 'Conectado'}
+          </Badge>
+          <span className="break-all text-sm font-medium">{gmailConfig.email}</span>
+        </div>
+        {gmailConfig.created_at && (
+          <p className="text-xs text-muted-foreground">
+            Conectado em {new Date(gmailConfig.created_at).toLocaleString('pt-BR')}
+          </p>
+        )}
+        <Button
+          variant="outline"
+          className="w-full sm:w-auto"
+          disabled={disconnectGmail.isPending}
+          onClick={() =>
+            disconnectGmail.mutate(undefined, {
+              onSuccess: () =>
+                toast.success('Gmail desconectado', {
+                  description: 'Você pode conectar outra conta quando quiser.',
+                }),
+              onError: (error) =>
+                toast.error('Não foi possível desconectar', {
+                  description: error.message,
+                }),
+            })
+          }
+        >
+          {disconnectGmail.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Desconectando...
+            </>
+          ) : (
+            <>
+              <Unlink className="mr-2 h-4 w-4" />
+              Desconectar
+            </>
+          )}
+        </Button>
+      </div>
+    );
+  })();
 
   const handleExportData = () => {
     requestExport.mutate(undefined, {
@@ -603,15 +704,7 @@ export default function Settings() {
                 Ao conectar sua conta, nossa extensão poderá sincronizar automaticamente o
                 rastreamento de emails enviados.
               </p>
-              <Button
-                onClick={() => {
-                  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-                  window.location.href = `${supabaseUrl}/functions/v1/gmail-auth?userId=${user?.id}`;
-                }}
-                className="w-full sm:w-auto"
-              >
-                Conectar Gmail Corporativo
-              </Button>
+              {gmailSection}
             </div>
           </CardContent>
         </Card>
