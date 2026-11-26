@@ -37,6 +37,7 @@ import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashbo
 import { WebhookFailureRatesTable } from '@/components/admin/WebhookFailureRatesTable';
 import { WebhookRetryHistoryTable } from '@/components/admin/WebhookRetryHistoryTable';
 import { CriticalAlertsPanel } from '@/components/admin/CriticalAlertsPanel';
+import { DatabaseMaintenancePanel } from '@/components/admin/DatabaseMaintenancePanel';
 import { matchFirst } from '@/lib/variant';
 import type {
   AlertSanityCheck,
@@ -610,6 +611,9 @@ export default function AdminObservability() {
           )}
         </CardContent>
       </Card>
+
+      {/* Saúde do banco, integridade de dados e locks bloqueantes */}
+      <DatabaseMaintenancePanel />
 
       {/* Health Score global */}
       <SystemHealthScoreCard />
