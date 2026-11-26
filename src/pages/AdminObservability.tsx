@@ -31,6 +31,8 @@ import {
 import { toast } from 'sonner';
 import { IndexUsageDashboard } from '@/components/admin/IndexUsageDashboard';
 import { IndexAdvisorPanel } from '@/components/admin/IndexAdvisorPanel';
+import { IndexLifecyclePanel } from '@/components/admin/IndexLifecyclePanel';
+import { IndexRestorePanel } from '@/components/admin/IndexRestorePanel';
 import { SystemHealthScoreCard } from '@/components/admin/SystemHealthScoreCard';
 import { HealthScoreSnapshotHistory } from '@/components/admin/HealthScoreSnapshotHistory';
 import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashboard';
@@ -635,6 +637,12 @@ export default function AdminObservability() {
 
       {/* Index Advisor */}
       <IndexAdvisorPanel />
+
+      {/* Índices ociosos, candidatos a drop e análise de impacto */}
+      <IndexLifecyclePanel />
+
+      {/* Índices removidos com possibilidade de restore */}
+      <IndexRestorePanel />
 
       {/* Dashboard de uso de índices */}
       <IndexUsageDashboard />
