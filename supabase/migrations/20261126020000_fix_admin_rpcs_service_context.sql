@@ -590,3 +590,56 @@ BEGIN
   LIMIT GREATEST(_limit, 1)
   OFFSET GREATEST(_offset, 0);
 END; $function$
+
+-- db_health_check()
+-- mv_freshness_ok era sempre false (status degraded permanente): a funcao media ANALYZE
+-- da matview (pg_stat_get_last_analyze_time), que nunca roda em matview, e reportava ~56 anos
+-- de atraso. Medicao real: ultimo run bem-sucedido do cron fuxico-refresh-email-stats-mv.
+-- Fallback para a heuristica antiga quando o pg_cron nao esta disponivel.
+CREATE OR REPLACE FUNCTION public.db_health_check()
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+ SET statement_timeout TO '2s'
+AS $function$
+DECLARE
+  v_mv_age interval;
+  v_result jsonb;
+BEGIN
+  IF NOT public.has_role(auth.uid(), 'admin'::app_role) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  BEGIN
+    SELECT now() - max(d.start_time) INTO v_mv_age
+      FROM cron.job_run_details d
+      JOIN cron.job j ON j.jobid = d.jobid
+     WHERE j.jobname = 'fuxico-refresh-email-stats-mv'
+       AND d.status = 'succeeded';
+  EXCEPTION WHEN OTHERS THEN
+    v_mv_age := NULL;
+  END;
+
+  IF v_mv_age IS NULL THEN
+    SELECT now() - GREATEST(
+      COALESCE(pg_stat_get_last_analyze_time('public.email_stats_mv'::regclass), '1970-01-01'::timestamptz),
+      COALESCE(pg_stat_get_last_autoanalyze_time('public.email_stats_mv'::regclass), '1970-01-01'::timestamptz)
+    ) INTO v_mv_age;
+  END IF;
+
+  SELECT jsonb_build_object(
+    'status', CASE WHEN v_mv_age > interval '30 minutes' THEN 'degraded' ELSE 'healthy' END,
+    'checked_at', now(),
+    'checks', jsonb_build_object(
+      'connections_ok', (SELECT COUNT(*) < 400 FROM pg_stat_activity WHERE datname = current_database()),
+      'mv_freshness_ok', v_mv_age < interval '30 minutes',
+      'mv_age_seconds', EXTRACT(EPOCH FROM v_mv_age),
+      'default_partitions_empty',
+        (SELECT COUNT(*) FROM public.tracking_events_default) = 0
+        AND (SELECT COUNT(*) FROM public.audit_logs_default) = 0,
+      'blocked_locks', (SELECT COUNT(*) FROM pg_locks WHERE NOT granted)
+    )
+  ) INTO v_result;
+  RETURN v_result;
+END; $function$
