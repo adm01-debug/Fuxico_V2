@@ -22,10 +22,17 @@ import { BackButton } from '@/components/ui/back-button';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import type { AutoTableOptions, TrackingHistoryItem } from '@/types/tracking-history';
+import { useTrackingMonthlyStats } from '@/hooks/use-tracking-monthly-stats';
+import { TrackingMonthlyChart } from '@/components/dashboard/TrackingMonthlyChart';
 
 export default function TrackingAnalytics() {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const {
+    data: monthlyStats,
+    isLoading: monthlyLoading,
+    isError: monthlyError,
+  } = useTrackingMonthlyStats(12);
 
   const { data: history, isLoading } = useQuery({
     queryKey: ['tracking-history'],
@@ -187,6 +194,20 @@ export default function TrackingAnalytics() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Evolução mensal</CardTitle>
+            <CardDescription>Aberturas, cliques e bounces dos últimos 12 meses.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TrackingMonthlyChart
+              data={monthlyStats ?? []}
+              isLoading={monthlyLoading}
+              isError={monthlyError}
+            />
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
