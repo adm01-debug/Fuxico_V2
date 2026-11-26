@@ -62,7 +62,10 @@ test.describe('Dashboard - Mocked Data', () => {
     await expect(page.locator('text=user5@test.com')).toBeVisible();
   });
 
-  test('should apply filters correctly', async ({ page }) => {
+  // Desativado: /dashboard nao tem campo de busca. O filtro real fica em /tracking
+  // (src/components/dashboard/EmailFilters.tsx, placeholder 'Buscar por destinatario ou
+  // assunto...') e depende de outra origem de dados. Reativar junto com um spec de /tracking.
+  test.fixme('should apply filters correctly', async ({ page }) => {
     // Open filters if hidden or just use the search input
     const searchInput = page.locator('input[placeholder*="Buscar..."], input[placeholder*="email ou assunto"]').first();
     await searchInput.fill('Virtualização 1');
@@ -72,7 +75,10 @@ test.describe('Dashboard - Mocked Data', () => {
     await expect(page.locator('text=user5@test.com')).not.toBeVisible();
   });
 
-  test('should show details when clicking an email', async ({ page }) => {
+  // Desativado: a lista de /dashboard nao tem estado de selecao/detalhe. A classe
+  // 'bg-primary/5' nao existe em nenhum componente do app (grep em src/**), entao a
+  // assercao nunca pode passar. Reativar quando houver o painel de detalhes.
+  test.fixme('should show details when clicking an email', async ({ page }) => {
     await page.click('text=Teste de Virtualização 1');
     // Check if details are shown (assuming there's a details view or selection state)
     // The current layout might just highlight the row or open a modal
