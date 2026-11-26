@@ -40,6 +40,8 @@ import {
   Webhook,
 } from 'lucide-react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useGlobalDataSearch, highlightSegments } from '@/hooks/use-fulltext-search';
+import type { GlobalSearchHit, GlobalSearchTable } from '@/hooks/use-fulltext-search';
 import { log } from '@/lib/logger';
 import type { TabId } from './DashboardSidebar';
 
@@ -310,6 +312,18 @@ const QUICK_ACTIONS = [
   { id: 'shortcuts', label: 'Ver atalhos de teclado', icon: Keyboard, shortcut: '?' },
 ];
 
+// Grupos de resultados de dados reais (uma tabela por grupo)
+const DATA_GROUPS: Record<
+  GlobalSearchTable,
+  { heading: string; tab: TabId; icon: React.ElementType }
+> = {
+  tracked_emails: { heading: 'Emails rastreados', tab: 'emails', icon: Mail },
+  tracked_documents: { heading: 'Documentos rastreados', tab: 'documents', icon: FileText },
+  tracked_links: { heading: 'Links rastreados', tab: 'links', icon: Link2 },
+  email_templates: { heading: 'Modelos de email', tab: 'templates', icon: Layout },
+  campaigns: { heading: 'Campanhas', tab: 'campaigns', icon: Target },
+};
+
 function GlobalSearchDialogBase({
   open,
   onOpenChange,
@@ -320,6 +334,15 @@ function GlobalSearchDialogBase({
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 200);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
+  const {
+    hits,
+    isSearching: isSearchingData,
+    error: searchError,
+  } = useGlobalDataSearch(debouncedSearch);
+
+  useEffect(() => {
+    if (searchError) log.error('Erro na busca de dados:', searchError);
+  }, [searchError]);
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -405,6 +428,28 @@ function GlobalSearchDialogBase({
   const handleRecentSearch = useCallback((term: string) => {
     setSearch(term);
   }, []);
+
+  // Group data hits by table, preserving source order
+  const groupedHits = useMemo(() => {
+    const groups: Array<{ heading: string; entries: GlobalSearchHit[] }> = [];
+    Object.keys(DATA_GROUPS).forEach((table) => {
+      const heading = DATA_GROUPS[table as GlobalSearchTable].heading;
+      const entries = hits.filter((hit) => hit.table === table);
+      if (entries.length) groups.push({ heading, entries });
+    });
+    return groups;
+  }, [hits]);
+
+  // Handle click on a data result: abre a aba correspondente
+  const handleDataHit = useCallback(
+    (hit: GlobalSearchHit) => {
+      saveRecentSearch(search);
+      onNavigate(DATA_GROUPS[hit.table].tab);
+      onOpenChange(false);
+      setSearch('');
+    },
+    [search, saveRecentSearch, onNavigate, onOpenChange]
+  );
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
@@ -496,6 +541,49 @@ function GlobalSearchDialogBase({
                 <ArrowRight className="ml-auto h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-data-[selected=true]:opacity-100" />
               </CommandItem>
             ))}
+          </CommandGroup>
+        ))}
+        {/* Dados reais: emails, documentos, links, modelos e campanhas */}
+        {isSearchingData && (
+          <div
+            role="status"
+            className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground"
+          >
+            <Search className="h-3.5 w-3.5 animate-pulse" />
+            Buscando nos seus dados...
+          </div>
+        )}
+        {groupedHits.map(({ heading, entries }) => (
+          <CommandGroup key={heading} heading={heading}>
+            {entries.map((hit) => {
+              const group = DATA_GROUPS[hit.table];
+              return (
+                <CommandItem
+                  key={`${hit.table}-${hit.id}`}
+                  value={`${hit.label} ${hit.match}`}
+                  onSelect={() => handleDataHit(hit)}
+                  className="gap-2"
+                >
+                  <group.icon className="h-4 w-4 text-primary" />
+                  <span className="truncate">
+                    {highlightSegments(hit.label, debouncedSearch).map((seg, index) =>
+                      seg.highlighted ? (
+                        <mark key={index} className="rounded bg-primary/20 text-foreground">
+                          {seg.text}
+                        </mark>
+                      ) : (
+                        <span key={index}>{seg.text}</span>
+                      )
+                    )}
+                  </span>
+                  {hit.sublabel && (
+                    <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+                      {hit.sublabel}
+                    </span>
+                  )}
+                </CommandItem>
+              );
+            })}
           </CommandGroup>
         ))}
       </CommandList>
