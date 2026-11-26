@@ -6,17 +6,17 @@ export function AccessibilityManager() {
 
   useEffect(() => {
     document.documentElement.style.fontSize = `${fontSize}px`;
-    
-    if (motionPreference === "reduce") {
-      document.documentElement.classList.add("reduce-motion");
+
+    if (motionPreference === 'reduce') {
+      document.documentElement.classList.add('reduce-motion');
     } else {
-      document.documentElement.classList.remove("reduce-motion");
+      document.documentElement.classList.remove('reduce-motion');
     }
 
-    if (contrastPreference === "high") {
-      document.documentElement.classList.add("high-contrast");
+    if (contrastPreference === 'high') {
+      document.documentElement.classList.add('high-contrast');
     } else {
-      document.documentElement.classList.remove("high-contrast");
+      document.documentElement.classList.remove('high-contrast');
     }
   }, [fontSize, motionPreference, contrastPreference]);
 

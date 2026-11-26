@@ -2,124 +2,145 @@
 // FUXICO - WhatsApp Business Integration Tab
 // =============================================================================
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { toast } from 'sonner'
-import { 
-  MessageCircle, Settings, Zap, Clock, CheckCircle2, 
-  AlertTriangle, Send, Users, ArrowRight, Shield, Loader2 
-} from 'lucide-react'
-import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { useWhatsAppConfig, type WhatsAppConfig } from '@/hooks/use-whatsapp-config'
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from 'sonner';
+import {
+  MessageCircle,
+  Settings,
+  Zap,
+  Clock,
+  CheckCircle2,
+  AlertTriangle,
+  Send,
+  Users,
+  ArrowRight,
+  Shield,
+  Loader2,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { useWhatsAppConfig, type WhatsAppConfig } from '@/hooks/use-whatsapp-config';
 
 interface WhatsAppStats {
-  messagesSent: number
-  delivered: number
-  read: number
-  replied: number
+  messagesSent: number;
+  delivered: number;
+  read: number;
+  replied: number;
 }
 
 export default function WhatsAppIntegrationTab() {
-  const { config: remoteConfig, isLoading, updateConfig, isUpdating } = useWhatsAppConfig()
-  const [localConfig, setLocalConfig] = useState<WhatsAppConfig | null>(null)
+  const { config: remoteConfig, isLoading, updateConfig, isUpdating } = useWhatsAppConfig();
+  const [localConfig, setLocalConfig] = useState<WhatsAppConfig | null>(null);
 
   // Sync local state with remote config when it loads
   useEffect(() => {
     if (remoteConfig && !localConfig) {
-      setLocalConfig(remoteConfig)
+      setLocalConfig(remoteConfig);
     }
-  }, [remoteConfig, localConfig])
+  }, [remoteConfig, localConfig]);
 
-  const config = localConfig || remoteConfig
+  const config = localConfig || remoteConfig;
 
   const [stats] = useState<WhatsAppStats>({
     messagesSent: 156,
     delivered: 148,
     read: 124,
     replied: 67,
-  })
+  });
 
   const handleSave = () => {
     if (localConfig) {
-      updateConfig(localConfig)
+      updateConfig(localConfig);
     } else {
-      toast.info('Nenhuma alteração para salvar')
+      toast.info('Nenhuma alteração para salvar');
     }
-  }
+  };
 
   const handleChange = (updates: Partial<WhatsAppConfig>) => {
     if (config) {
-      setLocalConfig({ ...config, ...updates })
+      setLocalConfig({ ...config, ...updates });
     }
-  }
+  };
 
   const statsItems = [
     { label: 'Mensagens Enviadas', value: stats.messagesSent, icon: Send, color: 'text-blue-500' },
     { label: 'Entregues', value: stats.delivered, icon: CheckCircle2, color: 'text-emerald-500' },
     { label: 'Lidas', value: stats.read, icon: MessageCircle, color: 'text-violet-500' },
     { label: 'Respondidas', value: stats.replied, icon: Users, color: 'text-amber-500' },
-  ]
+  ];
 
   if (isLoading && !localConfig) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
-  if (!config) return null
+  if (!config) return null;
 
   const automationRules = [
-    { 
+    {
       name: 'Follow-up Automático',
       description: 'Enviar WhatsApp quando email não for aberto em 24h',
       enabled: config.auto_follow_up,
       icon: Zap,
     },
-    { 
+    {
       name: 'Horário Comercial',
       description: 'Enviar apenas entre 08:00 e 18:00',
       enabled: config.business_hours_only,
       icon: Clock,
     },
-    { 
+    {
       name: 'Limite de Retentativas',
       description: `Máximo de ${config.max_retries} mensagens por contato`,
       enabled: true,
       icon: Shield,
     },
-  ]
+  ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20">
+          <div className="rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 p-2">
             <MessageCircle className="h-6 w-6 text-green-500" />
           </div>
           <div>
             <h2 className="text-lg font-semibold">Integração WhatsApp Business</h2>
-            <p className="text-sm text-muted-foreground">Follow-up automático via WhatsApp quando emails não são abertos</p>
+            <p className="text-sm text-muted-foreground">
+              Follow-up automático via WhatsApp quando emails não são abertos
+            </p>
           </div>
         </div>
         <Badge variant={config.enabled ? 'default' : 'secondary'} className="gap-1">
-          {config.enabled ? <CheckCircle2 className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+          {config.enabled ? (
+            <CheckCircle2 className="h-3 w-3" />
+          ) : (
+            <AlertTriangle className="h-3 w-3" />
+          )}
           {config.enabled ? 'Ativo' : 'Inativo'}
         </Badge>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {statsItems.map((item, i) => (
           <motion.div
             key={item.label}
@@ -129,7 +150,7 @@ export default function WhatsAppIntegrationTab() {
           >
             <Card>
               <CardContent className="p-4">
-                <item.icon className={cn("h-5 w-5 mb-2", item.color)} />
+                <item.icon className={cn('mb-2 h-5 w-5', item.color)} />
                 <div className="text-2xl font-bold">{item.value}</div>
                 <p className="text-xs text-muted-foreground">{item.label}</p>
               </CardContent>
@@ -138,11 +159,11 @@ export default function WhatsAppIntegrationTab() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Configuration */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Settings className="h-4 w-4" />
               Configuração da API
             </CardTitle>
@@ -184,8 +205,8 @@ export default function WhatsAppIntegrationTab() {
 
             <div className="space-y-2">
               <Label>Delay do Follow-up (horas)</Label>
-              <Select 
-                value={String(config.follow_up_delay)} 
+              <Select
+                value={String(config.follow_up_delay)}
                 onValueChange={(v) => handleChange({ follow_up_delay: Number(v) })}
                 disabled={isUpdating}
               >
@@ -216,12 +237,12 @@ export default function WhatsAppIntegrationTab() {
               </p>
             </div>
 
-            <Button 
-              className="w-full gap-2" 
-              onClick={handleSave}
-              disabled={isUpdating}
-            >
-              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            <Button className="w-full gap-2" onClick={handleSave} disabled={isUpdating}>
+              {isUpdating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
               {isUpdating ? 'Salvando...' : 'Salvar Configurações'}
             </Button>
           </CardContent>
@@ -231,15 +252,15 @@ export default function WhatsAppIntegrationTab() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-base">
                 <Zap className="h-4 w-4" />
                 Regras de Automação
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {automationRules.map((rule, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
-                  <div className="p-2 rounded-lg bg-muted">
+                <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
+                  <div className="rounded-lg bg-muted p-2">
                     <rule.icon className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1">
@@ -263,19 +284,23 @@ export default function WhatsAppIntegrationTab() {
               <div className="space-y-3">
                 {[
                   { step: '1', label: 'Email enviado', desc: 'Rastreamento ativado' },
-                  { step: '2', label: `Espera ${config.follow_up_delay}h`, desc: 'Verifica se foi aberto' },
+                  {
+                    step: '2',
+                    label: `Espera ${config.follow_up_delay}h`,
+                    desc: 'Verifica se foi aberto',
+                  },
                   { step: '3', label: 'Não abriu?', desc: 'Envia WhatsApp automático' },
                   { step: '4', label: 'Follow-up enviado', desc: 'Monitora resposta' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                       {item.step}
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">{item.label}</p>
                       <p className="text-xs text-muted-foreground">{item.desc}</p>
                     </div>
-                    {i < 3 && <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                    {i < 3 && <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
                   </div>
                 ))}
               </div>
@@ -284,5 +309,5 @@ export default function WhatsAppIntegrationTab() {
         </div>
       </div>
     </div>
-  )
+  );
 }

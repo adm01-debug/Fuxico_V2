@@ -1,10 +1,10 @@
-import { ArrowLeft } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import type { ComponentProps, ReactNode } from "react";
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import type { ComponentProps, ReactNode } from 'react';
 
-export interface NavigationHeaderProps extends ComponentProps<"header"> {
+export interface NavigationHeaderProps extends ComponentProps<'header'> {
   title?: string;
   description?: string;
   /** Rota de fallback quando não há histórico. Default: `/dashboard`. */
@@ -22,7 +22,7 @@ export interface NavigationHeaderProps extends ComponentProps<"header"> {
 export function NavigationHeader({
   title,
   description,
-  fallbackPath = "/dashboard",
+  fallbackPath = '/dashboard',
   onBack,
   actions,
   hideBackButton,
@@ -36,7 +36,7 @@ export function NavigationHeader({
   const handleBack = () => {
     if (onBack && onBack() === false) return;
     // window.history.length > 1 significa que há um passo anterior real
-    if (window.history.length > 1 && location.key !== "default") {
+    if (window.history.length > 1 && location.key !== 'default') {
       navigate(-1);
     } else {
       navigate(fallbackPath);
@@ -46,8 +46,8 @@ export function NavigationHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-2 border-b border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6",
-        className,
+        'flex flex-col gap-2 border-b border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6',
+        className
       )}
       {...rest}
     >
@@ -67,9 +67,7 @@ export function NavigationHeader({
         {(title || description) && (
           <div className="flex flex-col">
             {title && <h1 className="text-lg font-semibold leading-tight sm:text-xl">{title}</h1>}
-            {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
-            )}
+            {description && <p className="text-sm text-muted-foreground">{description}</p>}
           </div>
         )}
         {children}

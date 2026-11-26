@@ -1,9 +1,9 @@
-import { useRef, type ReactNode } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { cn } from "@/lib/utils";
+import { useRef, type ReactNode } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { cn } from '@/lib/utils';
 
 function toCssSize(width: number | string): string {
-  return typeof width === "number" ? `${width}px` : width;
+  return typeof width === 'number' ? `${width}px` : width;
 }
 
 export interface VirtualTableColumn<T> {
@@ -36,7 +36,7 @@ export function VirtualTable<T>({
   rowHeight = 44,
   overscan = 8,
   height = 480,
-  emptyMessage = "Nenhum registro encontrado.",
+  emptyMessage = 'Nenhum registro encontrado.',
   className,
   getRowKey,
   onRowClick,
@@ -55,8 +55,8 @@ export function VirtualTable<T>({
       <div
         role="status"
         className={cn(
-          "flex items-center justify-center rounded-md border border-border bg-card p-8 text-sm text-muted-foreground",
-          className,
+          'flex items-center justify-center rounded-md border border-border bg-card p-8 text-sm text-muted-foreground',
+          className
         )}
       >
         {emptyMessage}
@@ -65,14 +65,8 @@ export function VirtualTable<T>({
   }
 
   return (
-    <div
-      className={cn("rounded-md border border-border bg-card", className)}
-    >
-      <div
-        role="table"
-        aria-rowcount={data.length}
-        className="relative"
-      >
+    <div className={cn('rounded-md border border-border bg-card', className)}>
+      <div role="table" aria-rowcount={data.length} className="relative">
         <div
           role="row"
           className="flex items-center border-b border-border bg-muted/40 px-4 text-xs font-medium uppercase tracking-wide text-muted-foreground"
@@ -82,23 +76,19 @@ export function VirtualTable<T>({
             <div
               key={col.key}
               role="columnheader"
-              className={cn("flex-1 truncate px-2", col.className)}
+              className={cn('flex-1 truncate px-2', col.className)}
               style={col.width ? { flex: `0 0 ${toCssSize(col.width)}` } : undefined}
             >
               {col.header}
             </div>
           ))}
         </div>
-        <div
-          ref={parentRef}
-          className="overflow-auto"
-          style={{ height, contain: "strict" }}
-        >
+        <div ref={parentRef} className="overflow-auto" style={{ height, contain: 'strict' }}>
           <div
             style={{
               height: virtualizer.getTotalSize(),
-              position: "relative",
-              width: "100%",
+              position: 'relative',
+              width: '100%',
             }}
           >
             {virtualizer.getVirtualItems().map((virtualRow) => {
@@ -111,8 +101,8 @@ export function VirtualTable<T>({
                   aria-rowindex={virtualRow.index + 1}
                   onClick={onRowClick ? () => onRowClick(row, virtualRow.index) : undefined}
                   className={cn(
-                    "absolute left-0 right-0 flex items-center border-b border-border/60 px-4 text-sm transition-colors hover:bg-muted/40",
-                    onRowClick && "cursor-pointer",
+                    'absolute left-0 right-0 flex items-center border-b border-border/60 px-4 text-sm transition-colors hover:bg-muted/40',
+                    onRowClick && 'cursor-pointer'
                   )}
                   style={{
                     height: virtualRow.size,
@@ -123,7 +113,7 @@ export function VirtualTable<T>({
                     <div
                       key={col.key}
                       role="cell"
-                      className={cn("flex-1 truncate px-2", col.className)}
+                      className={cn('flex-1 truncate px-2', col.className)}
                       style={col.width ? { flex: `0 0 ${toCssSize(col.width)}` } : undefined}
                     >
                       {col.cell(row, virtualRow.index)}

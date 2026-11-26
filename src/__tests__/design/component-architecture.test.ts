@@ -38,7 +38,7 @@ describe('Landing Page Components', () => {
     'landing/StatsSection.tsx',
   ];
 
-  landingComponents.forEach(comp => {
+  landingComponents.forEach((comp) => {
     it(`should have ${comp}`, () => {
       const exists = fs.existsSync(path.resolve(__dirname, '../../components/', comp));
       expect(exists).toBe(true);
@@ -49,7 +49,7 @@ describe('Landing Page Components', () => {
 describe('Auth Components', () => {
   const authComponents = ['auth/LoginForm.tsx', 'auth/SignupForm.tsx', 'auth/AuthHeader.tsx'];
 
-  authComponents.forEach(comp => {
+  authComponents.forEach((comp) => {
     it(`should have ${comp}`, () => {
       const exists = fs.existsSync(path.resolve(__dirname, '../../components/', comp));
       expect(exists).toBe(true);
@@ -59,20 +59,43 @@ describe('Auth Components', () => {
 
 describe('UI Components', () => {
   const uiComponents = [
-    'ui/button.tsx', 'ui/card.tsx', 'ui/dialog.tsx', 'ui/badge.tsx',
-    'ui/input.tsx', 'ui/select.tsx', 'ui/tabs.tsx', 'ui/tooltip.tsx',
-    'ui/skeleton.tsx', 'ui/toast.tsx', 'ui/sonner.tsx', 'ui/sidebar.tsx',
-    'ui/accordion.tsx', 'ui/alert.tsx', 'ui/checkbox.tsx', 'ui/form.tsx',
-    'ui/progress.tsx', 'ui/switch.tsx', 'ui/table.tsx', 'ui/textarea.tsx',
-    'ui/scroll-area.tsx', 'ui/separator.tsx', 'ui/popover.tsx',
-    'ui/dropdown-menu.tsx', 'ui/command.tsx', 'ui/breadcrumb.tsx',
-    'ui/empty-state.tsx', 'ui/email-status-badge.tsx',
-    'ui/password-strength-indicator.tsx', 'ui/tooltip-wrapper.tsx',
-    'ui/gamification.tsx', 'ui/confetti.tsx', 'ui/mode-toggle.tsx',
+    'ui/button.tsx',
+    'ui/card.tsx',
+    'ui/dialog.tsx',
+    'ui/badge.tsx',
+    'ui/input.tsx',
+    'ui/select.tsx',
+    'ui/tabs.tsx',
+    'ui/tooltip.tsx',
+    'ui/skeleton.tsx',
+    'ui/toast.tsx',
+    'ui/sonner.tsx',
+    'ui/sidebar.tsx',
+    'ui/accordion.tsx',
+    'ui/alert.tsx',
+    'ui/checkbox.tsx',
+    'ui/form.tsx',
+    'ui/progress.tsx',
+    'ui/switch.tsx',
+    'ui/table.tsx',
+    'ui/textarea.tsx',
+    'ui/scroll-area.tsx',
+    'ui/separator.tsx',
+    'ui/popover.tsx',
+    'ui/dropdown-menu.tsx',
+    'ui/command.tsx',
+    'ui/breadcrumb.tsx',
+    'ui/empty-state.tsx',
+    'ui/email-status-badge.tsx',
+    'ui/password-strength-indicator.tsx',
+    'ui/tooltip-wrapper.tsx',
+    'ui/gamification.tsx',
+    'ui/confetti.tsx',
+    'ui/mode-toggle.tsx',
     'ui/scroll-indicator.tsx',
   ];
 
-  uiComponents.forEach(comp => {
+  uiComponents.forEach((comp) => {
     it(`should have ${comp}`, () => {
       const exists = fs.existsSync(path.resolve(__dirname, '../../components/', comp));
       expect(exists).toBe(true);
@@ -99,7 +122,7 @@ describe('Dashboard Components', () => {
     'dashboard/CreateTrackingDialog.tsx',
   ];
 
-  dashboardComponents.forEach(comp => {
+  dashboardComponents.forEach((comp) => {
     it(`should have ${comp}`, () => {
       const exists = fs.existsSync(path.resolve(__dirname, '../../components/', comp));
       expect(exists).toBe(true);
@@ -119,9 +142,11 @@ describe('Security Components', () => {
     'SecurityOverviewCards.tsx',
   ];
 
-  securityComponents.forEach(comp => {
+  securityComponents.forEach((comp) => {
     it(`should have features/security/components/${comp}`, () => {
-      const exists = fs.existsSync(path.resolve(__dirname, '../../features/security/components/', comp));
+      const exists = fs.existsSync(
+        path.resolve(__dirname, '../../features/security/components/', comp)
+      );
       expect(exists).toBe(true);
     });
   });
@@ -168,7 +193,7 @@ describe('Hooks Architecture', () => {
     });
   });
 
-  sharedHooks.forEach(hook => {
+  sharedHooks.forEach((hook) => {
     it(`should have hooks/${hook}`, () => {
       const exists = fs.existsSync(path.resolve(__dirname, '../../hooks/', hook));
       expect(exists).toBe(true);
@@ -195,7 +220,7 @@ describe('Context Providers', () => {
 describe('i18n Support', () => {
   const locales = ['en.json', 'es.json', 'pt-BR.json'];
 
-  locales.forEach(locale => {
+  locales.forEach((locale) => {
     it(`should have locale file ${locale}`, () => {
       const exists = fs.existsSync(path.resolve(__dirname, '../../i18n/locales/', locale));
       expect(exists).toBe(true);
@@ -210,14 +235,23 @@ describe('i18n Support', () => {
 
 describe('Pages', () => {
   const pages = [
-    'pages/Index.tsx', 'pages/Auth.tsx', 'pages/Dashboard.tsx',
-    'pages/Settings.tsx', 'pages/Security.tsx', 'pages/Pricing.tsx',
-    'pages/NotFound.tsx', 'pages/ForgotPassword.tsx', 'pages/ResetPassword.tsx',
-    'pages/VerifyEmail.tsx', 'pages/TwoFactorAuth.tsx', 'pages/MFAVerify.tsx',
-    'pages/Roles.tsx', 'pages/Permissions.tsx',
+    'pages/Index.tsx',
+    'pages/Auth.tsx',
+    'pages/Dashboard.tsx',
+    'pages/Settings.tsx',
+    'pages/Security.tsx',
+    'pages/Pricing.tsx',
+    'pages/NotFound.tsx',
+    'pages/ForgotPassword.tsx',
+    'pages/ResetPassword.tsx',
+    'pages/VerifyEmail.tsx',
+    'pages/TwoFactorAuth.tsx',
+    'pages/MFAVerify.tsx',
+    'pages/Roles.tsx',
+    'pages/Permissions.tsx',
   ];
 
-  pages.forEach(page => {
+  pages.forEach((page) => {
     it(`should have ${page}`, () => {
       const exists = fs.existsSync(path.resolve(__dirname, '../../', page));
       expect(exists).toBe(true);

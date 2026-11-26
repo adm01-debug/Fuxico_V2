@@ -6,7 +6,16 @@ import { useTrendPrediction } from '@/hooks/use-trend-prediction';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TooltipWrapper } from '@/components/ui/tooltip-wrapper';
 import { motion } from 'framer-motion';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ReferenceLine,
+} from 'recharts';
 
 function TrendIcon({ trend }: { trend: 'up' | 'down' | 'stable' }) {
   if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-500" />;
@@ -22,12 +31,14 @@ function TrendBadge({ trend, metric }: { trend: 'up' | 'down' | 'stable'; metric
     stable: `A performance de ${metric} está consistente.`,
   };
   const variants: Record<string, 'default' | 'destructive' | 'secondary'> = {
-    up: 'default', down: 'destructive', stable: 'secondary',
+    up: 'default',
+    down: 'destructive',
+    stable: 'secondary',
   };
-  
+
   return (
     <TooltipWrapper content={descriptions[trend]}>
-      <Badge variant={variants[trend]} className="text-xs gap-1 cursor-help">
+      <Badge variant={variants[trend]} className="cursor-help gap-1 text-xs">
         <TrendIcon trend={trend} />
         {labels[trend]}
       </Badge>
@@ -41,8 +52,13 @@ function TrendPredictionTabBase() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Card><CardHeader><Skeleton className="h-6 w-48" /></CardHeader>
-          <CardContent><Skeleton className="h-64 w-full" /></CardContent>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-64 w-full" />
+          </CardContent>
         </Card>
       </div>
     );
@@ -52,8 +68,11 @@ function TrendPredictionTabBase() {
     return (
       <Card>
         <CardContent className="p-8 text-center text-muted-foreground">
-          <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>Dados insuficientes para gerar previsões. Continue rastreando emails para habilitar esta funcionalidade.</p>
+          <Brain className="mx-auto mb-4 h-12 w-12 opacity-50" />
+          <p>
+            Dados insuficientes para gerar previsões. Continue rastreando emails para habilitar esta
+            funcionalidade.
+          </p>
         </CardContent>
       </Card>
     );
@@ -61,14 +80,14 @@ function TrendPredictionTabBase() {
 
   // Merge historical + predictions for chart
   const chartData = [
-    ...data.historical.map(d => ({
+    ...data.historical.map((d) => ({
       date: d.date.slice(5), // MM-DD
       emails: d.emails,
       opens: d.opens,
       clicks: d.clicks,
       type: 'historical',
     })),
-    ...data.predictions.map(d => ({
+    ...data.predictions.map((d) => ({
       date: d.date.slice(5),
       emails: d.predictedEmails,
       opens: d.predictedOpens,
@@ -93,30 +112,34 @@ function TrendPredictionTabBase() {
         </CardHeader>
         <CardContent>
           {/* Trend Summary */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="p-4 rounded-lg bg-muted/50 text-center">
-              <p className="text-xs text-muted-foreground mb-1">Emails</p>
+          <div className="mb-6 grid grid-cols-3 gap-4">
+            <div className="rounded-lg bg-muted/50 p-4 text-center">
+              <p className="mb-1 text-xs text-muted-foreground">Emails</p>
               <TrendBadge trend={data.summary.emailsTrend} metric="emails" />
             </div>
-            <div className="p-4 rounded-lg bg-muted/50 text-center">
-              <p className="text-xs text-muted-foreground mb-1">Aberturas</p>
+            <div className="rounded-lg bg-muted/50 p-4 text-center">
+              <p className="mb-1 text-xs text-muted-foreground">Aberturas</p>
               <TrendBadge trend={data.summary.opensTrend} metric="aberturas" />
             </div>
-            <div className="p-4 rounded-lg bg-muted/50 text-center">
-              <p className="text-xs text-muted-foreground mb-1">Cliques</p>
+            <div className="rounded-lg bg-muted/50 p-4 text-center">
+              <p className="mb-1 text-xs text-muted-foreground">Cliques</p>
               <TrendBadge trend={data.summary.clicksTrend} metric="cliques" />
             </div>
           </div>
 
           {/* Forecast Stats */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="p-4 rounded-lg border">
+          <div className="mb-6 grid grid-cols-2 gap-4">
+            <div className="rounded-lg border p-4">
               <p className="text-xs text-muted-foreground">Taxa de Abertura Prevista (7d)</p>
-              <p className="text-2xl font-bold text-primary">{data.summary.predictedOpenRate.toFixed(1)}%</p>
+              <p className="text-2xl font-bold text-primary">
+                {data.summary.predictedOpenRate.toFixed(1)}%
+              </p>
             </div>
-            <div className="p-4 rounded-lg border">
+            <div className="rounded-lg border p-4">
               <p className="text-xs text-muted-foreground">Taxa de Cliques Prevista (7d)</p>
-              <p className="text-2xl font-bold text-primary">{data.summary.predictedClickRate.toFixed(1)}%</p>
+              <p className="text-2xl font-bold text-primary">
+                {data.summary.predictedClickRate.toFixed(1)}%
+              </p>
             </div>
           </div>
 
@@ -145,45 +168,75 @@ function TrendPredictionTabBase() {
                     fontSize: '12px',
                   }}
                 />
-                <ReferenceLine x={chartData[todayIdx]?.date} stroke="hsl(var(--muted-foreground))" strokeDasharray="5 5" label={{ value: 'Hoje', fontSize: 10 }} />
-                <Area type="monotone" dataKey="emails" stroke="hsl(var(--primary))" fill="url(#colorEmails)" name="Emails" />
-                <Area type="monotone" dataKey="opens" stroke="#22c55e" fill="url(#colorOpens)" name="Aberturas" />
-                <Area type="monotone" dataKey="clicks" stroke="#3b82f6" fill="transparent" strokeDasharray="4 2" name="Cliques" />
+                <ReferenceLine
+                  x={chartData[todayIdx]?.date}
+                  stroke="hsl(var(--muted-foreground))"
+                  strokeDasharray="5 5"
+                  label={{ value: 'Hoje', fontSize: 10 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="emails"
+                  stroke="hsl(var(--primary))"
+                  fill="url(#colorEmails)"
+                  name="Emails"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="opens"
+                  stroke="#22c55e"
+                  fill="url(#colorOpens)"
+                  name="Aberturas"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="clicks"
+                  stroke="#3b82f6"
+                  fill="transparent"
+                  strokeDasharray="4 2"
+                  name="Cliques"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground justify-center">
+          <div className="mt-4 flex items-center justify-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <div className="w-3 h-0.5 bg-primary rounded" /> Histórico
+              <div className="h-0.5 w-3 rounded bg-primary" /> Histórico
             </span>
             <span className="flex items-center gap-1">
-              <div className="w-3 h-0.5 bg-primary rounded border-dashed" style={{ borderTop: '2px dashed' }} /> Previsão
+              <div
+                className="h-0.5 w-3 rounded border-dashed bg-primary"
+                style={{ borderTop: '2px dashed' }}
+              />{' '}
+              Previsão
             </span>
           </div>
 
           {/* Prediction Details */}
           <div className="mt-6">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="mb-3 flex items-center gap-2">
               <h4 className="text-sm font-medium">Previsões para os Próximos 7 Dias</h4>
               <TooltipWrapper content="Previsões geradas via regressão linear baseada nos últimos 30 dias de interações.">
-                <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                <Info className="h-3.5 w-3.5 cursor-help text-muted-foreground" />
               </TooltipWrapper>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-7">
               {data.predictions.map((p, i) => (
-                <motion.div 
-                  key={p.date} 
+                <motion.div
+                  key={p.date}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.05 }}
-                  className="p-2 rounded-lg border text-center hover:bg-muted/50 transition-colors"
+                  className="rounded-lg border p-2 text-center transition-colors hover:bg-muted/50"
                 >
                   <p className="text-xs text-muted-foreground">{p.date.slice(5)}</p>
                   <p className="text-sm font-bold">{p.predictedEmails}</p>
                   <p className="text-xs text-green-600">{p.predictedOpens} abr</p>
                   <TooltipWrapper content={`Grau de confiança estatística: ${p.confidence}%`}>
-                    <Badge variant="outline" className="text-[10px] mt-1 cursor-help">{p.confidence}%</Badge>
+                    <Badge variant="outline" className="mt-1 cursor-help text-[10px]">
+                      {p.confidence}%
+                    </Badge>
                   </TooltipWrapper>
                 </motion.div>
               ))}

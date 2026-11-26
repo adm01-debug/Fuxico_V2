@@ -3,7 +3,6 @@
 // Shows all keyboard shortcuts available in the dashboard
 // =============================================================================
 
-
 // FUXICO - Keyboard Shortcuts Dialog
 // Painel de atalhos de teclado disponíveis
 // =============================================================================
@@ -22,37 +21,37 @@ import { cn } from '@/lib/utils';
 // Formatar tecla para exibição visual
 function formatKey(key: string): string {
   const keyMap: Record<string, string> = {
-    'alt': '⌥ Alt',
-    'ctrl': '⌃ Ctrl',
-    'cmd': '⌘ Cmd',
-    'shift': '⇧ Shift',
-    'enter': '↵ Enter',
-    'esc': 'Esc',
-    'tab': '⇥ Tab',
-    'space': '␣ Space',
-    'backspace': '⌫',
-    'delete': '⌦',
-    'up': '↑',
-    'down': '↓',
-    'left': '←',
-    'right': '→',
+    alt: '⌥ Alt',
+    ctrl: '⌃ Ctrl',
+    cmd: '⌘ Cmd',
+    shift: '⇧ Shift',
+    enter: '↵ Enter',
+    esc: 'Esc',
+    tab: '⇥ Tab',
+    space: '␣ Space',
+    backspace: '⌫',
+    delete: '⌦',
+    up: '↑',
+    down: '↓',
+    left: '←',
+    right: '→',
   };
   return keyMap[key.toLowerCase()] || key.toUpperCase();
 }
 
 function ShortcutKey({ shortcut }: { shortcut: string }) {
-  const keys = shortcut.split('+').map(k => k.trim());
-  
+  const keys = shortcut.split('+').map((k) => k.trim());
+
   return (
     <div className="flex items-center gap-1">
       {keys.map((key, i) => (
         <kbd
           key={i}
           className={cn(
-            "inline-flex items-center justify-center min-w-[28px] h-7 px-2",
-            "text-xs font-medium rounded border",
-            "bg-muted/80 border-border/50 text-foreground",
-            "shadow-sm"
+            'inline-flex h-7 min-w-[28px] items-center justify-center px-2',
+            'rounded border text-xs font-medium',
+            'border-border/50 bg-muted/80 text-foreground',
+            'shadow-sm'
           )}
         >
           {formatKey(key)}
@@ -119,15 +118,13 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
             <Keyboard className="h-5 w-5" />
             Atalhos de Teclado
           </DialogTitle>
-          <DialogDescription>
-            Use estes atalhos para navegar mais rapidamente
-          </DialogDescription>
+          <DialogDescription>Use estes atalhos para navegar mais rapidamente</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {SHORTCUT_CATEGORIES.map((category) => (
             <div key={category.title}>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="mb-3 flex items-center gap-2">
                 <Badge variant="secondary" className="gap-1.5">
                   {category.icon}
                   {category.title}
@@ -137,11 +134,9 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
                 {category.shortcuts.map((shortcut) => (
                   <div
                     key={shortcut.key}
-                    className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    className="flex items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-muted/50"
                   >
-                    <span className="text-sm text-muted-foreground">
-                      {shortcut.description}
-                    </span>
+                    <span className="text-sm text-muted-foreground">{shortcut.description}</span>
                     <ShortcutKey shortcut={shortcut.key} />
                   </div>
                 ))}
@@ -150,7 +145,7 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
           ))}
         </div>
 
-        <div className="flex items-center justify-center pt-2 border-t">
+        <div className="flex items-center justify-center border-t pt-2">
           <p className="text-xs text-muted-foreground">
             Pressione <ShortcutKey shortcut="?" /> a qualquer momento para ver este painel
           </p>
@@ -159,6 +154,5 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
     </Dialog>
   );
 }
-
 
 export default KeyboardShortcutsDialog;

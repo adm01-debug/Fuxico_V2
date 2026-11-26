@@ -12,7 +12,9 @@ export function useSequenceStats(days: number = 30) {
   return useQuery({
     queryKey: ['sequence-stats', days],
     queryFn: async (): Promise<DailyStats[]> => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return [];
 
       const startDate = startOfDay(subDays(new Date(), days));
@@ -33,7 +35,7 @@ export function useSequenceStats(days: number = 30) {
 
       // Build daily stats map
       const statsMap = new Map<string, DailyStats>();
-      
+
       // Initialize all days
       for (let i = days; i >= 0; i--) {
         const date = format(subDays(new Date(), i), 'yyyy-MM-dd');

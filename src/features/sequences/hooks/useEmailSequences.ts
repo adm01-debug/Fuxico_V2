@@ -98,8 +98,16 @@ export function useSequenceDetail(sequenceId: string | undefined) {
 
       const [sequenceResult, stepsResult, enrollmentsResult] = await Promise.all([
         supabase.from('email_sequences').select('*').eq('id', sequenceId).single(),
-        supabase.from('sequence_steps').select('*').eq('sequence_id', sequenceId).order('step_order'),
-        supabase.from('sequence_enrollments').select('*').eq('sequence_id', sequenceId).order('enrolled_at', { ascending: false }),
+        supabase
+          .from('sequence_steps')
+          .select('*')
+          .eq('sequence_id', sequenceId)
+          .order('step_order'),
+        supabase
+          .from('sequence_enrollments')
+          .select('*')
+          .eq('sequence_id', sequenceId)
+          .order('enrolled_at', { ascending: false }),
       ]);
 
       if (sequenceResult.error) throw sequenceResult.error;
@@ -121,7 +129,11 @@ export function useCreateSequence() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (data: { name: string; description?: string; trigger_type?: EmailSequence['trigger_type'] }) => {
+    mutationFn: async (data: {
+      name: string;
+      description?: string;
+      trigger_type?: EmailSequence['trigger_type'];
+    }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
       const { data: sequence, error } = await supabase
@@ -267,7 +279,11 @@ export function useEnrollContact() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (data: { sequenceId: string; contactEmail: string; contactName?: string }) => {
+    mutationFn: async (data: {
+      sequenceId: string;
+      contactEmail: string;
+      contactName?: string;
+    }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
       // Calculate next step time based on first step delay
@@ -302,7 +318,10 @@ export function useEnrollContact() {
       // Increment enrolled count - use direct update as fallback
       const { error: updateError } = await supabase
         .from('email_sequences')
-        .update({ total_enrolled: (enrollment as unknown as { total_enrolled?: number }).total_enrolled ?? 1 })
+        .update({
+          total_enrolled:
+            (enrollment as unknown as { total_enrolled?: number }).total_enrolled ?? 1,
+        })
         .eq('id', data.sequenceId);
       if (updateError) {
         console.warn('Failed to increment enrolled count:', updateError);

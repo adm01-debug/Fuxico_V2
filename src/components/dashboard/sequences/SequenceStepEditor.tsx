@@ -13,19 +13,24 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { 
-  GripVertical, 
-  Trash2, 
-  ChevronDown, 
-  ChevronUp, 
+import {
+  GripVertical,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
   Clock,
   Mail,
   Eye,
   MousePointer,
   Save,
-  Plus
+  Plus,
 } from 'lucide-react';
-import { SequenceStep, useCreateStep, useUpdateStep, useDeleteStep } from '@/features/sequences/hooks/useEmailSequences';
+import {
+  SequenceStep,
+  useCreateStep,
+  useUpdateStep,
+  useDeleteStep,
+} from '@/features/sequences/hooks/useEmailSequences';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface SequenceStepEditorProps {
@@ -33,7 +38,10 @@ interface SequenceStepEditorProps {
   sequenceId: string;
 }
 
-const triggerConditionLabels: Record<SequenceStep['trigger_condition'], { label: string; icon: React.ReactNode }> = {
+const triggerConditionLabels: Record<
+  SequenceStep['trigger_condition'],
+  { label: string; icon: React.ReactNode }
+> = {
   always: { label: 'Sempre enviar', icon: <Mail className="h-4 w-4" /> },
   if_not_opened: { label: 'Se não abriu anterior', icon: <Eye className="h-4 w-4" /> },
   if_not_clicked: { label: 'Se não clicou', icon: <MousePointer className="h-4 w-4" /> },
@@ -50,12 +58,12 @@ interface StepFormData {
   is_active: boolean;
 }
 
-function StepCard({ 
-  step, 
-  index, 
-    onDelete 
-}: { 
-  step: SequenceStep; 
+function StepCard({
+  step,
+  index,
+  onDelete,
+}: {
+  step: SequenceStep;
   index: number;
   sequenceId: string;
   onDelete: () => void;
@@ -74,7 +82,7 @@ function StepCard({
   const updateStep = useUpdateStep();
 
   const handleChange = <K extends keyof StepFormData>(key: K, value: StepFormData[K]) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [key]: value }));
     setHasChanges(true);
   };
 
@@ -89,20 +97,18 @@ function StepCard({
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <Card className={`transition-all ${!step.is_active ? 'opacity-60' : ''}`}>
         <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
+          <CardHeader className="cursor-pointer py-3 transition-colors hover:bg-muted/50">
             <div className="flex items-center gap-3">
-              <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
+              <GripVertical className="h-5 w-5 cursor-grab text-muted-foreground" />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="font-mono">
                     {index + 1}
                   </Badge>
                   <CardTitle className="text-base">{step.subject}</CardTitle>
-                  {!step.is_active && (
-                    <Badge variant="secondary">Desativada</Badge>
-                  )}
+                  {!step.is_active && <Badge variant="secondary">Desativada</Badge>}
                 </div>
-                <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {step.delay_days}d {step.delay_hours}h após anterior
@@ -117,9 +123,9 @@ function StepCard({
             </div>
           </CardHeader>
         </CollapsibleTrigger>
-        
+
         <CollapsibleContent>
-          <CardContent className="pt-0 space-y-4">
+          <CardContent className="space-y-4 pt-0">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Dias após etapa anterior</Label>
@@ -141,12 +147,14 @@ function StepCard({
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label>Condição de Envio</Label>
-              <Select 
-                value={formData.trigger_condition} 
-                onValueChange={(v) => handleChange('trigger_condition', v as SequenceStep['trigger_condition'])}
+              <Select
+                value={formData.trigger_condition}
+                onValueChange={(v) =>
+                  handleChange('trigger_condition', v as SequenceStep['trigger_condition'])
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -191,19 +199,15 @@ function StepCard({
                 />
                 <Label>Etapa ativa</Label>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={onDelete}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
+                <Button variant="destructive" size="sm" onClick={onDelete}>
+                  <Trash2 className="mr-1 h-4 w-4" />
                   Remover
                 </Button>
                 {hasChanges && (
                   <Button size="sm" onClick={handleSave} disabled={updateStep.isPending}>
-                    <Save className="h-4 w-4 mr-1" />
+                    <Save className="mr-1 h-4 w-4" />
                     Salvar
                   </Button>
                 )}
@@ -255,13 +259,13 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
     <div className="space-y-4">
       {steps.length === 0 && !isAddingStep && (
         <Card className="p-8 text-center">
-          <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">Nenhuma etapa configurada</h3>
-          <p className="text-muted-foreground mb-4">
+          <Mail className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-medium">Nenhuma etapa configurada</h3>
+          <p className="mb-4 text-muted-foreground">
             Adicione etapas para criar sua sequência de follow-up automatizado.
           </p>
           <Button onClick={() => setIsAddingStep(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Adicionar Primeira Etapa
           </Button>
         </Card>
@@ -280,7 +284,7 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
       {isAddingStep ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <Badge variant="outline" className="font-mono">
                 {steps.length + 1}
               </Badge>
@@ -295,7 +299,9 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
                   type="number"
                   min={0}
                   value={newStep.delay_days}
-                  onChange={(e) => setNewStep(prev => ({ ...prev, delay_days: parseInt(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setNewStep((prev) => ({ ...prev, delay_days: parseInt(e.target.value) || 0 }))
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -305,16 +311,23 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
                   min={0}
                   max={23}
                   value={newStep.delay_hours}
-                  onChange={(e) => setNewStep(prev => ({ ...prev, delay_hours: parseInt(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setNewStep((prev) => ({ ...prev, delay_hours: parseInt(e.target.value) || 0 }))
+                  }
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label>Condição de Envio</Label>
-              <Select 
-                value={newStep.trigger_condition} 
-                onValueChange={(v) => setNewStep(prev => ({ ...prev, trigger_condition: v as SequenceStep['trigger_condition'] }))}
+              <Select
+                value={newStep.trigger_condition}
+                onValueChange={(v) =>
+                  setNewStep((prev) => ({
+                    ...prev,
+                    trigger_condition: v as SequenceStep['trigger_condition'],
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -333,7 +346,7 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
               <Label>Assunto do Email</Label>
               <Input
                 value={newStep.subject}
-                onChange={(e) => setNewStep(prev => ({ ...prev, subject: e.target.value }))}
+                onChange={(e) => setNewStep((prev) => ({ ...prev, subject: e.target.value }))}
                 placeholder="Ex: Re: Proposta Comercial"
               />
             </div>
@@ -342,7 +355,7 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
               <Label>Corpo do Email</Label>
               <Textarea
                 value={newStep.body}
-                onChange={(e) => setNewStep(prev => ({ ...prev, body: e.target.value }))}
+                onChange={(e) => setNewStep((prev) => ({ ...prev, body: e.target.value }))}
                 placeholder="Escreva o conteúdo do email..."
                 rows={6}
               />
@@ -352,8 +365,8 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
               <Button variant="outline" onClick={() => setIsAddingStep(false)}>
                 Cancelar
               </Button>
-              <Button 
-                onClick={handleAddStep} 
+              <Button
+                onClick={handleAddStep}
                 disabled={!newStep.subject || !newStep.body || createStep.isPending}
               >
                 Adicionar Etapa
@@ -361,15 +374,13 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
             </div>
           </CardContent>
         </Card>
-      ) : steps.length > 0 && (
-        <Button 
-          variant="outline" 
-          className="w-full" 
-          onClick={() => setIsAddingStep(true)}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar Etapa
-        </Button>
+      ) : (
+        steps.length > 0 && (
+          <Button variant="outline" className="w-full" onClick={() => setIsAddingStep(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Etapa
+          </Button>
+        )
       )}
     </div>
   );

@@ -14,16 +14,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTheme } from '@/hooks/use-theme';
 import type { Theme } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 interface ModeToggleProps {
   className?: string;
@@ -32,24 +27,30 @@ interface ModeToggleProps {
   size?: 'sm' | 'default' | 'lg';
 }
 
-const themeConfig: { value: Theme; label: string; icon: React.ReactNode; shortLabel: string; gradient: string }[] = [
-  { 
-    value: 'light', 
-    label: 'Modo Claro', 
+const themeConfig: {
+  value: Theme;
+  label: string;
+  icon: React.ReactNode;
+  shortLabel: string;
+  gradient: string;
+}[] = [
+  {
+    value: 'light',
+    label: 'Modo Claro',
     shortLabel: 'Claro',
     icon: <Sun className="h-4 w-4" />,
     gradient: 'from-amber-400 to-orange-500',
   },
-  { 
-    value: 'dark', 
-    label: 'Modo Escuro', 
+  {
+    value: 'dark',
+    label: 'Modo Escuro',
     shortLabel: 'Escuro',
     icon: <Moon className="h-4 w-4" />,
     gradient: 'from-indigo-500 to-purple-600',
   },
-  { 
-    value: 'system', 
-    label: 'Sistema', 
+  {
+    value: 'system',
+    label: 'Sistema',
     shortLabel: 'Auto',
     icon: <Monitor className="h-4 w-4" />,
     gradient: 'from-cyan-400 to-blue-500',
@@ -57,71 +58,86 @@ const themeConfig: { value: Theme; label: string; icon: React.ReactNode; shortLa
 ];
 
 // Animated icon component
-function AnimatedThemeIcon({ theme, resolvedTheme }: { theme: Theme; resolvedTheme: 'light' | 'dark' }) {
+function AnimatedThemeIcon({
+  theme,
+  resolvedTheme,
+}: {
+  theme: Theme;
+  resolvedTheme: 'light' | 'dark';
+}) {
   return (
     <div className="relative h-5 w-5">
       <AnimatePresence mode="wait">
-        {matchFirst([
-  [theme === 'system', () => ((
-          <motion.div
-            key="system"
-            initial={{ scale: 0, rotate: -180, opacity: 0 }}
-            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-            exit={{ scale: 0, rotate: 180, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Monitor className="h-5 w-5" />
-          </motion.div>
-        ))],
-  [resolvedTheme === 'dark', () => ((
-          <motion.div
-            key="dark"
-            initial={{ scale: 0, rotate: -180, opacity: 0 }}
-            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-            exit={{ scale: 0, rotate: 180, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Moon className="h-5 w-5" />
-            {/* Stars animation */}
+        {matchFirst(
+          [
+            [
+              theme === 'system',
+              () => (
+                <motion.div
+                  key="system"
+                  initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                  exit={{ scale: 0, rotate: 180, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <Monitor className="h-5 w-5" />
+                </motion.div>
+              ),
+            ],
+            [
+              resolvedTheme === 'dark',
+              () => (
+                <motion.div
+                  key="dark"
+                  initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                  exit={{ scale: 0, rotate: 180, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <Moon className="h-5 w-5" />
+                  {/* Stars animation */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                    className="absolute -right-1 -top-1"
+                  >
+                    <Sparkles className="h-2 w-2 text-yellow-300" />
+                  </motion.div>
+                </motion.div>
+              ),
+            ],
+          ],
+          () => (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-              className="absolute -top-1 -right-1"
+              key="light"
+              initial={{ scale: 0, rotate: 180, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              exit={{ scale: 0, rotate: -180, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="absolute inset-0 flex items-center justify-center"
             >
-              <Sparkles className="h-2 w-2 text-yellow-300" />
+              <Sun className="h-5 w-5" />
+              {/* Sun rays animation */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-0 flex items-center justify-center opacity-30"
+              >
+                <Sun className="h-7 w-7" />
+              </motion.div>
             </motion.div>
-          </motion.div>
-        ))],
-], () => ((
-          <motion.div
-            key="light"
-            initial={{ scale: 0, rotate: 180, opacity: 0 }}
-            animate={{ scale: 1, rotate: 0, opacity: 1 }}
-            exit={{ scale: 0, rotate: -180, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Sun className="h-5 w-5" />
-            {/* Sun rays animation */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="absolute inset-0 flex items-center justify-center opacity-30"
-            >
-              <Sun className="h-7 w-7" />
-            </motion.div>
-          </motion.div>
-        )))}
+          )
+        )}
       </AnimatePresence>
     </div>
   );
 }
 
-export function ModeToggle({ 
-  className, 
+export function ModeToggle({
+  className,
   variant = 'default',
   showLabel = false,
   size = 'default',
@@ -159,14 +175,14 @@ export function ModeToggle({
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             className={cn(
               sizeClasses[size],
-              'rounded-full border-2 relative overflow-hidden',
+              'relative overflow-hidden rounded-full border-2',
               'bg-gradient-to-br from-background to-muted',
-              'hover:border-primary/50 transition-all duration-300'
+              'transition-all duration-300 hover:border-primary/50'
             )}
             aria-label="Alternar tema"
           >
             <AnimatedThemeIcon theme={theme} resolvedTheme={resolvedTheme} />
-            
+
             {/* Glow effect */}
             <motion.div
               animate={{
@@ -175,7 +191,9 @@ export function ModeToggle({
               }}
               className={cn(
                 'absolute inset-0 rounded-full bg-gradient-to-r',
-                resolvedTheme === 'dark' ? 'from-indigo-500 to-purple-600' : 'from-amber-400 to-orange-500'
+                resolvedTheme === 'dark'
+                  ? 'from-indigo-500 to-purple-600'
+                  : 'from-amber-400 to-orange-500'
               )}
             />
           </Button>
@@ -186,8 +204,8 @@ export function ModeToggle({
 
   // Premium variant with glow and gradient
   if (variant === 'premium') {
-    const currentConfig = themeConfig.find(t => t.value === theme) || themeConfig[0];
-    
+    const currentConfig = themeConfig.find((t) => t.value === theme) || themeConfig[0];
+
     return (
       <motion.div
         className={cn('relative', className)}
@@ -201,53 +219,54 @@ export function ModeToggle({
               size="icon"
               className={cn(
                 sizeClasses[size],
-                'rounded-xl border-2 relative overflow-hidden group',
+                'group relative overflow-hidden rounded-xl border-2',
                 'bg-gradient-to-br from-background via-background to-muted',
-                'hover:border-primary/50 transition-all duration-300'
+                'transition-all duration-300 hover:border-primary/50'
               )}
               aria-label="Alternar tema"
             >
               {/* Background glow */}
               <motion.div
                 className={cn(
-                  'absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity',
+                  'absolute inset-0 opacity-0 transition-opacity group-hover:opacity-20',
                   'bg-gradient-to-br',
                   currentConfig.gradient
                 )}
               />
-              
+
               <AnimatedThemeIcon theme={theme} resolvedTheme={resolvedTheme} />
             </Button>
           </DropdownMenuTrigger>
-          
-          <DropdownMenuContent 
-            align="end" 
-            className="w-48 p-2 bg-background/95 backdrop-blur-lg border-border/50"
+
+          <DropdownMenuContent
+            align="end"
+            className="w-48 border-border/50 bg-background/95 p-2 backdrop-blur-lg"
           >
-            <div className="px-2 py-1.5 mb-2">
+            <div className="mb-2 px-2 py-1.5">
               <p className="text-xs font-medium text-muted-foreground">Aparência</p>
             </div>
-            
+
             {themeConfig.map(({ value, label, icon, gradient }) => (
               <DropdownMenuItem
                 key={value}
                 onClick={() => setTheme(value)}
                 className={cn(
-                  'flex items-center gap-3 cursor-pointer rounded-lg px-3 py-2.5 my-0.5',
+                  'my-0.5 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5',
                   'transition-all duration-200',
                   theme === value && 'bg-primary/10'
                 )}
               >
                 <motion.div
-                  whileHover={{ rotate: matchFirst([
-  [value === 'light', () => (180)],
-  [value === 'dark', () => (-30)],
-], () => (0)) }}
-                  className={cn(
-                    'p-1.5 rounded-lg bg-gradient-to-br',
-                    gradient,
-                    'text-white'
-                  )}
+                  whileHover={{
+                    rotate: matchFirst(
+                      [
+                        [value === 'light', () => 180],
+                        [value === 'dark', () => -30],
+                      ],
+                      () => 0
+                    ),
+                  }}
+                  className={cn('rounded-lg bg-gradient-to-br p-1.5', gradient, 'text-white')}
                 >
                   {icon}
                 </motion.div>
@@ -275,9 +294,9 @@ export function ModeToggle({
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className={cn(sizeClasses[size], className)}
                   aria-label="Alternar tema"
                 >
@@ -288,10 +307,17 @@ export function ModeToggle({
               </DropdownMenuTrigger>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Alternar tema ({matchFirst([
-  [theme === 'system', () => ('automático')],
-  [theme === 'dark', () => ('escuro')],
-], () => ('claro'))})</p>
+              <p>
+                Alternar tema (
+                {matchFirst(
+                  [
+                    [theme === 'system', () => 'automático'],
+                    [theme === 'dark', () => 'escuro'],
+                  ],
+                  () => 'claro'
+                )}
+                )
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -300,13 +326,11 @@ export function ModeToggle({
             <DropdownMenuItem
               key={value}
               onClick={() => setTheme(value)}
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex cursor-pointer items-center gap-2"
             >
               {icon}
               <span>{label}</span>
-              {theme === value && (
-                <span className="ml-auto text-primary">✓</span>
-              )}
+              {theme === value && <span className="ml-auto text-primary">✓</span>}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -317,7 +341,7 @@ export function ModeToggle({
   // Variante com grupo de botões
   if (variant === 'button-group') {
     return (
-      <div className={cn('flex items-center rounded-xl border bg-muted/50 p-1 gap-1', className)}>
+      <div className={cn('flex items-center gap-1 rounded-xl border bg-muted/50 p-1', className)}>
         {themeConfig.map(({ value, shortLabel, icon }) => (
           <motion.div key={value} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
@@ -325,7 +349,7 @@ export function ModeToggle({
               size="sm"
               onClick={() => setTheme(value)}
               className={cn(
-                'flex items-center gap-1.5 px-3 rounded-lg relative overflow-hidden',
+                'relative flex items-center gap-1.5 overflow-hidden rounded-lg px-3',
                 theme === value && 'shadow-md'
               )}
               aria-pressed={theme === value}
@@ -373,10 +397,14 @@ export function ModeToggle({
             >
               <AnimatedThemeIcon theme={theme} resolvedTheme={resolvedTheme} />
               <span className="sr-only">
-                Tema atual: {matchFirst([
-  [theme === 'system', () => ('automático')],
-  [theme === 'dark', () => ('escuro')],
-], () => ('claro'))}
+                Tema atual:{' '}
+                {matchFirst(
+                  [
+                    [theme === 'system', () => 'automático'],
+                    [theme === 'dark', () => 'escuro'],
+                  ],
+                  () => 'claro'
+                )}
               </span>
             </Button>
           </motion.div>
@@ -403,7 +431,7 @@ export function ThemeToggleSimple({ className }: { className?: string }) {
         variant="outline"
         size="icon"
         onClick={toggleTheme}
-        className={cn('rounded-full relative overflow-hidden', className)}
+        className={cn('relative overflow-hidden rounded-full', className)}
         aria-label={`Mudar para modo ${resolvedTheme === 'dark' ? 'claro' : 'escuro'}`}
       >
         <motion.div

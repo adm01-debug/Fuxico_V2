@@ -12,7 +12,10 @@ export interface TourState {
 
 /** Gerencia início, conclusão e persistência dos tours de onboarding. */
 export function useOnboardingTour() {
-  const [completedTours, setCompletedTours] = useLocalStorage<string[]>('fuxico-completed-tours', []);
+  const [completedTours, setCompletedTours] = useLocalStorage<string[]>(
+    'fuxico-completed-tours',
+    []
+  );
   const [tourState, setTourState] = useState<TourState>({
     run: false,
     stepIndex: 0,
@@ -28,33 +31,44 @@ export function useOnboardingTour() {
   }, []);
 
   const stopTour = useCallback(() => {
-    setTourState(prev => ({ ...prev, run: false }));
+    setTourState((prev) => ({ ...prev, run: false }));
   }, []);
 
-  const completeTour = useCallback((tourId: string) => {
-    if (!completedTours.includes(tourId)) {
-      setCompletedTours([...completedTours, tourId]);
-    }
-    stopTour();
-  }, [completedTours, setCompletedTours, stopTour]);
+  const completeTour = useCallback(
+    (tourId: string) => {
+      if (!completedTours.includes(tourId)) {
+        setCompletedTours([...completedTours, tourId]);
+      }
+      stopTour();
+    },
+    [completedTours, setCompletedTours, stopTour]
+  );
 
-  const resetTour = useCallback((tourId: string) => {
-    setCompletedTours(completedTours.filter(id => id !== tourId));
-  }, [completedTours, setCompletedTours]);
+  const resetTour = useCallback(
+    (tourId: string) => {
+      setCompletedTours(completedTours.filter((id) => id !== tourId));
+    },
+    [completedTours, setCompletedTours]
+  );
 
   const resetAllTours = useCallback(() => {
     setCompletedTours([]);
   }, [setCompletedTours]);
 
-  const hasCompletedTour = useCallback((tourId: string) => {
-    return completedTours.includes(tourId);
-  }, [completedTours]);
+  const hasCompletedTour = useCallback(
+    (tourId: string) => {
+      return completedTours.includes(tourId);
+    },
+    [completedTours]
+  );
 
   // Auto-start tour for new users
   useEffect(() => {
     const checkNewUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (user && !hasCompletedTour('dashboard')) {
           // Wait for page to render
           setTimeout(() => {

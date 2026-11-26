@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 
 export interface TrackedDocument {
@@ -35,16 +35,16 @@ export function useTrackedDocuments() {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ["tracked-documents", user?.id],
+    queryKey: ['tracked-documents', user?.id],
     queryFn: async (): Promise<TrackedDocument[]> => {
       if (!user) return [];
 
       // Get documents
       const { data: docs, error: docsError } = await supabase
-        .from("tracked_documents")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .from('tracked_documents')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (docsError) throw docsError;
       if (!docs?.length) return [];
@@ -52,26 +52,33 @@ export function useTrackedDocuments() {
       // Get event counts for each document
       const documentIds = docs.map((d) => d.document_id);
       const { data: events } = await supabase
-        .from("document_events")
-        .select("document_id, event_type, created_at")
-        .in("document_id", documentIds);
+        .from('document_events')
+        .select('document_id, event_type, created_at')
+        .in('document_id', documentIds);
 
       // Aggregate stats
-      const statsMap = new Map<string, { views: number; downloads: number; lastViewed: string | null }>();
-      
+      const statsMap = new Map<
+        string,
+        { views: number; downloads: number; lastViewed: string | null }
+      >();
+
       events?.forEach((event) => {
-        const stats = statsMap.get(event.document_id) || { views: 0, downloads: 0, lastViewed: null };
-        
-        if (event.event_type === "view") {
+        const stats = statsMap.get(event.document_id) || {
+          views: 0,
+          downloads: 0,
+          lastViewed: null,
+        };
+
+        if (event.event_type === 'view') {
           stats.views++;
-        } else if (event.event_type === "download") {
+        } else if (event.event_type === 'download') {
           stats.downloads++;
         }
-        
+
         if (!stats.lastViewed || new Date(event.created_at) > new Date(stats.lastViewed)) {
           stats.lastViewed = event.created_at;
         }
-        
+
         statsMap.set(event.document_id, stats);
       });
 
@@ -95,21 +102,22 @@ export function useTrackedDocuments() {
     },
     enabled: !!user,
     refetchInterval: 120000, // Otimizado: 2 min (era 30s),
-    gcTime: 1000 * 60 * 30, staleTime: 60000, // Considerar fresco por 1 min
+    gcTime: 1000 * 60 * 30,
+    staleTime: 60000, // Considerar fresco por 1 min
   });
 }
 
 export function useDocumentEvents(documentId: string | null) {
   return useQuery({
-    queryKey: ["document-events", documentId],
+    queryKey: ['document-events', documentId],
     queryFn: async (): Promise<DocumentEvent[]> => {
       if (!documentId) return [];
 
       const { data, error } = await supabase
-        .from("document_events")
-        .select("*")
-        .eq("document_id", documentId)
-        .order("created_at", { ascending: false })
+        .from('document_events')
+        .select('*')
+        .eq('document_id', documentId)
+        .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;

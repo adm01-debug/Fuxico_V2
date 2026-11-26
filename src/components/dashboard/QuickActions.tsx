@@ -71,13 +71,13 @@ const itemVariants = {
 };
 
 // Premium Action Card Component
-function ActionCard({ 
-  action, 
-  onAction, 
-  isHovered, 
-  onHover 
-}: { 
-  action: QuickAction; 
+function ActionCard({
+  action,
+  onAction,
+  isHovered,
+  onHover,
+}: {
+  action: QuickAction;
   onAction: () => void;
   isHovered: boolean;
   onHover: (id: string | null) => void;
@@ -90,31 +90,24 @@ function ActionCard({
       onMouseEnter={() => onHover(action.id)}
       onMouseLeave={() => onHover(null)}
     >
-      <TooltipWrapper 
-        content={action.description}
-        shortcut={action.shortcut}
-        side="bottom"
-      >
+      <TooltipWrapper content={action.description} shortcut={action.shortcut} side="bottom">
         <button
           onClick={onAction}
           className={cn(
-            "relative w-full flex flex-col items-center gap-3 p-4 rounded-2xl",
-            "border border-border/50 backdrop-blur-sm",
-            "transition-all duration-300 ease-out",
-            "hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
-            "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2",
-            "group overflow-hidden",
-            action.isPrimary && "border-primary/30 bg-primary/5"
+            'relative flex w-full flex-col items-center gap-3 rounded-2xl p-4',
+            'border border-border/50 backdrop-blur-sm',
+            'transition-all duration-300 ease-out',
+            'hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5',
+            'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2',
+            'group overflow-hidden',
+            action.isPrimary && 'border-primary/30 bg-primary/5'
           )}
         >
           {/* Background gradient on hover */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: isHovered ? 0.1 : 0 }}
-            className={cn(
-              "absolute inset-0 bg-gradient-to-br",
-              action.gradient
-            )}
+            className={cn('absolute inset-0 bg-gradient-to-br', action.gradient)}
           />
 
           {/* Shimmer effect */}
@@ -133,16 +126,16 @@ function ActionCard({
           {/* Icon container */}
           <div className="relative">
             <motion.div
-              animate={{ 
+              animate={{
                 rotate: isHovered ? [0, -10, 10, 0] : 0,
                 scale: isHovered ? 1.1 : 1,
               }}
               transition={{ duration: 0.4 }}
               className={cn(
-                "h-12 w-12 rounded-xl flex items-center justify-center",
-                "bg-gradient-to-br shadow-lg",
+                'flex h-12 w-12 items-center justify-center rounded-xl',
+                'bg-gradient-to-br shadow-lg',
                 action.gradient,
-                "text-white"
+                'text-white'
               )}
             >
               {action.icon}
@@ -153,9 +146,12 @@ function ActionCard({
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="absolute -top-1 -right-1"
+                className="absolute -right-1 -top-1"
               >
-                <Badge variant="default" className="h-4 px-1 text-[10px] bg-gradient-to-r from-green-500 to-emerald-500">
+                <Badge
+                  variant="default"
+                  className="h-4 bg-gradient-to-r from-green-500 to-emerald-500 px-1 text-[10px]"
+                >
                   NEW
                 </Badge>
               </motion.div>
@@ -165,7 +161,7 @@ function ActionCard({
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="absolute -top-1 -right-1"
+                className="absolute -right-1 -top-1"
               >
                 <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
                   {action.badge}
@@ -175,11 +171,11 @@ function ActionCard({
           </div>
 
           {/* Label & Description */}
-          <div className="relative text-center z-10">
-            <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+          <div className="relative z-10 text-center">
+            <p className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
               {action.label}
             </p>
-            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1 hidden sm:block">
+            <p className="mt-0.5 line-clamp-1 hidden text-xs text-muted-foreground sm:block">
               {action.description}
             </p>
           </div>
@@ -187,9 +183,9 @@ function ActionCard({
           {/* Arrow indicator */}
           <motion.div
             initial={{ opacity: 0, x: -10 }}
-            animate={{ 
-              opacity: isHovered ? 1 : 0, 
-              x: isHovered ? 0 : -10 
+            animate={{
+              opacity: isHovered ? 1 : 0,
+              x: isHovered ? 0 : -10,
             }}
             className="absolute bottom-3 right-3"
           >
@@ -201,7 +197,7 @@ function ActionCard({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: isHovered ? 1 : 0.5 }}
-              className="absolute top-2 right-2"
+              className="absolute right-2 top-2"
             >
               <ShortcutBadge shortcut={action.shortcut} className="text-[10px] opacity-60" />
             </motion.div>
@@ -215,13 +211,16 @@ function ActionCard({
 export function QuickActions({ onNavigate, onCreateTracking }: QuickActionsProps) {
   const [hoveredAction, setHoveredAction] = useState<string | null>(null);
 
-  const handleAction = useCallback((action: QuickAction) => {
-    if (action.onClick) {
-      action.onClick();
-    } else if (action.tabId) {
-      onNavigate(action.tabId);
-    }
-  }, [onNavigate]);
+  const handleAction = useCallback(
+    (action: QuickAction) => {
+      if (action.onClick) {
+        action.onClick();
+      } else if (action.tabId) {
+        onNavigate(action.tabId);
+      }
+    },
+    [onNavigate]
+  );
 
   const actions: QuickAction[] = [
     {
@@ -293,7 +292,7 @@ export function QuickActions({ onNavigate, onCreateTracking }: QuickActionsProps
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/20"
             >
               <Zap className="h-5 w-5 text-primary-foreground" />
             </motion.div>
@@ -309,13 +308,13 @@ export function QuickActions({ onNavigate, onCreateTracking }: QuickActionsProps
           </TooltipWrapper>
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent>
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
+          className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6"
         >
           {actions.map((action) => (
             <ActionCard
@@ -334,11 +333,11 @@ export function QuickActions({ onNavigate, onCreateTracking }: QuickActionsProps
 
 // Compact version for sidebar or mobile - Premium version
 export function QuickActionsCompact({ onNavigate, onCreateTracking }: QuickActionsProps) {
-  const mainActions: Array<{ 
-    id: string; 
-    icon: React.ReactNode; 
-    label: string; 
-    tabId?: TabId; 
+  const mainActions: Array<{
+    id: string;
+    icon: React.ReactNode;
+    label: string;
+    tabId?: TabId;
     onClick?: () => void;
     gradient: string;
   }> = [
@@ -372,7 +371,7 @@ export function QuickActionsCompact({ onNavigate, onCreateTracking }: QuickActio
     },
   ];
 
-  const handleClick = (action: typeof mainActions[0]) => {
+  const handleClick = (action: (typeof mainActions)[0]) => {
     if (action.onClick) {
       action.onClick();
     } else if (action.tabId) {
@@ -381,7 +380,7 @@ export function QuickActionsCompact({ onNavigate, onCreateTracking }: QuickActio
   };
 
   return (
-    <div className="flex items-center gap-1.5 p-1.5 bg-muted/50 rounded-xl backdrop-blur-sm border border-border/30">
+    <div className="flex items-center gap-1.5 rounded-xl border border-border/30 bg-muted/50 p-1.5 backdrop-blur-sm">
       {mainActions.map((action, index) => (
         <motion.div
           key={action.id}
@@ -396,18 +395,15 @@ export function QuickActionsCompact({ onNavigate, onCreateTracking }: QuickActio
             size="sm"
             onClick={() => handleClick(action)}
             className={cn(
-              "flex-1 h-9 px-3 rounded-lg gap-1.5",
-              "hover:bg-primary/10 hover:text-primary",
-              "transition-all duration-200"
+              'h-9 flex-1 gap-1.5 rounded-lg px-3',
+              'hover:bg-primary/10 hover:text-primary',
+              'transition-all duration-200'
             )}
           >
-            <span className={cn(
-              "p-1 rounded-md bg-gradient-to-br text-white",
-              action.gradient
-            )}>
+            <span className={cn('rounded-md bg-gradient-to-br p-1 text-white', action.gradient)}>
               {action.icon}
             </span>
-            <span className="text-xs font-medium hidden sm:inline">{action.label}</span>
+            <span className="hidden text-xs font-medium sm:inline">{action.label}</span>
           </Button>
         </motion.div>
       ))}
@@ -446,11 +442,7 @@ export function QuickActionsFAB({ onCreateTracking }: { onCreateTracking?: () =>
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="rounded-full shadow-lg gap-2"
-                >
+                <Button variant="secondary" size="sm" className="gap-2 rounded-full shadow-lg">
                   {item.icon}
                   <span className="text-xs">{item.label}</span>
                 </Button>
@@ -470,17 +462,14 @@ export function QuickActionsFAB({ onCreateTracking }: { onCreateTracking?: () =>
           setIsExpanded(!isExpanded);
         }}
         className={cn(
-          "h-14 w-14 rounded-full shadow-2xl",
-          "bg-gradient-to-br from-primary to-primary/80",
-          "flex items-center justify-center",
-          "hover:shadow-primary/30",
-          "transition-shadow duration-300"
+          'h-14 w-14 rounded-full shadow-2xl',
+          'bg-gradient-to-br from-primary to-primary/80',
+          'flex items-center justify-center',
+          'hover:shadow-primary/30',
+          'transition-shadow duration-300'
         )}
       >
-        <motion.div
-          animate={{ rotate: isExpanded ? 45 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
+        <motion.div animate={{ rotate: isExpanded ? 45 : 0 }} transition={{ duration: 0.2 }}>
           <Plus className="h-6 w-6 text-primary-foreground" />
         </motion.div>
       </motion.button>

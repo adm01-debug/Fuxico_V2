@@ -37,14 +37,14 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const sequence = await createSequence.mutateAsync({
         name,
         description: description || undefined,
         trigger_type: triggerType,
       });
-      
+
       setName('');
       setDescription('');
       setTriggerType('manual');
@@ -64,9 +64,9 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
             Crie uma sequência automatizada de follow-ups baseada em comportamento do destinatário.
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto px-1">
+          <div className="max-h-[60vh] space-y-4 overflow-y-auto px-1 py-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nome da Sequência</Label>
               <Input
@@ -77,7 +77,7 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="description">Descrição (opcional)</Label>
               <Textarea
@@ -88,16 +88,21 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
                 rows={2}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="trigger">Tipo de Gatilho</Label>
-              <Select value={triggerType} onValueChange={(v) => setTriggerType(v as EmailSequence['trigger_type'])}>
+              <Select
+                value={triggerType}
+                onValueChange={(v) => setTriggerType(v as EmailSequence['trigger_type'])}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="manual">Manual - Inscrever contatos manualmente</SelectItem>
-                  <SelectItem value="on_no_response">Sem resposta - Quando não houver abertura</SelectItem>
+                  <SelectItem value="on_no_response">
+                    Sem resposta - Quando não houver abertura
+                  </SelectItem>
                   <SelectItem value="on_open">Ao abrir - Após email ser aberto</SelectItem>
                   <SelectItem value="on_click">Ao clicar - Após clique em link</SelectItem>
                 </SelectContent>
@@ -107,7 +112,7 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
               </p>
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar

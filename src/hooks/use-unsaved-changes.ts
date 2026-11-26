@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
-import { useBlocker } from "react-router-dom";
+import { useCallback, useEffect, useRef } from 'react';
+import { useBlocker } from 'react-router-dom';
 
 /**
  * Hook para prevenir perda de dados em formulários com alterações pendentes.
@@ -18,7 +18,7 @@ export interface UseUnsavedChangesOptions {
 
 export function useUnsavedChanges({
   when,
-  message = "Você tem alterações não salvas. Deseja mesmo sair?",
+  message = 'Você tem alterações não salvas. Deseja mesmo sair?',
   onConfirm,
 }: UseUnsavedChangesOptions) {
   const messageRef = useRef(message);
@@ -31,11 +31,9 @@ export function useUnsavedChanges({
   });
 
   useEffect(() => {
-    if (blocker.state !== "blocked") return;
+    if (blocker.state !== 'blocked') return;
     (async () => {
-      const ok = onConfirm
-        ? await onConfirm()
-        : window.confirm(messageRef.current);
+      const ok = onConfirm ? await onConfirm() : window.confirm(messageRef.current);
       if (ok) blocker.proceed();
       else blocker.reset();
     })();
@@ -50,19 +48,19 @@ export function useUnsavedChanges({
       e.returnValue = messageRef.current;
       return messageRef.current;
     };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
   }, [when]);
 
   const confirmNavigation = useCallback(() => {
-    if (blocker.state === "blocked") blocker.proceed();
+    if (blocker.state === 'blocked') blocker.proceed();
   }, [blocker]);
   const cancelNavigation = useCallback(() => {
-    if (blocker.state === "blocked") blocker.reset();
+    if (blocker.state === 'blocked') blocker.reset();
   }, [blocker]);
 
   return {
-    isBlocked: blocker.state === "blocked",
+    isBlocked: blocker.state === 'blocked',
     confirmNavigation,
     cancelNavigation,
   };

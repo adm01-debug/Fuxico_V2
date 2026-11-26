@@ -1,16 +1,16 @@
-import { useState, useMemo, useRef } from "react";
-import type { TrackedEmail } from "@/features/tracking/lib/tracking-api";
-import { useTrackedEmails } from "@/features/tracking/hooks/use-tracking";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Mail, Eye, MousePointerClick, ChevronRight, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { EmailFiltersComponent } from "./EmailFilters";
-import { useEmailFilters, filterEmails, type EmailFilters } from "@/hooks/use-email-filters";
-import { EmailStatusBadge } from "@/components/ui/email-status-badge";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { motion } from "framer-motion";
+import { useState, useMemo, useRef } from 'react';
+import type { TrackedEmail } from '@/features/tracking/lib/tracking-api';
+import { useTrackedEmails } from '@/features/tracking/hooks/use-tracking';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { Mail, Eye, MousePointerClick, ChevronRight, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { EmailFiltersComponent } from './EmailFilters';
+import { useEmailFilters, filterEmails, type EmailFilters } from '@/hooks/use-email-filters';
+import { EmailStatusBadge } from '@/components/ui/email-status-badge';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { motion } from 'framer-motion';
 
 interface EmailTableProps {
   emails?: TrackedEmail[];
@@ -20,7 +20,9 @@ interface EmailTableProps {
 }
 
 // Helper to determine email status from tracking data
-function getEmailStatus(email: TrackedEmail): 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' {
+function getEmailStatus(
+  email: TrackedEmail
+): 'sent' | 'delivered' | 'opened' | 'clicked' | 'bounced' {
   if (email.delivery_status === 'bounced') return 'bounced';
   if ((email.clicks ?? 0) > 0) return 'clicked';
   if ((email.opens ?? 0) > 0) return 'opened';
@@ -28,17 +30,17 @@ function getEmailStatus(email: TrackedEmail): 'sent' | 'delivered' | 'opened' | 
   return 'sent';
 }
 
-function EmailRow({ 
-  email, 
-  isSelected, 
-  onSelect 
-}: { 
-  email: TrackedEmail; 
-  isSelected: boolean; 
+function EmailRow({
+  email,
+  isSelected,
+  onSelect,
+}: {
+  email: TrackedEmail;
+  isSelected: boolean;
   onSelect: () => void;
 }) {
   const status = getEmailStatus(email);
-  
+
   return (
     <motion.button
       whileHover={{ scale: 1.002, x: 2 }}
@@ -46,63 +48,67 @@ function EmailRow({
       onClick={onSelect}
       aria-pressed={isSelected}
       className={cn(
-        "w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left transition-all duration-200 hover:bg-muted/50 hover-lift touch-target min-h-[4.5rem]",
-        isSelected && "bg-primary/5 border-l-2 border-l-primary",
-        status === 'bounced' && "bg-email-bounced/5"
+        'hover-lift touch-target flex min-h-[4.5rem] w-full items-center gap-3 p-3 text-left transition-all duration-200 hover:bg-muted/50 sm:gap-4 sm:p-4',
+        isSelected && 'border-l-2 border-l-primary bg-primary/5',
+        status === 'bounced' && 'bg-email-bounced/5'
       )}
     >
       {/* Avatar - Hidden on very small screens */}
-      <div className="hidden xs:flex flex-shrink-0">
-        <div className={cn(
-          "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
-          status === 'bounced' && "bg-email-bounced/10 text-email-bounced",
-          status === 'clicked' && "bg-email-clicked/10 text-email-clicked",
-          status === 'opened' && "bg-email-opened/10 text-email-opened",
-          status === 'delivered' && "bg-email-delivered/10 text-email-delivered",
-          status === 'sent' && "bg-email-sent/10 text-email-sent"
-        )}>
+      <div className="hidden flex-shrink-0 xs:flex">
+        <div
+          className={cn(
+            'flex h-10 w-10 items-center justify-center rounded-full transition-colors',
+            status === 'bounced' && 'bg-email-bounced/10 text-email-bounced',
+            status === 'clicked' && 'bg-email-clicked/10 text-email-clicked',
+            status === 'opened' && 'bg-email-opened/10 text-email-opened',
+            status === 'delivered' && 'bg-email-delivered/10 text-email-delivered',
+            status === 'sent' && 'bg-email-sent/10 text-email-sent'
+          )}
+        >
           <Mail className="h-5 w-5" />
         </div>
       </div>
-      
+
       {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="font-medium truncate text-sm sm:text-base">{email.recipient_email}</p>
-          <EmailStatusBadge 
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="truncate text-sm font-medium sm:text-base">{email.recipient_email}</p>
+          <EmailStatusBadge
             status={status}
             bounceType={email.bounce_type}
             bounceReason={email.bounce_reason}
             showIcon
           />
         </div>
-        <p className="text-xs sm:text-sm text-muted-foreground truncate">
-          {email.subject || "Sem assunto"}
+        <p className="truncate text-xs text-muted-foreground sm:text-sm">
+          {email.subject || 'Sem assunto'}
         </p>
-        <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
-          {formatDistanceToNow(new Date(email.created_at), { 
+        <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
+          {formatDistanceToNow(new Date(email.created_at), {
             addSuffix: true,
-            locale: ptBR 
+            locale: ptBR,
           })}
         </p>
       </div>
-      
+
       {/* Stats - Responsive layout */}
-      <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center gap-2 sm:gap-4">
         {/* Opens - Always visible */}
         <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
             <div className="flex items-center gap-1 text-sm">
               <Eye className="h-4 w-4 text-muted-foreground" />
-              <span className={cn(
-                "font-medium tabular-nums",
-                (email.opens ?? 0) > 0 ? "text-email-opened" : "text-muted-foreground"
-              )}>
+              <span
+                className={cn(
+                  'font-medium tabular-nums',
+                  (email.opens ?? 0) > 0 ? 'text-email-opened' : 'text-muted-foreground'
+                )}
+              >
                 {email.opens ?? 0}
               </span>
               {/* Self opens - Hidden on mobile */}
               {(email.selfOpens ?? 0) > 0 && (
-                <span className="text-xs text-muted-foreground hidden sm:inline">
+                <span className="hidden text-xs text-muted-foreground sm:inline">
                   (+{email.selfOpens})
                 </span>
               )}
@@ -115,18 +121,20 @@ function EmailRow({
             )}
           </TooltipContent>
         </Tooltip>
-        
+
         {/* Clicks - Visible on sm+ */}
-        <div className="hidden sm:flex items-center gap-1 text-sm">
+        <div className="hidden items-center gap-1 text-sm sm:flex">
           <MousePointerClick className="h-4 w-4 text-muted-foreground" />
-          <span className={cn(
-            "font-medium tabular-nums",
-            (email.clicks ?? 0) > 0 ? "text-email-clicked" : "text-muted-foreground"
-          )}>
+          <span
+            className={cn(
+              'font-medium tabular-nums',
+              (email.clicks ?? 0) > 0 ? 'text-email-clicked' : 'text-muted-foreground'
+            )}
+          >
             {email.clicks ?? 0}
           </span>
         </div>
-        
+
         {/* Chevron */}
         <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
       </div>
@@ -137,7 +145,7 @@ function EmailRow({
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-      <Mail className="h-12 w-12 mb-4 opacity-50" />
+      <Mail className="mb-4 h-12 w-12 opacity-50" />
       {hasFilters ? (
         <>
           <p className="text-lg font-medium">Nenhum resultado encontrado</p>
@@ -153,7 +161,12 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   );
 }
 
-export function EmailTable({ emails: externalEmails, selectedId: externalSelectedId, onSelect: externalOnSelect, showFilters = true }: EmailTableProps) {
+export function EmailTable({
+  emails: externalEmails,
+  selectedId: externalSelectedId,
+  onSelect: externalOnSelect,
+  showFilters = true,
+}: EmailTableProps) {
   const { data: fetchedEmails, isLoading } = useTrackedEmails();
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
   const parentRef = useRef<HTMLDivElement>(null);
@@ -161,13 +174,13 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
   // Identidade estável do array evita invalidar o memo de filtragem a cada render.
   const emails = useMemo(
     () => externalEmails ?? (fetchedEmails as TrackedEmail[] | undefined) ?? [],
-    [externalEmails, fetchedEmails],
+    [externalEmails, fetchedEmails]
   );
   const selectedId = externalSelectedId ?? internalSelectedId;
   const onSelect = externalOnSelect ?? setInternalSelectedId;
 
   const { filters, setFilters, hasActiveFilters } = useEmailFilters();
-  
+
   const filteredEmails = useMemo(() => {
     return filterEmails(emails, filters);
   }, [emails, filters]);
@@ -194,9 +207,9 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col h-full">
+      <div className="flex h-full flex-col">
         {showFilters && (
-          <div className="p-4 border-b bg-muted/30">
+          <div className="border-b bg-muted/30 p-4">
             <EmailFiltersComponent
               filters={filters}
               onFiltersChange={setFilters}
@@ -212,7 +225,7 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
           // Renderização simples sem virtualização (listas com até 30 itens)
           <div
             ref={parentRef}
-            className="flex-1 min-h-[400px] overflow-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
+            className="scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 min-h-[400px] flex-1 overflow-auto"
             role="region"
             aria-label="Lista de emails rastreados"
           >
@@ -231,7 +244,7 @@ export function EmailTable({ emails: externalEmails, selectedId: externalSelecte
           // Virtualização para listas grandes
           <div
             ref={parentRef}
-            className="flex-1 min-h-[500px] overflow-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
+            className="scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 min-h-[500px] flex-1 overflow-auto"
             role="region"
             aria-label="Lista de emails rastreados"
           >

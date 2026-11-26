@@ -71,6 +71,11 @@ export default tseslint.config(
       "sonarjs/no-empty-collection": "off",
       "sonarjs/assertions-in-tests": "off",
       "sonarjs/slow-regex": "off",
+      "sonarjs/super-linear-regex": "off",
+      "sonarjs/no-trivial-assertions": "off",
+      "sonarjs/prefer-specific-assertions": "off",
+      "sonarjs/no-fixed-wait-in-tests": "off",
+      "sonarjs/parameterized-tests": "off",
       "sonarjs/no-hardcoded-passwords": "off",
       "sonarjs/regex-complexity": "off",
       "sonarjs/concise-regex": "off",
@@ -113,6 +118,28 @@ export default tseslint.config(
     files: ["scripts/**/*.{ts,js,cjs}"],
     rules: {
       "no-console": "off",
+    },
+  },
+  {
+    // Regras do React Compiler (react-hooks v6) ainda sao opinativas:
+    // ficam como aviso sem reprovar a CI.
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/purity": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/static-components": "warn",
+      "react-hooks/immutability": "warn",
+    },
+  },
+  // previewAuthStorage.ts e gerado automaticamente pelo Lovable; nao editar.
+  // Math.random ali e apenas id de correlacao (nao e segredo).
+  {
+    files: ["src/integrations/supabase/previewAuthStorage.ts"],
+    rules: {
+      "sonarjs/no-nested-conditional": "off",
+      "sonarjs/pseudo-random": "off",
+      "prefer-const": "off",
     },
   },
 

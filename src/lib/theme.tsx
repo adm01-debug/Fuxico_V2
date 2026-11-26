@@ -5,8 +5,13 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
-import { matchFirst } from "@/lib/variant";
-import { ThemeContext, type Theme, type ResolvedTheme, type ThemeContextType } from '@/lib/theme-context';
+import { matchFirst } from '@/lib/variant';
+import {
+  ThemeContext,
+  type Theme,
+  type ResolvedTheme,
+  type ThemeContextType,
+} from '@/lib/theme-context';
 import { useTheme } from '@/hooks/use-theme';
 
 // =============================================================================
@@ -18,7 +23,6 @@ export type { Theme, ResolvedTheme };
 // =============================================================================
 // CONTEXTO
 // =============================================================================
-
 
 // =============================================================================
 // PROVIDER
@@ -65,45 +69,46 @@ export function ThemeProvider({
   const resolveTheme = useCallback((themeToResolve: Theme): ResolvedTheme => {
     if (themeToResolve === 'system') {
       if (typeof window !== 'undefined') {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches 
-          ? 'dark' 
-          : 'light';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
       return 'light';
     }
     return themeToResolve;
   }, []);
 
-  const applyTheme = useCallback((resolvedThemeValue: ResolvedTheme) => {
-    const root = window.document.documentElement;
-    
-    if (disableTransitionOnChange) {
-      root.style.setProperty('--transition-duration', '0s');
-    }
-    
-    if (attribute === 'class') {
-      root.classList.remove('light', 'dark');
-      root.classList.add(resolvedThemeValue);
-    } else {
-      root.setAttribute('data-theme', resolvedThemeValue);
-    }
-    
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute(
-        'content',
-        resolvedThemeValue === 'dark' ? '#1a1a2e' : '#ffffff'
-      );
-    }
-    
-    if (disableTransitionOnChange) {
-      requestAnimationFrame(() => {
+  const applyTheme = useCallback(
+    (resolvedThemeValue: ResolvedTheme) => {
+      const root = window.document.documentElement;
+
+      if (disableTransitionOnChange) {
+        root.style.setProperty('--transition-duration', '0s');
+      }
+
+      if (attribute === 'class') {
+        root.classList.remove('light', 'dark');
+        root.classList.add(resolvedThemeValue);
+      } else {
+        root.setAttribute('data-theme', resolvedThemeValue);
+      }
+
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute(
+          'content',
+          resolvedThemeValue === 'dark' ? '#1a1a2e' : '#ffffff'
+        );
+      }
+
+      if (disableTransitionOnChange) {
         requestAnimationFrame(() => {
-          root.style.removeProperty('--transition-duration');
+          requestAnimationFrame(() => {
+            root.style.removeProperty('--transition-duration');
+          });
         });
-      });
-    }
-  }, [attribute, disableTransitionOnChange]);
+      }
+    },
+    [attribute, disableTransitionOnChange]
+  );
 
   // Apply theme whenever theme preference changes
   useEffect(() => {
@@ -118,7 +123,7 @@ export function ThemeProvider({
     if (theme !== 'system') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleChange = () => {
       const resolved = resolveTheme('system');
       setResolvedTheme(resolved);
@@ -134,7 +139,7 @@ export function ThemeProvider({
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setThemeState(current => {
+    setThemeState((current) => {
       if (current === 'system') {
         return resolvedTheme === 'dark' ? 'light' : 'dark';
       }
@@ -150,26 +155,21 @@ export function ThemeProvider({
     isDark: resolvedTheme === 'dark',
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 // =============================================================================
 // HOOK
 // =============================================================================
 
-
 // =============================================================================
 // COMPONENTES
 // =============================================================================
 
-export function ThemeToggle({ 
+export function ThemeToggle({
   className = '',
   showLabel = false,
-}: { 
+}: {
   className?: string;
   showLabel?: boolean;
 }) {
@@ -182,19 +182,25 @@ export function ThemeToggle({
     setTheme(themes[nextIndex]);
   };
 
-  const Icon = matchFirst([
-  [theme === 'system', () => (Monitor)],
-  [isDark, () => (Moon)],
-], () => (Sun));
-  const label = matchFirst([
-  [theme === 'system', () => ('Sistema')],
-  [isDark, () => ('Escuro')],
-], () => ('Claro'));
+  const Icon = matchFirst(
+    [
+      [theme === 'system', () => Monitor],
+      [isDark, () => Moon],
+    ],
+    () => Sun
+  );
+  const label = matchFirst(
+    [
+      [theme === 'system', () => 'Sistema'],
+      [isDark, () => 'Escuro'],
+    ],
+    () => 'Claro'
+  );
 
   return (
     <button
       onClick={cycleTheme}
-      className={`inline-flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors ${className}`}
+      className={`inline-flex items-center gap-2 rounded-lg p-2 transition-colors hover:bg-accent ${className}`}
       aria-label={`Tema atual: ${label}. Clique para alternar.`}
       title={`Tema: ${label}`}
     >
@@ -214,18 +220,16 @@ export function ThemeSelector({ className = '' }: { className?: string }) {
   ];
 
   return (
-    <div className={`flex gap-1 p-1 bg-muted rounded-lg ${className}`}>
-      {options.map(option => (
+    <div className={`flex gap-1 rounded-lg bg-muted p-1 ${className}`}>
+      {options.map((option) => (
         <button
           key={option.value}
           onClick={() => setTheme(option.value)}
-          className={`
-            flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors
-            ${theme === option.value 
-              ? 'bg-background text-foreground shadow-sm' 
+          className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${
+            theme === option.value
+              ? 'bg-background text-foreground shadow-sm'
               : 'text-muted-foreground hover:text-foreground'
-            }
-          `}
+          } `}
           aria-pressed={theme === option.value}
         >
           {option.icon}
@@ -235,4 +239,3 @@ export function ThemeSelector({ className = '' }: { className?: string }) {
     </div>
   );
 }
-

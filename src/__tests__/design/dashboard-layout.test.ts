@@ -14,15 +14,42 @@ const layoutContent = fs.readFileSync(
 
 describe('DashboardLayout - Tab Components Mapping', () => {
   const allTabs = [
-    'home', 'emails', 'links', 'documents', 'reports', 'analytics',
-    'geo', 'scheduling', 'deliverability', 'bouncealerts', 'notifications',
-    'leads', 'followup', 'insights', 'campaigns', 'abtesting', 'unsubscribe',
-    'sequences', 'templates', 'audit', 'users', 'config', 'bitrix',
-    'webhooks', 'integrations', 'trends', 'featureflags', 'realtime',
-    'ai-optimizer', 'push-notifications', 'whatsapp', 'benchmark', 'segmentation',
+    'home',
+    'emails',
+    'links',
+    'documents',
+    'reports',
+    'analytics',
+    'geo',
+    'scheduling',
+    'deliverability',
+    'bouncealerts',
+    'notifications',
+    'leads',
+    'followup',
+    'insights',
+    'campaigns',
+    'abtesting',
+    'unsubscribe',
+    'sequences',
+    'templates',
+    'audit',
+    'users',
+    'config',
+    'bitrix',
+    'webhooks',
+    'integrations',
+    'trends',
+    'featureflags',
+    'realtime',
+    'ai-optimizer',
+    'push-notifications',
+    'whatsapp',
+    'benchmark',
+    'segmentation',
   ];
 
-  allTabs.forEach(tab => {
+  allTabs.forEach((tab) => {
     it(`should map tab '${tab}' to a component`, () => {
       // Handle tabs with hyphens differently
       const tabKey = tab.includes('-') ? `'${tab}'` : `${tab}:`;
@@ -105,13 +132,16 @@ describe('DashboardLayout - Skeleton Variants Mapping', () => {
 
   Object.entries(skeletonMappings).forEach(([tab, variant]) => {
     it(`tab '${tab}' should use '${variant}' skeleton`, () => {
-      const hasMapping = layoutContent.includes(`${tab}: '${variant}'`) || layoutContent.includes(`'${tab}': '${variant}'`);
+      const hasMapping =
+        layoutContent.includes(`${tab}: '${variant}'`) ||
+        layoutContent.includes(`'${tab}': '${variant}'`);
       expect(hasMapping).toBe(true);
     });
   });
 
   it('should have skeleton variants for all 33 tabs', () => {
-    const variantBlock = layoutContent.match(/TAB_SKELETON_VARIANTS[^}]+\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/s)?.[0] || '';
+    const variantBlock =
+      layoutContent.match(/TAB_SKELETON_VARIANTS[^}]+\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/s)?.[0] || '';
     const entries = variantBlock.match(/\w[\w-]*['"]?\s*:\s*'/g);
     expect(entries?.length).toBeGreaterThanOrEqual(30);
   });
@@ -119,18 +149,39 @@ describe('DashboardLayout - Skeleton Variants Mapping', () => {
 
 describe('DashboardLayout - Lazy Loading', () => {
   const lazyComponents = [
-    'DashboardHome', 'EmailTable', 'LinksTab', 'DocumentsTab',
-    'ReportsTab', 'GeoAnalyticsTab', 'EmailSchedulingTab',
-    'DeliverabilityTab', 'BounceAlertsTab', 'NotificationHistoryTab',
-    'LeadScoringTab', 'FollowUpTab', 'CampaignsTab', 'ABTestingTab',
-    'UnsubscribeTab', 'SequencesTab', 'TemplatesTab', 'AuditTab',
-    'UserRolesTab', 'AuditConfigTab', 'BitrixTab', 'WebhookTab',
-    'TrendPredictionTab', 'FeatureFlagsTab', 'RealtimeAnalyticsTab',
-    'AISubjectOptimizerTab', 'PushNotificationsTab', 'WhatsAppIntegrationTab',
-    'BenchmarkReportsTab', 'SmartSegmentationTab',
+    'DashboardHome',
+    'EmailTable',
+    'LinksTab',
+    'DocumentsTab',
+    'ReportsTab',
+    'GeoAnalyticsTab',
+    'EmailSchedulingTab',
+    'DeliverabilityTab',
+    'BounceAlertsTab',
+    'NotificationHistoryTab',
+    'LeadScoringTab',
+    'FollowUpTab',
+    'CampaignsTab',
+    'ABTestingTab',
+    'UnsubscribeTab',
+    'SequencesTab',
+    'TemplatesTab',
+    'AuditTab',
+    'UserRolesTab',
+    'AuditConfigTab',
+    'BitrixTab',
+    'WebhookTab',
+    'TrendPredictionTab',
+    'FeatureFlagsTab',
+    'RealtimeAnalyticsTab',
+    'AISubjectOptimizerTab',
+    'PushNotificationsTab',
+    'WhatsAppIntegrationTab',
+    'BenchmarkReportsTab',
+    'SmartSegmentationTab',
   ];
 
-  lazyComponents.forEach(component => {
+  lazyComponents.forEach((component) => {
     it(`should lazy load ${component}`, () => {
       expect(layoutContent).toContain(`const ${component} = lazy(`);
     });

@@ -3,13 +3,20 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Shield, Loader2, ArrowLeft, KeyRound, Copy, CheckCircle } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { generateBackupCodes } from "@/lib/secure-random";
+import { generateBackupCodes } from '@/lib/secure-random';
 
 interface MFASettings {
   is_enabled: boolean;
@@ -51,7 +58,7 @@ export default function TwoFactorAuth() {
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
-      
+
       setMfaSettings(data);
     } catch (err) {
       log.error('Error loading MFA settings:', err);
@@ -183,21 +190,21 @@ export default function TwoFactorAuth() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background p-4">
-      <div className="max-w-2xl mx-auto">
-        <Button 
-          variant="ghost" 
+      <div className="mx-auto max-w-2xl">
+        <Button
+          variant="ghost"
           className="mb-4"
-          onClick={() => step === 'overview' ? navigate(-1) : setStep('overview')}
+          onClick={() => (step === 'overview' ? navigate(-1) : setStep('overview'))}
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar
         </Button>
 
@@ -205,8 +212,8 @@ export default function TwoFactorAuth() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-primary" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                  <Shield className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <CardTitle>Autenticação de Dois Fatores</CardTitle>
@@ -217,22 +224,21 @@ export default function TwoFactorAuth() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="p-4 bg-muted rounded-lg">
+              <div className="rounded-lg bg-muted p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <KeyRound className="w-5 h-5 text-muted-foreground" />
+                    <KeyRound className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">App Autenticador</p>
                       <p className="text-sm text-muted-foreground">
-                        {mfaSettings?.is_enabled 
+                        {mfaSettings?.is_enabled
                           ? `Ativado em ${new Date(mfaSettings.enrolled_at ?? Date.now()).toLocaleDateString()}`
-                          : 'Use Google Authenticator, Authy ou similar'
-                        }
+                          : 'Use Google Authenticator, Authy ou similar'}
                       </p>
                     </div>
                   </div>
                   {mfaSettings?.is_enabled ? (
-                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-green-500" />
                   ) : null}
                 </div>
               </div>
@@ -255,47 +261,37 @@ export default function TwoFactorAuth() {
           <Card>
             <CardHeader>
               <CardTitle>Configurar App Autenticador</CardTitle>
-              <CardDescription>
-                Escaneie o QR code com seu app autenticador
-              </CardDescription>
+              <CardDescription>Escaneie o QR code com seu app autenticador</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex justify-center">
                 {qrCode && (
-                  <img 
-                    src={qrCode} 
-                    alt="QR Code MFA" 
-                    className="w-48 h-48 rounded-lg border"
-                  />
+                  <img src={qrCode} alt="QR Code MFA" className="h-48 w-48 rounded-lg border" />
                 )}
               </div>
 
               <div className="space-y-2">
                 <Label>Ou digite o código manualmente:</Label>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 p-2 bg-muted rounded text-sm font-mono break-all">
+                  <code className="flex-1 break-all rounded bg-muted p-2 font-mono text-sm">
                     {secret}
                   </code>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="icon"
                     onClick={() => {
                       navigator.clipboard.writeText(secret);
                       toast.success('Código copiado!');
                     }}
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Digite o código de 6 dígitos do app:</Label>
-                <InputOTP 
-                  maxLength={6} 
-                  value={verifyCode} 
-                  onChange={setVerifyCode}
-                >
+                <InputOTP maxLength={6} value={verifyCode} onChange={setVerifyCode}>
                   <InputOTPGroup className="justify-center">
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />
@@ -308,14 +304,14 @@ export default function TwoFactorAuth() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 onClick={verifyAndActivate}
                 disabled={verifying || verifyCode.length !== 6}
               >
                 {verifying ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Verificando...
                   </>
                 ) : (
@@ -331,36 +327,37 @@ export default function TwoFactorAuth() {
             <CardHeader>
               <CardTitle>Códigos de Backup</CardTitle>
               <CardDescription>
-                Salve esses códigos em um local seguro. Você pode usá-los para acessar sua conta caso perca acesso ao app autenticador.
+                Salve esses códigos em um local seguro. Você pode usá-los para acessar sua conta
+                caso perca acesso ao app autenticador.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-2">
                 {backupCodes.map((code, index) => (
-                  <div 
+                  <div
                     key={index}
-                    className="flex items-center justify-between p-2 bg-muted rounded font-mono text-sm cursor-pointer hover:bg-muted/80"
+                    className="flex cursor-pointer items-center justify-between rounded bg-muted p-2 font-mono text-sm hover:bg-muted/80"
                     onClick={() => copyCode(code, index)}
                   >
                     <span>{code}</span>
                     {copiedIndex === index ? (
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="h-4 w-4 text-green-500" />
                     ) : (
-                      <Copy className="w-4 h-4 text-muted-foreground" />
+                      <Copy className="h-4 w-4 text-muted-foreground" />
                     )}
                   </div>
                 ))}
               </div>
 
               <Button variant="outline" className="w-full" onClick={copyAllCodes}>
-                <Copy className="w-4 h-4 mr-2" />
+                <Copy className="mr-2 h-4 w-4" />
                 Copiar Todos os Códigos
               </Button>
 
-              <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+              <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4">
                 <p className="text-sm text-yellow-600 dark:text-yellow-500">
-                  <strong>Importante:</strong> Cada código só pode ser usado uma vez. 
-                  Guarde-os em um local seguro e não compartilhe com ninguém.
+                  <strong>Importante:</strong> Cada código só pode ser usado uma vez. Guarde-os em
+                  um local seguro e não compartilhe com ninguém.
                 </p>
               </div>
             </CardContent>

@@ -77,7 +77,7 @@ const Sentry = mockSentry;
 // Initialize Sentry
 export function initSentry(): void {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
-  
+
   if (!dsn) {
     if (import.meta.env.DEV) {
       console.info('[Sentry] No DSN configured - using mock implementation');
@@ -96,10 +96,7 @@ export function initSentry(): void {
 }
 
 // Capture exception with context
-export function captureException(
-  error: Error,
-  context?: Record<string, unknown>
-): string {
+export function captureException(error: Error, context?: Record<string, unknown>): string {
   return Sentry.captureException(error, context);
 }
 
@@ -122,10 +119,7 @@ export function setTag(key: string, value: string): void {
 }
 
 // Set context
-export function setContext(
-  name: string,
-  context: Record<string, unknown> | null
-): void {
+export function setContext(name: string, context: Record<string, unknown> | null): void {
   Sentry.setContext(name, context);
 }
 

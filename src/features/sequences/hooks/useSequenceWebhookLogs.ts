@@ -26,7 +26,9 @@ export function useSequenceWebhookLogs(limit = 20) {
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return [];
 
       const { data } = await supabase

@@ -77,10 +77,10 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <div className="flex min-h-screen items-center justify-center bg-background p-4">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
               <CardTitle>Algo deu errado</CardTitle>
@@ -90,36 +90,29 @@ class ErrorBoundary extends Component<Props, State> {
             </CardHeader>
             <CardContent className="space-y-4">
               {import.meta.env.DEV && this.state.error && (
-                <div className="p-3 bg-muted rounded-lg text-sm font-mono overflow-auto max-h-32">
-                  <p className="text-destructive font-semibold">{this.state.error.message}</p>
+                <div className="max-h-32 overflow-auto rounded-lg bg-muted p-3 font-mono text-sm">
+                  <p className="font-semibold text-destructive">{this.state.error.message}</p>
                   {this.state.errorInfo && (
-                    <pre className="mt-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                    <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">
                       {this.state.errorInfo.componentStack}
                     </pre>
                   )}
                 </div>
               )}
-              
+
               {this.state.eventId && (
-                <p className="text-xs text-muted-foreground text-center">
+                <p className="text-center text-xs text-muted-foreground">
                   ID do erro: {this.state.eventId}
                 </p>
               )}
 
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={this.handleGoHome}
-                >
-                  <Home className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="flex-1" onClick={this.handleGoHome}>
+                  <Home className="mr-2 h-4 w-4" />
                   Início
                 </Button>
-                <Button 
-                  className="flex-1"
-                  onClick={this.handleReload}
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                <Button className="flex-1" onClick={this.handleReload}>
+                  <RefreshCw className="mr-2 h-4 w-4" />
                   Recarregar
                 </Button>
               </div>

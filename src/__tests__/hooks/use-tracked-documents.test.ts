@@ -9,8 +9,11 @@ describe('useTrackedDocuments - stats aggregation', () => {
       { document_id: 'd2', event_type: 'view', created_at: '2026-01-02T10:00:00Z' },
     ];
 
-    const statsMap = new Map<string, { views: number; downloads: number; lastViewed: string | null }>();
-    events.forEach(e => {
+    const statsMap = new Map<
+      string,
+      { views: number; downloads: number; lastViewed: string | null }
+    >();
+    events.forEach((e) => {
       const stats = statsMap.get(e.document_id) || { views: 0, downloads: 0, lastViewed: null };
       if (e.event_type === 'view') stats.views++;
       else if (e.event_type === 'download') stats.downloads++;

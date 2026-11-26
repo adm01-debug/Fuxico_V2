@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
   const p95 = latencies[Math.floor(latencies.length * 0.95)] ?? 0;
 
   // 6) Verifica get-tracking-stats retorna coerente (se existir a RPC/função)
-  let statsCheck: unknown = null;
+  let statsCheck: unknown;
   try {
     const { data: stats } = await adminClient
       .from("tracked_emails")

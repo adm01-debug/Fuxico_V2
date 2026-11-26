@@ -3,14 +3,24 @@ import { motion } from 'framer-motion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
-  Mail, Eye, MousePointerClick, Bell, Globe, Zap,
-  Check, Sparkles, Rocket, Star, Shield, BarChart3, Trophy,
+  Mail,
+  Eye,
+  MousePointerClick,
+  Bell,
+  Globe,
+  Zap,
+  Check,
+  Sparkles,
+  Rocket,
+  Star,
+  Shield,
+  BarChart3,
+  Trophy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PulseRing, CelebrationBurst } from '@/components/ui/confetti';
 import { ArrowRight } from 'lucide-react';
 import { FeatureCard } from './FeatureCard';
-
 
 export interface WizardStep {
   id: string;
@@ -42,25 +52,55 @@ export function createWizardSteps(
       color: 'from-primary/20 to-primary/5',
       content: (
         <div className="space-y-6 text-center">
-          <motion.div className="flex justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}>
+          <motion.div
+            className="flex justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+          >
             <div className="relative">
               <PulseRing show={true} color="primary" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-2xl">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/60 shadow-2xl">
                   <Mail className="h-12 w-12 text-primary-foreground" />
                 </div>
               </div>
             </div>
           </motion.div>
-          <motion.div className="space-y-2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+          <motion.div
+            className="space-y-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
             <h3 className="text-xl font-semibold">Saiba exatamente quando seus emails são lidos</h3>
-            <p className="text-muted-foreground">O FUXICO usa tecnologia de pixel invisível para rastrear aberturas e cliques sem que o destinatário perceba.</p>
+            <p className="text-muted-foreground">
+              O FUXICO usa tecnologia de pixel invisível para rastrear aberturas e cliques sem que o
+              destinatário perceba.
+            </p>
           </motion.div>
           <div className="grid grid-cols-3 gap-3 pt-4">
-            <FeatureCard icon={Eye} title="Aberturas" description="Saiba quando leem" color="from-blue-500/10 to-blue-500/5" delay={0.5} />
-            <FeatureCard icon={MousePointerClick} title="Cliques" description="Monitore links" color="from-green-500/10 to-green-500/5" delay={0.6} />
-            <FeatureCard icon={Bell} title="Alertas" description="Em tempo real" color="from-purple-500/10 to-purple-500/5" delay={0.7} />
+            <FeatureCard
+              icon={Eye}
+              title="Aberturas"
+              description="Saiba quando leem"
+              color="from-blue-500/10 to-blue-500/5"
+              delay={0.5}
+            />
+            <FeatureCard
+              icon={MousePointerClick}
+              title="Cliques"
+              description="Monitore links"
+              color="from-green-500/10 to-green-500/5"
+              delay={0.6}
+            />
+            <FeatureCard
+              icon={Bell}
+              title="Alertas"
+              description="Em tempo real"
+              color="from-purple-500/10 to-purple-500/5"
+              delay={0.7}
+            />
           </div>
         </div>
       ),
@@ -74,20 +114,51 @@ export function createWizardSteps(
       content: (
         <div className="space-y-4">
           {[
-            { step: 1, title: 'Crie um rastreamento', description: 'Gere um pixel único para cada email', icon: <Mail className="h-5 w-5" />, color: 'from-blue-500 to-blue-600' },
-            { step: 2, title: 'Adicione ao seu email', description: 'Insira o pixel ou use nossa extensão', icon: <Globe className="h-5 w-5" />, color: 'from-green-500 to-green-600' },
-            { step: 3, title: 'Receba notificações', description: 'Alertas em tempo real quando abrem', icon: <Bell className="h-5 w-5" />, color: 'from-purple-500 to-purple-600' },
+            {
+              step: 1,
+              title: 'Crie um rastreamento',
+              description: 'Gere um pixel único para cada email',
+              icon: <Mail className="h-5 w-5" />,
+              color: 'from-blue-500 to-blue-600',
+            },
+            {
+              step: 2,
+              title: 'Adicione ao seu email',
+              description: 'Insira o pixel ou use nossa extensão',
+              icon: <Globe className="h-5 w-5" />,
+              color: 'from-green-500 to-green-600',
+            },
+            {
+              step: 3,
+              title: 'Receba notificações',
+              description: 'Alertas em tempo real quando abrem',
+              icon: <Bell className="h-5 w-5" />,
+              color: 'from-purple-500 to-purple-600',
+            },
           ].map((item, index) => (
-            <motion.div key={item.step} className="flex items-start gap-4 p-4 bg-muted/30 rounded-xl border border-border/50 hover:border-primary/30 transition-all"
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + index * 0.1 }} whileHover={{ x: 5 }}>
-              <motion.div className={cn("flex-shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br text-white flex items-center justify-center font-bold shadow-lg", item.color)}
-                whileHover={{ scale: 1.1, rotate: 5 }}>{item.step}</motion.div>
+            <motion.div
+              key={item.step}
+              className="flex items-start gap-4 rounded-xl border border-border/50 bg-muted/30 p-4 transition-all hover:border-primary/30"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 + index * 0.1 }}
+              whileHover={{ x: 5 }}
+            >
+              <motion.div
+                className={cn(
+                  'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br font-bold text-white shadow-lg',
+                  item.color
+                )}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                {item.step}
+              </motion.div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">{item.icon}</span>
                   <h4 className="font-semibold">{item.title}</h4>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground/30" />
             </motion.div>
@@ -104,24 +175,77 @@ export function createWizardSteps(
       content: (
         <div className="space-y-3">
           {[
-            { id: 'notifyOnOpen', label: 'Notificar quando email for aberto', description: 'Receba um alerta a cada abertura', icon: Eye, checked: preferences.notifyOnOpen },
-            { id: 'notifyOnClick', label: 'Notificar quando link for clicado', description: 'Saiba quando clicam nos seus links', icon: MousePointerClick, checked: preferences.notifyOnClick },
-            { id: 'desktopNotifications', label: 'Notificações no desktop', description: 'Receba notificações mesmo fora do app', icon: Bell, checked: preferences.desktopNotifications },
-            { id: 'emailDigest', label: 'Resumo diário por email', description: 'Receba um resumo das atividades', icon: Mail, checked: preferences.emailDigest },
+            {
+              id: 'notifyOnOpen',
+              label: 'Notificar quando email for aberto',
+              description: 'Receba um alerta a cada abertura',
+              icon: Eye,
+              checked: preferences.notifyOnOpen,
+            },
+            {
+              id: 'notifyOnClick',
+              label: 'Notificar quando link for clicado',
+              description: 'Saiba quando clicam nos seus links',
+              icon: MousePointerClick,
+              checked: preferences.notifyOnClick,
+            },
+            {
+              id: 'desktopNotifications',
+              label: 'Notificações no desktop',
+              description: 'Receba notificações mesmo fora do app',
+              icon: Bell,
+              checked: preferences.desktopNotifications,
+            },
+            {
+              id: 'emailDigest',
+              label: 'Resumo diário por email',
+              description: 'Receba um resumo das atividades',
+              icon: Mail,
+              checked: preferences.emailDigest,
+            },
           ].map((pref, index) => (
-            <motion.div key={pref.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + index * 0.05 }}
-              className={cn("flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
-                pref.checked ? "bg-primary/5 border-primary/30" : "bg-muted/30 border-border/50 hover:border-primary/20")}
-              onClick={() => setPreferences(prev => ({ ...prev, [pref.id]: !prev[pref.id as keyof typeof prev] }))}>
-              <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center transition-colors", pref.checked ? "bg-primary/10" : "bg-muted")}>
-                <pref.icon className={cn("h-5 w-5", pref.checked ? "text-primary" : "text-muted-foreground")} />
+            <motion.div
+              key={pref.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
+              className={cn(
+                'flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-all',
+                pref.checked
+                  ? 'border-primary/30 bg-primary/5'
+                  : 'border-border/50 bg-muted/30 hover:border-primary/20'
+              )}
+              onClick={() =>
+                setPreferences((prev) => ({
+                  ...prev,
+                  [pref.id]: !prev[pref.id as keyof typeof prev],
+                }))
+              }
+            >
+              <div
+                className={cn(
+                  'flex h-10 w-10 items-center justify-center rounded-xl transition-colors',
+                  pref.checked ? 'bg-primary/10' : 'bg-muted'
+                )}
+              >
+                <pref.icon
+                  className={cn('h-5 w-5', pref.checked ? 'text-primary' : 'text-muted-foreground')}
+                />
               </div>
               <div className="flex-1">
-                <Label htmlFor={pref.id} className="font-medium cursor-pointer">{pref.label}</Label>
+                <Label htmlFor={pref.id} className="cursor-pointer font-medium">
+                  {pref.label}
+                </Label>
                 <p className="text-xs text-muted-foreground">{pref.description}</p>
               </div>
-              <Checkbox id={pref.id} checked={pref.checked}
-                onCheckedChange={(checked) => setPreferences((prev) => ({ ...prev, [pref.id]: checked }))} className="h-5 w-5" />
+              <Checkbox
+                id={pref.id}
+                checked={pref.checked}
+                onCheckedChange={(checked) =>
+                  setPreferences((prev) => ({ ...prev, [pref.id]: checked }))
+                }
+                className="h-5 w-5"
+              />
             </motion.div>
           ))}
         </div>
@@ -135,32 +259,67 @@ export function createWizardSteps(
       color: 'from-green-500/20 to-green-500/5',
       content: (
         <div className="space-y-6 text-center">
-          <motion.div className="flex justify-center" initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 200 }}>
+          <motion.div
+            className="flex justify-center"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+          >
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-green-400/20 to-blue-500/20 rounded-3xl blur-2xl" />
-              <div className="relative h-24 w-24 rounded-2xl bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center shadow-2xl">
+              <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-green-400/20 to-blue-500/20 blur-2xl" />
+              <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-green-400 to-blue-500 shadow-2xl">
                 <Globe className="h-12 w-12 text-white" />
               </div>
             </div>
           </motion.div>
-          <motion.div className="space-y-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+          <motion.div
+            className="space-y-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
             <h3 className="text-lg font-semibold">Automatize seu rastreamento</h3>
-            <p className="text-muted-foreground text-sm">Nossa extensão injeta automaticamente o pixel de rastreamento em todos os emails que você envia pelo Gmail.</p>
+            <p className="text-sm text-muted-foreground">
+              Nossa extensão injeta automaticamente o pixel de rastreamento em todos os emails que
+              você envia pelo Gmail.
+            </p>
           </motion.div>
-          <motion.div className="flex items-center justify-center gap-2 p-3 bg-green-500/10 text-green-600 rounded-xl border border-green-500/20"
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Check className="h-5 w-5" /><span className="font-medium">100% automático e invisível</span>
+          <motion.div
+            className="flex items-center justify-center gap-2 rounded-xl border border-green-500/20 bg-green-500/10 p-3 text-green-600"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Check className="h-5 w-5" />
+            <span className="font-medium">100% automático e invisível</span>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-            className={cn("flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer",
-              preferences.installExtension ? "bg-primary/5 border-primary/30" : "bg-muted/30 border-border/50 hover:border-primary/20")}
-            onClick={() => setPreferences((prev) => ({ ...prev, installExtension: !prev.installExtension }))}>
-            <Checkbox id="installExtension" checked={preferences.installExtension}
-              onCheckedChange={(checked) => setPreferences((prev) => ({ ...prev, installExtension: !!checked }))} className="h-5 w-5" />
-            <Label htmlFor="installExtension" className="flex-1 text-left cursor-pointer">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className={cn(
+              'flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-all',
+              preferences.installExtension
+                ? 'border-primary/30 bg-primary/5'
+                : 'border-border/50 bg-muted/30 hover:border-primary/20'
+            )}
+            onClick={() =>
+              setPreferences((prev) => ({ ...prev, installExtension: !prev.installExtension }))
+            }
+          >
+            <Checkbox
+              id="installExtension"
+              checked={preferences.installExtension}
+              onCheckedChange={(checked) =>
+                setPreferences((prev) => ({ ...prev, installExtension: !!checked }))
+              }
+              className="h-5 w-5"
+            />
+            <Label htmlFor="installExtension" className="flex-1 cursor-pointer text-left">
               <span className="font-medium">Quero instalar a extensão depois</span>
-              <p className="text-xs text-muted-foreground mt-0.5">Vamos te lembrar quando terminar o tour</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Vamos te lembrar quando terminar o tour
+              </p>
             </Label>
           </motion.div>
         </div>
@@ -174,41 +333,99 @@ export function createWizardSteps(
       color: 'from-purple-500/20 to-purple-500/5',
       content: (
         <div className="space-y-6 text-center">
-          <motion.div className="flex justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}>
+          <motion.div
+            className="flex justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+          >
             <div className="relative">
               <CelebrationBurst trigger={true} />
-              <motion.div className="h-28 w-28 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-2xl"
-                animate={{ boxShadow: ["0 0 0 0 rgba(var(--primary), 0.4)", "0 0 0 20px rgba(var(--primary), 0)"] }}
-                transition={{ duration: 1.5, repeat: Infinity }}>
-                <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.4 }}>
+              <motion.div
+                className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-primary to-purple-600 shadow-2xl"
+                animate={{
+                  boxShadow: [
+                    '0 0 0 0 rgba(var(--primary), 0.4)',
+                    '0 0 0 20px rgba(var(--primary), 0)',
+                  ],
+                }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 200, delay: 0.4 }}
+                >
                   <Trophy className="h-14 w-14 text-white" />
                 </motion.div>
               </motion.div>
             </div>
           </motion.div>
-          <motion.div className="space-y-2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <h3 className="text-xl font-semibold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">Configuração concluída!</h3>
-            <p className="text-muted-foreground text-sm">Suas preferências foram salvas. Agora você pode começar a rastrear seus emails e ter total controle sobre suas comunicações.</p>
+          <motion.div
+            className="space-y-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <h3 className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-xl font-semibold text-transparent">
+              Configuração concluída!
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Suas preferências foram salvas. Agora você pode começar a rastrear seus emails e ter
+              total controle sobre suas comunicações.
+            </p>
           </motion.div>
-          <motion.div className="grid grid-cols-2 gap-3 pt-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+          <motion.div
+            className="grid grid-cols-2 gap-3 pt-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
             {[
-              { icon: Mail, label: 'Emails ilimitados', value: '∞', color: 'from-blue-500/10 to-blue-500/5' },
-              { icon: Zap, label: 'Tempo real', value: '⚡', color: 'from-yellow-500/10 to-yellow-500/5' },
-              { icon: Shield, label: 'Dados seguros', value: '🔒', color: 'from-green-500/10 to-green-500/5' },
-              { icon: BarChart3, label: 'Analytics', value: '📊', color: 'from-purple-500/10 to-purple-500/5' },
+              {
+                icon: Mail,
+                label: 'Emails ilimitados',
+                value: '∞',
+                color: 'from-blue-500/10 to-blue-500/5',
+              },
+              {
+                icon: Zap,
+                label: 'Tempo real',
+                value: '⚡',
+                color: 'from-yellow-500/10 to-yellow-500/5',
+              },
+              {
+                icon: Shield,
+                label: 'Dados seguros',
+                value: '🔒',
+                color: 'from-green-500/10 to-green-500/5',
+              },
+              {
+                icon: BarChart3,
+                label: 'Analytics',
+                value: '📊',
+                color: 'from-purple-500/10 to-purple-500/5',
+              },
             ].map((item, index) => (
-              <motion.div key={item.label} className={cn("p-3 rounded-xl bg-gradient-to-br", item.color)}
-                initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.7 + index * 0.1 }} whileHover={{ scale: 1.05 }}>
+              <motion.div
+                key={item.label}
+                className={cn('rounded-xl bg-gradient-to-br p-3', item.color)}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.7 + index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+              >
                 <p className="text-2xl font-bold">{item.value}</p>
                 <p className="text-xs text-muted-foreground">{item.label}</p>
               </motion.div>
             ))}
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+            className="inline-flex items-center gap-2 rounded-full border border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 px-4 py-2"
+          >
             <Star className="h-4 w-4 text-yellow-500" />
             <span className="text-sm font-medium">+50 XP - Primeira Configuração</span>
           </motion.div>

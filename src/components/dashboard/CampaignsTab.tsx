@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { EmptyState } from "@/components/ui/empty-state";
+import { EmptyState } from '@/components/ui/empty-state';
 import {
   Dialog,
   DialogContent,
@@ -30,25 +30,25 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  useCampaigns, 
-  useCreateCampaign, 
-  useUpdateCampaign, 
+import {
+  useCampaigns,
+  useCreateCampaign,
+  useUpdateCampaign,
   useDeleteCampaign,
-  CampaignWithStats 
+  CampaignWithStats,
 } from '@/hooks/use-campaigns';
-import { 
-  Plus, 
-  MoreHorizontal, 
-  Pencil, 
-  Trash2, 
+import {
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
   FolderOpen,
   Mail,
   MousePointerClick,
   Eye,
   Archive,
   CheckCircle,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -58,7 +58,7 @@ function CampaignsTabBase() {
   const createCampaign = useCreateCampaign();
   const updateCampaign = useUpdateCampaign();
   const deleteCampaign = useDeleteCampaign();
-  
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<CampaignWithStats | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
@@ -72,10 +72,10 @@ function CampaignsTabBase() {
 
   const handleUpdate = async () => {
     if (!editingCampaign || !formData.name.trim()) return;
-    await updateCampaign.mutateAsync({ 
-      id: editingCampaign.id, 
+    await updateCampaign.mutateAsync({
+      id: editingCampaign.id,
       name: formData.name,
-      description: formData.description 
+      description: formData.description,
     });
     setEditingCampaign(null);
     setFormData({ name: '', description: '' });
@@ -88,9 +88,9 @@ function CampaignsTabBase() {
   };
 
   const handleArchive = async (campaign: CampaignWithStats) => {
-    await updateCampaign.mutateAsync({ 
-      id: campaign.id, 
-      status: campaign.status === 'archived' ? 'active' : 'archived' 
+    await updateCampaign.mutateAsync({
+      id: campaign.id,
+      status: campaign.status === 'archived' ? 'active' : 'archived',
     });
   };
 
@@ -100,11 +100,14 @@ function CampaignsTabBase() {
   };
 
   // Calculate totals
-  const totals = campaigns?.reduce((acc, c) => ({
-    emails: acc.emails + c.total_emails,
-    opens: acc.opens + c.total_opens,
-    clicks: acc.clicks + c.total_clicks,
-  }), { emails: 0, opens: 0, clicks: 0 }) || { emails: 0, opens: 0, clicks: 0 };
+  const totals = campaigns?.reduce(
+    (acc, c) => ({
+      emails: acc.emails + c.total_emails,
+      opens: acc.opens + c.total_opens,
+      clicks: acc.clicks + c.total_clicks,
+    }),
+    { emails: 0, opens: 0, clicks: 0 }
+  ) || { emails: 0, opens: 0, clicks: 0 };
 
   if (isLoading) {
     return <CampaignsSkeleton />;
@@ -115,18 +118,20 @@ function CampaignsTabBase() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="rounded-lg bg-primary/10 p-2">
             <FolderOpen className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h2 className="text-2xl font-bold">Campanhas</h2>
-            <p className="text-muted-foreground">Organize e compare performance de suas campanhas</p>
+            <p className="text-muted-foreground">
+              Organize e compare performance de suas campanhas
+            </p>
           </div>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4" />
               Nova Campanha
             </Button>
           </DialogTrigger>
@@ -143,7 +148,7 @@ function CampaignsTabBase() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                   placeholder="Ex: Black Friday 2024"
                 />
               </div>
@@ -152,7 +157,9 @@ function CampaignsTabBase() {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, description: e.target.value }))
+                  }
                   placeholder="Descreva o objetivo desta campanha..."
                 />
               </div>
@@ -161,7 +168,10 @@ function CampaignsTabBase() {
               <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleCreate} disabled={createCampaign.isPending || !formData.name.trim()}>
+              <Button
+                onClick={handleCreate}
+                disabled={createCampaign.isPending || !formData.name.trim()}
+              >
                 Criar Campanha
               </Button>
             </DialogFooter>
@@ -170,7 +180,7 @@ function CampaignsTabBase() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card role="article">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -178,7 +188,7 @@ function CampaignsTabBase() {
                 <p className="text-sm text-muted-foreground">Total Campanhas</p>
                 <p className="text-2xl font-bold">{campaigns?.length || 0}</p>
               </div>
-              <div className="p-3 bg-blue-500/10 text-blue-500 rounded-full">
+              <div className="rounded-full bg-blue-500/10 p-3 text-blue-500">
                 <FolderOpen className="h-5 w-5" />
               </div>
             </div>
@@ -191,7 +201,7 @@ function CampaignsTabBase() {
                 <p className="text-sm text-muted-foreground">Total Emails</p>
                 <p className="text-2xl font-bold">{totals.emails}</p>
               </div>
-              <div className="p-3 bg-green-500/10 text-green-500 rounded-full">
+              <div className="rounded-full bg-green-500/10 p-3 text-green-500">
                 <Mail className="h-5 w-5" />
               </div>
             </div>
@@ -204,7 +214,7 @@ function CampaignsTabBase() {
                 <p className="text-sm text-muted-foreground">Total Aberturas</p>
                 <p className="text-2xl font-bold">{totals.opens}</p>
               </div>
-              <div className="p-3 bg-purple-500/10 text-purple-500 rounded-full">
+              <div className="rounded-full bg-purple-500/10 p-3 text-purple-500">
                 <Eye className="h-5 w-5" />
               </div>
             </div>
@@ -217,7 +227,7 @@ function CampaignsTabBase() {
                 <p className="text-sm text-muted-foreground">Total Cliques</p>
                 <p className="text-2xl font-bold">{totals.clicks}</p>
               </div>
-              <div className="p-3 bg-orange-500/10 text-orange-500 rounded-full">
+              <div className="rounded-full bg-orange-500/10 p-3 text-orange-500">
                 <MousePointerClick className="h-5 w-5" />
               </div>
             </div>
@@ -232,9 +242,7 @@ function CampaignsTabBase() {
             <BarChart3 className="h-5 w-5" />
             Comparativo de Campanhas
           </CardTitle>
-          <CardDescription>
-            Veja a performance de cada campanha lado a lado
-          </CardDescription>
+          <CardDescription>Veja a performance de cada campanha lado a lado</CardDescription>
         </CardHeader>
         <CardContent>
           {campaigns && campaigns.length > 0 ? (
@@ -259,7 +267,7 @@ function CampaignsTabBase() {
                       <div>
                         <p className="font-medium">{campaign.name}</p>
                         {campaign.description && (
-                          <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                          <p className="max-w-[200px] truncate text-sm text-muted-foreground">
                             {campaign.description}
                           </p>
                         )}
@@ -268,13 +276,19 @@ function CampaignsTabBase() {
                     <TableCell>
                       <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
                         {campaign.status === 'active' ? (
-                          <><CheckCircle className="h-3 w-3 mr-1" /> Ativa</>
+                          <>
+                            <CheckCircle className="mr-1 h-3 w-3" /> Ativa
+                          </>
                         ) : (
-                          <><Archive className="h-3 w-3 mr-1" /> Arquivada</>
+                          <>
+                            <Archive className="mr-1 h-3 w-3" /> Arquivada
+                          </>
                         )}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-center font-medium">{campaign.total_emails}</TableCell>
+                    <TableCell className="text-center font-medium">
+                      {campaign.total_emails}
+                    </TableCell>
                     <TableCell className="text-center">{campaign.total_opens}</TableCell>
                     <TableCell className="text-center">{campaign.total_clicks}</TableCell>
                     <TableCell className="text-center">
@@ -288,7 +302,7 @@ function CampaignsTabBase() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {format(new Date(campaign.created_at), "dd MMM yyyy", { locale: ptBR })}
+                      {format(new Date(campaign.created_at), 'dd MMM yyyy', { locale: ptBR })}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -299,18 +313,18 @@ function CampaignsTabBase() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => openEditDialog(campaign)}>
-                            <Pencil className="h-4 w-4 mr-2" />
+                            <Pencil className="mr-2 h-4 w-4" />
                             Editar
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleArchive(campaign)}>
-                            <Archive className="h-4 w-4 mr-2" />
+                            <Archive className="mr-2 h-4 w-4" />
                             {campaign.status === 'active' ? 'Arquivar' : 'Reativar'}
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleDelete(campaign.id)}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
+                            <Trash2 className="mr-2 h-4 w-4" />
                             Excluir
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -327,7 +341,7 @@ function CampaignsTabBase() {
               description="Crie campanhas para organizar e comparar a performance dos seus emails"
               action={
                 <Button onClick={() => setIsCreateOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Criar Primeira Campanha
                 </Button>
               }
@@ -341,9 +355,7 @@ function CampaignsTabBase() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar Campanha</DialogTitle>
-            <DialogDescription>
-              Atualize as informações da campanha.
-            </DialogDescription>
+            <DialogDescription>Atualize as informações da campanha.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -351,7 +363,7 @@ function CampaignsTabBase() {
               <Input
                 id="edit-name"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -359,7 +371,7 @@ function CampaignsTabBase() {
               <Textarea
                 id="edit-description"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
               />
             </div>
           </div>
@@ -367,7 +379,10 @@ function CampaignsTabBase() {
             <Button variant="outline" onClick={() => setEditingCampaign(null)}>
               Cancelar
             </Button>
-            <Button onClick={handleUpdate} disabled={updateCampaign.isPending || !formData.name.trim()}>
+            <Button
+              onClick={handleUpdate}
+              disabled={updateCampaign.isPending || !formData.name.trim()}
+            >
               Salvar Alterações
             </Button>
           </DialogFooter>
@@ -390,8 +405,8 @@ function CampaignsSkeleton() {
         </div>
         <Skeleton className="h-10 w-36" />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map(i => (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -412,7 +427,7 @@ function CampaignsSkeleton() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-16 w-full" />
             ))}
           </div>

@@ -6,16 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { 
-  KeyRound,
-  Check, 
-  X, 
-  Search,
-  Clock,
-  Loader2,
-  Mail,
-  AlertCircle
-} from 'lucide-react';
+import { KeyRound, Check, X, Search, Clock, Loader2, Mail, AlertCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -28,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 interface PasswordResetRequest {
   id: string;
@@ -43,7 +34,10 @@ interface PasswordResetRequest {
   user_agent: string | null;
 }
 
-const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+const statusConfig: Record<
+  string,
+  { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
+> = {
   pending: { label: 'Pendente', variant: 'secondary' },
   approved: { label: 'Aprovado', variant: 'default' },
   rejected: { label: 'Rejeitado', variant: 'destructive' },
@@ -78,7 +72,7 @@ export default function PasswordResetRequestsPanel() {
       // Update status to approved
       const { error: updateError } = await supabase
         .from('password_reset_requests')
-        .update({ 
+        .update({
           status: 'approved',
           reviewed_at: new Date().toISOString(),
         })
@@ -107,7 +101,7 @@ export default function PasswordResetRequestsPanel() {
     mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
       const { error } = await supabase
         .from('password_reset_requests')
-        .update({ 
+        .update({
           status: 'rejected',
           reviewed_at: new Date().toISOString(),
           rejection_reason: reason,
@@ -128,19 +122,19 @@ export default function PasswordResetRequestsPanel() {
     },
   });
 
-  const filteredRequests = requests?.filter(req =>
+  const filteredRequests = requests?.filter((req) =>
     req.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  const pendingCount = requests?.filter(r => r.status === 'pending').length || 0;
+  const pendingCount = requests?.filter((r) => r.status === 'pending').length || 0;
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-500/10 rounded-lg">
-              <KeyRound className="w-5 h-5 text-orange-500" />
+            <div className="rounded-lg bg-orange-500/10 p-2">
+              <KeyRound className="h-5 w-5 text-orange-500" />
             </div>
             <div>
               <CardTitle className="flex items-center gap-2">
@@ -159,7 +153,7 @@ export default function PasswordResetRequestsPanel() {
       <CardContent className="space-y-4">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar por email..."
             value={search}
@@ -169,89 +163,97 @@ export default function PasswordResetRequestsPanel() {
         </div>
 
         {/* List */}
-        {matchFirst([
-  [isLoading, () => ((
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
-        ))],
-  [filteredRequests?.length === 0, () => ((
-          <div className="text-center py-8 text-muted-foreground">
-            Nenhuma solicitação encontrada
-          </div>
-        ))],
-], () => ((
-          <div className="space-y-3">
-            {filteredRequests?.map((request) => {
-              const isExpired = new Date(request.expires_at) < new Date();
-              const status = isExpired && request.status === 'pending' ? 'expired' : request.status;
-              const config = statusConfig[status];
+        {matchFirst(
+          [
+            [
+              isLoading,
+              () => (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ),
+            ],
+            [
+              filteredRequests?.length === 0,
+              () => (
+                <div className="py-8 text-center text-muted-foreground">
+                  Nenhuma solicitação encontrada
+                </div>
+              ),
+            ],
+          ],
+          () => (
+            <div className="space-y-3">
+              {filteredRequests?.map((request) => {
+                const isExpired = new Date(request.expires_at) < new Date();
+                const status =
+                  isExpired && request.status === 'pending' ? 'expired' : request.status;
+                const config = statusConfig[status];
 
-              return (
-                <div
-                  key={request.id}
-                  className={`p-4 rounded-lg border ${
-                    status === 'pending' ? 'bg-warning/5 border-warning/20' : 'bg-muted/50'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                        <span className="font-medium truncate">{request.email}</span>
-                        <Badge variant={config.variant}>{config.label}</Badge>
-                      </div>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatDistanceToNow(new Date(request.requested_at), { 
-                            addSuffix: true, 
-                            locale: ptBR 
-                          })}
-                        </span>
-                        {request.ip_address && (
-                          <span>IP: {request.ip_address}</span>
+                return (
+                  <div
+                    key={request.id}
+                    className={`rounded-lg border p-4 ${
+                      status === 'pending' ? 'border-warning/20 bg-warning/5' : 'bg-muted/50'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Mail className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                          <span className="truncate font-medium">{request.email}</span>
+                          <Badge variant={config.variant}>{config.label}</Badge>
+                        </div>
+                        <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {formatDistanceToNow(new Date(request.requested_at), {
+                              addSuffix: true,
+                              locale: ptBR,
+                            })}
+                          </span>
+                          {request.ip_address && <span>IP: {request.ip_address}</span>}
+                        </div>
+                        {request.rejection_reason && (
+                          <div className="mt-2 flex items-start gap-2 text-sm text-destructive">
+                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                            <span>{request.rejection_reason}</span>
+                          </div>
                         )}
                       </div>
-                      {request.rejection_reason && (
-                        <div className="flex items-start gap-2 mt-2 text-sm text-destructive">
-                          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                          <span>{request.rejection_reason}</span>
+                      {status === 'pending' && (
+                        <div className="flex flex-shrink-0 items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-success/50 text-success hover:bg-success/10"
+                            onClick={() => approveMutation.mutate(request)}
+                            disabled={approveMutation.isPending}
+                          >
+                            <Check className="mr-1 h-4 w-4" />
+                            Aprovar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              setSelectedRequest(request);
+                              setRejectDialogOpen(true);
+                            }}
+                          >
+                            <X className="mr-1 h-4 w-4" />
+                            Rejeitar
+                          </Button>
                         </div>
                       )}
                     </div>
-                    {status === 'pending' && (
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-success border-success/50 hover:bg-success/10"
-                          onClick={() => approveMutation.mutate(request)}
-                          disabled={approveMutation.isPending}
-                        >
-                          <Check className="w-4 h-4 mr-1" />
-                          Aprovar
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-destructive border-destructive/50 hover:bg-destructive/10"
-                          onClick={() => {
-                            setSelectedRequest(request);
-                            setRejectDialogOpen(true);
-                          }}
-                        >
-                          <X className="w-4 h-4 mr-1" />
-                          Rejeitar
-                        </Button>
-                      </div>
-                    )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )))}
+                );
+              })}
+            </div>
+          )
+        )}
       </CardContent>
 
       {/* Reject Dialog */}
@@ -259,9 +261,7 @@ export default function PasswordResetRequestsPanel() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Rejeitar Solicitação</DialogTitle>
-            <DialogDescription>
-              Informe o motivo da rejeição (opcional)
-            </DialogDescription>
+            <DialogDescription>Informe o motivo da rejeição (opcional)</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -285,9 +285,9 @@ export default function PasswordResetRequestsPanel() {
               variant="destructive"
               onClick={() => {
                 if (selectedRequest) {
-                  rejectMutation.mutate({ 
-                    id: selectedRequest.id, 
-                    reason: rejectionReason 
+                  rejectMutation.mutate({
+                    id: selectedRequest.id,
+                    reason: rejectionReason,
                   });
                 }
               }}

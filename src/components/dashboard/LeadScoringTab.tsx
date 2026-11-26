@@ -9,16 +9,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { ContactHistoryDialog } from './ContactHistoryDialog';
 import { EmptyState } from '@/components/ui/empty-state';
-import { 
-  Loader2, 
-  RefreshCw, 
-  Flame, 
-  ThermometerSun, 
-  Snowflake, 
+import {
+  Loader2,
+  RefreshCw,
+  Flame,
+  ThermometerSun,
+  Snowflake,
   Search,
   TrendingUp,
   Mail,
@@ -31,28 +38,62 @@ import { ptBR } from 'date-fns/locale';
 import { log } from '@/lib/logger';
 
 const SCORE_CONFIG = {
-  hot: { icon: Flame, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Quente' },
-  warm: { icon: ThermometerSun, color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: 'Morno' },
-  cool: { icon: ThermometerSun, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20', label: 'Frio' },
-  cold: { icon: Snowflake, color: 'text-blue-600', bg: 'bg-blue-600/10', border: 'border-blue-600/20', label: 'Gelado' },
+  hot: {
+    icon: Flame,
+    color: 'text-red-500',
+    bg: 'bg-red-500/10',
+    border: 'border-red-500/20',
+    label: 'Quente',
+  },
+  warm: {
+    icon: ThermometerSun,
+    color: 'text-orange-500',
+    bg: 'bg-orange-500/10',
+    border: 'border-orange-500/20',
+    label: 'Morno',
+  },
+  cool: {
+    icon: ThermometerSun,
+    color: 'text-blue-400',
+    bg: 'bg-blue-400/10',
+    border: 'border-blue-400/20',
+    label: 'Frio',
+  },
+  cold: {
+    icon: Snowflake,
+    color: 'text-blue-600',
+    bg: 'bg-blue-600/10',
+    border: 'border-blue-600/20',
+    label: 'Gelado',
+  },
 };
 
 function ScoreBadge({ level }: { level: ContactScore['score_level'] }) {
   const config = SCORE_CONFIG[level];
   const Icon = config.icon;
-  
+
   return (
     <Badge variant="outline" className={`${config.bg} ${config.color} ${config.border}`}>
-      <Icon className="h-3 w-3 mr-1" />
+      <Icon className="mr-1 h-3 w-3" />
       {config.label}
     </Badge>
   );
 }
 
-function StatCard({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number; color: string }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: number;
+  color: string;
+}) {
   return (
-    <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
-      <div className={`p-2 rounded-lg ${color}`}>
+    <div className="flex items-center gap-3 rounded-lg border bg-card p-4">
+      <div className={`rounded-lg p-2 ${color}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div>
@@ -71,35 +112,34 @@ export default function LeadScoringTab() {
   const handleRecalculate = async () => {
     try {
       const count = await recalculate.mutateAsync();
-      toast({ 
-        title: 'Scores recalculados', 
-        description: `${count} contatos atualizados com sucesso` 
+      toast({
+        title: 'Scores recalculados',
+        description: `${count} contatos atualizados com sucesso`,
       });
     } catch (error) {
       log.error('LeadScoringTab: falha ao recalcular scores', error);
-      toast({ 
-        title: 'Erro ao recalcular', 
-        description: 'Não foi possível recalcular os scores', 
-        variant: 'destructive' 
+      toast({
+        title: 'Erro ao recalcular',
+        description: 'Não foi possível recalcular os scores',
+        variant: 'destructive',
       });
     }
   };
 
-  const filteredContacts = contacts?.filter(c => 
-    c.email.toLowerCase().includes(search.toLowerCase())
-  ) || [];
+  const filteredContacts =
+    contacts?.filter((c) => c.email.toLowerCase().includes(search.toLowerCase())) || [];
 
   // Stats summary
   const stats = {
-    hot: filteredContacts.filter(c => c.score_level === 'hot').length,
-    warm: filteredContacts.filter(c => c.score_level === 'warm').length,
-    cool: filteredContacts.filter(c => c.score_level === 'cool').length,
-    cold: filteredContacts.filter(c => c.score_level === 'cold').length,
+    hot: filteredContacts.filter((c) => c.score_level === 'hot').length,
+    warm: filteredContacts.filter((c) => c.score_level === 'warm').length,
+    cool: filteredContacts.filter((c) => c.score_level === 'cool').length,
+    cold: filteredContacts.filter((c) => c.score_level === 'cold').length,
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -108,26 +148,28 @@ export default function LeadScoringTab() {
   return (
     <div role="region" aria-label="LeadScoringTab" className="space-y-6">
       {/* Header */}
-      <div role="region" aria-label="LeadScoringTab" className="flex flex-col sm:flex-row justify-between gap-4">
+      <div
+        role="region"
+        aria-label="LeadScoringTab"
+        className="flex flex-col justify-between gap-4 sm:flex-row"
+      >
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
             <TrendingUp className="h-6 w-6 text-primary" />
             Lead Scoring
           </h2>
-          <p className="text-muted-foreground">
-            Pontuação de contatos baseada em engajamento
-          </p>
+          <p className="text-muted-foreground">Pontuação de contatos baseada em engajamento</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Atualizar
           </Button>
           <Button onClick={handleRecalculate} disabled={recalculate.isPending}>
             {recalculate.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="mr-2 h-4 w-4" />
             )}
             Recalcular Todos
           </Button>
@@ -135,17 +177,41 @@ export default function LeadScoringTab() {
       </div>
 
       {/* Stats Cards */}
-      <div role="region" aria-label="LeadScoringTab" className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon={Flame} label="Quentes" value={stats.hot} color="bg-red-500/10 text-red-500" />
-        <StatCard icon={ThermometerSun} label="Mornos" value={stats.warm} color="bg-orange-500/10 text-orange-500" />
-        <StatCard icon={ThermometerSun} label="Frios" value={stats.cool} color="bg-blue-400/10 text-blue-400" />
-        <StatCard icon={Snowflake} label="Gelados" value={stats.cold} color="bg-blue-600/10 text-blue-600" />
+      <div
+        role="region"
+        aria-label="LeadScoringTab"
+        className="grid grid-cols-2 gap-4 md:grid-cols-4"
+      >
+        <StatCard
+          icon={Flame}
+          label="Quentes"
+          value={stats.hot}
+          color="bg-red-500/10 text-red-500"
+        />
+        <StatCard
+          icon={ThermometerSun}
+          label="Mornos"
+          value={stats.warm}
+          color="bg-orange-500/10 text-orange-500"
+        />
+        <StatCard
+          icon={ThermometerSun}
+          label="Frios"
+          value={stats.cool}
+          color="bg-blue-400/10 text-blue-400"
+        />
+        <StatCard
+          icon={Snowflake}
+          label="Gelados"
+          value={stats.cold}
+          color="bg-blue-600/10 text-blue-600"
+        />
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input 
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
           placeholder="Buscar contato por email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -176,14 +242,14 @@ export default function LeadScoringTab() {
                   <TableHead>Score</TableHead>
                   <TableHead>Nível</TableHead>
                   <TableHead className="text-center">
-                    <Mail className="h-4 w-4 inline" />
-                    <Mail className="h-4 w-4 inline" />
+                    <Mail className="inline h-4 w-4" />
+                    <Mail className="inline h-4 w-4" />
                   </TableHead>
                   <TableHead className="text-center">
-                    <Eye className="h-4 w-4 inline" />
+                    <Eye className="inline h-4 w-4" />
                   </TableHead>
                   <TableHead className="text-center">
-                    <MousePointerClick className="h-4 w-4 inline" />
+                    <MousePointerClick className="inline h-4 w-4" />
                   </TableHead>
                   <TableHead>Última Interação</TableHead>
                   <TableHead className="text-center">Histórico</TableHead>
@@ -191,11 +257,15 @@ export default function LeadScoringTab() {
               </TableHeader>
               <TableBody>
                 {filteredContacts.map((contact) => (
-                  <TableRow key={contact.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedContact(contact.email)}>
+                  <TableRow
+                    key={contact.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => setSelectedContact(contact.email)}
+                  >
                     <TableCell className="font-medium">{contact.email}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Progress value={contact.engagement_score} className="w-16 h-2" />
+                        <Progress value={contact.engagement_score} className="h-2 w-16" />
                         <span className="text-sm font-medium">{contact.engagement_score}</span>
                       </div>
                     </TableCell>
@@ -206,16 +276,20 @@ export default function LeadScoringTab() {
                     <TableCell className="text-center">{contact.unique_opens}</TableCell>
                     <TableCell className="text-center">{contact.total_clicks}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {contact.last_interaction_at 
-                        ? format(new Date(contact.last_interaction_at), "dd/MM/yyyy", { locale: ptBR })
-                        : '—'
-                      }
+                      {contact.last_interaction_at
+                        ? format(new Date(contact.last_interaction_at), 'dd/MM/yyyy', {
+                            locale: ptBR,
+                          })
+                        : '—'}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={(e) => { e.stopPropagation(); setSelectedContact(contact.email); }}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedContact(contact.email);
+                        }}
                       >
                         <History className="h-4 w-4" />
                       </Button>
@@ -229,7 +303,7 @@ export default function LeadScoringTab() {
       </Card>
 
       {/* Contact History Dialog */}
-      <ContactHistoryDialog 
+      <ContactHistoryDialog
         email={selectedContact}
         open={!!selectedContact}
         onOpenChange={(open) => !open && setSelectedContact(null)}

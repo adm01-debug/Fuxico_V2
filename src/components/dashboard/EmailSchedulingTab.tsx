@@ -1,18 +1,18 @@
 import { memo, useState } from 'react';
 import { format, formatDistanceToNow, isPast } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { 
-  Clock, 
-  Plus, 
-  Mail, 
-  Calendar, 
-  AlertCircle, 
-  CheckCircle2, 
+import {
+  Clock,
+  Plus,
+  Mail,
+  Calendar,
+  AlertCircle,
+  CheckCircle2,
   XCircle,
   Send,
   Trash2,
   Ban,
-  Loader2
+  Loader2,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -29,7 +36,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  } from '@/components/ui/dialog';
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,41 +48,66 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { 
-  useScheduledEmails, 
-  useCreateScheduledEmail, 
+import {
+  useScheduledEmails,
+  useCreateScheduledEmail,
   useCancelScheduledEmail,
   useDeleteScheduledEmail,
-  CreateScheduledEmail 
+  CreateScheduledEmail,
 } from '@/hooks/use-scheduled-emails';
 
 function getStatusBadge(status: string, scheduledAt: string) {
   const isOverdue = isPast(new Date(scheduledAt)) && status === 'pending';
-  
+
   if (isOverdue) {
-    return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Atrasado</Badge>;
+    return (
+      <Badge variant="destructive" className="gap-1">
+        <AlertCircle className="h-3 w-3" />
+        Atrasado
+      </Badge>
+    );
   }
-  
+
   switch (status) {
     case 'pending':
-      return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />Agendado</Badge>;
+      return (
+        <Badge variant="secondary" className="gap-1">
+          <Clock className="h-3 w-3" />
+          Agendado
+        </Badge>
+      );
     case 'sent':
-      return <Badge className="gap-1 bg-green-500"><CheckCircle2 className="h-3 w-3" />Enviado</Badge>;
+      return (
+        <Badge className="gap-1 bg-green-500">
+          <CheckCircle2 className="h-3 w-3" />
+          Enviado
+        </Badge>
+      );
     case 'cancelled':
-      return <Badge variant="outline" className="gap-1"><XCircle className="h-3 w-3" />Cancelado</Badge>;
+      return (
+        <Badge variant="outline" className="gap-1">
+          <XCircle className="h-3 w-3" />
+          Cancelado
+        </Badge>
+      );
     case 'failed':
-      return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" />Falhou</Badge>;
+      return (
+        <Badge variant="destructive" className="gap-1">
+          <AlertCircle className="h-3 w-3" />
+          Falhou
+        </Badge>
+      );
     default:
       return <Badge variant="outline">{status}</Badge>;
   }
 }
 
-function CreateEmailDialog({ 
-  open, 
-  onOpenChange 
-}: { 
-  open: boolean; 
-  onOpenChange: (open: boolean) => void 
+function CreateEmailDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const createEmail = useCreateScheduledEmail();
   const [formData, setFormData] = useState<CreateScheduledEmail>({
@@ -88,7 +120,7 @@ function CreateEmailDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.recipient_email || !formData.subject || !formData.scheduled_at) {
       return;
     }
@@ -119,8 +151,13 @@ function CreateEmailDialog({
             Configure os detalhes do email que será enviado na data e hora programadas.
           </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} role="region" aria-label="EmailSchedulingTab" className="space-y-4">
+
+        <form
+          onSubmit={handleSubmit}
+          role="region"
+          aria-label="EmailSchedulingTab"
+          className="space-y-4"
+        >
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="recipient">Destinatário *</Label>
@@ -129,7 +166,9 @@ function CreateEmailDialog({
                 type="email"
                 placeholder="email@exemplo.com"
                 value={formData.recipient_email}
-                onChange={(e) => setFormData(prev => ({ ...prev, recipient_email: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, recipient_email: e.target.value }))
+                }
                 required
               />
             </div>
@@ -140,7 +179,7 @@ function CreateEmailDialog({
                 type="email"
                 placeholder="seu@email.com"
                 value={formData.sender_email || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, sender_email: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, sender_email: e.target.value }))}
               />
             </div>
           </div>
@@ -151,7 +190,7 @@ function CreateEmailDialog({
               id="subject"
               placeholder="Assunto do email"
               value={formData.subject}
-              onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, subject: e.target.value }))}
               required
             />
           </div>
@@ -163,7 +202,7 @@ function CreateEmailDialog({
               placeholder="Conteúdo do email..."
               rows={4}
               value={formData.body || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, body: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, body: e.target.value }))}
             />
           </div>
 
@@ -177,7 +216,7 @@ function CreateEmailDialog({
               type="datetime-local"
               min={minDatetime}
               value={formData.scheduled_at}
-              onChange={(e) => setFormData(prev => ({ ...prev, scheduled_at: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, scheduled_at: e.target.value }))}
               required
             />
           </div>
@@ -215,7 +254,7 @@ function EmailSchedulingTabBase() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-32" />
         </div>
@@ -228,27 +267,31 @@ function EmailSchedulingTabBase() {
     return (
       <Card role="article">
         <CardContent className="p-8 text-center text-muted-foreground">
-          <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 opacity-50" />
           <p>Erro ao carregar emails agendados</p>
         </CardContent>
       </Card>
     );
   }
 
-  const pendingEmails = emails?.filter(e => e.status === 'pending') || [];
-  const sentEmails = emails?.filter(e => e.status === 'sent') || [];
-  const cancelledEmails = emails?.filter(e => e.status === 'cancelled') || [];
+  const pendingEmails = emails?.filter((e) => e.status === 'pending') || [];
+  const sentEmails = emails?.filter((e) => e.status === 'sent') || [];
+  const cancelledEmails = emails?.filter((e) => e.status === 'cancelled') || [];
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div role="region" aria-label="EmailSchedulingTab" className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div
+        role="region"
+        aria-label="EmailSchedulingTab"
+        className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
+      >
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
             <Clock className="h-6 w-6" />
             Emails Agendados
           </h2>
-          <p className="text-muted-foreground mt-1">
+          <p className="mt-1 text-muted-foreground">
             Agende emails para serem enviados em datas futuras
           </p>
         </div>
@@ -259,7 +302,7 @@ function EmailSchedulingTabBase() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card role="article">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -267,7 +310,7 @@ function EmailSchedulingTabBase() {
                 <p className="text-sm text-muted-foreground">Agendados</p>
                 <p className="text-3xl font-bold">{pendingEmails.length}</p>
               </div>
-              <div className="p-3 bg-primary/10 rounded-lg">
+              <div className="rounded-lg bg-primary/10 p-3">
                 <Clock className="h-6 w-6 text-primary" />
               </div>
             </div>
@@ -281,7 +324,7 @@ function EmailSchedulingTabBase() {
                 <p className="text-sm text-muted-foreground">Enviados</p>
                 <p className="text-3xl font-bold">{sentEmails.length}</p>
               </div>
-              <div className="p-3 bg-green-500/10 rounded-lg">
+              <div className="rounded-lg bg-green-500/10 p-3">
                 <CheckCircle2 className="h-6 w-6 text-green-500" />
               </div>
             </div>
@@ -295,7 +338,7 @@ function EmailSchedulingTabBase() {
                 <p className="text-sm text-muted-foreground">Cancelados</p>
                 <p className="text-3xl font-bold">{cancelledEmails.length}</p>
               </div>
-              <div className="p-3 bg-muted rounded-lg">
+              <div className="rounded-lg bg-muted p-3">
                 <XCircle className="h-6 w-6 text-muted-foreground" />
               </div>
             </div>
@@ -307,16 +350,14 @@ function EmailSchedulingTabBase() {
       <Card>
         <CardHeader>
           <CardTitle>Lista de Emails</CardTitle>
-          <CardDescription>
-            Todos os emails agendados, enviados e cancelados
-          </CardDescription>
+          <CardDescription>Todos os emails agendados, enviados e cancelados</CardDescription>
         </CardHeader>
         <CardContent>
           {emails?.length === 0 ? (
-            <div className="text-center py-12">
-              <Mail className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <h3 className="text-lg font-semibold mb-2">Nenhum email agendado</h3>
-              <p className="text-muted-foreground mb-4">
+            <div className="py-12 text-center">
+              <Mail className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
+              <h3 className="mb-2 text-lg font-semibold">Nenhum email agendado</h3>
+              <p className="mb-4 text-muted-foreground">
                 Clique em "Agendar Email" para criar seu primeiro agendamento.
               </p>
               <Button onClick={() => setCreateDialogOpen(true)}>
@@ -346,23 +387,21 @@ function EmailSchedulingTabBase() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {email.subject}
-                    </TableCell>
+                    <TableCell className="max-w-xs truncate">{email.subject}</TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {format(new Date(email.scheduled_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        {format(new Date(email.scheduled_at), "dd/MM/yyyy 'às' HH:mm", {
+                          locale: ptBR,
+                        })}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(email.scheduled_at), { 
-                          addSuffix: true, 
-                          locale: ptBR 
+                        {formatDistanceToNow(new Date(email.scheduled_at), {
+                          addSuffix: true,
+                          locale: ptBR,
                         })}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {getStatusBadge(email.status, email.scheduled_at)}
-                    </TableCell>
+                    <TableCell>{getStatusBadge(email.status, email.scheduled_at)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {email.status === 'pending' && (
@@ -376,7 +415,8 @@ function EmailSchedulingTabBase() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Cancelar agendamento?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  O email não será enviado. Esta ação pode ser desfeita agendando novamente.
+                                  O email não será enviado. Esta ação pode ser desfeita agendando
+                                  novamente.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -391,7 +431,7 @@ function EmailSchedulingTabBase() {
                             </AlertDialogContent>
                           </AlertDialog>
                         )}
-                        
+
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="outline" size="sm" className="text-destructive">
@@ -402,7 +442,8 @@ function EmailSchedulingTabBase() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Excluir email?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. O registro será removido permanentemente.
+                                Esta ação não pode ser desfeita. O registro será removido
+                                permanentemente.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -428,14 +469,10 @@ function EmailSchedulingTabBase() {
       </Card>
 
       {/* Create Dialog */}
-      <CreateEmailDialog 
-        open={createDialogOpen} 
-        onOpenChange={setCreateDialogOpen} 
-      />
+      <CreateEmailDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </div>
   );
 }
-
 
 export const EmailSchedulingTab = memo(EmailSchedulingTabBase);
 export default EmailSchedulingTab;

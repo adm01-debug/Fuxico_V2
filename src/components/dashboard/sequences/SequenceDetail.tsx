@@ -12,29 +12,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  ArrowLeft, 
-  Play, 
-  Pause, 
-  Settings, 
-  Users, 
+import {
+  ArrowLeft,
+  Play,
+  Pause,
+  Settings,
+  Users,
   Mail,
   BarChart3,
   Save,
-  Loader2
+  Loader2,
 } from 'lucide-react';
-import { EmailSequence, useSequenceDetail, useUpdateSequence } from '@/features/sequences/hooks/useEmailSequences';
+import {
+  EmailSequence,
+  useSequenceDetail,
+  useUpdateSequence,
+} from '@/features/sequences/hooks/useEmailSequences';
 import { SequenceStepEditor } from './SequenceStepEditor';
 import { SequenceEnrollments } from './SequenceEnrollments';
 import { Skeleton } from '@/components/ui/skeleton';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 interface SequenceDetailProps {
   sequenceId: string;
   onBack: () => void;
 }
 
-const statusConfig: Record<EmailSequence['status'], { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+const statusConfig: Record<
+  EmailSequence['status'],
+  { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
+> = {
   draft: { label: 'Rascunho', variant: 'secondary' },
   active: { label: 'Ativa', variant: 'default' },
   paused: { label: 'Pausada', variant: 'outline' },
@@ -44,7 +51,7 @@ const statusConfig: Record<EmailSequence['status'], { label: string; variant: 'd
 export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
   const { data, isLoading } = useSequenceDetail(sequenceId);
   const updateSequence = useUpdateSequence();
-  
+
   const [settings, setSettings] = useState<EmailSequence['settings'] | null>(null);
   const [hasSettingsChanges, setHasSettingsChanges] = useState(false);
 
@@ -69,9 +76,11 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
 
   if (!data) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <p className="text-muted-foreground">Sequência não encontrada</p>
-        <Button variant="link" onClick={onBack}>Voltar</Button>
+        <Button variant="link" onClick={onBack}>
+          Voltar
+        </Button>
       </div>
     );
   }
@@ -91,36 +100,42 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
   };
 
   const updateSettings = <K extends keyof EmailSequence['settings']>(
-    key: K, 
+    key: K,
     value: EmailSequence['settings'][K]
   ) => {
     if (!settings) return;
-    setSettings((prev: EmailSequence['settings'] | null) => prev ? { ...prev, [key]: value } : prev);
+    setSettings((prev: EmailSequence['settings'] | null) =>
+      prev ? { ...prev, [key]: value } : prev
+    );
     setHasSettingsChanges(true);
   };
 
-  const completionRate = sequence.total_enrolled > 0 
-    ? Math.round((sequence.total_completed / sequence.total_enrolled) * 100) 
-    : 0;
-  const replyRate = sequence.total_enrolled > 0 
-    ? Math.round((sequence.total_replied / sequence.total_enrolled) * 100) 
-    : 0;
+  const completionRate =
+    sequence.total_enrolled > 0
+      ? Math.round((sequence.total_completed / sequence.total_enrolled) * 100)
+      : 0;
+  const replyRate =
+    sequence.total_enrolled > 0
+      ? Math.round((sequence.total_replied / sequence.total_enrolled) * 100)
+      : 0;
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-3 overflow-hidden sm:gap-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="min-w-0">
-            <h2 className="text-xl sm:text-2xl font-bold truncate">{sequence.name}</h2>
+            <h2 className="truncate text-xl font-bold sm:text-2xl">{sequence.name}</h2>
             {sequence.description && (
-              <p className="text-sm text-muted-foreground truncate">{sequence.description}</p>
+              <p className="truncate text-sm text-muted-foreground">{sequence.description}</p>
             )}
           </div>
-          <Badge variant={status.variant} className="shrink-0">{status.label}</Badge>
+          <Badge variant={status.variant} className="shrink-0">
+            {status.label}
+          </Badge>
         </div>
         <div className="flex items-center gap-2">
           {sequence.status !== 'archived' && (
@@ -129,16 +144,18 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
               onClick={handleStatusToggle}
               disabled={updateSequence.isPending || steps.length === 0}
             >
-              {matchFirst([
-  [updateSequence.isPending, () => ((
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ))],
-  [sequence.status === 'active', () => ((
-                <Pause className="h-4 w-4 mr-2" />
-              ))],
-], () => ((
-                <Play className="h-4 w-4 mr-2" />
-              )))}
+              {matchFirst(
+                [
+                  [
+                    updateSequence.isPending,
+                    () => <Loader2 className="mr-2 h-4 w-4 animate-spin" />,
+                  ],
+                  [sequence.status === 'active', () => <Pause className="mr-2 h-4 w-4" />],
+                ],
+                () => (
+                  <Play className="mr-2 h-4 w-4" />
+                )
+              )}
               {sequence.status === 'active' ? 'Pausar' : 'Ativar'}
             </Button>
           )}
@@ -146,14 +163,14 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
         <Card>
           <CardContent className="pt-4">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Etapas</span>
             </div>
-            <p className="text-2xl font-bold mt-1">{steps.length}</p>
+            <p className="mt-1 text-2xl font-bold">{steps.length}</p>
           </CardContent>
         </Card>
         <Card>
@@ -162,7 +179,7 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
               <Users className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Inscritos</span>
             </div>
-            <p className="text-2xl font-bold mt-1">{sequence.total_enrolled}</p>
+            <p className="mt-1 text-2xl font-bold">{sequence.total_enrolled}</p>
           </CardContent>
         </Card>
         <Card>
@@ -171,7 +188,7 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Conclusão</span>
             </div>
-            <p className="text-2xl font-bold mt-1">{completionRate}%</p>
+            <p className="mt-1 text-2xl font-bold">{completionRate}%</p>
           </CardContent>
         </Card>
         <Card>
@@ -180,7 +197,7 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Respostas</span>
             </div>
-            <p className="text-2xl font-bold mt-1">{replyRate}%</p>
+            <p className="mt-1 text-2xl font-bold">{replyRate}%</p>
           </CardContent>
         </Card>
       </div>
@@ -207,8 +224,8 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
         </TabsContent>
 
         <TabsContent value="enrollments" className="mt-4">
-          <SequenceEnrollments 
-            enrollments={enrollments} 
+          <SequenceEnrollments
+            enrollments={enrollments}
             sequenceId={sequenceId}
             totalSteps={steps.length}
           />
@@ -243,7 +260,7 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
                       Emails só serão enviados a partir deste horário
                     </p>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label>Horário de Término</Label>
                     <Select
@@ -289,7 +306,8 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
                   <div className="space-y-0.5">
                     <Label>Enviar nos finais de semana</Label>
                     <p className="text-sm text-muted-foreground">
-                      Se desativado, emails agendados para sábado/domingo serão enviados na segunda-feira
+                      Se desativado, emails agendados para sábado/domingo serão enviados na
+                      segunda-feira
                     </p>
                   </div>
                   <Switch
@@ -301,8 +319,10 @@ export function SequenceDetail({ sequenceId, onBack }: SequenceDetailProps) {
                 {hasSettingsChanges && (
                   <div className="flex justify-end">
                     <Button onClick={handleSaveSettings} disabled={updateSequence.isPending}>
-                      {updateSequence.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                      <Save className="h-4 w-4 mr-2" />
+                      {updateSequence.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      <Save className="mr-2 h-4 w-4" />
                       Salvar Configurações
                     </Button>
                   </div>

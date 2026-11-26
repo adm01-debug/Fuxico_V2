@@ -3,11 +3,24 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Loader2, Plus } from 'lucide-react';
 import { CATEGORIES } from './permission-categories';
-
 
 interface Permission {
   id: string;
@@ -25,7 +38,12 @@ interface NewPermission {
 }
 
 export function CreatePermissionDialog({
-  open, onOpenChange, newPermission, setNewPermission, onSubmit, isPending,
+  open,
+  onOpenChange,
+  newPermission,
+  setNewPermission,
+  onSubmit,
+  isPending,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -37,7 +55,10 @@ export function CreatePermissionDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline"><Plus className="w-4 h-4 mr-2" />Nova Permissão</Button>
+        <Button variant="outline">
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Permissão
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -47,32 +68,65 @@ export function CreatePermissionDialog({
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="perm-name">Nome</Label>
-            <Input id="perm-name" placeholder="Ex: Gerenciar Usuários" value={newPermission.name}
-              onChange={(e) => setNewPermission({ ...newPermission, name: e.target.value })} />
+            <Input
+              id="perm-name"
+              placeholder="Ex: Gerenciar Usuários"
+              value={newPermission.name}
+              onChange={(e) => setNewPermission({ ...newPermission, name: e.target.value })}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="perm-key">Chave</Label>
-            <Input id="perm-key" placeholder="Ex: manage_users" value={newPermission.permission_key}
-              onChange={(e) => setNewPermission({ ...newPermission, permission_key: e.target.value.toLowerCase().replace(/\s/g, '_') })} />
+            <Input
+              id="perm-key"
+              placeholder="Ex: manage_users"
+              value={newPermission.permission_key}
+              onChange={(e) =>
+                setNewPermission({
+                  ...newPermission,
+                  permission_key: e.target.value.toLowerCase().replace(/\s/g, '_'),
+                })
+              }
+            />
             <p className="text-xs text-muted-foreground">Identificador único usado no código</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="perm-category">Categoria</Label>
-            <Select value={newPermission.category} onValueChange={(v) => setNewPermission({ ...newPermission, category: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{CATEGORIES.map((cat) => (<SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>))}</SelectContent>
+            <Select
+              value={newPermission.category}
+              onValueChange={(v) => setNewPermission({ ...newPermission, category: v })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="perm-desc">Descrição</Label>
-            <Textarea id="perm-desc" placeholder="Descreva o que esta permissão permite fazer..."
-              value={newPermission.description} onChange={(e) => setNewPermission({ ...newPermission, description: e.target.value })} />
+            <Textarea
+              id="perm-desc"
+              placeholder="Descreva o que esta permissão permite fazer..."
+              value={newPermission.description}
+              onChange={(e) => setNewPermission({ ...newPermission, description: e.target.value })}
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={onSubmit} disabled={!newPermission.name || !newPermission.permission_key || isPending}>
-            {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Criar
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={onSubmit}
+            disabled={!newPermission.name || !newPermission.permission_key || isPending}
+          >
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Criar
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -81,7 +135,10 @@ export function CreatePermissionDialog({
 }
 
 export function EditPermissionDialog({
-  permission, onClose, onSubmit, isPending,
+  permission,
+  onClose,
+  onSubmit,
+  isPending,
 }: {
   permission: Permission | null;
   onClose: () => void;
@@ -97,14 +154,27 @@ export function EditPermissionDialog({
           <DialogTitle>Editar Permissão</DialogTitle>
           <DialogDescription>Modifique os detalhes da permissão</DialogDescription>
         </DialogHeader>
-        <EditPermissionForm permission={permission} onClose={onClose} onSubmit={onSubmit} isPending={isPending} />
+        <EditPermissionForm
+          permission={permission}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          isPending={isPending}
+        />
       </DialogContent>
     </Dialog>
   );
 }
 
-function EditPermissionForm({ permission, onClose, onSubmit, isPending }: {
-  permission: Permission; onClose: () => void; onSubmit: (p: Permission) => void; isPending: boolean;
+function EditPermissionForm({
+  permission,
+  onClose,
+  onSubmit,
+  isPending,
+}: {
+  permission: Permission;
+  onClose: () => void;
+  onSubmit: (p: Permission) => void;
+  isPending: boolean;
 }) {
   const [local, setLocal] = useState(permission);
 
@@ -113,30 +183,55 @@ function EditPermissionForm({ permission, onClose, onSubmit, isPending }: {
       <div className="space-y-4 py-4">
         <div className="space-y-2">
           <Label htmlFor="edit-name">Nome</Label>
-          <Input id="edit-name" value={local.name} onChange={(e) => setLocal({ ...local, name: e.target.value })} />
+          <Input
+            id="edit-name"
+            value={local.name}
+            onChange={(e) => setLocal({ ...local, name: e.target.value })}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="edit-key">Chave</Label>
-          <Input id="edit-key" value={local.permission_key}
-            onChange={(e) => setLocal({ ...local, permission_key: e.target.value.toLowerCase().replace(/\s/g, '_') })} />
+          <Input
+            id="edit-key"
+            value={local.permission_key}
+            onChange={(e) =>
+              setLocal({
+                ...local,
+                permission_key: e.target.value.toLowerCase().replace(/\s/g, '_'),
+              })
+            }
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="edit-category">Categoria</Label>
           <Select value={local.category} onValueChange={(v) => setLocal({ ...local, category: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>{CATEGORIES.map((cat) => (<SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>))}</SelectContent>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map((cat) => (
+                <SelectItem key={cat.value} value={cat.value}>
+                  {cat.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="edit-desc">Descrição</Label>
-          <Textarea id="edit-desc" value={local.description || ''}
-            onChange={(e) => setLocal({ ...local, description: e.target.value })} />
+          <Textarea
+            id="edit-desc"
+            value={local.description || ''}
+            onChange={(e) => setLocal({ ...local, description: e.target.value })}
+          />
         </div>
       </div>
       <DialogFooter>
-        <Button variant="outline" onClick={onClose}>Cancelar</Button>
+        <Button variant="outline" onClick={onClose}>
+          Cancelar
+        </Button>
         <Button onClick={() => onSubmit(local)} disabled={isPending}>
-          {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Salvar
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Salvar
         </Button>
       </DialogFooter>
     </>

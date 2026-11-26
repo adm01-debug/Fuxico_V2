@@ -11,29 +11,34 @@ interface KeyBindings {
  * Hook for keyboard navigation and shortcuts
  */
 export function useKeyboardNavigation(bindings: KeyBindings, enabled = true) {
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (!enabled) return;
-    
-    // Ignore if typing in an input
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-      return;
-    }
-    
-    const key = [
-      event.ctrlKey && 'ctrl',
-      event.shiftKey && 'shift',
-      event.altKey && 'alt',
-      event.metaKey && 'meta',
-      event.key.toLowerCase()
-    ].filter(Boolean).join('+');
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (!enabled) return;
 
-    const handler = bindings[key] || bindings[event.key.toLowerCase()];
-    if (handler) {
-      event.preventDefault();
-      handler(event);
-    }
-  }, [bindings, enabled]);
+      // Ignore if typing in an input
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      const key = [
+        event.ctrlKey && 'ctrl',
+        event.shiftKey && 'shift',
+        event.altKey && 'alt',
+        event.metaKey && 'meta',
+        event.key.toLowerCase(),
+      ]
+        .filter(Boolean)
+        .join('+');
+
+      const handler = bindings[key] || bindings[event.key.toLowerCase()];
+      if (handler) {
+        event.preventDefault();
+        handler(event);
+      }
+    },
+    [bindings, enabled]
+  );
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

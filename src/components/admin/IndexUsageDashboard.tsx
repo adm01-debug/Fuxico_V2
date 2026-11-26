@@ -26,7 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { BarChart3, Flame, Snowflake, LayoutList } from 'lucide-react';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 type TrendRow = {
   bucket_date: string;
@@ -114,21 +114,21 @@ export function IndexUsageDashboard() {
       byDate.set(r.bucket_date, bucket);
     }
     const data = Array.from(byDate.values()).sort((a, b) =>
-      String(a.bucket_date).localeCompare(String(b.bucket_date)),
+      String(a.bucket_date).localeCompare(String(b.bucket_date))
     );
     return { data, indexes: Array.from(indexes) };
   }, [trend.data]);
 
   const hotList = useMemo(
     () => (ranking.data ?? []).filter((r) => r.period_scans > 0).slice(0, 15),
-    [ranking.data],
+    [ranking.data]
   );
   const coldList = useMemo(
     () =>
       (ranking.data ?? [])
         .filter((r) => r.classification === 'cold' || r.classification === 'cool')
         .slice(0, 15),
-    [ranking.data],
+    [ranking.data]
   );
 
   // Paleta de cores para as linhas do gráfico
@@ -148,10 +148,10 @@ export function IndexUsageDashboard() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" /> Uso de índices
+              <BarChart3 className="h-5 w-5" /> Uso de índices
             </CardTitle>
             <CardDescription>
               Tendência e ranking dos índices com base nos snapshots semanais.
@@ -175,56 +175,60 @@ export function IndexUsageDashboard() {
       <CardContent className="space-y-6">
         {/* Gráfico de tendência */}
         <div>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="mb-2 flex items-center gap-2">
             <h3 className="text-sm font-semibold">Tendência — Top 10 índices por scans</h3>
           </div>
-          {matchFirst([
-  [trend.isLoading, () => ((
-            <Skeleton className="h-72 w-full" />
-          ))],
-  [chartData.data.length === 0, () => ((
-            <p className="text-sm text-muted-foreground py-8 text-center">
-              Sem dados suficientes para o período selecionado. Aguardando novos snapshots.
-            </p>
-          ))],
-], () => ((
-            <div className="w-full h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData.data}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="bucket_date" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  {chartData.indexes.map((idx, i) => (
-                    <Line
-                      key={idx}
-                      type="monotone"
-                      dataKey={idx}
-                      stroke={palette[i % palette.length]}
-                      strokeWidth={2}
-                      dot={false}
+          {matchFirst(
+            [
+              [trend.isLoading, () => <Skeleton className="h-72 w-full" />],
+              [
+                chartData.data.length === 0,
+                () => (
+                  <p className="py-8 text-center text-sm text-muted-foreground">
+                    Sem dados suficientes para o período selecionado. Aguardando novos snapshots.
+                  </p>
+                ),
+              ],
+            ],
+            () => (
+              <div className="h-72 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData.data}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="bucket_date" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
                     />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )))}
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    {chartData.indexes.map((idx, i) => (
+                      <Line
+                        key={idx}
+                        type="monotone"
+                        dataKey={idx}
+                        stroke={palette[i % palette.length]}
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )
+          )}
         </div>
 
         {/* Rankings lado a lado */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Mais utilizados */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Flame className="w-4 h-4 text-red-500" />
+            <div className="mb-2 flex items-center gap-2">
+              <Flame className="h-4 w-4 text-red-500" />
               <h3 className="text-sm font-semibold">Mais utilizados</h3>
             </div>
             {ranking.isLoading ? (
@@ -248,7 +252,7 @@ export function IndexUsageDashboard() {
                         </TableCell>
                         <TableCell className="font-mono text-xs">
                           <div>{r.index_name}</div>
-                          <div className="text-muted-foreground text-[10px]">{r.table_name}</div>
+                          <div className="text-[10px] text-muted-foreground">{r.table_name}</div>
                         </TableCell>
                         <TableCell className="text-right text-xs">
                           {r.period_scans.toLocaleString('pt-BR')}
@@ -260,7 +264,10 @@ export function IndexUsageDashboard() {
                     ))}
                     {hotList.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center text-xs text-muted-foreground">
+                        <TableCell
+                          colSpan={4}
+                          className="text-center text-xs text-muted-foreground"
+                        >
                           Sem dados no período.
                         </TableCell>
                       </TableRow>
@@ -273,8 +280,8 @@ export function IndexUsageDashboard() {
 
           {/* Menos utilizados */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Snowflake className="w-4 h-4 text-sky-500" />
+            <div className="mb-2 flex items-center gap-2">
+              <Snowflake className="h-4 w-4 text-sky-500" />
               <h3 className="text-sm font-semibold">Menos utilizados (candidatos a drop)</h3>
             </div>
             {ranking.isLoading ? (
@@ -295,7 +302,7 @@ export function IndexUsageDashboard() {
                       <TableRow key={`cold-${r.index_name}`}>
                         <TableCell className="font-mono text-xs">
                           <div>{r.index_name}</div>
-                          <div className="text-muted-foreground text-[10px]">{r.table_name}</div>
+                          <div className="text-[10px] text-muted-foreground">{r.table_name}</div>
                         </TableCell>
                         <TableCell>{classificationBadge(r.classification)}</TableCell>
                         <TableCell className="text-right text-xs">
@@ -308,7 +315,10 @@ export function IndexUsageDashboard() {
                     ))}
                     {coldList.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center text-xs text-muted-foreground">
+                        <TableCell
+                          colSpan={4}
+                          className="text-center text-xs text-muted-foreground"
+                        >
                           Nenhum índice ocioso no período. 🎉
                         </TableCell>
                       </TableRow>
@@ -322,8 +332,8 @@ export function IndexUsageDashboard() {
 
         {/* Consumo por tabela */}
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <LayoutList className="w-4 h-4" />
+          <div className="mb-2 flex items-center gap-2">
+            <LayoutList className="h-4 w-4" />
             <h3 className="text-sm font-semibold">Consumo por tabela</h3>
           </div>
           {byTable.isLoading ? (

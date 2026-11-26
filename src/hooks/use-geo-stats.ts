@@ -34,8 +34,7 @@ export function useGeoStats() {
     queryFn: async () => {
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
-        .rpc('get_geo_stats', { p_user_id: user.id });
+      const { data, error } = await supabase.rpc('get_geo_stats', { p_user_id: user.id });
 
       if (error) {
         log.error('Error fetching geo stats:', error);
@@ -47,7 +46,7 @@ export function useGeoStats() {
 
       (data || []).forEach((row: GeoStat) => {
         const existing = countryMap.get(row.country);
-        
+
         if (existing) {
           existing.opens += row.open_count;
           existing.clicks += row.click_count;
@@ -64,19 +63,20 @@ export function useGeoStats() {
             opens: row.open_count,
             clicks: row.click_count,
             total: row.open_count + row.click_count,
-            cities: [{
-              city: row.city,
-              opens: row.open_count,
-              clicks: row.click_count,
-              total: row.open_count + row.click_count,
-            }],
+            cities: [
+              {
+                city: row.city,
+                opens: row.open_count,
+                clicks: row.click_count,
+                total: row.open_count + row.click_count,
+              },
+            ],
           });
         }
       });
 
       // Sort by total
-      return Array.from(countryMap.values())
-        .sort((a, b) => b.total - a.total);
+      return Array.from(countryMap.values()).sort((a, b) => b.total - a.total);
     },
     enabled: !!user,
     staleTime: 1000 * 60 * 5, // 5 minutes

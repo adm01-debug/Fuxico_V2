@@ -66,19 +66,24 @@ interface SyncResult {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 async function getAuthHeaders(): Promise<HeadersInit> {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   if (!session?.access_token) {
     throw new Error('Not authenticated');
   }
   return {
-    'Authorization': `Bearer ${session.access_token}`,
+    Authorization: `Bearer ${session.access_token}`,
     'Content-Type': 'application/json',
   };
 }
 
-async function callBitrix24API<T = SyncResult>(action: string, data: Record<string, unknown> = {}): Promise<T> {
+async function callBitrix24API<T = SyncResult>(
+  action: string,
+  data: Record<string, unknown> = {}
+): Promise<T> {
   const headers = await getAuthHeaders();
-  
+
   const response = await fetch(`${SUPABASE_URL}/functions/v1/bitrix24-sync`, {
     method: 'POST',
     headers,
@@ -86,7 +91,7 @@ async function callBitrix24API<T = SyncResult>(action: string, data: Record<stri
   });
 
   const result = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(result.message || result.error || 'API request failed');
   }
@@ -117,7 +122,9 @@ export function useBitrix24Config() {
   const query = useQuery<Bitrix24Config>({
     queryKey: ['bitrix24-config'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
@@ -161,27 +168,38 @@ export function useBitrix24Config() {
 
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<Bitrix24Config>) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const dbUpdates: Record<string, unknown> = {};
       if (updates.enabled !== undefined) dbUpdates.enabled = updates.enabled;
       if (updates.webhookUrl !== undefined) dbUpdates.webhook_url = updates.webhookUrl;
-      if (updates.autoSyncContacts !== undefined) dbUpdates.auto_sync_contacts = updates.autoSyncContacts;
-      if (updates.autoRegisterActivities !== undefined) dbUpdates.auto_register_activities = updates.autoRegisterActivities;
-      if (updates.autoCreateDeals !== undefined) dbUpdates.auto_create_deals = updates.autoCreateDeals;
-      if (updates.sendNotifications !== undefined) dbUpdates.send_notifications = updates.sendNotifications;
-      if (updates.defaultDealStage !== undefined) dbUpdates.default_deal_stage = updates.defaultDealStage;
-      if (updates.defaultDealCategory !== undefined) dbUpdates.default_deal_category = updates.defaultDealCategory;
+      if (updates.autoSyncContacts !== undefined)
+        dbUpdates.auto_sync_contacts = updates.autoSyncContacts;
+      if (updates.autoRegisterActivities !== undefined)
+        dbUpdates.auto_register_activities = updates.autoRegisterActivities;
+      if (updates.autoCreateDeals !== undefined)
+        dbUpdates.auto_create_deals = updates.autoCreateDeals;
+      if (updates.sendNotifications !== undefined)
+        dbUpdates.send_notifications = updates.sendNotifications;
+      if (updates.defaultDealStage !== undefined)
+        dbUpdates.default_deal_stage = updates.defaultDealStage;
+      if (updates.defaultDealCategory !== undefined)
+        dbUpdates.default_deal_category = updates.defaultDealCategory;
 
       const { data, error } = await supabase
         .from('bitrix24_config')
-        .upsert({
-          user_id: user.id,
-          ...dbUpdates,
-        }, {
-          onConflict: 'user_id',
-        })
+        .upsert(
+          {
+            user_id: user.id,
+            ...dbUpdates,
+          },
+          {
+            onConflict: 'user_id',
+          }
+        )
         .select()
         .single();
 
@@ -198,11 +216,14 @@ export function useBitrix24Config() {
     },
   });
 
-  const updateConfig = useCallback(async (updates: Partial<Bitrix24Config>) => {
-    await updateMutation.mutateAsync(updates);
-  }, [updateMutation]);
+  const updateConfig = useCallback(
+    async (updates: Partial<Bitrix24Config>) => {
+      await updateMutation.mutateAsync(updates);
+    },
+    [updateMutation]
+  );
 
-  return { 
+  return {
     config: query.data || {
       enabled: true,
       webhookUrl: null,
@@ -212,7 +233,7 @@ export function useBitrix24Config() {
       sendNotifications: true,
       defaultDealStage: 'NEW',
       defaultDealCategory: '0',
-    }, 
+    },
     updateConfig,
     isLoading: query.isLoading,
     isUpdating: updateMutation.isPending,
@@ -243,12 +264,12 @@ export function useBitrix24Contacts() {
       if (!config.webhookUrl) {
         return [];
       }
-      
+
       const result = await callBitrix24API<{ success: boolean; contacts: Bitrix24Contact[] }>(
-        'get_contacts', 
+        'get_contacts',
         { limit: 50 }
       );
-      
+
       return result.contacts || [];
     },
     enabled: !!config.webhookUrl,
@@ -272,12 +293,12 @@ export function useBitrix24Activities() {
       if (!config.webhookUrl) {
         return [];
       }
-      
+
       const result = await callBitrix24API<{ success: boolean; activities: Bitrix24Activity[] }>(
         'get_activities',
         { limit: 50 }
       );
-      
+
       return result.activities || [];
     },
     enabled: !!config.webhookUrl,
@@ -301,12 +322,12 @@ export function useBitrix24Deals() {
       if (!config.webhookUrl) {
         return [];
       }
-      
+
       const result = await callBitrix24API<{ success: boolean; deals: Bitrix24Deal[] }>(
         'get_deals',
         { limit: 50 }
       );
-      
+
       return result.deals || [];
     },
     enabled: !!config.webhookUrl,
@@ -331,8 +352,13 @@ export function useSyncContact() {
   const { config } = useBitrix24Config();
 
   return useMutation({
-    mutationFn: async ({ email, name, phone, company }: { 
-      email: string; 
+    mutationFn: async ({
+      email,
+      name,
+      phone,
+      company,
+    }: {
+      email: string;
       name?: string;
       phone?: string;
       company?: string;
@@ -340,7 +366,7 @@ export function useSyncContact() {
       if (!config.webhookUrl) {
         throw new Error('Bitrix24 não configurado');
       }
-      
+
       return callBitrix24API('sync_contact', { email, name, phone, company });
     },
     onSuccess: (result) => {
@@ -384,10 +410,10 @@ export function useRegisterActivity() {
       if (!config.webhookUrl) {
         throw new Error('Bitrix24 não configurado');
       }
-      
-      return callBitrix24API('register_activity', { 
-        type, 
-        subject, 
+
+      return callBitrix24API('register_activity', {
+        type,
+        subject,
         email,
         trackingId,
         description: description || `${type}: ${subject}`,
@@ -429,7 +455,7 @@ export function useCreateDeal() {
       if (!config.webhookUrl) {
         throw new Error('Bitrix24 não configurado');
       }
-      
+
       return callBitrix24API('create_deal', { title, email, value, source });
     },
     onSuccess: (result) => {
@@ -459,7 +485,7 @@ export function useSendNotification() {
       if (!config.webhookUrl) {
         throw new Error('Bitrix24 não configurado');
       }
-      
+
       return callBitrix24API('send_notification', { message, userId });
     },
     onSuccess: () => {
@@ -484,7 +510,7 @@ export function useSendNotification() {
  */
 export function useBitrix24Status() {
   const { config, isLoading } = useBitrix24Config();
-  
+
   return {
     isConfigured: !!config.webhookUrl,
     isLoading,
@@ -507,7 +533,7 @@ export function useTestBitrix24Connection() {
   return useMutation({
     mutationFn: async () => {
       const result = await callBitrix24API<{ success: boolean; contacts: Bitrix24Contact[] }>(
-        'get_contacts', 
+        'get_contacts',
         { limit: 1 }
       );
       return result;

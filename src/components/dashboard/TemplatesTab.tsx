@@ -6,7 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Copy, Plus, Trash2, Eye, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEmailTemplates } from '@/hooks/use-email-templates';
@@ -16,10 +23,11 @@ import { createTracking } from '@/features/tracking/lib/tracking-api';
 import { extractTrackableLinks, injectTracking } from '@/features/tracking/lib/render-tracking';
 
 function TemplatesTabBase() {
-  const { templates, isLoading, createTemplate, deleteTemplate, incrementUsage } = useEmailTemplates();
+  const { templates, isLoading, createTemplate, deleteTemplate, incrementUsage } =
+    useEmailTemplates();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<typeof templates[0] | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<(typeof templates)[0] | null>(null);
   const [isPreparing, setIsPreparing] = useState<string | null>(null);
   const [newTemplate, setNewTemplate] = useState({
     name: '',
@@ -28,14 +36,13 @@ function TemplatesTabBase() {
     category: 'Geral',
   });
 
-  const handleCopyTemplate = async (template: typeof templates[0]) => {
+  const handleCopyTemplate = async (template: (typeof templates)[0]) => {
     setIsPreparing(template.id);
     try {
       // Solicita o destinatário para criar tracking end-to-end.
-      const recipient = window.prompt(
-        'E-mail do destinatário (para gerar pixel + links de tracking):',
-        '',
-      )?.trim();
+      const recipient = window
+        .prompt('E-mail do destinatário (para gerar pixel + links de tracking):', '')
+        ?.trim();
       if (!recipient) {
         setIsPreparing(null);
         return;
@@ -87,12 +94,12 @@ function TemplatesTabBase() {
     deleteTemplate.mutate(id);
   };
 
-  const handlePreview = (template: typeof templates[0]) => {
+  const handlePreview = (template: (typeof templates)[0]) => {
     setSelectedTemplate(template);
     setIsPreviewOpen(true);
   };
 
-  const categories = [...new Set(templates.map(t => t.category))];
+  const categories = [...new Set(templates.map((t) => t.category))];
 
   if (isLoading) {
     return (
@@ -104,7 +111,7 @@ function TemplatesTabBase() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1, 2, 3].map(i => (
+              {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-24 w-full" />
               ))}
             </div>
@@ -121,14 +128,12 @@ function TemplatesTabBase() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Templates de Email</CardTitle>
-              <CardDescription>
-                Templates prontos com pixel de tracking integrado
-              </CardDescription>
+              <CardDescription>Templates prontos com pixel de tracking integrado</CardDescription>
             </div>
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
                 <Button>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Novo Template
                 </Button>
               </DialogTrigger>
@@ -136,57 +141,61 @@ function TemplatesTabBase() {
                 <DialogHeader>
                   <DialogTitle>Criar Template</DialogTitle>
                   <DialogDescription>
-                    Crie um novo template de email. O pixel de tracking será inserido automaticamente.
+                    Crie um novo template de email. O pixel de tracking será inserido
+                    automaticamente.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Nome do Template</Label>
-                      <Input 
+                      <Input
                         placeholder="Ex: Proposta Comercial"
                         value={newTemplate.name}
-                        onChange={e => setNewTemplate({...newTemplate, name: e.target.value})}
+                        onChange={(e) => setNewTemplate({ ...newTemplate, name: e.target.value })}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Categoria</Label>
-                      <Input 
+                      <Input
                         placeholder="Ex: Comercial"
                         value={newTemplate.category}
-                        onChange={e => setNewTemplate({...newTemplate, category: e.target.value})}
+                        onChange={(e) =>
+                          setNewTemplate({ ...newTemplate, category: e.target.value })
+                        }
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Assunto</Label>
-                    <Input 
+                    <Input
                       placeholder="Use {{variavel}} para campos dinâmicos"
                       value={newTemplate.subject}
-                      onChange={e => setNewTemplate({...newTemplate, subject: e.target.value})}
+                      onChange={(e) => setNewTemplate({ ...newTemplate, subject: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Corpo do Email</Label>
-                    <Textarea 
+                    <Textarea
                       placeholder="Escreva o corpo do email..."
                       className="min-h-[200px]"
                       value={newTemplate.body}
-                      onChange={e => setNewTemplate({...newTemplate, body: e.target.value})}
+                      onChange={(e) => setNewTemplate({ ...newTemplate, body: e.target.value })}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Dica: Use {"{{nome}}"}, {"{{empresa}}"}, {"{{produto}}"} para variáveis dinâmicas
+                      Dica: Use {'{{nome}}'}, {'{{empresa}}'}, {'{{produto}}'} para variáveis
+                      dinâmicas
                     </p>
                   </div>
-                  <Button 
-                    onClick={handleCreateTemplate} 
+                  <Button
+                    onClick={handleCreateTemplate}
                     className="w-full"
                     disabled={createTemplate.isPending}
                   >
                     {createTemplate.isPending ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                      <Check className="h-4 w-4 mr-2" />
+                      <Check className="mr-2 h-4 w-4" />
                     )}
                     Criar Template
                   </Button>
@@ -197,9 +206,11 @@ function TemplatesTabBase() {
         </CardHeader>
         <CardContent>
           {categories.length > 0 && (
-            <div className="flex gap-2 mb-4 flex-wrap">
-              {categories.map(cat => (
-                <Badge key={cat} variant="secondary">{cat}</Badge>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <Badge key={cat} variant="secondary">
+                  {cat}
+                </Badge>
               ))}
             </div>
           )}
@@ -219,27 +230,31 @@ function TemplatesTabBase() {
           ) : (
             <ScrollArea className="h-[500px]">
               <div className="grid gap-4">
-                {templates.map(template => (
+                {templates.map((template) => (
                   <Card key={template.id} className="bg-muted/30">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="mb-1 flex items-center gap-2">
                             <h4 className="font-medium">{template.name}</h4>
-                            <Badge variant="outline" className="text-xs">{template.category}</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {template.category}
+                            </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {template.subject}
-                          </p>
-                          <p className="text-xs text-muted-foreground line-clamp-2">
+                          <p className="mb-2 text-sm text-muted-foreground">{template.subject}</p>
+                          <p className="line-clamp-2 text-xs text-muted-foreground">
                             {template.body.slice(0, 150)}...
                           </p>
-                          <p className="text-xs text-muted-foreground mt-2">
+                          <p className="mt-2 text-xs text-muted-foreground">
                             Usado {template.usage_count}x
                           </p>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => handlePreview(template)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handlePreview(template)}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button
@@ -255,9 +270,9 @@ function TemplatesTabBase() {
                               <Copy className="h-4 w-4" />
                             )}
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleDeleteTemplate(template.id)}
                             disabled={deleteTemplate.isPending}
                           >
@@ -278,26 +293,27 @@ function TemplatesTabBase() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{selectedTemplate?.name}</DialogTitle>
-            <DialogDescription>
-              Preview do template
-            </DialogDescription>
+            <DialogDescription>Preview do template</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <Label className="text-muted-foreground text-sm">Assunto:</Label>
+              <Label className="text-sm text-muted-foreground">Assunto:</Label>
               <p className="font-medium">{selectedTemplate?.subject}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-sm">Corpo:</Label>
-              <div className="bg-muted/30 p-4 rounded-lg whitespace-pre-wrap text-sm">
+              <Label className="text-sm text-muted-foreground">Corpo:</Label>
+              <div className="whitespace-pre-wrap rounded-lg bg-muted/30 p-4 text-sm">
                 {selectedTemplate?.body}
               </div>
             </div>
-            <Button className="w-full" onClick={() => {
-              if (selectedTemplate) handleCopyTemplate(selectedTemplate);
-              setIsPreviewOpen(false);
-            }}>
-              <Copy className="h-4 w-4 mr-2" />
+            <Button
+              className="w-full"
+              onClick={() => {
+                if (selectedTemplate) handleCopyTemplate(selectedTemplate);
+                setIsPreviewOpen(false);
+              }}
+            >
+              <Copy className="mr-2 h-4 w-4" />
               Copiar Template
             </Button>
           </div>

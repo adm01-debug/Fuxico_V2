@@ -1,17 +1,7 @@
-import { motion } from "framer-motion";
-import { 
-  Trophy, 
-  Flame, 
-  Target, 
-  Star, 
-  Zap, 
-  Medal,
-  Crown,
-  Rocket,
-  Award
-} from "lucide-react";
-import { Badge } from "./badge";
-import { matchFirst } from "@/lib/variant";
+import { motion } from 'framer-motion';
+import { Trophy, Flame, Target, Star, Zap, Medal, Crown, Rocket, Award } from 'lucide-react';
+import { Badge } from './badge';
+import { matchFirst } from '@/lib/variant';
 
 // Streak indicator
 interface StreakProps {
@@ -19,26 +9,26 @@ interface StreakProps {
   label?: string;
 }
 
-export const StreakIndicator = ({ count, label = "dias seguidos" }: StreakProps) => {
+export const StreakIndicator = ({ count, label = 'dias seguidos' }: StreakProps) => {
   const isActive = count > 0;
-  
+
   return (
     <motion.div
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
-        isActive 
-          ? "bg-orange-500/10 border border-orange-500/20" 
-          : "bg-muted border border-border"
+      className={`flex items-center gap-2 rounded-full px-3 py-1.5 ${
+        isActive ? 'border border-orange-500/20 bg-orange-500/10' : 'border border-border bg-muted'
       }`}
     >
       <motion.div
         animate={isActive ? { scale: [1, 1.2, 1] } : {}}
         transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
       >
-        <Flame className={`h-4 w-4 ${isActive ? "text-orange-500" : "text-muted-foreground"}`} />
+        <Flame className={`h-4 w-4 ${isActive ? 'text-orange-500' : 'text-muted-foreground'}`} />
       </motion.div>
-      <span className={`text-sm font-medium ${isActive ? "text-orange-600" : "text-muted-foreground"}`}>
+      <span
+        className={`text-sm font-medium ${isActive ? 'text-orange-600' : 'text-muted-foreground'}`}
+      >
         {count} {label}
       </span>
     </motion.div>
@@ -49,7 +39,7 @@ export const StreakIndicator = ({ count, label = "dias seguidos" }: StreakProps)
 interface AchievementBadgeProps {
   title: string;
   description: string;
-  icon: "trophy" | "star" | "target" | "zap" | "medal" | "crown" | "rocket" | "award";
+  icon: 'trophy' | 'star' | 'target' | 'zap' | 'medal' | 'crown' | 'rocket' | 'award';
   unlocked: boolean;
   progress?: number; // 0-100
 }
@@ -65,34 +55,34 @@ const iconMap = {
   award: Award,
 };
 
-export const AchievementBadge = ({ 
-  title, 
-  description, 
-  icon, 
+export const AchievementBadge = ({
+  title,
+  description,
+  icon,
   unlocked,
-  progress = 0 
+  progress = 0,
 }: AchievementBadgeProps) => {
   const Icon = iconMap[icon];
-  
+
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${
-        unlocked 
-          ? "bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/30" 
-          : "bg-muted/50 border-border grayscale"
+      className={`relative rounded-xl border-2 p-4 transition-all duration-300 ${
+        unlocked
+          ? 'border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/10'
+          : 'border-border bg-muted/50 grayscale'
       }`}
     >
       <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg ${
-          unlocked 
-            ? "bg-gradient-to-br from-yellow-500 to-orange-500" 
-            : "bg-muted"
-        }`}>
-          <Icon className={`h-5 w-5 ${unlocked ? "text-white" : "text-muted-foreground"}`} />
+        <div
+          className={`rounded-lg p-2 ${
+            unlocked ? 'bg-gradient-to-br from-yellow-500 to-orange-500' : 'bg-muted'
+          }`}
+        >
+          <Icon className={`h-5 w-5 ${unlocked ? 'text-white' : 'text-muted-foreground'}`} />
         </div>
         <div className="flex-1">
-          <h4 className={`font-semibold text-sm ${!unlocked && "text-muted-foreground"}`}>
+          <h4 className={`text-sm font-semibold ${!unlocked && 'text-muted-foreground'}`}>
             {title}
           </h4>
           <p className="text-xs text-muted-foreground">{description}</p>
@@ -101,18 +91,16 @@ export const AchievementBadge = ({
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: "spring", delay: 0.2 }}
+            transition={{ type: 'spring', delay: 0.2 }}
           >
-            <Badge className="bg-yellow-500 text-white border-0">
-              ✓
-            </Badge>
+            <Badge className="border-0 bg-yellow-500 text-white">✓</Badge>
           </motion.div>
         )}
       </div>
-      
+
       {!unlocked && progress > 0 && (
         <div className="mt-3">
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
             <motion.div
               className="h-full bg-gradient-to-r from-yellow-500 to-orange-500"
               initial={{ width: 0 }}
@@ -120,7 +108,7 @@ export const AchievementBadge = ({
               transition={{ duration: 1, delay: 0.3 }}
             />
           </div>
-          <p className="text-xs text-muted-foreground mt-1">{progress}% completo</p>
+          <p className="mt-1 text-xs text-muted-foreground">{progress}% completo</p>
         </div>
       )}
     </motion.div>
@@ -135,19 +123,24 @@ interface LevelProgressProps {
   title?: string;
 }
 
-export const LevelProgress = ({ level, currentXP, requiredXP, title = "Nível" }: LevelProgressProps) => {
+export const LevelProgress = ({
+  level,
+  currentXP,
+  requiredXP,
+  title = 'Nível',
+}: LevelProgressProps) => {
   const progress = (currentXP / requiredXP) * 100;
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20"
+      className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 to-accent/10 p-4"
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-            <span className="text-white font-bold">{level}</span>
+          <div className="gradient-primary flex h-10 w-10 items-center justify-center rounded-lg">
+            <span className="font-bold text-white">{level}</span>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">{title}</p>
@@ -156,16 +149,18 @@ export const LevelProgress = ({ level, currentXP, requiredXP, title = "Nível" }
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground">Próximo nível</p>
-          <p className="font-mono text-sm">{currentXP}/{requiredXP} XP</p>
+          <p className="font-mono text-sm">
+            {currentXP}/{requiredXP} XP
+          </p>
         </div>
       </div>
-      
-      <div className="h-2 bg-muted rounded-full overflow-hidden">
+
+      <div className="h-2 overflow-hidden rounded-full bg-muted">
         <motion.div
-          className="h-full gradient-primary"
+          className="gradient-primary h-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
-          transition={{ duration: 1, ease: "easeOut" }}
+          transition={{ duration: 1, ease: 'easeOut' }}
         />
       </div>
     </motion.div>
@@ -176,37 +171,41 @@ export const LevelProgress = ({ level, currentXP, requiredXP, title = "Nível" }
 interface QuickStatProps {
   value: number;
   label: string;
-  icon: "trophy" | "star" | "target" | "zap" | "medal";
-  trend?: "up" | "down" | "neutral";
+  icon: 'trophy' | 'star' | 'target' | 'zap' | 'medal';
+  trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
 }
 
 export const QuickStat = ({ value, label, icon, trend, trendValue }: QuickStatProps) => {
   const Icon = iconMap[icon];
-  
+
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      className="p-4 rounded-xl bg-card border border-border"
-    >
-      <div className="flex items-center justify-between mb-2">
+    <motion.div whileHover={{ y: -2 }} className="rounded-xl border border-border bg-card p-4">
+      <div className="mb-2 flex items-center justify-between">
         <Icon className="h-5 w-5 text-primary" />
         {trend && trendValue && (
-          <span className={`text-xs font-medium ${
-            matchFirst([
-  [trend === "up", () => ("text-green-500")],
-  [trend === "down", () => ("text-red-500")],
-], () => ("text-muted-foreground"))
-          }`}>
-            {matchFirst([
-  [trend === "up", () => ("↑")],
-  [trend === "down", () => ("↓")],
-], () => ("→"))} {trendValue}
+          <span
+            className={`text-xs font-medium ${matchFirst(
+              [
+                [trend === 'up', () => 'text-green-500'],
+                [trend === 'down', () => 'text-red-500'],
+              ],
+              () => 'text-muted-foreground'
+            )}`}
+          >
+            {matchFirst(
+              [
+                [trend === 'up', () => '↑'],
+                [trend === 'down', () => '↓'],
+              ],
+              () => '→'
+            )}{' '}
+            {trendValue}
           </span>
         )}
       </div>
       <motion.p
-        className="text-2xl font-bold font-display"
+        className="font-display text-2xl font-bold"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >

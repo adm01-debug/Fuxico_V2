@@ -21,10 +21,7 @@ export type MatchBranch<T> = readonly [condition: unknown, value: () => T];
  * @param branches Lista ordenada de pares `[condição, () => valor]`.
  * @param fallback Thunk avaliado quando nenhuma condição é verdadeira.
  */
-export function matchFirst<T>(
-  branches: ReadonlyArray<MatchBranch<T>>,
-  fallback: () => T,
-): T {
+export function matchFirst<T>(branches: ReadonlyArray<MatchBranch<T>>, fallback: () => T): T {
   for (const [condition, value] of branches) {
     if (condition) return value();
   }
@@ -38,7 +35,7 @@ export function matchFirst<T>(
  */
 export function pickFirst<T>(
   branches: ReadonlyArray<readonly [condition: unknown, value: T]>,
-  fallback: T,
+  fallback: T
 ): T {
   for (const [condition, value] of branches) {
     if (condition) return value;
@@ -57,7 +54,7 @@ export function pickFirst<T>(
 export function thresholdVariant<T>(
   value: number,
   thresholds: ReadonlyArray<readonly [min: number, variant: T]>,
-  fallback: T,
+  fallback: T
 ): T {
   for (const [min, variant] of thresholds) {
     if (value >= min) return variant;

@@ -4,8 +4,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ReportType, ReportFormat } from '@/hooks/use-scheduled-reports';
@@ -25,7 +38,12 @@ interface CreateReportDialogProps {
   isPending: boolean;
 }
 
-export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: CreateReportDialogProps) {
+export function CreateReportDialog({
+  open,
+  onOpenChange,
+  onCreate,
+  isPending,
+}: CreateReportDialogProps) {
   const [newReport, setNewReport] = useState({
     name: '',
     report_type: 'weekly' as 'daily' | 'weekly' | 'monthly',
@@ -36,33 +54,53 @@ export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: 
   const [recipientInput, setRecipientInput] = useState('');
 
   const handleSubmit = async () => {
-    if (!newReport.name) { toast.error('Informe o nome do relatório'); return; }
-    if (newReport.recipients.length === 0) { toast.error('Adicione pelo menos um destinatário'); return; }
+    if (!newReport.name) {
+      toast.error('Informe o nome do relatório');
+      return;
+    }
+    if (newReport.recipients.length === 0) {
+      toast.error('Adicione pelo menos um destinatário');
+      return;
+    }
     await onCreate(newReport);
-    setNewReport({ name: '', report_type: 'weekly', format: 'email', recipients: [], metrics: ['emails_sent', 'opens', 'clicks'] });
+    setNewReport({
+      name: '',
+      report_type: 'weekly',
+      format: 'email',
+      recipients: [],
+      metrics: ['emails_sent', 'opens', 'clicks'],
+    });
     onOpenChange(false);
   };
 
   const removeRecipient = (email: string) =>
-    setNewReport(prev => ({ ...prev, recipients: prev.recipients.filter(e => e !== email) }));
+    setNewReport((prev) => ({ ...prev, recipients: prev.recipients.filter((e) => e !== email) }));
 
   const addRecipient = () => {
-    if (!recipientInput || !recipientInput.includes('@')) { toast.error('Email inválido'); return; }
-    setNewReport(prev => ({ ...prev, recipients: [...prev.recipients, recipientInput] }));
+    if (!recipientInput || !recipientInput.includes('@')) {
+      toast.error('Email inválido');
+      return;
+    }
+    setNewReport((prev) => ({ ...prev, recipients: [...prev.recipients, recipientInput] }));
     setRecipientInput('');
   };
 
   const toggleMetric = (metric: string) => {
-    setNewReport(prev => ({
+    setNewReport((prev) => ({
       ...prev,
-      metrics: prev.metrics.includes(metric) ? prev.metrics.filter(m => m !== metric) : [...prev.metrics, metric],
+      metrics: prev.metrics.includes(metric)
+        ? prev.metrics.filter((m) => m !== metric)
+        : [...prev.metrics, metric],
     }));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button><Plus className="h-4 w-4 mr-2" />Novo Relatório</Button>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          Novo Relatório
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
@@ -72,14 +110,24 @@ export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label>Nome do Relatório</Label>
-            <Input placeholder="Ex: Resumo Semanal" value={newReport.name}
-              onChange={e => setNewReport(prev => ({ ...prev, name: e.target.value }))} />
+            <Input
+              placeholder="Ex: Resumo Semanal"
+              value={newReport.name}
+              onChange={(e) => setNewReport((prev) => ({ ...prev, name: e.target.value }))}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Frequência</Label>
-              <Select value={newReport.report_type} onValueChange={(v: 'daily' | 'weekly' | 'monthly') => setNewReport(prev => ({ ...prev, report_type: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select
+                value={newReport.report_type}
+                onValueChange={(v: 'daily' | 'weekly' | 'monthly') =>
+                  setNewReport((prev) => ({ ...prev, report_type: v }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="daily">Diário</SelectItem>
                   <SelectItem value="weekly">Semanal</SelectItem>
@@ -89,8 +137,15 @@ export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: 
             </div>
             <div className="space-y-2">
               <Label>Formato</Label>
-              <Select value={newReport.format} onValueChange={(v: 'email' | 'pdf' | 'csv') => setNewReport(prev => ({ ...prev, format: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select
+                value={newReport.format}
+                onValueChange={(v: 'email' | 'pdf' | 'csv') =>
+                  setNewReport((prev) => ({ ...prev, format: v }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="email">Email</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
@@ -102,29 +157,51 @@ export function CreateReportDialog({ open, onOpenChange, onCreate, isPending }: 
           <div className="space-y-2">
             <Label>Métricas</Label>
             <div className="grid grid-cols-2 gap-2">
-              {metricOptions.map(option => (
+              {metricOptions.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
-                  <Checkbox id={option.value} checked={newReport.metrics.includes(option.value)} onCheckedChange={() => toggleMetric(option.value)} />
-                  <label htmlFor={option.value} className="text-sm">{option.label}</label>
+                  <Checkbox
+                    id={option.value}
+                    checked={newReport.metrics.includes(option.value)}
+                    onCheckedChange={() => toggleMetric(option.value)}
+                  />
+                  <label htmlFor={option.value} className="text-sm">
+                    {option.label}
+                  </label>
                 </div>
               ))}
             </div>
           </div>
           <div className="space-y-2">
             <Label>Destinatários</Label>
-            <div className="flex flex-wrap gap-1 mb-2">
-              {newReport.recipients.map(email => (
-                <Badge key={email} variant="secondary" className="cursor-pointer"
-                  onClick={() => removeRecipient(email)}>{email} ×</Badge>
+            <div className="mb-2 flex flex-wrap gap-1">
+              {newReport.recipients.map((email) => (
+                <Badge
+                  key={email}
+                  variant="secondary"
+                  className="cursor-pointer"
+                  onClick={() => removeRecipient(email)}
+                >
+                  {email} ×
+                </Badge>
               ))}
             </div>
             <div className="flex gap-2">
-              <Input placeholder="email@exemplo.com" value={recipientInput} onChange={e => setRecipientInput(e.target.value)} />
-              <Button type="button" variant="outline" onClick={addRecipient}>Adicionar</Button>
+              <Input
+                placeholder="email@exemplo.com"
+                value={recipientInput}
+                onChange={(e) => setRecipientInput(e.target.value)}
+              />
+              <Button type="button" variant="outline" onClick={addRecipient}>
+                Adicionar
+              </Button>
             </div>
           </div>
           <Button onClick={handleSubmit} className="w-full" disabled={isPending}>
-            {isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
+            {isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="mr-2 h-4 w-4" />
+            )}
             Criar Relatório
           </Button>
         </div>

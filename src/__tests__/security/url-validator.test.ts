@@ -2,8 +2,15 @@ import { describe, it, expect } from 'vitest';
 
 // Port the URL validator logic for testing (same logic as _shared/url-validator.ts)
 const PRIVATE_IP_PATTERNS = [
-  /^127\./, /^10\./, /^172\.(1[6-9]|2\d|3[01])\./, /^192\.168\./,
-  /^169\.254\./, /^0\./, /^::1$/, /^fc00:/i, /^fe80:/i,
+  /^127\./,
+  /^10\./,
+  /^172\.(1[6-9]|2\d|3[01])\./,
+  /^192\.168\./,
+  /^169\.254\./,
+  /^0\./,
+  /^::1$/,
+  /^fc00:/i,
+  /^fe80:/i,
 ];
 const BLOCKED_HOSTNAMES = ['localhost', 'metadata.google.internal', '169.254.169.254', '[::1]'];
 
@@ -18,7 +25,9 @@ function isUrlSafe(urlString: string): boolean {
     }
     if (url.username || url.password) return false;
     return true;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 describe('URL Validator - SSRF Prevention', () => {

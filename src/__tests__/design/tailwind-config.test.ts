@@ -14,12 +14,21 @@ const tailwindConfig = fs.readFileSync(
 
 describe('Tailwind - Color Tokens', () => {
   const requiredColors = [
-    'background', 'foreground', 'primary', 'secondary',
-    'muted', 'accent', 'destructive', 'card', 'popover',
-    'border', 'input', 'ring',
+    'background',
+    'foreground',
+    'primary',
+    'secondary',
+    'muted',
+    'accent',
+    'destructive',
+    'card',
+    'popover',
+    'border',
+    'input',
+    'ring',
   ];
 
-  requiredColors.forEach(color => {
+  requiredColors.forEach((color) => {
     it(`should define '${color}' color`, () => {
       expect(tailwindConfig).toContain(color);
     });
@@ -40,7 +49,8 @@ describe('Tailwind - Border Radius', () => {
 
 describe('Tailwind - Font Family', () => {
   it('should reference font-display variable', () => {
-    const hasFont = tailwindConfig.includes('font-display') || tailwindConfig.includes('Space Grotesk');
+    const hasFont =
+      tailwindConfig.includes('font-display') || tailwindConfig.includes('Space Grotesk');
     expect(hasFont).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
-import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { ComponentProps, ReactNode } from "react";
-import { matchFirst } from "@/lib/variant";
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { ComponentProps, ReactNode } from 'react';
+import { matchFirst } from '@/lib/variant';
 
 export interface StepperStep {
   id: string;
@@ -10,12 +10,12 @@ export interface StepperStep {
   optional?: boolean;
 }
 
-export interface StepperProps extends ComponentProps<"ol"> {
+export interface StepperProps extends ComponentProps<'ol'> {
   steps: StepperStep[];
   currentStep: number;
   /** Callback opcional ao clicar em um passo já concluído (para navegação para trás). */
   onStepClick?: (index: number) => void;
-  orientation?: "horizontal" | "vertical";
+  orientation?: 'horizontal' | 'vertical';
 }
 
 /**
@@ -28,7 +28,7 @@ export function Stepper({
   steps,
   currentStep,
   onStepClick,
-  orientation = "horizontal",
+  orientation = 'horizontal',
   className,
   ...rest
 }: StepperProps) {
@@ -39,11 +39,11 @@ export function Stepper({
     <ol
       aria-label="Progresso do fluxo"
       className={cn(
-        "flex w-full",
-        orientation === "horizontal"
-          ? "flex-row items-start gap-2 overflow-x-auto"
-          : "flex-col gap-4",
-        className,
+        'flex w-full',
+        orientation === 'horizontal'
+          ? 'flex-row items-start gap-2 overflow-x-auto'
+          : 'flex-col gap-4',
+        className
       )}
       {...rest}
     >
@@ -55,27 +55,30 @@ export function Stepper({
         return (
           <li
             key={step.id}
-            aria-current={isCurrent ? "step" : undefined}
+            aria-current={isCurrent ? 'step' : undefined}
             className={cn(
-              "flex min-w-0 items-start gap-3",
-              orientation === "horizontal" && "flex-1",
+              'flex min-w-0 items-start gap-3',
+              orientation === 'horizontal' && 'flex-1'
             )}
           >
             <button
               type="button"
               disabled={!isClickable}
               onClick={() => isClickable && onStepClick(index)}
-              aria-label={`${matchFirst([
-  [isCompleted, () => ("Concluído: ")],
-  [isCurrent, () => ("Atual: ")],
-], () => ("Pendente: "))}${step.label}`}
+              aria-label={`${matchFirst(
+                [
+                  [isCompleted, () => 'Concluído: '],
+                  [isCurrent, () => 'Atual: '],
+                ],
+                () => 'Pendente: '
+              )}${step.label}`}
               className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
-                isCompleted && "border-primary bg-primary text-primary-foreground",
-                isCurrent && "border-primary bg-background text-primary",
-                !isCompleted && !isCurrent && "border-border bg-muted text-muted-foreground",
-                isClickable && "cursor-pointer hover:brightness-110",
-                !isClickable && "cursor-default",
+                'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors',
+                isCompleted && 'border-primary bg-primary text-primary-foreground',
+                isCurrent && 'border-primary bg-background text-primary',
+                !isCompleted && !isCurrent && 'border-border bg-muted text-muted-foreground',
+                isClickable && 'cursor-pointer hover:brightness-110',
+                !isClickable && 'cursor-default'
               )}
             >
               {isCompleted ? <Check className="h-4 w-4" aria-hidden="true" /> : index + 1}
@@ -83,29 +86,25 @@ export function Stepper({
             <div className="min-w-0 flex-1">
               <p
                 className={cn(
-                  "truncate text-sm font-medium",
-                  isCurrent ? "text-foreground" : "text-muted-foreground",
+                  'truncate text-sm font-medium',
+                  isCurrent ? 'text-foreground' : 'text-muted-foreground'
                 )}
               >
                 {step.label}
                 {step.optional && (
-                  <span className="ml-2 text-xs font-normal text-muted-foreground">
-                    (opcional)
-                  </span>
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">(opcional)</span>
                 )}
               </p>
               {step.description && (
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                  {step.description}
-                </p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">{step.description}</p>
               )}
             </div>
-            {orientation === "horizontal" && index < total - 1 && (
+            {orientation === 'horizontal' && index < total - 1 && (
               <div
                 aria-hidden="true"
                 className={cn(
-                  "mt-4 h-0.5 flex-1 rounded-full",
-                  isCompleted ? "bg-primary" : "bg-border",
+                  'mt-4 h-0.5 flex-1 rounded-full',
+                  isCompleted ? 'bg-primary' : 'bg-border'
                 )}
               />
             )}
@@ -116,9 +115,13 @@ export function Stepper({
   );
 }
 
-export function StepperContent({ children, className, ...rest }: ComponentProps<"div"> & { children: ReactNode }) {
+export function StepperContent({
+  children,
+  className,
+  ...rest
+}: ComponentProps<'div'> & { children: ReactNode }) {
   return (
-    <div className={cn("mt-6", className)} {...rest}>
+    <div className={cn('mt-6', className)} {...rest}>
       {children}
     </div>
   );

@@ -1,10 +1,10 @@
-import { type FormEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, Mail, Eye, EyeOff, Lock, AlertTriangle, ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { matchFirst } from "@/lib/variant";
+import { type FormEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, Mail, Eye, EyeOff, Lock, AlertTriangle, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { matchFirst } from '@/lib/variant';
 
 const formatLockoutTime = (seconds: number): string => {
   if (seconds < 60) return `${seconds} segundos`;
@@ -33,37 +33,48 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({
-  email, setEmail, password, setPassword,
-  showPassword, setShowPassword,
-  isLoading, isLockedOut, lockoutSeconds, failedAttempts,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  showPassword,
+  setShowPassword,
+  isLoading,
+  isLockedOut,
+  lockoutSeconds,
+  failedAttempts,
   onSubmit,
 }: LoginFormProps) => (
-  <form onSubmit={onSubmit} className="space-y-4 mt-4">
+  <form onSubmit={onSubmit} className="mt-4 space-y-4">
     <div className="space-y-2">
-      <Label htmlFor="login-email" className="text-sm font-medium">Email</Label>
-      <div className="relative group">
-        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
+      <Label htmlFor="login-email" className="text-sm font-medium">
+        Email
+      </Label>
+      <div className="group relative">
+        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
         <Input
           id="login-email"
           type="email"
           placeholder="seu@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="pl-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+          className="h-11 border-border/50 bg-background/50 pl-10 transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
         />
       </div>
     </div>
     <div className="space-y-2">
-      <Label htmlFor="login-password" className="text-sm font-medium">Senha</Label>
-      <div className="relative group">
-        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 group-focus-within:text-primary transition-colors" />
+      <Label htmlFor="login-password" className="text-sm font-medium">
+        Senha
+      </Label>
+      <div className="group relative">
+        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
         <Input
           id="login-password"
-          type={showPassword ? "text" : "password"}
+          type={showPassword ? 'text' : 'password'}
           placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="pl-10 pr-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
+          className="h-11 border-border/50 bg-background/50 pl-10 pr-10 transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
         />
         <Button
           type="button"
@@ -74,11 +85,11 @@ export const LoginForm = ({
           tabIndex={-1}
         >
           {showPassword ? (
-            <EyeOff className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+            <EyeOff className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
           ) : (
-            <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+            <Eye className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
           )}
-          <span className="sr-only">{showPassword ? "Ocultar senha" : "Mostrar senha"}</span>
+          <span className="sr-only">{showPassword ? 'Ocultar senha' : 'Mostrar senha'}</span>
         </Button>
       </div>
     </div>
@@ -88,12 +99,14 @@ export const LoginForm = ({
       {isLockedOut && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
+          animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm"
+          className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive"
         >
-          <Lock className="w-4 h-4 flex-shrink-0" />
-          <span>Conta bloqueada. Aguarde {formatLockoutTime(lockoutSeconds)} para tentar novamente.</span>
+          <Lock className="h-4 w-4 flex-shrink-0" />
+          <span>
+            Conta bloqueada. Aguarde {formatLockoutTime(lockoutSeconds)} para tentar novamente.
+          </span>
         </motion.div>
       )}
     </AnimatePresence>
@@ -103,11 +116,11 @@ export const LoginForm = ({
       {!isLockedOut && failedAttempts > 0 && failedAttempts < 5 && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
+          animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="flex items-center gap-2 p-2 rounded-lg bg-warning/10 border border-warning/20 text-warning text-xs"
+          className="flex items-center gap-2 rounded-lg border border-warning/20 bg-warning/10 p-2 text-xs text-warning"
         >
-          <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+          <AlertTriangle className="h-3 w-3 flex-shrink-0" />
           <span>{5 - failedAttempts} tentativa(s) restante(s) antes do bloqueio</span>
         </motion.div>
       )}
@@ -116,25 +129,29 @@ export const LoginForm = ({
     <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
       <Button
         type="submit"
-        className="w-full h-11 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+        className="h-11 w-full bg-primary shadow-lg shadow-primary/25 transition-all duration-300 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30"
         disabled={isLoading || isLockedOut}
       >
-        {matchFirst([
-  [isLoading, () => ((
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ))],
-  [isLockedOut, () => ((
-          <>
-            <Lock className="h-4 w-4 mr-2" />
-            Bloqueado ({formatLockoutTime(lockoutSeconds)})
-          </>
-        ))],
-], () => ((
-          <>
-            Entrar
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </>
-        )))}
+        {matchFirst(
+          [
+            [isLoading, () => <Loader2 className="h-4 w-4 animate-spin" />],
+            [
+              isLockedOut,
+              () => (
+                <>
+                  <Lock className="mr-2 h-4 w-4" />
+                  Bloqueado ({formatLockoutTime(lockoutSeconds)})
+                </>
+              ),
+            ],
+          ],
+          () => (
+            <>
+              Entrar
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </>
+          )
+        )}
       </Button>
     </motion.div>
   </form>

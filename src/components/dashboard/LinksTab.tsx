@@ -1,12 +1,12 @@
 import { memo, useState } from 'react';
-import { useTrackedLinks, useLinkClickEvents } from "@/hooks/use-tracked-links";
-import { LinkCreateDialog } from "./LinkCreateDialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { EmptyState } from "@/components/ui/empty-state";
+import { useTrackedLinks, useLinkClickEvents } from '@/hooks/use-tracked-links';
+import { LinkCreateDialog } from './LinkCreateDialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { EmptyState } from '@/components/ui/empty-state';
 import {
   Table,
   TableBody,
@@ -14,28 +14,23 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { 
-  MousePointerClick, 
-  Copy, 
-  Check, 
+  MousePointerClick,
+  Copy,
+  Check,
   Clock,
   Globe,
   Monitor,
   Smartphone,
   Tablet,
   ExternalLink,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
-import { matchFirst } from "@/lib/variant";
+} from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
+import { matchFirst } from '@/lib/variant';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
@@ -53,14 +48,14 @@ function LinksTabBase() {
     const url = getTrackingUrl(linkId);
     await navigator.clipboard.writeText(url);
     setCopiedId(linkId);
-    toast({ title: "Link copiado!" });
+    toast({ title: 'Link copiado!' });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   if (isLoading) {
     return (
       <div className="space-y-4" role="region" aria-label="Links Rastreados">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-32" />
         </div>
@@ -73,12 +68,10 @@ function LinksTabBase() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Links Rastreados</h2>
-          <p className="text-sm text-muted-foreground">
-            Crie links curtos e rastreie cliques
-          </p>
+          <p className="text-sm text-muted-foreground">Crie links curtos e rastreie cliques</p>
         </div>
         <div data-tour="links-create-btn">
           <LinkCreateDialog />
@@ -111,26 +104,26 @@ function LinksTabBase() {
                     <div>
                       <p className="font-medium">{link.title || link.link_id}</p>
                       {link.description && (
-                        <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                        <p className="max-w-[200px] truncate text-sm text-muted-foreground">
                           {link.description}
                         </p>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <a 
-                      href={link.original_url} 
-                      target="_blank" 
+                    <a
+                      href={link.original_url}
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 truncate max-w-[250px]"
+                      className="flex max-w-[250px] items-center gap-1 truncate text-sm text-muted-foreground hover:text-primary"
                     >
                       {link.original_url}
                       <ExternalLink className="h-3 w-3 flex-shrink-0" />
                     </a>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={link.click_count > 0 ? "default" : "secondary"}>
-                      <MousePointerClick className="h-3 w-3 mr-1" />
+                    <Badge variant={link.click_count > 0 ? 'default' : 'secondary'}>
+                      <MousePointerClick className="mr-1 h-3 w-3" />
                       {link.click_count}
                     </Badge>
                   </TableCell>
@@ -147,7 +140,7 @@ function LinksTabBase() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex justify-end gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -177,28 +170,19 @@ function LinksTabBase() {
         </Card>
       )}
 
-      <LinkEventsDialog
-        linkId={selectedLinkId}
-        onClose={() => setSelectedLinkId(null)}
-      />
+      <LinkEventsDialog linkId={selectedLinkId} onClose={() => setSelectedLinkId(null)} />
     </div>
   );
 }
 
-function LinkEventsDialog({
-  linkId,
-  onClose,
-}: {
-  linkId: string | null;
-  onClose: () => void;
-}) {
+function LinkEventsDialog({ linkId, onClose }: { linkId: string | null; onClose: () => void }) {
   const { data: events, isLoading } = useLinkClickEvents(linkId);
 
   const getDeviceIcon = (deviceType: string | null) => {
     switch (deviceType) {
-      case "mobile":
+      case 'mobile':
         return <Smartphone className="h-4 w-4" />;
-      case "tablet":
+      case 'tablet':
         return <Tablet className="h-4 w-4" />;
       default:
         return <Monitor className="h-4 w-4" />;
@@ -207,73 +191,83 @@ function LinkEventsDialog({
 
   return (
     <Dialog open={!!linkId} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-h-[80vh] max-w-2xl">
         <DialogHeader>
           <DialogTitle>Histórico de Cliques</DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[500px] pr-4">
-          {matchFirst([
-  [isLoading, () => ((
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ))],
-  [!events?.length, () => ((
-            <div className="text-center py-8 text-muted-foreground">
-              <MousePointerClick className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum clique registrado</p>
-            </div>
-          ))],
-], () => ((
-            <div className="space-y-3">
-              {(events ?? []).map((event) => (
-                <Card key={event.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-full bg-muted">
-                          <MousePointerClick className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="font-medium">Clique</p>
-                          <div className="flex flex-wrap gap-2 mt-2 text-sm text-muted-foreground">
-                            {event.country && (
-                              <span className="flex items-center gap-1">
-                                <Globe className="h-3 w-3" />
-                                {event.city ? `${event.city}, ` : ""}{event.country}
-                              </span>
-                            )}
-                            {event.device_type && (
-                              <span className="flex items-center gap-1">
-                                {getDeviceIcon(event.device_type)}
-                                {event.device_type}
-                              </span>
-                            )}
-                            {event.browser && <span>{event.browser}</span>}
-                            {event.os && <span>{event.os}</span>}
+          {matchFirst(
+            [
+              [
+                isLoading,
+                () => (
+                  <div className="space-y-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
+                  </div>
+                ),
+              ],
+              [
+                !events?.length,
+                () => (
+                  <div className="py-8 text-center text-muted-foreground">
+                    <MousePointerClick className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                    <p>Nenhum clique registrado</p>
+                  </div>
+                ),
+              ],
+            ],
+            () => (
+              <div className="space-y-3">
+                {(events ?? []).map((event) => (
+                  <Card key={event.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          <div className="rounded-full bg-muted p-2">
+                            <MousePointerClick className="h-4 w-4" />
                           </div>
-                          {event.ip_address && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              IP: {event.ip_address}
-                            </p>
-                          )}
+                          <div>
+                            <p className="font-medium">Clique</p>
+                            <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
+                              {event.country && (
+                                <span className="flex items-center gap-1">
+                                  <Globe className="h-3 w-3" />
+                                  {event.city ? `${event.city}, ` : ''}
+                                  {event.country}
+                                </span>
+                              )}
+                              {event.device_type && (
+                                <span className="flex items-center gap-1">
+                                  {getDeviceIcon(event.device_type)}
+                                  {event.device_type}
+                                </span>
+                              )}
+                              {event.browser && <span>{event.browser}</span>}
+                              {event.os && <span>{event.os}</span>}
+                            </div>
+                            {event.ip_address && (
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                IP: {event.ip_address}
+                              </p>
+                            )}
+                          </div>
                         </div>
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {formatDistanceToNow(new Date(event.created_at), {
+                            addSuffix: true,
+                            locale: ptBR,
+                          })}
+                        </span>
                       </div>
-                      <span className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(event.created_at), {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>

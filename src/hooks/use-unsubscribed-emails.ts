@@ -18,19 +18,23 @@ export function useUnsubscribedEmails() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const { data: unsubscribedEmails = [], isLoading, error } = useQuery({
+  const {
+    data: unsubscribedEmails = [],
+    isLoading,
+    error,
+  } = useQuery({
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     queryKey: ['unsubscribed-emails', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('unsubscribed_emails')
         .select('*')
         .eq('user_id', user.id)
         .order('unsubscribed_at', { ascending: false });
-      
+
       if (error) throw error;
       return data as UnsubscribedEmail[];
     },
@@ -40,7 +44,7 @@ export function useUnsubscribedEmails() {
   const addUnsubscribe = useMutation({
     mutationFn: async ({ email, reason }: { email: string; reason?: string }) => {
       if (!user?.id) throw new Error('Usuário não autenticado');
-      
+
       const { data, error } = await supabase
         .from('unsubscribed_emails')
         .insert({
@@ -51,7 +55,7 @@ export function useUnsubscribedEmails() {
         })
         .select()
         .single();
-      
+
       if (error) {
         if (error.code === '23505') {
           throw new Error('Este email já está na lista de descadastrados');
@@ -71,11 +75,8 @@ export function useUnsubscribedEmails() {
 
   const removeUnsubscribe = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('unsubscribed_emails')
-        .delete()
-        .eq('id', id);
-      
+      const { error } = await supabase.from('unsubscribed_emails').delete().eq('id', id);
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -90,17 +91,17 @@ export function useUnsubscribedEmails() {
   const bulkAddUnsubscribe = useMutation({
     mutationFn: async (emails: string[]) => {
       if (!user?.id) throw new Error('Usuário não autenticado');
-      
-      const inserts = emails.map(email => ({
+
+      const inserts = emails.map((email) => ({
         user_id: user.id,
         email: email.toLowerCase().trim(),
         source: 'manual' as const,
       }));
-      
+
       const { error } = await supabase
         .from('unsubscribed_emails')
         .upsert(inserts, { onConflict: 'user_id,email', ignoreDuplicates: true });
-      
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -113,7 +114,7 @@ export function useUnsubscribedEmails() {
   });
 
   const isUnsubscribed = (email: string): boolean => {
-    return unsubscribedEmails.some(u => u.email.toLowerCase() === email.toLowerCase());
+    return unsubscribedEmails.some((u) => u.email.toLowerCase() === email.toLowerCase());
   };
 
   return {
@@ -126,4 +127,3 @@ export function useUnsubscribedEmails() {
     isUnsubscribed,
   };
 }
-

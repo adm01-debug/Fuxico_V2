@@ -1,6 +1,6 @@
 import { log } from '@/lib/logger';
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface UserWithRole {
   user_id: string;
@@ -29,16 +29,14 @@ export function useUsersWithRoles() {
 
       // Get unique users from audit logs
       const uniqueUsers = new Map<string, { user_id: string; email: string }>();
-      auditUsers?.forEach(u => {
+      auditUsers?.forEach((u) => {
         if (u.user_id && !uniqueUsers.has(u.user_id)) {
           uniqueUsers.set(u.user_id, { user_id: u.user_id, email: u.user_email || 'Unknown' });
         }
       });
 
       // Get all user roles
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('*');
+      const { data: roles, error: rolesError } = await supabase.from('user_roles').select('*');
 
       if (rolesError) {
         log.error('Failed to fetch user roles:', rolesError);
@@ -46,22 +44,28 @@ export function useUsersWithRoles() {
       }
 
       // Create role map
-      const roleMap = new Map<string, { role: 'admin' | 'user'; role_id: string; created_at: string }>();
-      roles?.forEach(r => {
+      const roleMap = new Map<
+        string,
+        { role: 'admin' | 'user'; role_id: string; created_at: string }
+      >();
+      roles?.forEach((r) => {
         if (r.user_id) {
           roleMap.set(r.user_id, { role: r.role, role_id: r.id, created_at: r.created_at });
         }
       });
 
       // Also include users with roles that might not be in audit logs
-      roles?.forEach(r => {
+      roles?.forEach((r) => {
         if (r.user_id && !uniqueUsers.has(r.user_id)) {
-          uniqueUsers.set(r.user_id, { user_id: r.user_id, email: `User ${r.user_id.slice(0, 8)}...` });
+          uniqueUsers.set(r.user_id, {
+            user_id: r.user_id,
+            email: `User ${r.user_id.slice(0, 8)}...`,
+          });
         }
       });
 
       // Combine data
-      const usersWithRoles: UserWithRole[] = Array.from(uniqueUsers.values()).map(user => ({
+      const usersWithRoles: UserWithRole[] = Array.from(uniqueUsers.values()).map((user) => ({
         user_id: user.user_id,
         email: user.email,
         role: roleMap.get(user.user_id)?.role || null,
@@ -96,17 +100,12 @@ export function useAssignRole() {
 
       if (existing) {
         // Update existing role
-        const { error } = await supabase
-          .from('user_roles')
-          .update({ role })
-          .eq('user_id', userId);
+        const { error } = await supabase.from('user_roles').update({ role }).eq('user_id', userId);
 
         if (error) throw error;
       } else {
         // Insert new role
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({ user_id: userId, role });
+        const { error } = await supabase.from('user_roles').insert({ user_id: userId, role });
 
         if (error) throw error;
       }
@@ -124,10 +123,7 @@ export function useRemoveRole() {
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      const { error } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
+      const { error } = await supabase.from('user_roles').delete().eq('user_id', userId);
 
       if (error) throw error;
     },

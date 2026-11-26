@@ -26,19 +26,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
-  UserPlus, 
-  MoreVertical, 
-  Pause, 
-  Play, 
+import {
+  UserPlus,
+  MoreVertical,
+  Pause,
+  Play,
   XCircle,
   Clock,
   CheckCircle,
   MessageSquare,
   AlertTriangle,
-  Users
+  Users,
 } from 'lucide-react';
-import { SequenceEnrollment, useEnrollContact, useCancelEnrollment, useUpdateEnrollment } from '@/features/sequences/hooks/useEmailSequences';
+import {
+  SequenceEnrollment,
+  useEnrollContact,
+  useCancelEnrollment,
+  useUpdateEnrollment,
+} from '@/features/sequences/hooks/useEmailSequences';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -48,17 +53,36 @@ interface SequenceEnrollmentsProps {
   totalSteps: number;
 }
 
-const statusConfig: Record<SequenceEnrollment['status'], { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
+const statusConfig: Record<
+  SequenceEnrollment['status'],
+  {
+    label: string;
+    variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    icon: React.ReactNode;
+  }
+> = {
   active: { label: 'Ativo', variant: 'default', icon: <Play className="h-3 w-3" /> },
   paused: { label: 'Pausado', variant: 'outline', icon: <Pause className="h-3 w-3" /> },
   completed: { label: 'Completo', variant: 'secondary', icon: <CheckCircle className="h-3 w-3" /> },
   replied: { label: 'Respondeu', variant: 'default', icon: <MessageSquare className="h-3 w-3" /> },
-  bounced: { label: 'Bounced', variant: 'destructive', icon: <AlertTriangle className="h-3 w-3" /> },
-  unsubscribed: { label: 'Descadastrou', variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
+  bounced: {
+    label: 'Bounced',
+    variant: 'destructive',
+    icon: <AlertTriangle className="h-3 w-3" />,
+  },
+  unsubscribed: {
+    label: 'Descadastrou',
+    variant: 'destructive',
+    icon: <XCircle className="h-3 w-3" />,
+  },
   cancelled: { label: 'Cancelado', variant: 'secondary', icon: <XCircle className="h-3 w-3" /> },
 };
 
-export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: SequenceEnrollmentsProps) {
+export function SequenceEnrollments({
+  enrollments,
+  sequenceId,
+  totalSteps,
+}: SequenceEnrollmentsProps) {
   const [isEnrollDialogOpen, setIsEnrollDialogOpen] = useState(false);
   const [newContactEmail, setNewContactEmail] = useState('');
   const [newContactName, setNewContactName] = useState('');
@@ -93,9 +117,9 @@ export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: Seq
     });
   };
 
-  const activeCount = enrollments.filter(e => e.status === 'active').length;
-  const completedCount = enrollments.filter(e => e.status === 'completed').length;
-  const repliedCount = enrollments.filter(e => e.status === 'replied').length;
+  const activeCount = enrollments.filter((e) => e.status === 'active').length;
+  const completedCount = enrollments.filter((e) => e.status === 'completed').length;
+  const repliedCount = enrollments.filter((e) => e.status === 'replied').length;
 
   return (
     <div className="space-y-4">
@@ -111,20 +135,20 @@ export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: Seq
           <Badge variant="default">{repliedCount} respostas</Badge>
         </div>
         <Button onClick={() => setIsEnrollDialogOpen(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
+          <UserPlus className="mr-2 h-4 w-4" />
           Inscrever Contato
         </Button>
       </div>
 
       {enrollments.length === 0 ? (
         <Card className="p-8 text-center">
-          <UserPlus className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">Nenhum contato inscrito</h3>
-          <p className="text-muted-foreground mb-4">
+          <UserPlus className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-medium">Nenhum contato inscrito</h3>
+          <p className="mb-4 text-muted-foreground">
             Inscreva contatos para iniciar a sequência de follow-ups automatizados.
           </p>
           <Button onClick={() => setIsEnrollDialogOpen(true)}>
-            <UserPlus className="h-4 w-4 mr-2" />
+            <UserPlus className="mr-2 h-4 w-4" />
             Inscrever Primeiro Contato
           </Button>
         </Card>
@@ -148,18 +172,24 @@ export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: Seq
                   <TableRow key={enrollment.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{enrollment.contact_name || enrollment.contact_email}</p>
+                        <p className="font-medium">
+                          {enrollment.contact_name || enrollment.contact_email}
+                        </p>
                         {enrollment.contact_name && (
-                          <p className="text-sm text-muted-foreground">{enrollment.contact_email}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {enrollment.contact_email}
+                          </p>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="w-24 bg-muted rounded-full h-2">
-                          <div 
-                            className="bg-primary rounded-full h-2 transition-all"
-                            style={{ width: `${totalSteps > 0 ? (enrollment.current_step / totalSteps) * 100 : 0}%` }}
+                        <div className="h-2 w-24 rounded-full bg-muted">
+                          <div
+                            className="h-2 rounded-full bg-primary transition-all"
+                            style={{
+                              width: `${totalSteps > 0 ? (enrollment.current_step / totalSteps) * 100 : 0}%`,
+                            }}
                           />
                         </div>
                         <span className="text-sm text-muted-foreground">
@@ -171,7 +201,7 @@ export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: Seq
                       {enrollment.next_step_at && enrollment.status === 'active' ? (
                         <div className="flex items-center gap-1 text-sm">
                           <Clock className="h-3 w-3 text-muted-foreground" />
-                          {format(new Date(enrollment.next_step_at), "dd/MM HH:mm")}
+                          {format(new Date(enrollment.next_step_at), 'dd/MM HH:mm')}
                         </div>
                       ) : (
                         <span className="text-muted-foreground">—</span>
@@ -184,7 +214,10 @@ export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: Seq
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {formatDistanceToNow(new Date(enrollment.enrolled_at), { addSuffix: true, locale: ptBR })}
+                      {formatDistanceToNow(new Date(enrollment.enrolled_at), {
+                        addSuffix: true,
+                        locale: ptBR,
+                      })}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -209,15 +242,16 @@ export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: Seq
                               )}
                             </DropdownMenuItem>
                           )}
-                          {enrollment.status !== 'cancelled' && enrollment.status !== 'completed' && (
-                            <DropdownMenuItem 
-                              onClick={() => handleCancel(enrollment)}
-                              className="text-destructive"
-                            >
-                              <XCircle className="mr-2 h-4 w-4" />
-                              Cancelar
-                            </DropdownMenuItem>
-                          )}
+                          {enrollment.status !== 'cancelled' &&
+                            enrollment.status !== 'completed' && (
+                              <DropdownMenuItem
+                                onClick={() => handleCancel(enrollment)}
+                                className="text-destructive"
+                              >
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Cancelar
+                              </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -234,10 +268,11 @@ export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: Seq
           <DialogHeader>
             <DialogTitle>Inscrever Contato na Sequência</DialogTitle>
             <DialogDescription>
-              O contato receberá automaticamente os emails da sequência conforme as etapas configuradas.
+              O contato receberá automaticamente os emails da sequência conforme as etapas
+              configuradas.
             </DialogDescription>
           </DialogHeader>
-          
+
           <form onSubmit={handleEnroll}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -261,13 +296,13 @@ export function SequenceEnrollments({ enrollments, sequenceId, totalSteps }: Seq
                 />
               </div>
             </div>
-            
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsEnrollDialogOpen(false)}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={!newContactEmail || enrollContact.isPending}>
-                <UserPlus className="h-4 w-4 mr-2" />
+                <UserPlus className="mr-2 h-4 w-4" />
                 Inscrever
               </Button>
             </DialogFooter>

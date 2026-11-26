@@ -1,18 +1,18 @@
 /**
  * Hook para configurações de auditoria
- * 
+ *
  * @description Este hook fornece funcionalidades para hook para configurações de auditoria.
  * Inclui gerenciamento de estado, cache e tratamento de erros.
- * 
+ *
  * @example
  * ```tsx
  * const { data, isLoading, error } = useauditconfig();
  * ```
- * 
+ *
  * @returns Object contendo data, isLoading, error e funções auxiliares
  */
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AuditConfig {
   id: string;
@@ -29,12 +29,9 @@ export function useAuditConfig() {
   return useQuery({
     staleTime: 5 * 60 * 1000, // 5 minutos
     gcTime: 30 * 60 * 1000, // 30 minutos
-    queryKey: ["audit-config"],
+    queryKey: ['audit-config'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("audit_config")
-        .select("*")
-        .single();
+      const { data, error } = await supabase.from('audit_config').select('*').single();
 
       if (error) throw error;
       return data as AuditConfig;
@@ -49,9 +46,9 @@ export function useUpdateAuditConfig() {
     mutationFn: async (config: Partial<AuditConfig> & { id: string }) => {
       const { id, ...updates } = config;
       const { data, error } = await supabase
-        .from("audit_config")
+        .from('audit_config')
         .update(updates)
-        .eq("id", id)
+        .eq('id', id)
         .select()
         .single();
 
@@ -59,7 +56,7 @@ export function useUpdateAuditConfig() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["audit-config"] });
+      queryClient.invalidateQueries({ queryKey: ['audit-config'] });
     },
   });
 }

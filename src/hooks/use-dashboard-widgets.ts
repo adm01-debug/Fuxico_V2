@@ -10,7 +10,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useLocalStorage } from './use-local-storage';
 
-export type WidgetType = 
+export type WidgetType =
   | 'realtime-metrics'
   | 'weekly-trends'
   | 'quick-actions'
@@ -123,59 +123,63 @@ export function useDashboardWidgets() {
 
   // Garantir que novos widgets padrão sejam adicionados
   useEffect(() => {
-    const currentIds = widgets.map(w => w.id);
-    const newWidgets = DEFAULT_WIDGETS.filter(w => !currentIds.includes(w.id));
-    
+    const currentIds = widgets.map((w) => w.id);
+    const newWidgets = DEFAULT_WIDGETS.filter((w) => !currentIds.includes(w.id));
+
     if (newWidgets.length > 0) {
       setWidgets([...widgets, ...newWidgets]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Reordenar widgets diretamente (para framer-motion Reorder)
-  const setWidgetOrder = useCallback((orderedWidgets: DashboardWidget[]) => {
-    const updatedWidgets = orderedWidgets.map((w, i) => ({ ...w, order: i }));
-    const disabled = widgets.filter(w => !w.enabled);
-    setWidgets([...updatedWidgets, ...disabled]);
-  }, [widgets, setWidgets]);
+  const setWidgetOrder = useCallback(
+    (orderedWidgets: DashboardWidget[]) => {
+      const updatedWidgets = orderedWidgets.map((w, i) => ({ ...w, order: i }));
+      const disabled = widgets.filter((w) => !w.enabled);
+      setWidgets([...updatedWidgets, ...disabled]);
+    },
+    [widgets, setWidgets]
+  );
 
-  const enabledWidgets = widgets
-    .filter(w => w.enabled)
-    .sort((a, b) => a.order - b.order);
+  const enabledWidgets = widgets.filter((w) => w.enabled).sort((a, b) => a.order - b.order);
 
-  const toggleWidget = useCallback((widgetId: string) => {
-    setWidgets(prev => 
-      prev.map(w => 
-        w.id === widgetId ? { ...w, enabled: !w.enabled } : w
-      )
-    );
-  }, [setWidgets]);
+  const toggleWidget = useCallback(
+    (widgetId: string) => {
+      setWidgets((prev) =>
+        prev.map((w) => (w.id === widgetId ? { ...w, enabled: !w.enabled } : w))
+      );
+    },
+    [setWidgets]
+  );
 
-  const reorderWidgets = useCallback((startIndex: number, endIndex: number) => {
-    setWidgets(prev => {
-      const enabledList = prev.filter(w => w.enabled).sort((a, b) => a.order - b.order);
-      const [removed] = enabledList.splice(startIndex, 1);
-      enabledList.splice(endIndex, 0, removed);
-      
-      // Atualizar ordem
-      const updatedEnabled = enabledList.map((w, i) => ({ ...w, order: i }));
-      const disabled = prev.filter(w => !w.enabled);
-      
-      return [...updatedEnabled, ...disabled];
-    });
-  }, [setWidgets]);
+  const reorderWidgets = useCallback(
+    (startIndex: number, endIndex: number) => {
+      setWidgets((prev) => {
+        const enabledList = prev.filter((w) => w.enabled).sort((a, b) => a.order - b.order);
+        const [removed] = enabledList.splice(startIndex, 1);
+        enabledList.splice(endIndex, 0, removed);
+
+        // Atualizar ordem
+        const updatedEnabled = enabledList.map((w, i) => ({ ...w, order: i }));
+        const disabled = prev.filter((w) => !w.enabled);
+
+        return [...updatedEnabled, ...disabled];
+      });
+    },
+    [setWidgets]
+  );
 
   const resetWidgets = useCallback(() => {
     setWidgets(DEFAULT_WIDGETS);
   }, [setWidgets]);
 
-  const updateWidgetSize = useCallback((widgetId: string, size: DashboardWidget['size']) => {
-    setWidgets(prev =>
-      prev.map(w =>
-        w.id === widgetId ? { ...w, size } : w
-      )
-    );
-  }, [setWidgets]);
+  const updateWidgetSize = useCallback(
+    (widgetId: string, size: DashboardWidget['size']) => {
+      setWidgets((prev) => prev.map((w) => (w.id === widgetId ? { ...w, size } : w)));
+    },
+    [setWidgets]
+  );
 
   return {
     widgets,

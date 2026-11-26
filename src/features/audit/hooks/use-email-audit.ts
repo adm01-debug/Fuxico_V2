@@ -1,7 +1,7 @@
 /** Hook para auditoria de emails */
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { log } from "@/lib/logger";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { log } from '@/lib/logger';
 
 export interface EmailAuditLog {
   id: string;
@@ -62,7 +62,9 @@ export function useIsAdmin() {
     gcTime: 30 * 60 * 1000,
     queryKey: ['is-admin'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return false;
 
       const { data, error } = await supabase
@@ -178,7 +180,9 @@ export function useResolveAlert() {
 
   return useMutation({
     mutationFn: async (alertId: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { error } = await supabase
@@ -248,7 +252,7 @@ export function useAuditStats() {
         .select('user_id')
         .gte('timestamp', today.toISOString());
 
-      const userCount = new Set(uniqueUsers?.map(u => u.user_id)).size;
+      const userCount = new Set(uniqueUsers?.map((u) => u.user_id)).size;
 
       return {
         totalSent: sentCount || 0,
@@ -286,14 +290,17 @@ export function useUserActivitySummary() {
       if (error) throw error;
 
       // Group by user
-      const userMap = new Map<string, {
-        user_id: string;
-        user_email: string;
-        sent: number;
-        received: number;
-      }>();
+      const userMap = new Map<
+        string,
+        {
+          user_id: string;
+          user_email: string;
+          sent: number;
+          received: number;
+        }
+      >();
 
-      data?.forEach(log => {
+      data?.forEach((log) => {
         const existing = userMap.get(log.user_id) || {
           user_id: log.user_id,
           user_email: log.user_email,
@@ -310,8 +317,8 @@ export function useUserActivitySummary() {
         userMap.set(log.user_id, existing);
       });
 
-      return Array.from(userMap.values()).sort((a, b) => 
-        (b.sent + b.received) - (a.sent + a.received)
+      return Array.from(userMap.values()).sort(
+        (a, b) => b.sent + b.received - (a.sent + a.received)
       );
     },
   });

@@ -4,16 +4,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
-import { Bell, Volume2, Monitor, Mail, FileText, Loader2, Clock, Play, VolumeX, Volume1, Type, Link2 } from 'lucide-react';
+import {
+  Bell,
+  Volume2,
+  Monitor,
+  Mail,
+  FileText,
+  Loader2,
+  Clock,
+  Play,
+  VolumeX,
+  Volume1,
+  Type,
+  Link2,
+} from 'lucide-react';
 import { BackButton } from '@/components/ui/back-button';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { playNotificationSound, NOTIFICATION_SOUNDS, NotificationSoundType } from '@/lib/notification-sound';
-import { matchFirst } from "@/lib/variant";
+import {
+  playNotificationSound,
+  NOTIFICATION_SOUNDS,
+  NotificationSoundType,
+} from '@/lib/notification-sound';
+import { matchFirst } from '@/lib/variant';
 
 export default function Settings() {
   const { preferences, isLoading, updatePreferences, isUpdating } = useUserPreferences();
@@ -56,14 +79,15 @@ export default function Settings() {
     playNotificationSound('critical', currentSoundType, value[0]);
   };
 
-  const currentSoundType = (preferences?.notification_sound_type ?? 'gentle') as NotificationSoundType;
+  const currentSoundType = (preferences?.notification_sound_type ??
+    'gentle') as NotificationSoundType;
   const warningVolume = preferences?.warning_volume ?? 0.4;
   const criticalVolume = preferences?.critical_volume ?? 0.7;
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background p-4 sm:p-6">
-        <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+        <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-64 w-full" />
@@ -74,13 +98,13 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="mx-auto max-w-2xl space-y-4 p-4 sm:space-y-6 sm:p-6">
         {/* Header */}
         <div className="flex items-center gap-3 sm:gap-4">
           <BackButton onClick={() => navigate(-1)} />
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold truncate">Configurações</h1>
-            <p className="text-muted-foreground text-xs sm:text-sm truncate">{user?.email}</p>
+            <h1 className="truncate text-xl font-bold sm:text-2xl">Configurações</h1>
+            <p className="truncate text-xs text-muted-foreground sm:text-sm">{user?.email}</p>
           </div>
         </div>
 
@@ -95,14 +119,18 @@ export default function Settings() {
               Escolha como você quer receber notificações de tracking
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
+          <CardContent className="space-y-4 p-4 pt-0 sm:space-y-6 sm:p-6 sm:pt-0">
             {/* Sound Toggle */}
-            <div className="flex items-start sm:items-center justify-between gap-3">
-              <div className="flex items-start sm:items-center gap-3 min-w-0">
-                <Volume2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 sm:mt-0" />
+            <div className="flex items-start justify-between gap-3 sm:items-center">
+              <div className="flex min-w-0 items-start gap-3 sm:items-center">
+                <Volume2 className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground sm:mt-0" />
                 <div className="min-w-0">
-                  <Label htmlFor="sound" className="text-sm sm:text-base">Som</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Tocar som ao receber notificações</p>
+                  <Label htmlFor="sound" className="text-sm sm:text-base">
+                    Som
+                  </Label>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
+                    Tocar som ao receber notificações
+                  </p>
                 </div>
               </div>
               <Switch
@@ -117,8 +145,10 @@ export default function Settings() {
             {preferences?.sound_enabled && (
               <div className="space-y-4 pl-0 sm:pl-8">
                 {/* Sound Type */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                  <Label htmlFor="soundType" className="text-sm min-w-[80px]">Tipo de som:</Label>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                  <Label htmlFor="soundType" className="min-w-[80px] text-sm">
+                    Tipo de som:
+                  </Label>
                   <Select
                     value={currentSoundType}
                     onValueChange={handleSoundTypeChange}
@@ -136,21 +166,26 @@ export default function Settings() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 {/* Warning Volume */}
                 <div className="space-y-2">
                   <Label className="text-sm">Volume Aviso:</Label>
                   <div className="flex items-center gap-2">
-                    {matchFirst([
-  [warningVolume === 0, () => ((
-                      <VolumeX className="h-4 w-4 text-muted-foreground shrink-0" />
-                    ))],
-  [warningVolume < 0.5, () => ((
-                      <Volume1 className="h-4 w-4 text-muted-foreground shrink-0" />
-                    ))],
-], () => ((
-                      <Volume2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                    )))}
+                    {matchFirst(
+                      [
+                        [
+                          warningVolume === 0,
+                          () => <VolumeX className="h-4 w-4 shrink-0 text-muted-foreground" />,
+                        ],
+                        [
+                          warningVolume < 0.5,
+                          () => <Volume1 className="h-4 w-4 shrink-0 text-muted-foreground" />,
+                        ],
+                      ],
+                      () => (
+                        <Volume2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      )
+                    )}
                     <Slider
                       value={[warningVolume]}
                       onValueChange={handleWarningVolumeChange}
@@ -161,11 +196,15 @@ export default function Settings() {
                       className="flex-1"
                       disabled={isUpdating}
                     />
-                    <span className="text-sm text-muted-foreground w-10 text-right">{Math.round(warningVolume * 100)}%</span>
+                    <span className="w-10 text-right text-sm text-muted-foreground">
+                      {Math.round(warningVolume * 100)}%
+                    </span>
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => playNotificationSound('warning', currentSoundType, warningVolume)}
+                      onClick={() =>
+                        playNotificationSound('warning', currentSoundType, warningVolume)
+                      }
                       title="Testar som de aviso"
                       className="h-9 w-9 shrink-0"
                     >
@@ -173,21 +212,26 @@ export default function Settings() {
                     </Button>
                   </div>
                 </div>
-                
+
                 {/* Critical Volume */}
                 <div className="space-y-2">
                   <Label className="text-sm">Volume Crítico:</Label>
                   <div className="flex items-center gap-2">
-                    {matchFirst([
-  [criticalVolume === 0, () => ((
-                      <VolumeX className="h-4 w-4 text-destructive shrink-0" />
-                    ))],
-  [criticalVolume < 0.5, () => ((
-                      <Volume1 className="h-4 w-4 text-destructive shrink-0" />
-                    ))],
-], () => ((
-                      <Volume2 className="h-4 w-4 text-destructive shrink-0" />
-                    )))}
+                    {matchFirst(
+                      [
+                        [
+                          criticalVolume === 0,
+                          () => <VolumeX className="h-4 w-4 shrink-0 text-destructive" />,
+                        ],
+                        [
+                          criticalVolume < 0.5,
+                          () => <Volume1 className="h-4 w-4 shrink-0 text-destructive" />,
+                        ],
+                      ],
+                      () => (
+                        <Volume2 className="h-4 w-4 shrink-0 text-destructive" />
+                      )
+                    )}
                     <Slider
                       value={[criticalVolume]}
                       onValueChange={handleCriticalVolumeChange}
@@ -198,11 +242,15 @@ export default function Settings() {
                       className="flex-1"
                       disabled={isUpdating}
                     />
-                    <span className="text-sm text-muted-foreground w-10 text-right">{Math.round(criticalVolume * 100)}%</span>
+                    <span className="w-10 text-right text-sm text-muted-foreground">
+                      {Math.round(criticalVolume * 100)}%
+                    </span>
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => playNotificationSound('critical', currentSoundType, criticalVolume)}
+                      onClick={() =>
+                        playNotificationSound('critical', currentSoundType, criticalVolume)
+                      }
                       title="Testar som crítico"
                       className="h-9 w-9 shrink-0"
                     >
@@ -216,21 +264,25 @@ export default function Settings() {
             <Separator />
 
             {/* Desktop Notifications */}
-            <div className="flex items-start sm:items-center justify-between gap-3">
-              <div className="flex items-start sm:items-center gap-3 min-w-0">
-                <Monitor className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 sm:mt-0" />
+            <div className="flex items-start justify-between gap-3 sm:items-center">
+              <div className="flex min-w-0 items-start gap-3 sm:items-center">
+                <Monitor className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground sm:mt-0" />
                 <div className="min-w-0">
-                  <Label htmlFor="desktop" className="text-sm sm:text-base">Desktop</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Mostrar notificações do navegador</p>
+                  <Label htmlFor="desktop" className="text-sm sm:text-base">
+                    Desktop
+                  </Label>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
+                    Mostrar notificações do navegador
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex shrink-0 items-center gap-2">
                 {typeof Notification !== 'undefined' && Notification.permission === 'denied' && (
-                  <span className="text-xs text-destructive hidden xs:inline">Bloqueado</span>
+                  <span className="hidden text-xs text-destructive xs:inline">Bloqueado</span>
                 )}
                 {typeof Notification !== 'undefined' && Notification.permission === 'default' && (
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => Notification.requestPermission()}
                     className="h-8 text-xs"
@@ -239,7 +291,7 @@ export default function Settings() {
                   </Button>
                 )}
                 {typeof Notification !== 'undefined' && Notification.permission === 'granted' && (
-                  <span className="text-xs text-green-600 hidden xs:inline">Ativo</span>
+                  <span className="hidden text-xs text-green-600 xs:inline">Ativo</span>
                 )}
                 <Switch
                   id="desktop"
@@ -254,12 +306,16 @@ export default function Settings() {
             <Separator />
 
             {/* Email Notifications */}
-            <div className="flex items-start sm:items-center justify-between gap-3">
-              <div className="flex items-start sm:items-center gap-3 min-w-0">
-                <Mail className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 sm:mt-0" />
+            <div className="flex items-start justify-between gap-3 sm:items-center">
+              <div className="flex min-w-0 items-start gap-3 sm:items-center">
+                <Mail className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground sm:mt-0" />
                 <div className="min-w-0">
-                  <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Receber resumo por email</p>
+                  <Label htmlFor="email" className="text-sm sm:text-base">
+                    Email
+                  </Label>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
+                    Receber resumo por email
+                  </p>
                 </div>
               </div>
               <Switch
@@ -272,8 +328,10 @@ export default function Settings() {
             </div>
 
             {preferences?.email_enabled && (
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pl-0 sm:pl-8">
-                <Label htmlFor="frequency" className="text-sm">Frequência:</Label>
+              <div className="flex flex-col gap-2 pl-0 sm:flex-row sm:items-center sm:gap-4 sm:pl-8">
+                <Label htmlFor="frequency" className="text-sm">
+                  Frequência:
+                </Label>
                 <Select
                   value={preferences?.email_digest_frequency ?? 'daily'}
                   onValueChange={handleDigestChange}
@@ -305,23 +363,47 @@ export default function Settings() {
               Selecione quais eventos devem gerar notificações
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
+          <CardContent className="space-y-4 p-4 pt-0 sm:space-y-6 sm:p-6 sm:pt-0">
             {/* Event toggles */}
             {[
-              { id: 'notify_on_open', label: 'Abertura de Email', description: 'Quando alguém abre seu email', key: 'notify_on_open' },
-              { id: 'notify_on_click', label: 'Clique em Link', description: 'Quando alguém clica em um link', key: 'notify_on_click' },
-              { id: 'notify_on_document_view', label: 'Visualização de Documento', description: 'Quando alguém visualiza um documento', key: 'notify_on_document_view' },
-              { id: 'notify_on_document_download', label: 'Download de Documento', description: 'Quando alguém baixa um documento', key: 'notify_on_document_download' },
+              {
+                id: 'notify_on_open',
+                label: 'Abertura de Email',
+                description: 'Quando alguém abre seu email',
+                key: 'notify_on_open',
+              },
+              {
+                id: 'notify_on_click',
+                label: 'Clique em Link',
+                description: 'Quando alguém clica em um link',
+                key: 'notify_on_click',
+              },
+              {
+                id: 'notify_on_document_view',
+                label: 'Visualização de Documento',
+                description: 'Quando alguém visualiza um documento',
+                key: 'notify_on_document_view',
+              },
+              {
+                id: 'notify_on_document_download',
+                label: 'Download de Documento',
+                description: 'Quando alguém baixa um documento',
+                key: 'notify_on_document_download',
+              },
             ].map((event, index, arr) => (
               <div key={event.id}>
-                <div className="flex items-start sm:items-center justify-between gap-3">
+                <div className="flex items-start justify-between gap-3 sm:items-center">
                   <div className="min-w-0">
-                    <Label htmlFor={event.id} className="text-sm sm:text-base">{event.label}</Label>
-                    <p className="text-xs sm:text-sm text-muted-foreground">{event.description}</p>
+                    <Label htmlFor={event.id} className="text-sm sm:text-base">
+                      {event.label}
+                    </Label>
+                    <p className="text-xs text-muted-foreground sm:text-sm">{event.description}</p>
                   </div>
                   <Switch
                     id={event.id}
-                    checked={preferences?.[event.key as keyof typeof preferences] as boolean ?? true}
+                    checked={
+                      (preferences?.[event.key as keyof typeof preferences] as boolean) ?? true
+                    }
                     onCheckedChange={(checked) => handleToggle(event.key, checked)}
                     disabled={isUpdating}
                     className="shrink-0"
@@ -344,11 +426,15 @@ export default function Settings() {
               Configure lembretes automáticos para follow-up de emails não abertos
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
-            <div className="flex items-start sm:items-center justify-between gap-3">
+          <CardContent className="space-y-4 p-4 pt-0 sm:space-y-6 sm:p-6 sm:pt-0">
+            <div className="flex items-start justify-between gap-3 sm:items-center">
               <div className="min-w-0">
-                <Label htmlFor="auto_reminder" className="text-sm sm:text-base">Criar Lembretes Automaticamente</Label>
-                <p className="text-xs sm:text-sm text-muted-foreground">Ao enviar emails rastreados, criar lembrete de follow-up</p>
+                <Label htmlFor="auto_reminder" className="text-sm sm:text-base">
+                  Criar Lembretes Automaticamente
+                </Label>
+                <p className="text-xs text-muted-foreground sm:text-sm">
+                  Ao enviar emails rastreados, criar lembrete de follow-up
+                </p>
               </div>
               <Switch
                 id="auto_reminder"
@@ -362,10 +448,14 @@ export default function Settings() {
             {preferences?.auto_reminder_enabled && (
               <>
                 <Separator />
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                   <div className="min-w-0">
-                    <Label htmlFor="reminder_days" className="text-sm sm:text-base">Dias para Lembrete</Label>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Após quantos dias sem abertura criar alerta</p>
+                    <Label htmlFor="reminder_days" className="text-sm sm:text-base">
+                      Dias para Lembrete
+                    </Label>
+                    <p className="text-xs text-muted-foreground sm:text-sm">
+                      Após quantos dias sem abertura criar alerta
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Input
@@ -376,7 +466,7 @@ export default function Settings() {
                       value={preferences?.auto_reminder_days ?? 3}
                       onChange={(e) => handleReminderDaysChange(e.target.value)}
                       disabled={isUpdating}
-                      className="w-20 h-10"
+                      className="h-10 w-20"
                     />
                     <span className="text-sm text-muted-foreground">dias</span>
                   </div>
@@ -397,11 +487,13 @@ export default function Settings() {
               Personalize a interface para melhor visualização
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-6">
+          <CardContent className="space-y-6 p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="font_size" className="text-sm sm:text-base">Tamanho da Fonte</Label>
-                <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                <Label htmlFor="font_size" className="text-sm sm:text-base">
+                  Tamanho da Fonte
+                </Label>
+                <span className="rounded bg-primary/10 px-2 py-0.5 text-sm font-medium text-primary">
                   {preferences?.font_size ?? 16}px
                 </span>
               </div>
@@ -437,12 +529,13 @@ export default function Settings() {
               Conecte sua conta corporativa para rastrear emails enviados pelo Gmail
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4">
+          <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="flex flex-col gap-4">
               <p className="text-sm text-muted-foreground">
-                Ao conectar sua conta, nossa extensão poderá sincronizar automaticamente o rastreamento de emails enviados.
+                Ao conectar sua conta, nossa extensão poderá sincronizar automaticamente o
+                rastreamento de emails enviados.
               </p>
-              <Button 
+              <Button
                 onClick={() => {
                   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
                   window.location.href = `${supabaseUrl}/functions/v1/gmail-auth?userId=${user?.id}`;
@@ -460,7 +553,7 @@ export default function Settings() {
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-base sm:text-lg">Conta</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <Button variant="destructive" onClick={signOut} className="w-full sm:w-auto">
               Sair da Conta
             </Button>
@@ -470,26 +563,35 @@ export default function Settings() {
         {/* LGPD & Data Management */}
         <Card className="border-destructive/20">
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-base sm:text-lg text-destructive">Privacidade & LGPD</CardTitle>
+            <CardTitle className="text-base text-destructive sm:text-lg">
+              Privacidade & LGPD
+            </CardTitle>
             <CardDescription className="text-xs sm:text-sm">
               Gerencie seus dados pessoais e direitos de privacidade
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4">
+          <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
             <div className="flex flex-col gap-4">
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">Exclusão de Dados</h4>
                 <p className="text-xs text-muted-foreground">
-                  Ao excluir seus dados, todas as informações de tracking, histórico e conta serão removidas permanentemente.
+                  Ao excluir seus dados, todas as informações de tracking, histórico e conta serão
+                  removidas permanentemente.
                 </p>
               </div>
-              <Button 
-                variant="outline" 
-                className="border-destructive/50 text-destructive hover:bg-destructive/10 w-full sm:w-auto"
+              <Button
+                variant="outline"
+                className="w-full border-destructive/50 text-destructive hover:bg-destructive/10 sm:w-auto"
                 onClick={() => {
-                  if (confirm("Tem certeza que deseja excluir todos os seus dados? Esta ação é irreversível.")) {
+                  if (
+                    confirm(
+                      'Tem certeza que deseja excluir todos os seus dados? Esta ação é irreversível.'
+                    )
+                  ) {
                     // Implement actual deletion logic here
-                    alert("Solicitação de exclusão enviada. Seus dados serão removidos em até 24h.");
+                    alert(
+                      'Solicitação de exclusão enviada. Seus dados serão removidos em até 24h.'
+                    );
                   }
                 }}
               >
@@ -501,7 +603,7 @@ export default function Settings() {
 
         {/* Saving indicator */}
         {isUpdating && (
-          <div className="fixed bottom-4 right-4 left-4 sm:left-auto bg-primary text-primary-foreground px-4 py-2.5 rounded-lg flex items-center justify-center sm:justify-start gap-2 shadow-lg">
+          <div className="fixed bottom-4 left-4 right-4 flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-primary-foreground shadow-lg sm:left-auto sm:justify-start">
             <Loader2 className="h-4 w-4 animate-spin" />
             <span className="text-sm font-medium">Salvando alterações...</span>
           </div>

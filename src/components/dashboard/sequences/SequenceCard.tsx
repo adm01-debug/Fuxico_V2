@@ -9,22 +9,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
-  Play, 
-  Pause, 
-  MoreVertical, 
-  Users, 
-  CheckCircle, 
+import {
+  Play,
+  Pause,
+  MoreVertical,
+  Users,
+  CheckCircle,
   MessageSquare,
   Trash2,
   Edit,
   Copy,
-  Archive
+  Archive,
 } from 'lucide-react';
 import { EmailSequence } from '@/features/sequences/hooks/useEmailSequences';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { matchFirst } from "@/lib/variant";
+import { matchFirst } from '@/lib/variant';
 
 interface SequenceCardProps {
   sequence: EmailSequence;
@@ -34,7 +34,10 @@ interface SequenceCardProps {
   onDuplicate: (sequence: EmailSequence) => void;
 }
 
-const statusConfig: Record<EmailSequence['status'], { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+const statusConfig: Record<
+  EmailSequence['status'],
+  { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
+> = {
   draft: { label: 'Rascunho', variant: 'secondary' },
   active: { label: 'Ativa', variant: 'default' },
   paused: { label: 'Pausada', variant: 'outline' },
@@ -56,16 +59,18 @@ export const SequenceCard = React.memo(function SequenceCard({
   onDuplicate,
 }: SequenceCardProps) {
   const status = statusConfig[sequence.status];
-  const completionRate = sequence.total_enrolled > 0 
-    ? Math.round((sequence.total_completed / sequence.total_enrolled) * 100) 
-    : 0;
-  const replyRate = sequence.total_enrolled > 0 
-    ? Math.round((sequence.total_replied / sequence.total_enrolled) * 100) 
-    : 0;
+  const completionRate =
+    sequence.total_enrolled > 0
+      ? Math.round((sequence.total_completed / sequence.total_enrolled) * 100)
+      : 0;
+  const replyRate =
+    sequence.total_enrolled > 0
+      ? Math.round((sequence.total_replied / sequence.total_enrolled) * 100)
+      : 0;
 
   return (
-    <Card 
-      className="cursor-pointer hover:shadow-md transition-shadow"
+    <Card
+      className="cursor-pointer transition-shadow hover:shadow-md"
       onClick={() => onSelect(sequence.id)}
     >
       <CardHeader className="pb-2">
@@ -73,9 +78,7 @@ export const SequenceCard = React.memo(function SequenceCard({
           <div className="space-y-1">
             <CardTitle className="text-lg">{sequence.name}</CardTitle>
             {sequence.description && (
-              <p className="text-sm text-muted-foreground line-clamp-1">
-                {sequence.description}
-              </p>
+              <p className="line-clamp-1 text-sm text-muted-foreground">{sequence.description}</p>
             )}
           </div>
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
@@ -96,20 +99,29 @@ export const SequenceCard = React.memo(function SequenceCard({
                   Duplicar
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                {matchFirst([
-  [sequence.status === 'active', () => ((
-                  <DropdownMenuItem onClick={() => onStatusChange(sequence.id, 'paused')}>
-                    <Pause className="mr-2 h-4 w-4" />
-                    Pausar
-                  </DropdownMenuItem>
-                ))],
-  [sequence.status !== 'archived', () => ((
-                  <DropdownMenuItem onClick={() => onStatusChange(sequence.id, 'active')}>
-                    <Play className="mr-2 h-4 w-4" />
-                    Ativar
-                  </DropdownMenuItem>
-                ))],
-], () => (null))}
+                {matchFirst(
+                  [
+                    [
+                      sequence.status === 'active',
+                      () => (
+                        <DropdownMenuItem onClick={() => onStatusChange(sequence.id, 'paused')}>
+                          <Pause className="mr-2 h-4 w-4" />
+                          Pausar
+                        </DropdownMenuItem>
+                      ),
+                    ],
+                    [
+                      sequence.status !== 'archived',
+                      () => (
+                        <DropdownMenuItem onClick={() => onStatusChange(sequence.id, 'active')}>
+                          <Play className="mr-2 h-4 w-4" />
+                          Ativar
+                        </DropdownMenuItem>
+                      ),
+                    ],
+                  ],
+                  () => null
+                )}
                 {sequence.status !== 'archived' && (
                   <DropdownMenuItem onClick={() => onStatusChange(sequence.id, 'archived')}>
                     <Archive className="mr-2 h-4 w-4" />
@@ -117,7 +129,7 @@ export const SequenceCard = React.memo(function SequenceCard({
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onDelete(sequence.id)}
                   className="text-destructive"
                 >
@@ -130,12 +142,15 @@ export const SequenceCard = React.memo(function SequenceCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
+        <div className="mb-3 flex items-center gap-1 text-xs text-muted-foreground">
           <span>Gatilho: {triggerConfig[sequence.trigger_type]}</span>
           <span>•</span>
-          <span>Criada {formatDistanceToNow(new Date(sequence.created_at), { addSuffix: true, locale: ptBR })}</span>
+          <span>
+            Criada{' '}
+            {formatDistanceToNow(new Date(sequence.created_at), { addSuffix: true, locale: ptBR })}
+          </span>
         </div>
-        
+
         <div className="grid grid-cols-3 gap-4">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
