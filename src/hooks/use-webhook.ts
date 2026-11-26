@@ -142,3 +142,92 @@ export function useTestWebhook() {
     },
   });
 }
+
+// =============================================================================
+// SLACK / MICROSOFT TEAMS
+// =============================================================================
+
+export type SlackPlatform = 'slack' | 'teams';
+
+export const SLACK_EVENTS = [
+  { id: 'open', label: 'Abertura de e-mail' },
+  { id: 'click', label: 'Clique em link' },
+  { id: 'bounce', label: 'Bounce' },
+  { id: 'reply', label: 'Resposta recebida' },
+  { id: 'document_view', label: 'Visualização de documento' },
+] as const;
+
+export type SlackEventType = (typeof SLACK_EVENTS)[number]['id'];
+
+const TEAMS_HOST_SUFFIXES = ['.webhook.office.com', '.office.com', '.logic.azure.com'];
+
+/** Identifica a plataforma pelo host do Incoming Webhook (null = URL desconhecida/invalida). */
+export function detectSlackPlatform(url: string): SlackPlatform | null {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    if (host === 'hooks.slack.com') return 'slack';
+    if (TEAMS_HOST_SUFFIXES.some((suffix) => host.endsWith(suffix))) return 'teams';
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export interface SlackNotificationInput {
+  webhookUrl: string;
+  platform: SlackPlatform;
+  eventType: SlackEventType;
+  recipientEmail: string;
+  subject?: string;
+  trackingId?: string;
+  linkUrl?: string;
+  documentName?: string;
+}
+
+/**
+ * Envia a notificação pela edge `send-slack-notification`: o payload no formato Block Kit (Slack)
+ * ou Adaptive Card (Teams) é montado no servidor, o que também evita o bloqueio de CORS que
+ * ocorre ao chamar o webhook direto do navegador.
+ */
+export function useSendSlackNotification() {
+  return useMutation({
+    mutationFn: async (input: SlackNotificationInput) => {
+      const { data, error } = await supabase.functions.invoke<{
+        success?: boolean;
+        error?: string;
+      }>('send-slack-notification', {
+        body: {
+          webhookUrl: input.webhookUrl,
+          platform: input.platform,
+          eventType: input.eventType,
+          data: {
+            recipientEmail: input.recipientEmail,
+            subject: input.subject,
+            trackingId: input.trackingId,
+            linkUrl: input.linkUrl,
+            documentName: input.documentName,
+            timestamp: new Date().toISOString(),
+          },
+        },
+      });
+
+      if (error) {
+        // O corpo de erro da function traz { error, details }; preserva o motivo real.
+        const ctx = (error as { context?: { json?: () => Promise<{ error?: unknown }> } }).context;
+        if (ctx?.json) {
+          const parsed = await ctx.json().catch(() => null);
+          if (parsed?.error) {
+            throw new Error(
+              typeof parsed.error === 'string' ? parsed.error : JSON.stringify(parsed.error)
+            );
+          }
+        }
+        throw error;
+      }
+
+      if (data?.error) throw new Error(String(data.error));
+
+      return data;
+    },
+  });
+}
