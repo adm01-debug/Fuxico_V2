@@ -1691,6 +1691,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Aba de push notifications com dados reais (#106) by @adm01-debug in [#106](https://github.com/adm01-debug/fuxico/pull/106)
 - Filtros salvos de email persistidos por usuario (#107) by @adm01-debug in [#107](https://github.com/adm01-debug/fuxico/pull/107)
 - Painel de saude e manutencao do banco no admin observability (#110) by @adm01-debug in [#110](https://github.com/adm01-debug/fuxico/pull/110)
+- Painel de ciclo de vida e restore de indices no admin (#112) by @adm01-debug in [#112](https://github.com/adm01-debug/fuxico/pull/112)
 
 ### 🐛 Correções
 
@@ -1840,6 +1841,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
