@@ -161,11 +161,12 @@ export function useBounceAlerts() {
     mutationFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      // Get current domain stats
-      const { data: domains, error: domainsError } = await supabase
-        .from('domain_reputation')
-        .select('domain, bounce_rate')
-        .eq('user_id', user.id);
+      // Fonte real do bounce por domínio: agregado de tracked_emails via RPC.
+      // `domain_reputation` nunca é populada, então usá-la deixava a tela sempre vazia.
+      const { data: domains, error: domainsError } = await supabase.rpc(
+        'calculate_domain_deliverability',
+        { p_user_id: user.id }
+      );
 
       if (domainsError) throw domainsError;
 
