@@ -896,6 +896,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      custom_domains: {
+        Row: {
+          created_at: string;
+          domain: string;
+          id: string;
+          ssl_enabled: boolean;
+          status: string;
+          updated_at: string;
+          user_id: string;
+          verification_token: string | null;
+          verification_type: string;
+          verified: boolean;
+        };
+        Insert: {
+          created_at?: string;
+          domain: string;
+          id?: string;
+          ssl_enabled?: boolean;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+          verification_token?: string | null;
+          verification_type?: string;
+          verified?: boolean;
+        };
+        Update: {
+          created_at?: string;
+          domain?: string;
+          id?: string;
+          ssl_enabled?: boolean;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+          verification_token?: string | null;
+          verification_type?: string;
+          verified?: boolean;
+        };
+        Relationships: [];
+      };
       deliverability_logs: {
         Row: {
           created_at: string;

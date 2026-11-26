@@ -97,6 +97,7 @@ export type TabId =
   | 'webhooks'
   | 'integrations'
   | 'api-keys'
+  | 'custom-domains'
   | 'trends'
   | 'featureflags'
   | 'realtime'
@@ -269,6 +270,7 @@ function useMenuCategories(): MenuCategory[] {
         { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, badge: 'new' as const },
         { id: 'webhooks', label: 'Webhooks', icon: Webhook },
         { id: 'api-keys', label: 'API & Zapier', icon: KeyRound, badge: 'new' as const },
+        { id: 'custom-domains', label: 'Dominio proprio', icon: Globe, badge: 'new' as const },
       ],
     },
   ];

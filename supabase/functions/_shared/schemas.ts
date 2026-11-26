@@ -78,6 +78,16 @@ export const CommonDomainSchema = z.object({
   verificationType: z.enum(["dns", "file", "meta"]).default("dns")
 });
 
+/**
+ * Dominio proprio com a acao desejada.
+ * register: grava o dominio e devolve o token de verificacao.
+ * verify: consulta a prova publica (TXT, arquivo ou meta tag) e atualiza o status.
+ * remove: apaga o registro do proprio usuario.
+ */
+export const CommonDomainActionSchema = CommonDomainSchema.extend({
+  action: z.enum(["register", "verify", "remove"]).default("register")
+});
+
 export const CommonWatermarkSchema = z.object({
   documentId: z.string().uuid(),
   watermarkText: z.string().min(1).max(200).transform(text =>
