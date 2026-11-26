@@ -27,6 +27,8 @@ import {
   Volume1,
   Type,
   Link2,
+  Download,
+  RefreshCw,
 } from 'lucide-react';
 import { BackButton } from '@/components/ui/back-button';
 import { useNavigate } from 'react-router-dom';
@@ -37,11 +39,51 @@ import {
   NotificationSoundType,
 } from '@/lib/notification-sound';
 import { matchFirst } from '@/lib/variant';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import {
+  useDsarRequests,
+  useRequestDsarExport,
+  useRefreshDsarExport,
+  downloadDsarExport,
+  isDsarLinkExpired,
+  describeDsarRequest,
+  DSAR_STATUS_LABELS,
+} from '@/hooks/use-dsar';
 
 export default function Settings() {
   const { preferences, isLoading, updatePreferences, isUpdating } = useUserPreferences();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { data: dsarRequests = [], isLoading: isDsarLoading } = useDsarRequests();
+  const requestExport = useRequestDsarExport();
+  const refreshExport = useRefreshDsarExport();
+
+  const handleExportData = () => {
+    requestExport.mutate(undefined, {
+      onSuccess: ({ result }) => {
+        downloadDsarExport(result);
+        toast.success('Exportação gerada', {
+          description: 'O download dos seus dados foi iniciado.',
+        });
+      },
+      onError: (error) => {
+        toast.error('Não foi possível gerar a exportação', { description: error.message });
+      },
+    });
+  };
+
+  const handleRefreshExport = (dsarId: string) => {
+    refreshExport.mutate(dsarId, {
+      onSuccess: (result) => {
+        downloadDsarExport(result);
+        toast.success('Link renovado', { description: 'O download é válido por 24 horas.' });
+      },
+      onError: (error) => {
+        toast.error('Não foi possível renovar o link', { description: error.message });
+      },
+    });
+  };
 
   const handleToggle = (key: string, value: boolean) => {
     updatePreferences({ [key]: value });
@@ -571,6 +613,89 @@ export default function Settings() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
+            <div className="flex flex-col gap-4">
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium">Exportação de Dados</h4>
+                <p className="text-xs text-muted-foreground">
+                  Baixe uma cópia dos seus dados pessoais (LGPD, Art. 18). Inclui contatos, tracking
+                  e preferências. O link de download fica válido por 24 horas.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={handleExportData}
+                disabled={requestExport.isPending}
+              >
+                {requestExport.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Gerando exportação...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Exportar meus dados
+                  </>
+                )}
+              </Button>
+
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Solicitações</h4>
+                {isDsarLoading && <Skeleton className="h-14 w-full" />}
+                {!isDsarLoading && dsarRequests.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Nenhuma exportação solicitada ainda.
+                  </p>
+                )}
+                {!isDsarLoading && dsarRequests.length > 0 && (
+                  <ul className="divide-y rounded-md border">
+                    {dsarRequests.map((request) => {
+                      const isInline = request.export_path?.startsWith('inline:') ?? false;
+                      const linkExpired = isDsarLinkExpired(request);
+                      const statusNote = describeDsarRequest(request);
+
+                      return (
+                        <li
+                          key={request.id}
+                          className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={request.status === 'completed' ? 'secondary' : 'outline'}
+                              >
+                                {DSAR_STATUS_LABELS[request.status] ?? request.status}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(request.requested_at).toLocaleString('pt-BR')}
+                              </span>
+                            </div>
+                            {statusNote && (
+                              <p className="text-xs text-muted-foreground">{statusNote}</p>
+                            )}
+                          </div>
+                          {request.status === 'completed' && !isInline && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="w-full sm:w-auto"
+                              onClick={() => handleRefreshExport(request.id)}
+                              disabled={refreshExport.isPending}
+                            >
+                              <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                              {linkExpired ? 'Gerar novo link' : 'Abrir link'}
+                            </Button>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <Separator />
             <div className="flex flex-col gap-4">
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">Exclusão de Dados</h4>
