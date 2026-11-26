@@ -41,7 +41,7 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     }
 
     const url = new URL(req.url);
-    const trackingId = url.searchParams.get("t");
+    const trackingId = url.searchParams.get("t") || url.searchParams.get("tp");
 
     const validation = TrackPixelSchema.safeParse({ t: trackingId });
     if (!validation.success || !trackingId) {

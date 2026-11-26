@@ -16,7 +16,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     
     const url = new URL(req.url);
     const linkId = url.searchParams.get("l") || url.searchParams.get("linkId");
-    const trackingId = url.searchParams.get("t") || url.searchParams.get("trackingId");
+    const trackingId = url.searchParams.get("t") || url.searchParams.get("trackingId") || url.searchParams.get("tp");
 
     const validation = TrackLinkSchema.safeParse({ linkId, trackingId });
     if (!validation.success || !linkId) {

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/public/track/open.gif",
+      "destination": "https://xmyvefffgltlrobazrmg.supabase.co/functions/v1/track-pixel"
+    },
+    {
+      "source": "/api/public/track/click",
+      "destination": "https://xmyvefffgltlrobazrmg.supabase.co/functions/v1/track-link"
+    },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
