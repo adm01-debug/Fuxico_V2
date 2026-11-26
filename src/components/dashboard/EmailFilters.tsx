@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect, useRef, useCallback } from 'react';
 import {
   Search,
   X,
@@ -7,6 +7,11 @@ import {
   MousePointerClick,
   ArrowUpDown,
   ChevronDown,
+  Bookmark,
+  Save,
+  Star,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -28,9 +33,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { defaultFilters, type EmailFilters as EmailFiltersState } from '@/hooks/use-email-filters';
+import {
+  defaultFilters,
+  deserializeEmailFilters,
+  serializeEmailFilters,
+  type EmailFilters as EmailFiltersState,
+} from '@/hooks/use-email-filters';
+import { useSavedFilters, type SavedFilter } from '@/hooks/use-saved-filters';
 
 export type { EmailFiltersState };
 
@@ -89,6 +109,54 @@ function EmailFiltersBaseComponent({
   const clearAllFilters = () => {
     setSearchValue('');
     onFiltersChange(defaultFilters);
+  };
+
+  // ----- Filtros salvos (tabela public.saved_filters) -----
+  const {
+    filters: savedFilters,
+    defaultFilter,
+    isLoading: isLoadingSaved,
+    saveFilter,
+    deleteFilter,
+    setDefault,
+    isSaving,
+    isDeleting,
+  } = useSavedFilters('emails');
+
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [filterName, setFilterName] = useState('');
+  const appliedDefaultRef = useRef(false);
+
+  const applyFilterState = useCallback(
+    (next: EmailFiltersState) => {
+      setSearchValue(next.search);
+      onFiltersChange(next);
+    },
+    [onFiltersChange]
+  );
+
+  const applySavedFilter = (saved: SavedFilter) => {
+    applyFilterState(deserializeEmailFilters(saved.filters));
+  };
+
+  // Aplica o filtro padrão do usuário uma única vez, se nenhum filtro estiver ativo.
+  useEffect(() => {
+    if (appliedDefaultRef.current || !defaultFilter) return;
+    appliedDefaultRef.current = true;
+    if (!hasActiveFilters) {
+      applyFilterState(deserializeEmailFilters(defaultFilter.filters));
+    }
+  }, [defaultFilter, hasActiveFilters, applyFilterState]);
+
+  const handleSaveCurrentFilter = async () => {
+    const created = await saveFilter({
+      name: filterName,
+      filters: serializeEmailFilters(filters),
+    });
+    if (created) {
+      setFilterName('');
+      setIsSaveDialogOpen(false);
+    }
   };
 
   const statusOptions = [
@@ -271,6 +339,87 @@ function EmailFiltersBaseComponent({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Filtros salvos */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                aria-label="Filtros salvos"
+                variant="outline"
+                className="h-10 shrink-0 px-3"
+                disabled={isLoadingSaved}
+              >
+                {isLoadingSaved ? (
+                  <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+                ) : (
+                  <Bookmark className="h-4 w-4 sm:mr-2" />
+                )}
+                <span className="hidden sm:inline">Filtros salvos</span>
+                {savedFilters.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
+                    {savedFilters.length}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72">
+              <DropdownMenuLabel>Filtros salvos</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {savedFilters.length === 0 && (
+                <div className="px-2 py-3 text-xs text-muted-foreground">
+                  Nenhum filtro salvo. Ajuste os filtros e use &quot;Salvar filtro atual&quot;.
+                </div>
+              )}
+              {savedFilters.map((saved) => (
+                <div
+                  key={saved.id}
+                  className="flex items-center gap-1 rounded-sm px-2 hover:bg-accent"
+                >
+                  <button
+                    type="button"
+                    onClick={() => applySavedFilter(saved)}
+                    aria-label={`Aplicar filtro ${saved.name}`}
+                    className="flex min-h-[36px] flex-1 items-center gap-2 truncate text-left text-sm"
+                  >
+                    <span className="truncate">{saved.name}</span>
+                    {saved.is_default && (
+                      <Star
+                        className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-500"
+                        aria-label="Filtro padrão"
+                      />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Definir ${saved.name} como padrão`}
+                    disabled={isSaving}
+                    onClick={() => void setDefault(saved.id)}
+                    className="rounded p-1 text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  >
+                    <Star className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Excluir filtro ${saved.name}`}
+                    disabled={isDeleting}
+                    onClick={() => void deleteFilter(saved.id)}
+                    className="rounded p-1 text-muted-foreground hover:text-destructive disabled:opacity-50"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="min-h-[44px]"
+                disabled={isSaving}
+                onClick={() => setIsSaveDialogOpen(true)}
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Salvar filtro atual
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -370,6 +519,45 @@ function EmailFiltersBaseComponent({
           )}
         </div>
       </div>
+
+      <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Salvar filtro atual</DialogTitle>
+            <DialogDescription>
+              O filtro fica disponível na sua conta em qualquer dispositivo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="saved-filter-name">Nome do filtro</Label>
+            <Input
+              id="saved-filter-name"
+              value={filterName}
+              onChange={(event) => setFilterName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && filterName.trim() && !isSaving) {
+                  event.preventDefault();
+                  void handleSaveCurrentFilter();
+                }
+              }}
+              placeholder="Ex.: Clientes sem abertura"
+              maxLength={60}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSaveDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => void handleSaveCurrentFilter()}
+              disabled={isSaving || !filterName.trim()}
+            >
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
