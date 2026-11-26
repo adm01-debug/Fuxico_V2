@@ -148,6 +148,13 @@ export default function AdminObservability() {
     staleTime: 30_000,
   });
 
+  const dsarSla = useQuery({
+    queryKey: ['admin_dsar_sla_misses', refreshKey],
+    queryFn: () => adminRpc<number>('count_dsar_sla_misses'),
+    enabled: !!isAdmin,
+    staleTime: 30_000,
+  });
+
   const handleReplay = async (id: string) => {
     try {
       await adminRpc('admin_replay_cron_failure', { _failure_id: id });
@@ -259,6 +266,27 @@ export default function AdminObservability() {
           </CardHeader>
         </Card>
       </div>
+
+      {/* Compliance LGPD */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5" /> DSAR fora do prazo (LGPD)
+            {!dsarSla.isLoading && sevBadge(dsarSla.data ? 'critical' : 'ok')}
+          </CardTitle>
+          <CardDescription>
+            Solicitações de exportação ou exclusão de dados pessoais cujo prazo legal de 15 dias já
+            venceu. Qualquer valor acima de zero exige tratativa imediata.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {dsarSla.isLoading ? (
+            <Skeleton className="h-9 w-24" />
+          ) : (
+            <p className="text-3xl font-semibold">{dsarSla.data ?? 0}</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Sanity Check */}
       <Card>
