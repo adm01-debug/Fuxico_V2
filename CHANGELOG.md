@@ -1811,6 +1811,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Libera edge functions autenticadas do bloqueio de IP (#104) by @adm01-debug in [#104](https://github.com/adm01-debug/fuxico/pull/104)
 - Consolida fluxo de MFA com backup codes hasheados e enrollment real (#108) by @adm01-debug in [#108](https://github.com/adm01-debug/fuxico/pull/108)
 - Alertas de bounce leem dados reais de tracked_emails (#115) by @adm01-debug in [#115](https://github.com/adm01-debug/fuxico/pull/115)
+- Registrar auditoria de email no envio e alinhar direction ao CHECK (#122) by @adm01-debug in [#122](https://github.com/adm01-debug/fuxico/pull/122)
 
 ### 📚 Documentação
 
@@ -1847,6 +1848,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
