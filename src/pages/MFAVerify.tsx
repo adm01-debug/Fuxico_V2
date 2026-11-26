@@ -13,11 +13,14 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Shield, Loader2 } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Input } from '@/components/ui/input';
+import { useMfaBackupCodes } from '@/hooks/use-mfa-backup-codes';
 
 export default function MFAVerify() {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [useBackupCode, setUseBackupCode] = useState(false);
+  const { consume, remaining } = useMfaBackupCodes();
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = (location.state as { from?: string } | null)?.from || '/';
@@ -95,38 +98,25 @@ export default function MFAVerify() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não encontrado');
 
-      // Get backup codes
-      const { data: mfaData, error } = await supabase
-        .from('mfa_settings')
-        .select('backup_codes')
-        .eq('user_id', user.id)
-        .single();
+      // Validação no servidor: `consume_mfa_backup_code` compara o hash bcrypt
+      // e marca o código como usado (nunca há comparação em texto claro no cliente).
+      const valid = await consume.mutateAsync(code);
 
-      if (error) throw error;
-
-      const backupCodes = mfaData?.backup_codes || [];
-      const codeIndex = backupCodes.indexOf(code.toUpperCase());
-
-      if (codeIndex === -1) {
+      if (!valid) {
         toast.error('Código de backup inválido');
         return;
       }
 
-      // Remove used backup code
-      const newCodes = [...backupCodes];
-      newCodes.splice(codeIndex, 1);
-
       await supabase
         .from('mfa_settings')
         .update({
-          backup_codes: newCodes,
           last_verified_at: new Date().toISOString(),
         })
         .eq('user_id', user.id);
 
       toast.success('Verificação bem-sucedida!');
 
-      if (newCodes.length <= 2) {
+      if (remaining > 0 && remaining - 1 <= 2) {
         toast.warning('Você tem poucos códigos de backup restantes. Considere gerar novos.');
       }
 
@@ -156,20 +146,14 @@ export default function MFAVerify() {
         <CardContent className="space-y-4">
           {useBackupCode ? (
             <div className="space-y-2">
-              <InputOTP
-                maxLength={6}
+              <Input
                 value={code}
-                onChange={(value) => setCode(value.toUpperCase())}
-              >
-                <InputOTPGroup className="justify-center font-mono">
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                placeholder="XXXXX-XXXXX"
+                autoComplete="one-time-code"
+                aria-label="Código de backup"
+                className="text-center font-mono text-lg tracking-widest"
+              />
             </div>
           ) : (
             <InputOTP maxLength={6} value={code} onChange={setCode}>

@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Shield, Loader2, ArrowLeft, KeyRound, Copy, CheckCircle } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { generateBackupCodes } from '@/lib/secure-random';
+import { useMfaBackupCodes } from '@/hooks/use-mfa-backup-codes';
 
 interface MFASettings {
   is_enabled: boolean;
@@ -28,6 +28,7 @@ interface MFASettings {
 export default function TwoFactorAuth() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { generate } = useMfaBackupCodes();
   const [loading, setLoading] = useState(true);
   const [mfaSettings, setMfaSettings] = useState<MFASettings | null>(null);
   const [step, setStep] = useState<'overview' | 'enroll' | 'verify' | 'backup'>('overview');
@@ -120,18 +121,17 @@ export default function TwoFactorAuth() {
 
       if (verifyError) throw verifyError;
 
-      // Generate backup codes
-      const codes = generateBackupCodes(10);
-      setBackupCodes(codes);
-
-      // Save MFA settings to our table
+      // Save MFA settings to our table. Os códigos de backup são gerados pela
+      // RPC `generate_mfa_backup_codes` e ficam hasheados em `mfa_backup_codes`.
       await supabase.from('mfa_settings').upsert({
         user_id: user?.id ?? '',
         is_enabled: true,
         enrolled_at: new Date().toISOString(),
         last_verified_at: new Date().toISOString(),
-        backup_codes: codes,
       });
+
+      const codes = await generate.mutateAsync();
+      setBackupCodes(codes);
 
       toast.success('MFA ativado com sucesso!');
       setStep('backup');

@@ -12,6 +12,7 @@ import {
   Copy,
   RefreshCw,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,13 +30,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { generateBackupCodes } from '@/lib/secure-random';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Label } from '@/components/ui/label';
+import { useMfaBackupCodes } from '@/hooks/use-mfa-backup-codes';
 
 export function MFASettingsPanel() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [showBackupCodes, setShowBackupCodes] = useState(false);
+  const { remaining, generate } = useMfaBackupCodes();
   const [showDisableDialog, setShowDisableDialog] = useState(false);
+  const [showEnrollDialog, setShowEnrollDialog] = useState(false);
+  const [qrCode, setQrCode] = useState('');
+  const [secret, setSecret] = useState('');
+  const [verifyCode, setVerifyCode] = useState('');
+  const generatedCodes = generate.data ?? [];
+  const remainingLabel = `${remaining} ${remaining === 1 ? 'código disponível' : 'códigos disponíveis'}`;
 
   const { data: mfaSettings, isLoading } = useQuery({
     queryKey: ['mfaSettings', user?.id],
@@ -43,7 +52,7 @@ export function MFASettingsPanel() {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('mfa_settings')
-        .select('*')
+        .select('id, is_enabled, enrolled_at, last_verified_at, recovery_email')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;
@@ -52,19 +61,61 @@ export function MFASettingsPanel() {
     enabled: !!user?.id,
   });
 
-  const enableMFA = useMutation({
-    mutationFn: async () => {
-      // Generate backup codes
-      const backupCodes = generateBackupCodes(8);
+  const regenerateBackupCodes = () =>
+    generate.mutate(undefined, {
+      onError: () => toast.error('Erro ao gerar códigos de backup'),
+    });
 
-      const { error } = await supabase.from('mfa_settings').upsert({
-        user_id: user?.id ?? '',
-        is_enabled: true,
-        enrolled_at: new Date().toISOString(),
-        backup_codes: backupCodes,
-        recovery_email: user?.email ?? '',
+  const startEnrollment = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        friendlyName: 'Fuxico',
       });
       if (error) throw error;
+      if (!data.totp) throw new Error('Não foi possível iniciar a configuração do MFA');
+      return data.totp;
+    },
+    onSuccess: (totp) => {
+      setQrCode(totp.qr_code);
+      setSecret(totp.secret);
+      setVerifyCode('');
+      setShowEnrollDialog(true);
+    },
+    onError: () => {
+      toast.error('Erro ao iniciar a configuração do MFA');
+    },
+  });
+
+  const confirmEnrollment = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error('Usuário não autenticado');
+
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+      const totpFactor = factors?.totp?.[0];
+      if (!totpFactor) throw new Error('Fator TOTP não encontrado');
+
+      const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: totpFactor.id,
+      });
+      if (challengeError) throw challengeError;
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId: totpFactor.id,
+        challengeId: challenge.id,
+        code: verifyCode,
+      });
+      if (verifyError) throw verifyError;
+
+      const { error: upsertError } = await supabase.from('mfa_settings').upsert({
+        user_id: user.id,
+        is_enabled: true,
+        enrolled_at: new Date().toISOString(),
+        last_verified_at: new Date().toISOString(),
+        recovery_email: user.email ?? '',
+      });
+      if (upsertError) throw upsertError;
 
       await supabase.functions.invoke('log-security-event', {
         body: {
@@ -73,29 +124,43 @@ export function MFASettingsPanel() {
           description: 'MFA foi ativado na conta',
         },
       });
-
-      return backupCodes;
     },
-    onSuccess: (_backupCodes) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mfaSettings'] });
+      setShowEnrollDialog(false);
+      setQrCode('');
+      setSecret('');
+      setVerifyCode('');
+      regenerateBackupCodes();
       toast.success('MFA ativado com sucesso! Guarde seus códigos de backup.');
-      setShowBackupCodes(true);
     },
-    onError: () => {
-      toast.error('Erro ao ativar MFA');
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : 'Código inválido');
     },
   });
 
   const disableMFA = useMutation({
     mutationFn: async () => {
+      if (!user?.id) throw new Error('Usuário não autenticado');
+
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totpFactor = factors?.totp?.[0];
+      if (totpFactor) {
+        const { error: unenrollError } = await supabase.auth.mfa.unenroll({
+          factorId: totpFactor.id,
+        });
+        if (unenrollError) throw unenrollError;
+      }
+
       const { error } = await supabase
         .from('mfa_settings')
         .update({
           is_enabled: false,
           totp_secret: null,
           backup_codes: null,
+          enrolled_at: null,
         })
-        .eq('user_id', user?.id ?? '');
+        .eq('user_id', user.id);
       if (error) throw error;
 
       await supabase.functions.invoke('log-security-event', {
@@ -116,38 +181,9 @@ export function MFASettingsPanel() {
     },
   });
 
-  const regenerateBackupCodes = useMutation({
-    mutationFn: async () => {
-      const backupCodes = generateBackupCodes(8);
-
-      const { error } = await supabase
-        .from('mfa_settings')
-        .update({ backup_codes: backupCodes })
-        .eq('user_id', user?.id ?? '');
-      if (error) throw error;
-
-      await supabase.functions.invoke('log-security-event', {
-        body: {
-          event_type: 'backup_codes_regenerated',
-          severity: 'info',
-          description: 'Códigos de backup foram regenerados',
-        },
-      });
-
-      return backupCodes;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mfaSettings'] });
-      toast.success('Novos códigos de backup gerados');
-    },
-    onError: () => {
-      toast.error('Erro ao regenerar códigos');
-    },
-  });
-
   const copyBackupCodes = () => {
-    if (mfaSettings?.backup_codes) {
-      navigator.clipboard.writeText(mfaSettings.backup_codes.join('\n'));
+    if (generatedCodes.length > 0) {
+      navigator.clipboard.writeText(generatedCodes.join('\n'));
       toast.success('Códigos copiados para a área de transferência');
     }
   };
@@ -265,14 +301,99 @@ export function MFASettingsPanel() {
               </Dialog>
             </div>
           ) : (
-            <Button
-              className="h-11 w-full"
-              onClick={() => enableMFA.mutate()}
-              disabled={enableMFA.isPending}
-            >
-              <Shield className="mr-2 h-4 w-4" />
-              Ativar MFA
-            </Button>
+            <>
+              <Button
+                className="h-11 w-full"
+                onClick={() => startEnrollment.mutate()}
+                disabled={startEnrollment.isPending}
+              >
+                {startEnrollment.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Shield className="mr-2 h-4 w-4" />
+                )}
+                Ativar MFA
+              </Button>
+
+              <Dialog
+                open={showEnrollDialog}
+                onOpenChange={(open) => {
+                  setShowEnrollDialog(open);
+                  if (!open) setVerifyCode('');
+                }}
+              >
+                <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle>Configurar App Autenticador</DialogTitle>
+                    <DialogDescription className="text-sm">
+                      Escaneie o QR code e digite o código de 6 dígitos para ativar a proteção.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    {qrCode && (
+                      <div className="flex justify-center">
+                        <img
+                          src={qrCode}
+                          alt="QR Code para configurar o app autenticador"
+                          className="h-40 w-40 rounded-lg border"
+                        />
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <Label className="text-xs">Ou digite o código manualmente:</Label>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 break-all rounded bg-muted p-2 font-mono text-xs">
+                          {secret}
+                        </code>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          aria-label="Copiar código secreto"
+                          onClick={() => {
+                            navigator.clipboard.writeText(secret);
+                            toast.success('Código copiado!');
+                          }}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Código de 6 dígitos do app:</Label>
+                      <InputOTP maxLength={6} value={verifyCode} onChange={setVerifyCode}>
+                        <InputOTPGroup className="justify-center">
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
+                  </div>
+                  <DialogFooter className="flex-col gap-2 sm:flex-row">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowEnrollDialog(false)}
+                      className="h-11 w-full sm:w-auto"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      onClick={() => confirmEnrollment.mutate()}
+                      disabled={confirmEnrollment.isPending || verifyCode.length !== 6}
+                      className="h-11 w-full sm:w-auto"
+                    >
+                      {confirmEnrollment.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      Verificar e Ativar
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
           )}
         </CardContent>
       </Card>
@@ -288,14 +409,14 @@ export function MFASettingsPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
-          {mfaSettings?.is_enabled && mfaSettings?.backup_codes ? (
+          {mfaSettings?.is_enabled ? (
             <>
               <div className="rounded-lg border bg-muted/50 p-3 sm:p-4">
-                {showBackupCodes ? (
+                {generatedCodes.length > 0 ? (
                   <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                    {mfaSettings.backup_codes.map((code: string, index: number) => (
+                    {generatedCodes.map((code) => (
                       <code
-                        key={index}
+                        key={code}
                         className="truncate rounded bg-background p-1 text-center font-mono text-[10px] sm:p-1.5 sm:text-sm"
                       >
                         {code}
@@ -305,21 +426,27 @@ export function MFASettingsPanel() {
                 ) : (
                   <div className="py-3 text-center sm:py-4">
                     <p className="mb-2 text-xs text-muted-foreground sm:text-sm">
-                      {mfaSettings.backup_codes.length} códigos disponíveis
+                      {generate.isPending ? 'Gerando códigos...' : remainingLabel}
                     </p>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setShowBackupCodes(true)}
+                      onClick={regenerateBackupCodes}
+                      disabled={generate.isPending}
                       className="h-10"
                     >
-                      Mostrar códigos
+                      {generate.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4 sm:mr-2" />
+                      )}
+                      Gerar novos códigos
                     </Button>
                   </div>
                 )}
               </div>
 
-              {showBackupCodes && (
+              {generatedCodes.length > 0 && (
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" className="h-10 flex-1" onClick={copyBackupCodes}>
                     <Copy className="h-4 w-4 sm:mr-2" />
@@ -328,8 +455,8 @@ export function MFASettingsPanel() {
                   <Button
                     variant="outline"
                     className="h-10 flex-1"
-                    onClick={() => regenerateBackupCodes.mutate()}
-                    disabled={regenerateBackupCodes.isPending}
+                    onClick={regenerateBackupCodes}
+                    disabled={generate.isPending}
                   >
                     <RefreshCw className="h-4 w-4 sm:mr-2" />
                     <span className="hidden sm:inline">Regenerar</span>
@@ -338,7 +465,8 @@ export function MFASettingsPanel() {
               )}
 
               <p className="text-[10px] text-muted-foreground sm:text-xs">
-                ⚠️ Guarde estes códigos em local seguro. Cada código só pode ser usado uma vez.
+                ⚠️ Guarde estes códigos em local seguro. Cada código só pode ser usado uma vez e é
+                exibido apenas no momento em que é gerado.
               </p>
             </>
           ) : (
