@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,10 +46,13 @@ import {
   useDsarRequests,
   useRequestDsarExport,
   useRefreshDsarExport,
+  useRequestDsarDeletion,
   downloadDsarExport,
   isDsarLinkExpired,
   describeDsarRequest,
+  hasOpenDeletion,
   DSAR_STATUS_LABELS,
+  DSAR_TYPE_LABELS,
 } from '@/hooks/use-dsar';
 
 export default function Settings() {
@@ -58,6 +62,10 @@ export default function Settings() {
   const { data: dsarRequests = [], isLoading: isDsarLoading } = useDsarRequests();
   const requestExport = useRequestDsarExport();
   const refreshExport = useRefreshDsarExport();
+  const requestDeletion = useRequestDsarDeletion();
+  const [showDeleteForm, setShowDeleteForm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const deletionPending = hasOpenDeletion(dsarRequests);
 
   const handleExportData = () => {
     requestExport.mutate(undefined, {
@@ -81,6 +89,24 @@ export default function Settings() {
       },
       onError: (error) => {
         toast.error('Não foi possível renovar o link', { description: error.message });
+      },
+    });
+  };
+
+  const handleRequestDeletion = () => {
+    requestDeletion.mutate(undefined, {
+      onSuccess: () => {
+        setShowDeleteForm(false);
+        setDeleteConfirmText('');
+        toast.success('Solicita\u00e7\u00e3o de exclus\u00e3o registrada', {
+          description:
+            'O pedido ficou registrado e o prazo legal de conclus\u00e3o aparece no hist\u00f3rico abaixo.',
+        });
+      },
+      onError: (error) => {
+        toast.error('N\u00e3o foi poss\u00edvel registrar a solicita\u00e7\u00e3o', {
+          description: error.message,
+        });
       },
     });
   };
@@ -661,7 +687,10 @@ export default function Settings() {
                           className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between"
                         >
                           <div className="space-y-0.5">
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="outline">
+                                {DSAR_TYPE_LABELS[request.request_type] ?? request.request_type}
+                              </Badge>
                               <Badge
                                 variant={request.status === 'completed' ? 'secondary' : 'outline'}
                               >
@@ -675,18 +704,20 @@ export default function Settings() {
                               <p className="text-xs text-muted-foreground">{statusNote}</p>
                             )}
                           </div>
-                          {request.status === 'completed' && !isInline && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="w-full sm:w-auto"
-                              onClick={() => handleRefreshExport(request.id)}
-                              disabled={refreshExport.isPending}
-                            >
-                              <RefreshCw className="mr-2 h-3.5 w-3.5" />
-                              {linkExpired ? 'Gerar novo link' : 'Abrir link'}
-                            </Button>
-                          )}
+                          {request.request_type === 'export' &&
+                            request.status === 'completed' &&
+                            !isInline && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="w-full sm:w-auto"
+                                onClick={() => handleRefreshExport(request.id)}
+                                disabled={refreshExport.isPending}
+                              >
+                                <RefreshCw className="mr-2 h-3.5 w-3.5" />
+                                {linkExpired ? 'Gerar novo link' : 'Abrir link'}
+                              </Button>
+                            )}
                         </li>
                       );
                     })}
@@ -700,28 +731,63 @@ export default function Settings() {
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">Exclusão de Dados</h4>
                 <p className="text-xs text-muted-foreground">
-                  Ao excluir seus dados, todas as informações de tracking, histórico e conta serão
-                  removidas permanentemente.
+                  Registre a eliminação dos seus dados pessoais (LGPD, Art. 18). O pedido é
+                  protocolado com prazo legal de até 15 dias corridos para a remoção definitiva das
+                  informações de tracking, histórico e conta.
                 </p>
+                {deletionPending && (
+                  <p className="text-xs font-medium text-destructive">
+                    Já existe uma solicitação de exclusão em andamento.
+                  </p>
+                )}
               </div>
-              <Button
-                variant="outline"
-                className="w-full border-destructive/50 text-destructive hover:bg-destructive/10 sm:w-auto"
-                onClick={() => {
-                  if (
-                    confirm(
-                      'Tem certeza que deseja excluir todos os seus dados? Esta ação é irreversível.'
-                    )
-                  ) {
-                    // Implement actual deletion logic here
-                    alert(
-                      'Solicitação de exclusão enviada. Seus dados serão removidos em até 24h.'
-                    );
-                  }
-                }}
-              >
-                Excluir todos os meus dados
-              </Button>
+              {!showDeleteForm && (
+                <Button
+                  variant="outline"
+                  className="w-full border-destructive/50 text-destructive hover:bg-destructive/10 sm:w-auto"
+                  onClick={() => setShowDeleteForm(true)}
+                  disabled={deletionPending}
+                >
+                  Excluir todos os meus dados
+                </Button>
+              )}
+              {showDeleteForm && (
+                <div className="space-y-3 rounded-md border border-destructive/40 p-3">
+                  <p className="text-xs text-muted-foreground">
+                    Confirme digitando <span className="font-mono font-semibold">EXCLUIR</span>{' '}
+                    abaixo.
+                  </p>
+                  <Input
+                    value={deleteConfirmText}
+                    onChange={(event) => setDeleteConfirmText(event.target.value)}
+                    placeholder="EXCLUIR"
+                    aria-label="Confirmação da exclusão de dados"
+                  />
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                      variant="outline"
+                      className="w-full border-destructive/50 text-destructive hover:bg-destructive/10 sm:w-auto"
+                      onClick={handleRequestDeletion}
+                      disabled={deleteConfirmText !== 'EXCLUIR' || requestDeletion.isPending}
+                    >
+                      {requestDeletion.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      Confirmar solicitação
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full sm:w-auto"
+                      onClick={() => {
+                        setShowDeleteForm(false);
+                        setDeleteConfirmText('');
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
