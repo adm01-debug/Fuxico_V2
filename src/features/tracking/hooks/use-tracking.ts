@@ -5,6 +5,9 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { log } from '@/lib/logger';
+import { getEmailDetail, type EmailDetailResponse } from '../lib/tracking-api';
+
+export type { TrackingTimelineEntry } from '../lib/tracking-api';
 
 // =============================================================================
 // TIPOS
@@ -140,57 +143,16 @@ async function fallbackGetEmails(
 }
 
 /**
- * Hook para detalhes de um email específico
+ * Hook para detalhes de um email específico.
+ * Fonte única: edge get-tracking-detail, que devolve resumo, links e a linha do tempo
+ * já classificada (dispositivo, cliente de email, cidade/país).
  */
 export function useEmailDetail(trackingId: string) {
-  return useQuery({
+  return useQuery<EmailDetailResponse>({
     queryKey: ['email-detail', trackingId],
-    queryFn: async () => {
-      // Get email
-      const { data: email, error: emailError } = await supabase
-        .from('tracked_emails')
-        .select('*')
-        .eq('tracking_id', trackingId)
-        .single();
-
-      if (emailError) throw emailError;
-
-      // Get events
-      const { data: events } = await supabase
-        .from('tracking_events')
-        .select('*')
-        .eq('tracking_id', trackingId)
-        .order('created_at', { ascending: false });
-
-      // Get links
-      const { data: links } = await supabase
-        .from('tracked_links')
-        .select('*')
-        .eq('tracking_id', trackingId);
-
-      const eventsList = events || [];
-      const linksList = links || [];
-
-      // Calculate stats
-      const openEvents = eventsList.filter((e) => e.event_type === 'open');
-      const clickEvents = eventsList.filter((e) => e.event_type === 'click');
-
-      return {
-        email,
-        events: eventsList,
-        links: linksList,
-        stats: {
-          totalOpens: openEvents.length,
-          uniqueOpens: new Set(openEvents.map((e) => e.ip_address)).size,
-          selfOpens: openEvents.filter((e) => e.is_self_open).length,
-          totalClicks: clickEvents.length,
-          uniqueClicks: new Set(clickEvents.map((e) => e.ip_address)).size,
-          firstOpened: openEvents.length > 0 ? openEvents[openEvents.length - 1].created_at : null,
-          lastOpened: openEvents.length > 0 ? openEvents[0].created_at : null,
-        },
-      };
-    },
+    queryFn: () => getEmailDetail(trackingId),
     enabled: !!trackingId,
+    staleTime: 30 * 1000,
   });
 }
 
