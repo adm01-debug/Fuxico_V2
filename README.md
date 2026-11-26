@@ -1,5 +1,7 @@
 # 🔍 FUXICO - Email Tracking System
 
+> ⚠️ **Agentes (Claude & afins): leiam [`AGENTS.md`](./AGENTS.md) antes de qualquer ação** — define o banco oficial, o fluxo Git e o deploy deste projeto. Detalhe por tema em [`docs/agentes/`](./docs/agentes/).
+
 [![Security Audit](https://img.shields.io/badge/Audit-Passed-success)](SYSTEM_AUDIT_ENTERPRISE.md)
 ![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
