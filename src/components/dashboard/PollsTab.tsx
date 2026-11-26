@@ -86,12 +86,16 @@ function PollCard({ poll, onRequestDelete, onShowVotes }: PollCardProps) {
               <span>{total} voto(s)</span>
               <span>·</span>
               <span>
-                criada {formatDistanceToNow(new Date(poll.created_at), { addSuffix: true, locale: ptBR })}
+                criada{' '}
+                {formatDistanceToNow(new Date(poll.created_at), { addSuffix: true, locale: ptBR })}
               </span>
               {poll.expires_at && (
                 <>
                   <span>·</span>
-                  <span>encerra {format(new Date(poll.expires_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
+                  <span>
+                    encerra{' '}
+                    {format(new Date(poll.expires_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  </span>
                 </>
               )}
               {poll.allow_multiple_votes && (
@@ -103,7 +107,13 @@ function PollCard({ poll, onRequestDelete, onShowVotes }: PollCardProps) {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={copyLink} disabled={!canVote}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={copyLink}
+              disabled={!canVote}
+            >
               {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
               Copiar link
             </Button>
@@ -204,7 +214,9 @@ function VotesDialog({ poll, onOpenChange }: VotesDialogProps) {
               >
                 <div>
                   <p className="font-medium">{vote.voter_name || 'Anônimo'}</p>
-                  <p className="text-xs text-muted-foreground">{vote.voter_email || 'sem e-mail'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {vote.voter_email || 'sem e-mail'}
+                  </p>
                 </div>
                 <div className="text-right">
                   <p>{option ? option.label : 'opção removida'}</p>
@@ -233,7 +245,10 @@ function PollsTabBase() {
     if (!pollToDelete) return;
     try {
       await deletePoll.mutateAsync(pollToDelete.id);
-      toast({ title: 'Enquete excluída', description: 'Os votos vinculados também foram removidos.' });
+      toast({
+        title: 'Enquete excluída',
+        description: 'Os votos vinculados também foram removidos.',
+      });
     } catch (deleteError) {
       toast({
         title: 'Não foi possível excluir',

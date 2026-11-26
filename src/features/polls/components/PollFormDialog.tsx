@@ -207,7 +207,11 @@ export function PollFormDialog({ open, onOpenChange }: PollFormDialogProps) {
               <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button type="button" onClick={handleSubmit} disabled={!canSubmit || createPoll.isPending}>
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!canSubmit || createPoll.isPending}
+              >
                 {createPoll.isPending ? 'Criando...' : 'Criar enquete'}
               </Button>
             </>
