@@ -37,6 +37,8 @@ import { WebhookCircuitDashboard } from '@/components/admin/WebhookCircuitDashbo
 import { WebhookFailureRatesTable } from '@/components/admin/WebhookFailureRatesTable';
 import { WebhookRetryHistoryTable } from '@/components/admin/WebhookRetryHistoryTable';
 import { CriticalAlertsPanel } from '@/components/admin/CriticalAlertsPanel';
+import { RlsCanaryPanel } from '@/components/admin/RlsCanaryPanel';
+import { SecurityPosturePanel } from '@/components/admin/SecurityPosturePanel';
 import { DatabaseMaintenancePanel } from '@/components/admin/DatabaseMaintenancePanel';
 import { matchFirst } from '@/lib/variant';
 import type {
@@ -632,6 +634,12 @@ export default function AdminObservability() {
 
       {/* Alertas críticos consolidados */}
       <CriticalAlertsPanel />
+
+      {/* Auditoria de RLS: leitura e escrita como usuário comum, com rollback */}
+      <RlsCanaryPanel />
+
+      {/* Postura de segurança e schema: PII órfã, drift, pool, JWKS, arquivamentos */}
+      <SecurityPosturePanel />
 
       {/* Index Advisor */}
       <IndexAdvisorPanel />
