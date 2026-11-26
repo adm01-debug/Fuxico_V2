@@ -1685,6 +1685,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Restaura as 13 tabelas que 10 edge functions ativas já usavam (#90) by @adm01-debug in [#90](https://github.com/adm01-debug/fuxico/pull/90)
 - Expoe a exportacao de dados pessoais (LGPD Art. 18) na tela de configuracoes (#100) by @adm01-debug in [#100](https://github.com/adm01-debug/fuxico/pull/100)
 - Registra solicitacao real de exclusao de dados (LGPD) (#101) by @adm01-debug in [#101](https://github.com/adm01-debug/fuxico/pull/101)
+- Indica DSAR fora do prazo legal na observabilidade (#102) by @adm01-debug in [#102](https://github.com/adm01-debug/fuxico/pull/102)
 
 ### 🐛 Correções
 
@@ -1832,6 +1833,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
