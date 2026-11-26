@@ -4,6 +4,7 @@ import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { createLogger } from '../_shared/logger.ts'
 import { protectedHandler } from '../_shared/security-middleware.ts'
 import { CommonTrackingSchema } from '../_shared/schemas.ts'
+import { recordEmailAudit, evaluateFraudRules } from '../_shared/email-audit.ts'
 
 const log = createLogger('create-tracking')
 const createTrackingSchema = CommonTrackingSchema
@@ -49,6 +50,28 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       .single()
 
     if (error) throw error
+
+    // Auditoria de email: registra o envio e avalia as regras de fraude.
+    // Best effort: nunca impede a criacao do rastreamento.
+    const senderAddr = senderEmail || user.email || ''
+    try {
+      const auditRecord = await recordEmailAudit(supabaseClient, {
+        userId: user.id,
+        userEmail: senderAddr,
+        direction: 'sent',
+        senderEmail: senderAddr,
+        recipientEmail: recipientEmail,
+        subject: subject || '',
+        metadata: { tracking_id: trackingId, source: 'create-tracking' },
+      })
+      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      const adminClient = serviceRoleKey
+        ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
+        : null
+      await evaluateFraudRules(adminClient, auditRecord)
+    } catch (auditError: unknown) {
+      log.warn('Falha ao registrar auditoria de email', auditError instanceof Error ? auditError.message : String(auditError))
+    }
 
     // Generate pixel URL and HTML
     const pixelUrl = `${supabaseUrl}/functions/v1/track-pixel?t=${trackingId}`

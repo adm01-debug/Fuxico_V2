@@ -4,6 +4,7 @@ import { protectedHandler } from '../_shared/security-middleware.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { secureJsonResponse } from '../_shared/security-headers.ts'
 import { CommonEmailAuditSchema } from '../_shared/schemas.ts'
+import { recordEmailAudit } from '../_shared/email-audit.ts'
 
 const _log = createLogger('log-email-activity')
 const logSchema = CommonEmailAuditSchema
@@ -24,19 +25,26 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     if (!validation.success) return secureJsonResponse({ error: 'Invalid input' }, 400, corsHeaders)
 
     const { userEmail, direction, senderEmail, recipientEmail, subject, externalDomain, isExternal, metadata } = validation.data
-    const { data, error } = await supabaseClient.from('email_audit_logs').insert({
-      user_id: user.id,
-      user_email: userEmail || user.email,
+    const effectiveUserEmail = userEmail || user.email || ''
+    const effectiveSender = senderEmail || (direction === 'sent' ? effectiveUserEmail : '')
+    const effectiveRecipient = recipientEmail || (direction === 'received' ? effectiveUserEmail : '')
+
+    if (!effectiveSender || !effectiveRecipient) {
+      const error = direction === 'received' ? 'senderEmail is required' : 'recipientEmail is required'
+      return secureJsonResponse({ error }, 400, corsHeaders)
+    }
+
+    const data = await recordEmailAudit(supabaseClient, {
+      userId: user.id,
+      userEmail: effectiveUserEmail,
       direction,
-      sender_email: senderEmail || (direction === 'outbound' ? user.email : undefined),
-      recipient_email: recipientEmail || (direction === 'inbound' ? user.email : undefined),
-      subject: subject || '',
-      external_domain: externalDomain,
-      is_external: isExternal ?? false,
-      metadata: metadata || {},
-      timestamp: new Date().toISOString()
-    }).select().single()
-    if (error) throw error
+      senderEmail: effectiveSender,
+      recipientEmail: effectiveRecipient,
+      subject,
+      externalDomain,
+      isExternal,
+      metadata,
+    })
 
     return secureJsonResponse({ success: true, log: data }, 200, corsHeaders)
   } catch (error: unknown) {
