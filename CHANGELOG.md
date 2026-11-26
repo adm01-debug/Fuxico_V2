@@ -1814,6 +1814,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Alertas de bounce leem dados reais de tracked_emails (#115) by @adm01-debug in [#115](https://github.com/adm01-debug/fuxico/pull/115)
 - Registrar auditoria de email no envio e alinhar direction ao CHECK (#122) by @adm01-debug in [#122](https://github.com/adm01-debug/fuxico/pull/122)
 - Build de producao quebrado pelo precache do stats.html no PWA (#126) by @adm01-debug in [#126](https://github.com/adm01-debug/fuxico/pull/126)
+- Le config do Bitrix24 em bitrix24_config (integracao estava 100% quebrada) (#127) by @adm01-debug in [#127](https://github.com/adm01-debug/fuxico/pull/127)
 
 ### 📚 Documentação
 
@@ -1850,6 +1851,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
