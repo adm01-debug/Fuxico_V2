@@ -42,6 +42,7 @@ BEGIN
       url := 'https://%s.supabase.co/functions/v1/cold-archive-verifier',
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
+        'apikey', 'sb_publishable_vqZFXcaDwwXEy5XSldvTeg_Zn6lp-AQ',
         'x-cron-secret', (SELECT value FROM public.internal_config WHERE key = 'cron_secret')
       ),
       body := jsonb_build_object('trigger', 'cron', 'ts', now()),
@@ -55,6 +56,7 @@ BEGIN
       _url := 'https://%s.supabase.co/functions/v1/alert-dispatcher',
       _headers := jsonb_build_object(
         'Content-Type', 'application/json',
+        'apikey', 'sb_publishable_vqZFXcaDwwXEy5XSldvTeg_Zn6lp-AQ',
         'x-cron-secret', (SELECT value FROM public.internal_config WHERE key = 'cron_secret')
       ),
       _body := jsonb_build_object('trigger', 'cron', 'at', now())
@@ -66,6 +68,7 @@ BEGIN
       url := 'https://%s.supabase.co/functions/v1/webhook-retry-worker',
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
+        'apikey', 'sb_publishable_vqZFXcaDwwXEy5XSldvTeg_Zn6lp-AQ',
         'x-cron-secret', (SELECT value FROM public.internal_config WHERE key = 'cron_secret')
       ),
       body := '{}'::jsonb,
