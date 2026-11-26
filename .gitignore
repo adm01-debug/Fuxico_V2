@@ -44,3 +44,7 @@ test-results/
 # Supabase
 supabase/.branches/
 supabase/.temp/
+
+# Playwright (artefatos locais)
+e2e/reports/
+e2e/.auth/

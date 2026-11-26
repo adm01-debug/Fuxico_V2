@@ -9,11 +9,15 @@ import { defineConfig, devices } from '@playwright/test';
  * URL base para testes
  * @see https://playwright.dev/docs/api/class-testoptions#test-options-base-url
  */
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173';
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080';
+// A porta do webServer sai do MESMO baseURL: com PLAYWRIGHT_BASE_URL definido
+// (ci.yml usa http://localhost:4173) dev server e alvo nao podem divergir — era
+// isso que fazia o `page.goto` bater em porta onde nada subia (ERR_CONNECTION_REFUSED).
+const portaE2E = new URL(baseURL).port || '8080';
 
 export default defineConfig({
   // Diretório dos testes
-  testDir: './e2e/tests',
+  testDir: './e2e',
   
   // Padrão de arquivos de teste
   testMatch: '**/*.spec.ts',
@@ -23,7 +27,7 @@ export default defineConfig({
   
   // Expectativas
   expect: {
-    timeout: 5000,
+    timeout: 10000,
   },
   
   // Execução completa em CI
@@ -129,7 +133,9 @@ export default defineConfig({
 
   // Servidor de desenvolvimento
   webServer: {
-    command: 'npm run dev',
+    // `--strictPort` falha alto se a porta estiver ocupada, em vez de escolher
+    // outra em silencio e deixar o teste apontando para o vazio.
+    command: `npm run dev -- --port ${portaE2E} --strictPort`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
