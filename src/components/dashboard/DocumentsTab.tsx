@@ -32,6 +32,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { matchFirst } from '@/lib/variant';
+import { PenLine } from 'lucide-react';
+import { SignatureRequestDialog } from '@/features/signatures/components/SignatureRequestDialog';
+import { SignatureStatusList } from '@/features/signatures/components/SignatureStatusList';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
@@ -39,6 +42,7 @@ function DocumentsTabBase() {
   const { data: documents, isLoading } = useTrackedDocuments();
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [signatureDoc, setSignatureDoc] = useState<{ id: string; fileName: string } | null>(null);
   const { toast } = useToast();
 
   const getTrackingUrl = (documentId: string) => {
@@ -171,6 +175,15 @@ function DocumentsTabBase() {
                       <Button
                         variant="outline"
                         size="sm"
+                        title="Solicitar assinatura"
+                        aria-label={`Solicitar assinatura de ${doc.file_name}`}
+                        onClick={() => setSignatureDoc({ id: doc.id, fileName: doc.file_name })}
+                      >
+                        <PenLine className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setSelectedDocId(doc.document_id)}
                         data-tour="docs-events-btn"
                       >
@@ -185,8 +198,18 @@ function DocumentsTabBase() {
         </Card>
       )}
 
+      <SignatureStatusList />
+
       {/* Document Events Dialog */}
       <DocumentEventsDialog documentId={selectedDocId} onClose={() => setSelectedDocId(null)} />
+
+      <SignatureRequestDialog
+        open={!!signatureDoc}
+        onOpenChange={(open) => {
+          if (!open) setSignatureDoc(null);
+        }}
+        document={signatureDoc}
+      />
     </div>
   );
 }
