@@ -126,6 +126,7 @@ const Pricing = () => {
                 size="icon"
                 onClick={() => navigate('/')}
                 className="h-10 w-10"
+                aria-label="Voltar para a página inicial"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
