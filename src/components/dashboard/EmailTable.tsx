@@ -15,6 +15,7 @@ import { useEmailFilters, filterEmails, type EmailFilters } from '@/hooks/use-em
 import { EmailStatusBadge } from '@/components/ui/email-status-badge';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { motion } from 'framer-motion';
+import { TrackingDetailSheet } from './TrackingDetailSheet';
 
 interface EmailTableProps {
   emails?: TrackedEmail[];
@@ -172,6 +173,7 @@ export function EmailTable({
   showFilters = true,
 }: EmailTableProps) {
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
   const parentRef = useRef<HTMLDivElement>(null);
 
   const { filters, setFilters, hasActiveFilters } = useEmailFilters();
@@ -300,7 +302,10 @@ export function EmailTable({
                     <EmailRow
                       email={email}
                       isSelected={selectedId === email.tracking_id}
-                      onSelect={() => onSelect(email.tracking_id)}
+                      onSelect={() => {
+                        onSelect(email.tracking_id);
+                        setDetailId(email.tracking_id);
+                      }}
                     />
                   </motion.div>
                 );
@@ -309,6 +314,11 @@ export function EmailTable({
           </div>
         )}
       </div>
+      <TrackingDetailSheet
+        trackingId={detailId ?? ''}
+        open={!!detailId}
+        onOpenChange={(open) => !open && setDetailId(null)}
+      />
     </TooltipProvider>
   );
 }

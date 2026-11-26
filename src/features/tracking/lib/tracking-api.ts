@@ -18,48 +18,47 @@ export interface TrackedEmail {
   bounce_detected_at?: string;
 }
 
-export interface TrackingEvent {
-  id: string;
-  tracking_id: string;
-  event_type: 'open' | 'click';
-  ip_address: string | null;
-  user_agent: string | null;
-  referer: string | null;
-  link_url: string | null;
-  created_at: string;
-  metadata: Record<string, unknown>;
-  is_self_open?: boolean;
-}
-
-export interface TrackedLink {
-  id: string;
-  tracking_id: string;
-  original_url: string;
-  link_id: string;
-  click_count: number;
-  created_at: string;
-}
-
-export interface TrackingStats {
-  totalOpens: number;
-  uniqueOpens: number;
-  totalClicks: number;
-  uniqueClicks: number;
-  selfOpens: number;
-  firstOpened: string | null;
-  lastOpened: string | null;
-}
-
 export interface EmailsResponse {
   emails: TrackedEmail[];
   total: number;
 }
 
+export interface TrackingTimelineEntry {
+  type: string;
+  at: string;
+  device: string;
+  client: string;
+  isSelfOpen: boolean;
+  linkUrl: string | null;
+  country: string | null;
+  city: string | null;
+}
+
+export interface TrackingDetailSummary {
+  opens: number;
+  selfOpens: number;
+  firstOpenAt: string | null;
+  lastOpenAt: string | null;
+  clicks: number;
+}
+
+export interface TrackingDetailLink {
+  linkId: string;
+  url: string;
+  clicks: number;
+}
+
 export interface EmailDetailResponse {
-  email: TrackedEmail;
-  stats: TrackingStats;
-  events: TrackingEvent[];
-  links: TrackedLink[];
+  email: {
+    trackingId: string;
+    recipientEmail: string;
+    subject: string | null;
+    createdAt: string;
+    deliveryStatus: string | null;
+  };
+  summary: TrackingDetailSummary;
+  links: TrackingDetailLink[];
+  timeline: TrackingTimelineEntry[];
 }
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -91,9 +90,10 @@ export async function getTrackedEmails(): Promise<EmailsResponse> {
 
 export async function getEmailDetail(trackingId: string): Promise<EmailDetailResponse> {
   const headers = await getAuthHeaders();
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/get-tracking-stats?id=${trackingId}`, {
-    headers,
-  });
+  const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/get-tracking-detail?trackingId=${encodeURIComponent(trackingId)}`,
+    { headers }
+  );
   if (!response.ok) {
     if (response.status === 401) {
       throw new Error('Not authenticated');
