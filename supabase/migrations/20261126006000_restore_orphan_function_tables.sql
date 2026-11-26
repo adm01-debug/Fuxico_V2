@@ -102,6 +102,22 @@ $$;
 REVOKE ALL ON FUNCTION public.increment_poll_option_votes(uuid) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.increment_poll_option_votes(uuid) TO service_role;
 
+-- RPC citada por track-link e também inexistente no banco. Sem ela, o
+-- click_count de tracked_links nunca era incrementado: o fallback do código
+-- estava dentro de um .catch() de Promise.resolve(), que nunca rejeita.
+CREATE OR REPLACE FUNCTION public.increment_link_click_count(p_link_id text)
+RETURNS void
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+  UPDATE public.tracked_links
+     SET click_count = COALESCE(click_count, 0) + 1
+   WHERE link_id = p_link_id;
+$$;
+REVOKE ALL ON FUNCTION public.increment_link_click_count(text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_link_click_count(text) TO service_role;
+
 -- ---------------------------------------------------------------------------
 -- 2. Assinatura eletrÃ´nica (send-signature-request usa anon + JWT do usuÃ¡rio)
 -- ---------------------------------------------------------------------------
