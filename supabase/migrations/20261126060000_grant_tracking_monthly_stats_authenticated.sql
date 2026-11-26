@@ -1,0 +1,25 @@
+-- Historico mensal de tracking: libera a RPC para o usuario logado.
+--
+-- Causa: a funcao get_tracking_monthly_stats(uuid, integer) existia desde a
+-- "Onda 39" (junto com a MV tracking_events_monthly_agg da Onda 37 e o hook
+-- use-tracking-monthly-stats.ts), mas o EXECUTE nunca foi concedido a
+-- authenticated. ACL anterior: {postgres, service_role}.
+--
+-- Como a funcao valida auth.uid() <> _user_id internamente, conceder a
+-- authenticated mantem a regra de negocio: cada usuario so le a propria serie.
+-- Conceder a service_role (que nao tem auth.uid()) nao serve para o app.
+--
+-- Evidencia do estado anterior (producao, xmyvefffgltlrobazrmg):
+--   has_function_privilege('authenticated', ..., 'execute') = false
+--   bloco sob SET LOCAL ROLE authenticated -> 400 permission denied
+--   POST /rest/v1/rpc/get_tracking_monthly_stats (chave publishable) -> 401 42501
+-- Depois do GRANT:
+--   has_function_privilege('authenticated', ..., 'execute') = true
+--   has_function_privilege('anon', ..., 'execute') = false
+--   bloco sob SET LOCAL ROLE authenticated com request.jwt.claims -> OK, 0 linhas
+--   POST /rest/v1/rpc/get_tracking_monthly_stats (anon) -> 401 42501
+--     (401 e nao 404: a assinatura de 2 argumentos resolve no PostgREST)
+--
+-- Rollback: REVOKE EXECUTE ON FUNCTION public.get_tracking_monthly_stats(uuid, integer) FROM authenticated;
+
+GRANT EXECUTE ON FUNCTION public.get_tracking_monthly_stats(uuid, integer) TO authenticated;
