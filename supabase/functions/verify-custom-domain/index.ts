@@ -34,7 +34,7 @@ Deno.serve(protectedHandler(async (req, corsHeaders) => {
       verification_token: verificationToken,
       status: "pending",
       updated_at: new Date().toISOString()
-    });
+          }, { onConflict: "user_id" });
 
     return secureJsonResponse({
       success: true,

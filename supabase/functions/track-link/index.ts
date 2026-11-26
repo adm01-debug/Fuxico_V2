@@ -64,12 +64,13 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       .maybeSingle();
 
     if (!recentEvent) {
-      await Promise.resolve(supabase.rpc("increment_link_click_count", { p_link_id: link.link_id })).catch(() => {
-        supabase
+      const { error: clickRpcError } = await supabase.rpc("increment_link_click_count", { p_link_id: link.link_id });
+            if (clickRpcError) {
+              await supabase
           .from("tracked_links")
           .update({ click_count: (link.click_count || 0) + 1 })
           .eq("link_id", link.link_id);
-      });
+            }
 
       await supabase.from("tracking_events").insert({
         tracking_id: trackingId || link.tracking_id,

@@ -45,13 +45,14 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
 
     const signature = {
       id: crypto.randomUUID(),
-      documentId,
-      signatureType,
-      signerName,
-      signerEmail,
-      signerIP: clientIP,
+      document_id: documentId,
+            signature_type: signatureType,
+            signature_data: signatureData,
+            signer_name: signerName,
+            signer_email: signerEmail,
+            signer_ip: clientIP,
       position,
-      signedAt: new Date().toISOString(),
+            signed_at: new Date().toISOString(),
       hash: Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(signatureData + documentId + Date.now())))).map(b => b.toString(16).padStart(2, '0')).join('')
     };
 
