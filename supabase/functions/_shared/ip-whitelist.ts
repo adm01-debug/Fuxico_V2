@@ -34,9 +34,25 @@ export function isIPAllowed(req: Request): boolean {
 }
 
 /**
+ * Requisicao traz credencial de usuario (JWT) no header Authorization.
+ * A whitelist de IP nao serve como autorizacao para funcoes de usuario final: o
+ * IP do cliente varia e a lista padrao (127.0.0.1/::1) respondia 403 para todo
+ * mundo, deixando 21 funcoes inalcancaveis em producao (o mesmo problema ja
+ * documentado em cleanup-security-data). Requisicoes autenticadas seguem para a
+ * validacao de JWT/role dentro de cada funcao; o bloqueio por IP fica restrito
+ * ao trafego anonimo.
+ */
+export function hasBearerToken(req: Request): boolean {
+  const authHeader = req.headers.get('authorization');
+  return Boolean(authHeader && /^Bearer\s+\S+$/i.test(authHeader));
+}
+
+/**
  * Middleware para validar acesso por IP.
  */
 export function validateIPAccess(req: Request): Response | null {
+  if (hasBearerToken(req)) return null;
+
   if (!isIPAllowed(req)) {
     console.warn(`[Security] Access denied for IP: ${getClientIP(req.headers)}`);
     return new Response(
