@@ -1802,6 +1802,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Exige token de cron nos 6 endpoints internos que respondiam sem autenticacao (#99) by @adm01-debug in [#99](https://github.com/adm01-debug/fuxico/pull/99)
 - Alinha o k6 de tracking com os endpoints reais em producao (#97) by @adm01-debug in [#97](https://github.com/adm01-debug/fuxico/pull/97)
 - Libera edge functions autenticadas do bloqueio de IP (#104) by @adm01-debug in [#104](https://github.com/adm01-debug/fuxico/pull/104)
+- Consolida fluxo de MFA com backup codes hasheados e enrollment real (#108) by @adm01-debug in [#108](https://github.com/adm01-debug/fuxico/pull/108)
 
 ### 📚 Documentação
 
@@ -1838,6 +1839,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
