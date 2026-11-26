@@ -1704,6 +1704,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Busca de e-mails no servidor e contagem total real (#130) by @adm01-debug in [#130](https://github.com/adm01-debug/fuxico/pull/130)
 - Detalhe do rastreamento com aberturas, cliques e clientes (#131) by @adm01-debug in [#131](https://github.com/adm01-debug/fuxico/pull/131)
 - Aba Slack/Teams de verdade no lugar do Bitrix duplicado (#132) by @adm01-debug in [#132](https://github.com/adm01-debug/fuxico/pull/132)
+- Filtro do historico de tracking na URL (#133) by @adm01-debug in [#133](https://github.com/adm01-debug/fuxico/pull/133)
 
 ### 🐛 Correções
 
@@ -1857,6 +1858,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
