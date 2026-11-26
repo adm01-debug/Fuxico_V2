@@ -1,7 +1,8 @@
 -- Historico de tentativas de login: leitura das proprias tentativas + fim da escrita direta.
 --
--- Dois problemas nesta area, ambos encontrados por auditoria de cobertura
--- (objeto de banco sem consumidor correspondente no app):
+-- Quatro problemas nesta area: leitura, escrita direta, NOT NULL e assinatura da
+-- funcao. Todos encontrados por auditoria de cobertura (objeto de banco sem
+-- consumidor que funcione).
 --
 -- 1) `login_attempts` so tinha policy de SELECT para admin
 --    ("Admins can view login attempts" -> has_role(auth.uid(), 'admin')).
@@ -48,3 +49,36 @@ REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.login_att
 REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.login_lockouts FROM anon, authenticated;
 
 ALTER TABLE public.login_attempts ALTER COLUMN ip_address DROP NOT NULL;
+
+-- 4) O PostgREST so resolve a chamada quando todas as chaves obrigatorias vem no
+--    corpo. Como `_ip_address` era o unico parametro sem DEFAULT, uma chamada
+--    com apenas _email/_success/_user_agent (exatamente o que
+--    src/pages/Auth.tsx faz) respondia 404 Not Found, e `supabase.rpc` engolia
+--    o erro no catch: o historico continuaria vazio mesmo depois da correcao do
+--    front. Verificado em producao (2026-11-26), via /rest/v1/rpc com a chave
+--    publishable:
+--      {"_email":"...","_success":false,"_user_agent":"..."}           -> 404
+--      {"_email":"...","_ip_address":null,"_success":false,...}        -> 200
+--    Com DEFAULT NULL no parametro, a chamada de tres campos passa a resolver.
+
+CREATE OR REPLACE FUNCTION public.record_login_attempt(
+  _email text,
+  _ip_address text DEFAULT NULL::text,
+  _success boolean DEFAULT false,
+  _user_agent text DEFAULT NULL::text,
+  _metadata jsonb DEFAULT '{}'::jsonb
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+DECLARE
+  _id uuid;
+BEGIN
+  INSERT INTO login_attempts (email, ip_address, success, user_agent, metadata)
+  VALUES (_email, _ip_address, _success, _user_agent, _metadata)
+  RETURNING id INTO _id;
+  RETURN _id;
+END;
+$function$;
