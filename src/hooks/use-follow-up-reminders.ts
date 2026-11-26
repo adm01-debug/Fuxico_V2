@@ -161,22 +161,33 @@ export function useCreateReminder() {
     }) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
-        .from('follow_up_reminders')
-        .insert({
-          user_id: user.id,
-          tracking_id: trackingId,
-          reminder_days: reminderDays,
-        })
-        .select()
-        .single();
+      // A edge valida o dono do tracking_id e aplica rate limit antes de gravar.
+      const { data, error } = await supabase.functions.invoke<{
+        success?: boolean;
+        reminder?: { id: string; reminder_days: number };
+        error?: unknown;
+      }>('create-reminder', { body: { trackingId, reminderDays } });
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        const ctx = (error as { context?: { json?: () => Promise<{ error?: unknown }> } }).context;
+        if (ctx?.json) {
+          const parsed = await ctx.json().catch(() => null);
+          if (parsed?.error) {
+            throw new Error(
+              typeof parsed.error === 'string' ? parsed.error : JSON.stringify(parsed.error)
+            );
+          }
+        }
+        throw error;
+      }
+
+      if (!data?.success) throw new Error('Não foi possível criar o lembrete');
+      return data.reminder;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['follow-up-reminders'] });
       queryClient.invalidateQueries({ queryKey: ['pending-reminders'] });
+      queryClient.invalidateQueries({ queryKey: ['due-reminders'] });
     },
   });
 }
@@ -190,7 +201,8 @@ export function useUpdateReminderStatus() {
       status,
     }: {
       id: string;
-      status: 'pending' | 'sent' | 'cancelled' | 'opened';
+      // 'snoozed' e 'opened' não são aceitos por todas as constraints da tabela.
+      status: 'pending' | 'sent' | 'cancelled';
     }) => {
       const { data, error } = await supabase
         .from('follow_up_reminders')
@@ -225,6 +237,7 @@ export function useDeleteReminder() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['follow-up-reminders'] });
       queryClient.invalidateQueries({ queryKey: ['pending-reminders'] });
+      queryClient.invalidateQueries({ queryKey: ['due-reminders'] });
     },
   });
 }

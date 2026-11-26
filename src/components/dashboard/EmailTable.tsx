@@ -16,6 +16,7 @@ import { EmailStatusBadge } from '@/components/ui/email-status-badge';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { motion } from 'framer-motion';
 import { TrackingDetailSheet } from './TrackingDetailSheet';
+import { FollowUpRemindersCard } from './FollowUpRemindersCard';
 
 interface EmailTableProps {
   emails?: TrackedEmail[];
@@ -244,6 +245,8 @@ export function EmailTable({
             />
           </div>
         )}
+
+        <FollowUpRemindersCard />
 
         {filteredEmails.length === 0 ? (
           <EmptyState hasFilters={hasActiveFilters} />
