@@ -1048,6 +1048,49 @@ export type Database = {
           },
         ];
       };
+      document_signatures: {
+        Row: {
+          created_at: string;
+          document_id: string;
+          hash: string;
+          id: string;
+          position: Json | null;
+          signature_data: string | null;
+          signature_type: string;
+          signed_at: string;
+          signer_email: string;
+          signer_ip: string | null;
+          signer_name: string;
+        };
+        Insert: {
+          created_at?: string;
+          document_id: string;
+          hash: string;
+          id?: string;
+          position?: Json | null;
+          signature_data?: string | null;
+          signature_type?: string;
+          signed_at?: string;
+          signer_email: string;
+          signer_ip?: string | null;
+          signer_name: string;
+        };
+        Update: {
+          created_at?: string;
+          document_id?: string;
+          hash?: string;
+          id?: string;
+          position?: Json | null;
+          signature_data?: string | null;
+          signature_type?: string;
+          signed_at?: string;
+          signer_email?: string;
+          signer_ip?: string | null;
+          signer_name?: string;
+        };
+        Relationships: [];
+      };
+
       domain_reputation: {
         Row: {
           bounce_rate: number | null;
@@ -3549,6 +3592,85 @@ export type Database = {
           },
         ];
       };
+      signature_requests: {
+        Row: {
+          completed_at: string | null;
+          created_at: string;
+          document_id: string;
+          expires_at: string | null;
+          id: string;
+          message: string | null;
+          status: string;
+          user_id: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          created_at?: string;
+          document_id: string;
+          expires_at?: string | null;
+          id?: string;
+          message?: string | null;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          created_at?: string;
+          document_id?: string;
+          expires_at?: string | null;
+          id?: string;
+          message?: string | null;
+          status?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+
+      signature_signers: {
+        Row: {
+          created_at: string;
+          email: string;
+          id: string;
+          name: string | null;
+          order: number;
+          request_id: string;
+          signed_at: string | null;
+          status: string;
+          token: string;
+        };
+        Insert: {
+          created_at?: string;
+          email: string;
+          id?: string;
+          name?: string | null;
+          order?: number;
+          request_id: string;
+          signed_at?: string | null;
+          status?: string;
+          token: string;
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
+          id?: string;
+          name?: string | null;
+          order?: number;
+          request_id?: string;
+          signed_at?: string | null;
+          status?: string;
+          token?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'signature_signers_request_id_fkey';
+            columns: ['request_id'];
+            isOneToOne: false;
+            referencedRelation: 'signature_requests';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+
       stale_index_drops: {
         Row: {
           created_at: string;

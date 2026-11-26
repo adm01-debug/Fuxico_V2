@@ -29,6 +29,7 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const MFAVerify = lazy(() => import('./pages/MFAVerify'));
+const SignDocument = lazy(() => import('./pages/SignDocument'));
 const Permissions = lazy(() => import('./pages/Permissions'));
 const Roles = lazy(() => import('./pages/Roles'));
 const TwoFactorAuth = lazy(() => import('./pages/TwoFactorAuth'));
@@ -89,6 +90,7 @@ const App = () => {
                             <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/verify-email" element={<VerifyEmail />} />
                             <Route path="/mfa-verify" element={<MFAVerify />} />
+                            <Route path="/sign/:token" element={<SignDocument />} />
                             {/* Protected routes - require authentication */}
                             <Route
                               path="/dashboard"
