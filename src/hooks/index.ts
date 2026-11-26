@@ -102,6 +102,7 @@ export {
   useWebhookLogs,
   useSaveWebhookConfig,
   useTestWebhook,
+  useReplayFailedWebhooks,
 } from './use-webhook';
 
 // =============================================================================

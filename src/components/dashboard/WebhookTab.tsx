@@ -8,6 +8,7 @@ import {
   useWebhookLogs,
   useSaveWebhookConfig,
   useTestWebhook,
+  useReplayFailedWebhooks,
 } from '@/hooks/use-webhook';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Send, CheckCircle, XCircle, Webhook, Clock } from 'lucide-react';
+import { Loader2, Send, CheckCircle, XCircle, Webhook, Clock, RefreshCw } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -58,6 +59,7 @@ export default function WebhookTab() {
   const { data: logs, isLoading: logsLoading, refetch: refetchLogs } = useWebhookLogs(50);
   const saveConfig = useSaveWebhookConfig();
   const testWebhook = useTestWebhook();
+  const replayFailed = useReplayFailedWebhooks();
 
   const [url, setUrl] = useState('');
   const [secret, setSecret] = useState('');
@@ -128,6 +130,39 @@ export default function WebhookTab() {
       toast({
         title: 'Erro no teste',
         description: 'Falha ao enviar requisição de teste',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleReplay = async () => {
+    if (!config?.id) {
+      toast({
+        title: 'Webhook não configurado',
+        description: 'Salve a configuração antes de reenviar falhas',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const result = await replayFailed.mutateAsync({ webhookId: config.id });
+      toast({
+        title: result.enqueued > 0 ? 'Falhas reenfileiradas' : 'Nada para reenviar',
+        description:
+          result.enqueued > 0
+            ? `${result.enqueued} envio(s) na fila. O reenvio roda a cada 2 minutos.`
+            : 'Nenhuma falha nas últimas 24h para reenviar.',
+      });
+      refetchLogs();
+    } catch (error) {
+      log.error('WebhookTab: falha ao reenfileirar webhooks', error);
+      toast({
+        title: 'Erro ao reenviar',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'N\u00e3o foi poss\u00edvel reenfileirar as falhas',
         variant: 'destructive',
       });
     }
@@ -254,9 +289,24 @@ export default function WebhookTab() {
               <Clock className="h-5 w-5 text-primary" />
               <CardTitle>Histórico de Envios</CardTitle>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => refetchLogs()}>
-              Atualizar
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReplay}
+                disabled={replayFailed.isPending || !config?.id}
+              >
+                {replayFailed.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                )}
+                Reenviar falhos
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => refetchLogs()}>
+                Atualizar
+              </Button>
+            </div>
           </div>
           <CardDescription>Últimos 50 webhooks enviados e seus status</CardDescription>
         </CardHeader>

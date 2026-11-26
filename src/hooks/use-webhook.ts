@@ -231,3 +231,32 @@ export function useSendSlackNotification() {
     },
   });
 }
+
+export interface ReplayFailedWebhooksResult {
+  webhook_id: string;
+  enqueued: number;
+}
+
+/**
+ * Reenvia os webhooks falhos das ultimas 24h enfileirando-os em
+ * `webhook_retry_queue` (RPC `replay_failed_webhooks`, restrita ao dono do
+ * webhook_configs). O worker `webhook-retry-worker` roda a cada 2 minutos e
+ * consome a fila.
+ */
+export function useReplayFailedWebhooks() {
+  const queryClient = useQueryClient();
+
+  return useMutation<ReplayFailedWebhooksResult, Error, { webhookId: string; limit?: number }>({
+    mutationFn: async ({ webhookId, limit = 50 }) => {
+      const { data, error } = await supabase.rpc('replay_failed_webhooks', {
+        _webhook_id: webhookId,
+        _limit: limit,
+      });
+      if (error) throw new Error(error.message);
+      return data as ReplayFailedWebhooksResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['webhook-logs'] });
+    },
+  });
+}
