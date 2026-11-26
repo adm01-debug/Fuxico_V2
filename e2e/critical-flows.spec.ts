@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 
+// Estes fluxos sao de ROTAS PUBLICAS. O projeto 'chromium' aplica storageState
+// autenticado em todos os testes, e com sessao ativa o app redireciona /auth ->
+// /dashboard: o formulario de login nunca aparece e as rotas protegidas deixam de
+// redirecionar. Limpar o estado aqui reproduz o cenario anonimo real.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Landing Page', () => {
   test('should load and display hero section', async ({ page }) => {
     await page.goto('/');
