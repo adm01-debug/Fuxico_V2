@@ -7,6 +7,7 @@
 // =============================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { requireEnv } from '../_shared/env.ts'
+import { verifyCronRequest, cronAuthStatus, cronAuthError } from '../_shared/cron-auth.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -46,6 +47,15 @@ Deno.serve(async (req) => {
     requireEnv('SUPABASE_URL'),
     requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
   )
+
+    // SECURITY: só o pg_cron (job cold-archive-verifier) pode disparar a verificação.
+  const cronAuth = await verifyCronRequest(req, admin)
+  if (cronAuth !== 'ok') {
+    return new Response(JSON.stringify({ error: cronAuthError(cronAuth) }), {
+      status: cronAuthStatus(cronAuth),
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
 
   const { data: pending, error: listErr } = await admin
     .from('partition_archive_log')

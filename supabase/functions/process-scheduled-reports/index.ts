@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createLogger } from "../_shared/logger.ts";
+import { verifyCronRequest, cronAuthStatus, cronAuthError } from "../_shared/cron-auth.ts";
 
 const log = createLogger("process-scheduled-reports");
 
@@ -10,23 +11,23 @@ serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  // SECURITY: Verify cron secret or admin authorization
-  const cronSecret = Deno.env.get("CRON_SECRET");
-  const providedSecret = req.headers.get("X-Cron-Secret");
-  const authHeader = req.headers.get("Authorization");
-  if (cronSecret && providedSecret !== cronSecret && !authHeader) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
+  // SECURITY: apenas o pg_cron, com o token de internal_config, pode disparar
+  // o envio de relatorios. Antes o guard aceitava qualquer header Authorization
+  // e, sem CRON_SECRET configurado, nem era avaliado.
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
+
+  const cronAuth = await verifyCronRequest(req, supabase);
+  if (cronAuth !== "ok") {
+    return new Response(JSON.stringify({ error: cronAuthError(cronAuth) }), {
+      status: cronAuthStatus(cronAuth),
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
     // Find reports due to be sent
     const { data: dueReports, error: fetchError } = await supabase
       .from("scheduled_reports")
