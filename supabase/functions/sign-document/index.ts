@@ -65,6 +65,15 @@ function clientIp(req: Request): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 }
 
+// corpo malformado deve virar 400 (validacao), nao 500
+async function readJsonBody(req: Request): Promise<unknown> {
+  try {
+    return await req.json();
+  } catch {
+    return null;
+  }
+}
+
 async function loadContext(supabase: ReturnType<typeof serviceClient>, token: string) {
   const { data: signer } = await supabase
     .from('signature_signers')
@@ -145,7 +154,7 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       return secureErrorResponse('Method not allowed', 405, corsHeaders);
     }
 
-    const validation = SignDocumentSchema.safeParse(await req.json());
+    const validation = SignDocumentSchema.safeParse(await readJsonBody(req));
     if (!validation.success) {
       return secureErrorResponse({ error: 'Validation failed' }, 400, corsHeaders);
     }
