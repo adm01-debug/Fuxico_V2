@@ -43,9 +43,15 @@ export const CommonTrackingSchema = z.object({
   metadata: SafeMetadataSchema,
 });
 
+function normalizeEmailDirection(value: 'sent' | 'received' | 'inbound' | 'outbound'): 'sent' | 'received' {
+  if (value === 'inbound') return 'received';
+  if (value === 'outbound') return 'sent';
+  return value;
+}
+
 export const CommonEmailAuditSchema = z.object({
   userEmail: z.string().email(),
-  direction: z.enum(['inbound', 'outbound']),
+  direction: z.enum(['sent', 'received', 'inbound', 'outbound']).transform(normalizeEmailDirection),
   senderEmail: z.string().email().optional(),
   recipientEmail: z.string().email().optional(),
   subject: z.string().max(500).optional(),
