@@ -23,7 +23,9 @@ import {
 
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { AlertCircle, CheckCircle2, Shield, Info, Filter } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Shield, Info, Filter, Mail } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AuditTab } from '@/components/dashboard/AuditTab';
 import { matchFirst } from '@/lib/variant';
 
 export default function AuditLogs() {
@@ -107,105 +109,124 @@ export default function AuditLogs() {
         </p>
       </div>
 
-      <div className="flex flex-col items-end gap-4 md:flex-row">
-        <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium">Buscar nos registros</label>
-          <Input
-            placeholder="Filtrar por descrição ou tipo..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
-          />
-        </div>
-        <div className="w-full space-y-2 md:w-[200px]">
-          <label className="text-sm font-medium">Tipo de Evento</label>
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todos os tipos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os tipos</SelectItem>
-              <SelectItem value="gmail_auth">Autenticação Gmail</SelectItem>
-              <SelectItem value="oauth_failure">Falhas OAuth</SelectItem>
-              <SelectItem value="delivery_error">Erros de Entrega</SelectItem>
-              <SelectItem value="tracking_error">Erros de Tracking</SelectItem>
-              <SelectItem value="security_event">Segurança</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <Tabs defaultValue="events" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="events" className="gap-2">
+            <Shield className="h-4 w-4" />
+            Eventos de Segurança
+          </TabsTrigger>
+          <TabsTrigger value="emails" className="gap-2">
+            <Mail className="h-4 w-4" />
+            Emails e Fraude
+          </TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico de Eventos</CardTitle>
-          <CardDescription>
-            Registros detalhados de atividades críticas na sua conta.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {matchFirst(
-            [
-              [
-                isLoading,
-                () => <div className="flex justify-center py-10">Carregando auditoria...</div>,
-              ],
-              [
-                filteredLogs && filteredLogs.length > 0,
+        <TabsContent value="events" className="space-y-6">
+          <div className="flex flex-col items-end gap-4 md:flex-row">
+            <div className="flex-1 space-y-2">
+              <label className="text-sm font-medium">Buscar nos registros</label>
+              <Input
+                placeholder="Filtrar por descrição ou tipo..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <div className="w-full space-y-2 md:w-[200px]">
+              <label className="text-sm font-medium">Tipo de Evento</label>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos os tipos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
+                  <SelectItem value="gmail_auth">Autenticação Gmail</SelectItem>
+                  <SelectItem value="oauth_failure">Falhas OAuth</SelectItem>
+                  <SelectItem value="delivery_error">Erros de Entrega</SelectItem>
+                  <SelectItem value="tracking_error">Erros de Tracking</SelectItem>
+                  <SelectItem value="security_event">Segurança</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Histórico de Eventos</CardTitle>
+              <CardDescription>
+                Registros detalhados de atividades críticas na sua conta.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {matchFirst(
+                [
+                  [
+                    isLoading,
+                    () => <div className="flex justify-center py-10">Carregando auditoria...</div>,
+                  ],
+                  [
+                    filteredLogs && filteredLogs.length > 0,
+                    () => (
+                      <div className="overflow-x-auto rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Data/Hora</TableHead>
+                              <TableHead>Evento</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Descrição</TableHead>
+                              <TableHead>IP</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {(filteredLogs ?? []).map((log) => (
+                              <TableRow key={log.id}>
+                                <TableCell className="whitespace-nowrap font-medium">
+                                  {log.created_at
+                                    ? format(new Date(log.created_at), 'dd/MM/yyyy HH:mm:ss', {
+                                        locale: ptBR,
+                                      })
+                                    : 'N/A'}
+                                </TableCell>
+                                <TableCell className="whitespace-nowrap">
+                                  {getEventTypeLabel(log.event_type)}
+                                </TableCell>
+                                <TableCell>{getSeverityBadge(log.severity || 'info')}</TableCell>
+                                <TableCell
+                                  className="max-w-[300px] truncate"
+                                  title={log.description || ''}
+                                >
+                                  {log.description}
+                                </TableCell>
+                                <TableCell className="text-xs text-muted-foreground">
+                                  {log.ip_address || 'Sistema'}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ),
+                  ],
+                ],
                 () => (
-                  <div className="overflow-x-auto rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Data/Hora</TableHead>
-                          <TableHead>Evento</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Descrição</TableHead>
-                          <TableHead>IP</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {(filteredLogs ?? []).map((log) => (
-                          <TableRow key={log.id}>
-                            <TableCell className="whitespace-nowrap font-medium">
-                              {log.created_at
-                                ? format(new Date(log.created_at), 'dd/MM/yyyy HH:mm:ss', {
-                                    locale: ptBR,
-                                  })
-                                : 'N/A'}
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap">
-                              {getEventTypeLabel(log.event_type)}
-                            </TableCell>
-                            <TableCell>{getSeverityBadge(log.severity || 'info')}</TableCell>
-                            <TableCell
-                              className="max-w-[300px] truncate"
-                              title={log.description || ''}
-                            >
-                              {log.description}
-                            </TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
-                              {log.ip_address || 'Sistema'}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <Filter className="mb-4 h-12 w-12 text-muted-foreground" />
+                    <h3 className="text-lg font-medium">Nenhum log encontrado</h3>
+                    <p className="text-muted-foreground">
+                      Não existem registros que correspondam aos seus filtros atuais.
+                    </p>
                   </div>
-                ),
-              ],
-            ],
-            () => (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Filter className="mb-4 h-12 w-12 text-muted-foreground" />
-                <h3 className="text-lg font-medium">Nenhum log encontrado</h3>
-                <p className="text-muted-foreground">
-                  Não existem registros que correspondam aos seus filtros atuais.
-                </p>
-              </div>
-            )
-          )}
-        </CardContent>
-      </Card>
+                )
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="emails" className="space-y-6">
+          <AuditTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
