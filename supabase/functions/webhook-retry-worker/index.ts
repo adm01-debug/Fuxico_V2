@@ -6,6 +6,7 @@
 // =============================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { requireEnv } from '../_shared/env.ts'
+import { verifyCronRequest, cronAuthStatus, cronAuthError } from '../_shared/cron-auth.ts'
 
 const BATCH_SIZE = 25
 const REQUEST_TIMEOUT_MS = 8000
@@ -19,11 +20,20 @@ async function hmacHex(secret: string, body: string): Promise<string> {
   return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-Deno.serve(async (_req) => {
+Deno.serve(async (req) => {
   const admin = createClient(
     requireEnv('SUPABASE_URL'),
     requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
   )
+
+  // SECURITY: worker interno; só pode ser disparado por cron com token valido.
+  const cronAuth = await verifyCronRequest(req, admin)
+  if (cronAuth !== 'ok') {
+    return new Response(JSON.stringify({ ok: false, error: cronAuthError(cronAuth) }), {
+      status: cronAuthStatus(cronAuth),
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
   const { data: claimed, error } = await admin.rpc('claim_webhook_retries', { p_batch_size: BATCH_SIZE })
   if (error) {
