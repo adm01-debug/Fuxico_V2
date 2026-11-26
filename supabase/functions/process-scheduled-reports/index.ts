@@ -12,17 +12,17 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   // SECURITY: apenas o pg_cron, com o token de internal_config, pode disparar
-    // o envio de relatorios. Antes o guard aceitava qualquer header Authorization
-    // e, sem CRON_SECRET configurado, nem era avaliado.
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+  // o envio de relatorios. Antes o guard aceitava qualquer header Authorization
+  // e, sem CRON_SECRET configurado, nem era avaliado.
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
 
-    const cronAuth = await verifyCronRequest(req, supabase);
-    if (cronAuth !== "ok") {
-      return new Response(JSON.stringify({ error: cronAuthError(cronAuth) }), {
-        status: cronAuthStatus(cronAuth),
+  const cronAuth = await verifyCronRequest(req, supabase);
+  if (cronAuth !== "ok") {
+    return new Response(JSON.stringify({ error: cronAuthError(cronAuth) }), {
+      status: cronAuthStatus(cronAuth),
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
