@@ -303,19 +303,21 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     const responseBody = await response.text().catch(() => null)
 
     // Log do resultado
-    await supabaseAdmin.from('webhook_logs').insert({
+    const { error: logError } = await supabaseAdmin.from('webhook_logs').insert({
       webhook_id: config.id,
       user_id: userId,
       event_type: eventType,
-      url: config.url,
-      status_code: response.status,
+      response_status: response.status,
       success: response.ok,
       attempts,
       duration_ms: Math.round(duration),
-      request_payload: webhookPayload,
+      payload: webhookPayload,
       response_body: responseBody?.substring(0, 1000), // Limitar tamanho
       error: response.ok ? null : responseBody,
     })
+    if (logError) {
+      log.error('Failed to write webhook log', logError)
+    }
 
     // Onda 96 — Atualiza estado do circuit breaker
     await supabaseAdmin.rpc('wcb_record_result', {
