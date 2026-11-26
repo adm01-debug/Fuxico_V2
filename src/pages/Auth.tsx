@@ -148,6 +148,18 @@ const Auth = () => {
     }
   };
 
+  const recordLoginAttempt = async (success: boolean) => {
+    try {
+      await supabase.rpc('record_login_attempt', {
+        _email: email.toLowerCase(),
+        _success: success,
+        _user_agent: navigator.userAgent,
+      });
+    } catch (err) {
+      log.warn('Error recording login attempt', err);
+    }
+  };
+
   const handleEmailSignIn = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -170,6 +182,7 @@ const Auth = () => {
     const { error } = await signInWithEmail(email, password);
     if (error) {
       try {
+        await recordLoginAttempt(false);
         const { data } = await supabase.rpc('record_failed_login', { _email: email.toLowerCase() });
         if (data && data.length > 0) {
           const result = data[0];
@@ -208,6 +221,7 @@ const Auth = () => {
     } else {
       try {
         await supabase.rpc('reset_login_lockout', { _email: email.toLowerCase() });
+        await recordLoginAttempt(true);
       } catch (err) {
         log.warn('Error resetting lockout', err);
       }
