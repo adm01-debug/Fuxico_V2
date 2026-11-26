@@ -41,6 +41,7 @@ import {
   UsersRound,
   BellDot,
   KeyRound,
+  Vote,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -107,6 +108,7 @@ export type TabId =
   | 'whatsapp'
   | 'benchmark'
   | 'segmentation'
+  | 'polls'
   | 'tracking_history';
 
 interface MenuItem {
@@ -229,6 +231,7 @@ function useMenuCategories(): MenuCategory[] {
         { id: 'followup', label: 'Follow-up', icon: Bell },
         { id: 'sequences', label: 'Sequências', icon: GitBranch, badge: 'new' as const },
         { id: 'campaigns', label: 'Campanhas', icon: Target },
+        { id: 'polls', label: 'Enquetes', icon: Vote },
         { id: 'abtesting', label: 'Teste A/B', icon: FlaskConical },
         { id: 'unsubscribe', label: 'Exclusão', icon: UserX },
       ],
