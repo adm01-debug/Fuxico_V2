@@ -1693,6 +1693,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Painel de saude e manutencao do banco no admin observability (#110) by @adm01-debug in [#110](https://github.com/adm01-debug/fuxico/pull/110)
 - Painel de ciclo de vida e restore de indices no admin (#112) by @adm01-debug in [#112](https://github.com/adm01-debug/fuxico/pull/112)
 - Historico de snapshots de deliverability (#114) by @adm01-debug in [#114](https://github.com/adm01-debug/fuxico/pull/114)
+- Registra e exibe tentativas de login em login_attempts (#116) by @adm01-debug in [#116](https://github.com/adm01-debug/fuxico/pull/116)
 
 ### 🐛 Correções
 
@@ -1843,6 +1844,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
