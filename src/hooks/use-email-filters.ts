@@ -136,3 +136,60 @@ export function filterEmails<
 
   return result;
 }
+
+const EMAIL_STATUS_VALUES = ['all', 'opened', 'not-opened', 'clicked'] as const;
+const EMAIL_PERIOD_VALUES = ['all', 'today', '7days', '30days', 'custom'] as const;
+const EMAIL_SORT_BY_VALUES = ['date', 'opens', 'clicks', 'recipient'] as const;
+const EMAIL_SORT_ORDER_VALUES = ['asc', 'desc'] as const;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function pickOption<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+  if (typeof value !== 'string') return fallback;
+  return (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
+}
+
+function parseDateValue(value: unknown): Date | undefined {
+  if (typeof value !== 'string' || value === '') return undefined;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+/** Converte o estado de filtros em JSON persistível (datas em ISO). */
+export function serializeEmailFilters(filters: EmailFilters): Record<string, unknown> {
+  return {
+    search: filters.search,
+    status: filters.status,
+    period: filters.period,
+    dateRange: {
+      from: filters.dateRange.from ? filters.dateRange.from.toISOString() : null,
+      to: filters.dateRange.to ? filters.dateRange.to.toISOString() : null,
+    },
+    minOpens: filters.minOpens,
+    sortBy: filters.sortBy,
+    sortOrder: filters.sortOrder,
+  };
+}
+
+/** Reconstrói o estado a partir do JSON salvo, ignorando valores inválidos. */
+export function deserializeEmailFilters(raw: unknown): EmailFilters {
+  if (!isRecord(raw)) return { ...defaultFilters, dateRange: { from: undefined, to: undefined } };
+
+  const dateRange = isRecord(raw.dateRange) ? raw.dateRange : {};
+  const minOpens =
+    typeof raw.minOpens === 'number' && Number.isFinite(raw.minOpens) && raw.minOpens > 0
+      ? Math.floor(raw.minOpens)
+      : 0;
+
+  return {
+    search: typeof raw.search === 'string' ? raw.search : '',
+    status: pickOption(raw.status, EMAIL_STATUS_VALUES, 'all'),
+    period: pickOption(raw.period, EMAIL_PERIOD_VALUES, 'all'),
+    dateRange: { from: parseDateValue(dateRange.from), to: parseDateValue(dateRange.to) },
+    minOpens,
+    sortBy: pickOption(raw.sortBy, EMAIL_SORT_BY_VALUES, 'date'),
+    sortOrder: pickOption(raw.sortOrder, EMAIL_SORT_ORDER_VALUES, 'desc'),
+  };
+}
