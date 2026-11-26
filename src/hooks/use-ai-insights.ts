@@ -11,55 +11,56 @@
  *
  * @returns Object contendo data, isLoading, error e funções auxiliares
  */
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 
-export interface InsightsData {
-  insights: string;
-  stats: {
+export type InsightPeriod = '7d' | '30d' | '90d' | 'all';
+
+export type InsightType = 'info' | 'success' | 'warning';
+
+export interface Insight {
+  type: InsightType;
+  title: string;
+  description: string;
+  metric?: number;
+}
+
+/** Contrato real da edge function `ai-insights` (supabase/functions/ai-insights/index.ts). */
+export interface InsightsResponse {
+  insights: Insight[];
+  period: string;
+}
+
+export interface InsightsData extends InsightsResponse {
+  stats?: {
     totalEmails: number;
     openRate: number;
     clickRate: number;
     bounceRate: number;
-    bestHours: Array<{ hour: number; opens: number; clicks: number; total: number }>;
-    bestDays: Array<{ day: number; dayName: string; opens: number; clicks: number; total: number }>;
     totalEvents: number;
   };
 }
 
-export function useAIInsights() {
+async function fetchInsights(period: InsightPeriod): Promise<InsightsResponse> {
+  const { data, error } = await supabase.functions.invoke<InsightsResponse & { error?: string }>(
+    'ai-insights',
+    { body: { period, includeRecommendations: true } }
+  );
+
+  if (data?.error) throw new Error(data.error);
+  if (error) throw new Error(error.message || 'Falha ao consultar a análise');
+  if (!data) throw new Error('A análise não retornou dados');
+
+  return data;
+}
+
+export function useAIInsights(period: InsightPeriod = '30d') {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ['ai-insights', user?.id],
-    queryFn: async (): Promise<InsightsData> => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-insights`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to fetch insights');
-      }
-
-      return response.json();
-    },
+    queryKey: ['ai-insights', user?.id, period],
+    queryFn: () => fetchInsights(period),
     enabled: !!user,
     staleTime: 1000 * 60 * 30, // 30 minutes
     gcTime: 1000 * 60 * 60, // 1 hour
@@ -67,35 +68,12 @@ export function useAIInsights() {
 }
 
 export function useRefreshInsights() {
-  useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (): Promise<InsightsData> => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-insights`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to refresh insights');
-      }
-
-      return response.json();
+    mutationFn: (period: InsightPeriod) => fetchInsights(period),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ai-insights'] });
     },
   });
 }

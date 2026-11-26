@@ -63,6 +63,7 @@ const TrackingHistoryTab = lazy(() => import('@/pages/TrackingAnalytics'));
 const ApiKeysTab = lazy(() => import('@/components/dashboard/ApiKeysTab'));
 const CustomDomainsTab = lazy(() => import('@/components/dashboard/CustomDomainsTab'));
 const PollsTab = lazy(() => import('@/components/dashboard/PollsTab'));
+const InsightsTab = lazy(() => import('@/components/dashboard/InsightsTab'));
 
 // =============================================================================
 // MAPEAMENTO DE COMPONENTES
@@ -83,7 +84,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   notifications: NotificationHistoryTab,
   leads: LeadScoringTab,
   followup: FollowUpTab,
-  insights: ReportsTab,
+  insights: InsightsTab,
   campaigns: CampaignsTab,
   polls: PollsTab,
   abtesting: ABTestingTab,
