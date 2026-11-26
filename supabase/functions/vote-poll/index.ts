@@ -48,11 +48,12 @@ Deno.serve(publicHandler(async (req, corsHeaders) => {
     });
 
     // Atomic increment to prevent race conditions on vote count
-    await Promise.resolve(supabase.rpc("increment_poll_option_votes", { p_option_id: optionId })).catch(() => {
-      // Fallback if RPC doesn't exist
-      const current = poll.poll_options.find((o: { id: string }) => o.id === optionId);
-      supabase.from("poll_options").update({ votes_count: (current?.votes_count || 0) + 1 }).eq("id", optionId);
-    });
+    const { error: rpcError } = await supabase.rpc("increment_poll_option_votes", { p_option_id: optionId });
+        if (rpcError) {
+          // Fallback se a RPC não existir no banco
+          const current = poll.poll_options?.find((o: { id: string }) => o.id === optionId);
+          await supabase.from("poll_options").update({ votes_count: (current?.votes_count || 0) + 1 }).eq("id", optionId);
+        }
 
     return secureJsonResponse({ success: true, voteId }, corsHeaders);
   } catch (_error) {
