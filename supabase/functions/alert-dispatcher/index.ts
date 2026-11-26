@@ -3,6 +3,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createLogger } from "../_shared/logger.ts";
 import { secureJsonResponse, secureErrorResponse } from "../_shared/security-headers.ts";
+import {
+  verifyCronRequest,
+  cronAuthStatus,
+  cronAuthError,
+} from "../_shared/cron-auth.ts";
 
 const log = createLogger("alert-dispatcher");
 
@@ -51,6 +56,13 @@ serve(async (req: Request) => {
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+    // SECURITY: só o pg_cron (job fuxico-dispatch-alerts) pode disparar este dispatcher.
+  const cronAuth = await verifyCronRequest(req, supabase);
+  if (cronAuth !== "ok") {
+    log.warn("Chamada sem token de cron valido", { result: cronAuth });
+    return secureJsonResponse({ error: cronAuthError(cronAuth) }, cronAuthStatus(cronAuth), cors);
+  }
 
   try {
     const since = new Date(Date.now() - LOOKBACK_MINUTES * 60_000).toISOString();
