@@ -6,7 +6,10 @@
 import { test as setup, expect } from '@playwright/test';
 import path from 'path';
 
-const authFile = path.join(__dirname, '.auth/user.json');
+// package.json tem "type": "module", entao __dirname nao existe aqui (o arquivo
+// nem carregava: "ReferenceError: __dirname is not defined"). O caminho relativo
+// e o mesmo de `use.storageState` no playwright.config.ts.
+const authFile = path.join(process.cwd(), 'e2e/.auth/user.json');
 
 setup('authenticate', async ({ page }) => {
   // Navegar para página de login
@@ -29,8 +32,14 @@ setup('authenticate', async ({ page }) => {
   // Aguardar redirecionamento para dashboard
   await page.waitForURL('/dashboard', { timeout: 10000 });
   
-  // Verificar se está logado
-  await expect(page.locator('text=Dashboard')).toBeVisible();
+  // Verificar se está logado.
+  // O corpo de /dashboard não contém o texto "Dashboard" (src/pages/Dashboard.tsx
+  // renderiza o DashboardLayout), então o texto literal nunca aparecia; o título
+  // do documento, definido por Helmet em src/pages/Dashboard.tsx, é o sinal
+  // estável de que o app autenticado carregou.
+  // O primeiro acesso a /dashboard compila o chunk do dashboard no dev server
+  // do CI (pode passar de 10s), entao a espera e explicita.
+  await expect(page).toHaveTitle(/Dashboard \| FUXICO/, { timeout: 30000 });
   
   // Salvar estado de autenticação
   await page.context().storageState({ path: authFile });
