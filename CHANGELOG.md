@@ -1689,6 +1689,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Tela de API Keys/Zapier e fix do webhook que não gravava eventos (#103) by @adm01-debug in [#103](https://github.com/adm01-debug/fuxico/pull/103)
 - Tela de dominio proprio com verificacao DNS real (#105) by @adm01-debug in [#105](https://github.com/adm01-debug/fuxico/pull/105)
 - Aba de push notifications com dados reais (#106) by @adm01-debug in [#106](https://github.com/adm01-debug/fuxico/pull/106)
+- Filtros salvos de email persistidos por usuario (#107) by @adm01-debug in [#107](https://github.com/adm01-debug/fuxico/pull/107)
 
 ### 🐛 Correções
 
@@ -1837,6 +1838,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
