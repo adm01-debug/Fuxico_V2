@@ -19,6 +19,8 @@ import {
   ShieldAlert,
   ShieldCheck,
   Search,
+  Save,
+  History,
 } from 'lucide-react';
 import { useDeliverability, DomainStats } from '@/hooks/use-deliverability';
 import { toast } from 'sonner';
@@ -36,6 +38,10 @@ function DeliverabilityTabBase() {
     blacklistResult,
     getReputationLevel,
     getDeliveryHealthStatus,
+    snapshots,
+    isLoadingSnapshots,
+    saveSnapshot,
+    isSavingSnapshot,
   } = useDeliverability();
   const [domainToCheck, setDomainToCheck] = useState('');
   const [blacklistDomain, setBlacklistDomain] = useState('');
@@ -101,10 +107,22 @@ function DeliverabilityTabBase() {
             Acompanhe a reputação dos seus domínios e taxa de entrega
           </p>
         </div>
-        <Button onClick={() => refetch()} variant="outline" size="sm">
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Atualizar
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => saveSnapshot(domains)}
+            variant="outline"
+            size="sm"
+            disabled={isSavingSnapshot || domains.length === 0}
+            title="Grava as métricas atuais de cada domínio no histórico"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {isSavingSnapshot ? 'Salvando...' : 'Salvar snapshot'}
+          </Button>
+          <Button onClick={() => refetch()} variant="outline" size="sm">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Atualizar
+          </Button>
+        </div>
       </div>
 
       {/* Métricas Gerais */}
@@ -430,6 +448,76 @@ function DeliverabilityTabBase() {
                         <td className="px-2 py-3 text-right">
                           <Badge variant="outline" className={repInfo.color}>
                             {domain.reputation_score}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Histórico gravado em deliverability_logs */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <History className="h-5 w-5" />
+            Histórico de snapshots
+          </CardTitle>
+          <CardDescription>
+            Fotos cumulativas das métricas, gravadas ao clicar em “Salvar snapshot”. O cálculo
+            agrega todo o histórico de e-mails rastreados.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoadingSnapshots ? (
+            <Skeleton className="h-24 w-full" />
+          ) : snapshots.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhum snapshot gravado ainda. Clique em “Salvar snapshot” para começar a acompanhar a
+              evolução da reputação.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left text-muted-foreground">
+                    <th className="px-2 py-2 font-medium">Domínio</th>
+                    <th className="px-2 py-2 font-medium">Capturado em</th>
+                    <th className="px-2 py-2 text-right font-medium">Enviados</th>
+                    <th className="px-2 py-2 text-right font-medium">Entregues</th>
+                    <th className="px-2 py-2 text-right font-medium">Bounces</th>
+                    <th className="px-2 py-2 text-right font-medium">Taxa</th>
+                    <th className="px-2 py-2 text-right font-medium">Reputação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {snapshots.map((snap) => {
+                    const rep = getReputationLevel(snap.reputation_score ?? 0);
+                    return (
+                      <tr key={snap.id} className="border-b hover:bg-muted/50">
+                        <td className="px-2 py-3 font-medium">{snap.domain}</td>
+                        <td className="px-2 py-3 text-muted-foreground">
+                          {new Date(snap.created_at).toLocaleString('pt-BR')}
+                        </td>
+                        <td className="px-2 py-3 text-right">
+                          {Number(snap.emails_sent).toLocaleString()}
+                        </td>
+                        <td className="px-2 py-3 text-right">
+                          {Number(snap.emails_delivered).toLocaleString()}
+                        </td>
+                        <td className="px-2 py-3 text-right">
+                          {Number(snap.emails_bounced).toLocaleString()}
+                        </td>
+                        <td className="px-2 py-3 text-right">
+                          {Number(snap.delivery_rate).toFixed(1)}%
+                        </td>
+                        <td className="px-2 py-3 text-right">
+                          <Badge variant="outline" className={rep.color}>
+                            {snap.reputation_score ?? 0}
                           </Badge>
                         </td>
                       </tr>

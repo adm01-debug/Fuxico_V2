@@ -5,6 +5,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface DomainStats {
   domain: string;
@@ -58,6 +59,21 @@ export interface BlacklistResult {
 export interface DeliverabilityData {
   domains: DomainStats[];
   totals: DeliverabilityTotals;
+}
+
+/** Linha de `deliverability_logs`: métricas acumuladas por domínio. */
+export interface DeliverabilitySnapshot {
+  id: string;
+  domain: string;
+  period_start: string;
+  period_end: string;
+  emails_sent: number;
+  emails_delivered: number;
+  emails_bounced: number;
+  emails_opened: number;
+  delivery_rate: number;
+  reputation_score: number | null;
+  created_at: string;
 }
 
 export function useDeliverability() {
@@ -158,6 +174,63 @@ export function useDeliverability() {
     },
   });
 
+  const snapshotsQuery = useQuery<DeliverabilitySnapshot[]>({
+    queryKey: ['deliverability-snapshots'],
+    queryFn: async () => {
+      const { data: rows, error } = await supabase
+        .from('deliverability_logs')
+        .select(
+          'id, domain, period_start, period_end, emails_sent, emails_delivered, emails_bounced, emails_opened, delivery_rate, reputation_score, created_at'
+        )
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (rows ?? []) as DeliverabilitySnapshot[];
+    },
+    staleTime: 1000 * 60,
+  });
+
+  /**
+   * `calculate_domain_deliverability` agrega todo o histórico de tracked_emails,
+   * então o snapshot é cumulativo: period_start/period_end só registram quando a
+   * foto foi tirada (janela de referência de 30 dias).
+   */
+  const saveSnapshotMutation = useMutation({
+    mutationFn: async (domains: DomainStats[]) => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      if (domains.length === 0) throw new Error('Nenhum domínio para registrar');
+
+      const periodEnd = new Date();
+      const periodStart = new Date(periodEnd.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const rows = domains.map((d) => ({
+        user_id: user.id,
+        domain: d.domain,
+        period_start: periodStart.toISOString(),
+        period_end: periodEnd.toISOString(),
+        emails_sent: Number(d.total_sent) || 0,
+        emails_delivered: Number(d.total_delivered) || 0,
+        emails_bounced: Number(d.total_bounced) || 0,
+        emails_opened: Number(d.total_opened) || 0,
+        delivery_rate: Number(d.delivery_rate) || 0,
+        reputation_score: Number(d.reputation_score) || 0,
+      }));
+
+      const { error } = await supabase.from('deliverability_logs').insert(rows);
+      if (error) throw error;
+      return rows.length;
+    },
+    onSuccess: (count: number) => {
+      queryClient.invalidateQueries({ queryKey: ['deliverability-snapshots'] });
+      toast.success(`Snapshot gravado para ${count} domínio(s)`);
+    },
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : 'Falha ao gravar o snapshot');
+    },
+  });
+
   const getReputationLevel = (score: number): { level: string; color: string } => {
     if (score >= 80) return { level: 'Excelente', color: 'text-green-600' };
     if (score >= 60) return { level: 'Bom', color: 'text-blue-600' };
@@ -184,6 +257,10 @@ export function useDeliverability() {
     checkBlacklist: checkBlacklistMutation.mutate,
     isCheckingBlacklist: checkBlacklistMutation.isPending,
     blacklistResult: checkBlacklistMutation.data,
+    snapshots: snapshotsQuery.data ?? [],
+    isLoadingSnapshots: snapshotsQuery.isLoading,
+    saveSnapshot: saveSnapshotMutation.mutate,
+    isSavingSnapshot: saveSnapshotMutation.isPending,
     getReputationLevel,
     getDeliveryHealthStatus,
   };
