@@ -1,6 +1,10 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import type { TrackedEmail } from '@/features/tracking/lib/tracking-api';
-import { useTrackedEmails } from '@/features/tracking/hooks/use-tracking';
+import {
+  useTrackedEmails,
+  type TrackedEmailWithStats,
+  type TrackingFilters,
+} from '@/features/tracking/hooks/use-tracking';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Mail, Eye, MousePointerClick, ChevronRight, Loader2 } from 'lucide-react';
@@ -167,9 +171,26 @@ export function EmailTable({
   onSelect: externalOnSelect,
   showFilters = true,
 }: EmailTableProps) {
-  const { data: fetchedEmails, isLoading } = useTrackedEmails();
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
   const parentRef = useRef<HTMLDivElement>(null);
+
+  const { filters, setFilters, hasActiveFilters } = useEmailFilters();
+
+  // A busca textual vai para o servidor (RPC get_emails_with_stats) para alcançar
+  // todos os e-mails do usuário, não apenas os 100 já carregados na lista.
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(filters.search.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
+
+  const serverFilters = useMemo<TrackingFilters>(
+    () => ({ search: debouncedSearch || undefined }),
+    [debouncedSearch]
+  );
+
+  const { data: fetchedEmails, isLoading } = useTrackedEmails(serverFilters);
 
   // Identidade estável do array evita invalidar o memo de filtragem a cada render.
   const emails = useMemo(
@@ -179,7 +200,10 @@ export function EmailTable({
   const selectedId = externalSelectedId ?? internalSelectedId;
   const onSelect = externalOnSelect ?? setInternalSelectedId;
 
-  const { filters, setFilters, hasActiveFilters } = useEmailFilters();
+  // Contagem total real (todos os e-mails do usuário, respeitando a busca) vem da RPC.
+  const totalCount = externalEmails
+    ? emails.length
+    : ((fetchedEmails as TrackedEmailWithStats[] | undefined)?.[0]?.total_count ?? emails.length);
 
   const filteredEmails = useMemo(() => {
     return filterEmails(emails, filters);
@@ -213,7 +237,7 @@ export function EmailTable({
             <EmailFiltersComponent
               filters={filters}
               onFiltersChange={setFilters}
-              totalCount={emails.length}
+              totalCount={totalCount}
               filteredCount={filteredEmails.length}
             />
           </div>

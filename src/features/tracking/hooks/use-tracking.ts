@@ -2,7 +2,7 @@
 // FUXICO - Hook de Tracking Otimizado com RPC
 // =============================================================================
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { log } from '@/lib/logger';
 
@@ -84,6 +84,7 @@ export function useTrackedEmails(filters: TrackingFilters = {}) {
 
       return (data || []) as TrackedEmailWithStats[];
     },
+    placeholderData: keepPreviousData,
     staleTime: 60 * 1000,
     gcTime: 30 * 60 * 1000, // 30 minutos
   });
