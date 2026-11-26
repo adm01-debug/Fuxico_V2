@@ -61,6 +61,7 @@ const BenchmarkReportsTab = lazy(() => import('@/components/dashboard/BenchmarkR
 const SmartSegmentationTab = lazy(() => import('@/components/dashboard/SmartSegmentationTab'));
 const TrackingHistoryTab = lazy(() => import('@/pages/TrackingAnalytics'));
 const ApiKeysTab = lazy(() => import('@/components/dashboard/ApiKeysTab'));
+const CustomDomainsTab = lazy(() => import('@/components/dashboard/CustomDomainsTab'));
 
 // =============================================================================
 // MAPEAMENTO DE COMPONENTES
@@ -103,6 +104,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   segmentation: SmartSegmentationTab,
   tracking_history: TrackingHistoryTab,
   'api-keys': ApiKeysTab,
+  'custom-domains': CustomDomainsTab,
 };
 
 const TAB_LABELS: Record<TabId, string> = {
@@ -141,6 +143,7 @@ const TAB_LABELS: Record<TabId, string> = {
   segmentation: 'Segmentação',
   tracking_history: 'Histórico de Tracking',
   'api-keys': 'API & Zapier',
+  'custom-domains': 'Dominio proprio',
 };
 
 // =============================================================================
@@ -185,6 +188,7 @@ const TAB_SKELETON_VARIANTS: Partial<
   segmentation: 'table',
   tracking_history: 'table',
   'api-keys': 'form',
+  'custom-domains': 'form',
 };
 
 // =============================================================================
