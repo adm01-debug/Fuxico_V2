@@ -142,10 +142,17 @@ jobs:
           name: dist
           path: dist
 
-      - name: Check Bundle Size
-        uses: siddharthkp/bundlesize2@v1
+      - uses: oven-sh/setup-bun@v2
         with:
-          config: bundlesize.config.json
+          bun-version: latest
+
+      - name: Check Bundle Size
+        # A action `siddharthkp/bundlesize2` nao publica mais nenhuma tag (`@v1`
+        # nao resolve) e derrubava este job em toda PR, deixando o check vermelho
+        # sem relacao com o codigo. O workflow `bundle-size.yml` ja enforça os
+        # mesmos limites com `bunx bundlesize`; aqui e o mesmo comando, entao o
+        # check passa a dizer a verdade.
+        run: bunx bundlesize --config bundlesize.config.json
         env:
           CI_REPO_OWNER: ${{ github.repository_owner }}
           CI_REPO_NAME: ${{ github.event.repository.name }}
