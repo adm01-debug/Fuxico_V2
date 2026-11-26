@@ -10,9 +10,9 @@
   
   // Usar config.js se disponível, senão fallback
   const CONFIG = typeof FUXICO_CONFIG !== 'undefined' ? FUXICO_CONFIG : {
-    SUPABASE_URL: 'https://npjfwzzapbtcguoupozd.supabase.co',
+    SUPABASE_URL: 'https://xmyvefffgltlrobazrmg.supabase.co',
     SUPABASE_ANON_KEY: '',
-    DASHBOARD_URL: 'https://fuxico.lovable.app',
+    DASHBOARD_URL: 'https://fuxico-v2.vercel.app',
     VERSION: '1.1.0',
     get API_URL() { return `${this.SUPABASE_URL}/functions/v1`; }
   };

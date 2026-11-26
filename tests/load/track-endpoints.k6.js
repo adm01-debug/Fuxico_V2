@@ -12,7 +12,7 @@
  *   - taxa de erro global      < 0.5%
  *
  * Execução local:
- *   BASE_URL=https://blopallcxuotfutblkoe.supabase.co k6 run tests/load/track-endpoints.k6.js
+ *   BASE_URL=https://xmyvefffgltlrobazrmg.supabase.co k6 run tests/load/track-endpoints.k6.js
  *
  * Execução em CI (perfil smoke — leve, seguro):
  *   K6_SCENARIO=smoke k6 run tests/load/track-endpoints.k6.js
@@ -27,7 +27,7 @@ const errorRate = new Rate('tracking_errors');
 const openLatency = new Trend('track_open_latency', true);
 const clickLatency = new Trend('track_click_latency', true);
 
-const BASE_URL = __ENV.BASE_URL || 'https://blopallcxuotfutblkoe.supabase.co';
+const BASE_URL = __ENV.BASE_URL || 'https://xmyvefffgltlrobazrmg.supabase.co';
 const SCENARIO = __ENV.K6_SCENARIO || 'smoke';
 
 const scenarios = {

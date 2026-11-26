@@ -6,9 +6,9 @@ importScripts('../config.js');
 
 // Usar config ou fallback
 const CONFIG = typeof FUXICO_CONFIG !== 'undefined' ? FUXICO_CONFIG : {
-  SUPABASE_URL: 'https://npjfwzzapbtcguoupozd.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wamZ3enphcGJ0Y2d1b3Vwb3pkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NzMzNjUsImV4cCI6MjA4MTU0OTM2NX0.YXA4kIY0eJl2Z3jeIw6yTB-KDjWwHLlftjOz6qVkoEw',
-  DASHBOARD_URL: 'https://fuxico.lovable.app',
+  SUPABASE_URL: 'https://xmyvefffgltlrobazrmg.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_vqZFXcaDwwXEy5XSldvTeg_Zn6lp-AQ',
+  DASHBOARD_URL: 'https://fuxico-v2.vercel.app',
   get API_URL() { return `${this.SUPABASE_URL}/functions/v1`; },
   INTERVALS: { POLL_OPENS: 30000 },
   VERSION: '1.2.0',
@@ -221,7 +221,7 @@ async function showNotification(title, message, id) {
 
 // Clique em notificação abre o dashboard
 chrome.notifications.onClicked.addListener((notificationId) => {
-  const dashboardUrl = CONFIG.DASHBOARD_URL || 'https://fuxico.lovable.app';
+  const dashboardUrl = CONFIG.DASHBOARD_URL || 'https://fuxico-v2.vercel.app';
   chrome.tabs.create({ url: dashboardUrl });
 });
 
