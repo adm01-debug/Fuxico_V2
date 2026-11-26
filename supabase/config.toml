@@ -108,6 +108,9 @@ verify_jwt = false
 [functions.send-slack-notification]
 verify_jwt = false
 
+[functions.sign-document]
+verify_jwt = false
+
 [functions.simulate-tracking-e2e]
 verify_jwt = false
 
