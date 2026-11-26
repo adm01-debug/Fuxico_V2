@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -23,10 +22,12 @@ import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import type { AutoTableOptions, TrackingHistoryItem } from '@/types/tracking-history';
 import { useTrackingMonthlyStats } from '@/hooks/use-tracking-monthly-stats';
+import { useUrlFilters } from '@/hooks/use-url-filters';
 import { TrackingMonthlyChart } from '@/components/dashboard/TrackingMonthlyChart';
 
 export default function TrackingAnalytics() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useUrlFilters({ q: '' });
+  const searchTerm = filters.q;
   const navigate = useNavigate();
   const {
     data: monthlyStats,
@@ -224,7 +225,7 @@ export default function TrackingAnalytics() {
                   placeholder="Buscar por e-mail ou assunto..."
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-8 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => setFilters({ q: e.target.value })}
                 />
               </div>
             </div>
