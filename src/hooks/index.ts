@@ -109,6 +109,8 @@ export {
 // SEARCH & FILTERS
 // =============================================================================
 export { useFulltextSearch, useEmailSearch, useDocumentSearch } from './use-fulltext-search';
+export { useGlobalDataSearch, highlightSegments } from './use-fulltext-search';
+export type { GlobalSearchHit, GlobalSearchTable } from './use-fulltext-search';
 export { useSavedFilters } from './use-saved-filters';
 
 // =============================================================================
