@@ -3,8 +3,8 @@
 # menor exposição de infraestrutura), remapeando ?tp= para o parâmetro `t`
 # esperado pelas Edge Functions internas.
 
-/api/public/track/open.gif  tp=:tp        https://blopallcxuotfutblkoe.supabase.co/functions/v1/track-pixel?t=:tp  200
-/api/public/track/click     tp=:tp  l=:l  https://blopallcxuotfutblkoe.supabase.co/functions/v1/track-link?t=:tp&l=:l  200
+/api/public/track/open.gif  tp=:tp        https://xmyvefffgltlrobazrmg.supabase.co/functions/v1/track-pixel?t=:tp  200
+/api/public/track/click     tp=:tp  l=:l  https://xmyvefffgltlrobazrmg.supabase.co/functions/v1/track-link?t=:tp&l=:l  200
 
 # SPA fallback
 /*  /index.html  200
