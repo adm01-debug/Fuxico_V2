@@ -61,6 +61,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useBounceAlerts } from '@/hooks/use-bounce-alerts';
+import { usePrefetchRoute } from '@/hooks/use-prefetch-route';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import logoImg from '@/assets/logo.webp';
@@ -289,10 +290,12 @@ function SidebarMenuItemButton({
   item,
   isActive,
   onClick,
+  onPrefetch,
 }: {
   item: MenuItem;
   isActive: boolean;
   onClick: () => void;
+  onPrefetch?: () => void;
 }) {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
@@ -301,6 +304,8 @@ function SidebarMenuItemButton({
     <SidebarMenuItem>
       <SidebarMenuButton
         onClick={onClick}
+        onMouseEnter={onPrefetch}
+        onFocus={onPrefetch}
         isActive={isActive}
         tooltip={isCollapsed ? item.label : undefined}
         className={cn(
@@ -341,10 +346,12 @@ function CategoryGroup({
   category,
   activeTab,
   onTabChange,
+  onPrefetch,
 }: {
   category: MenuCategory;
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
+  onPrefetch?: (tab: TabId) => void;
 }) {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
@@ -375,6 +382,7 @@ function CategoryGroup({
               item={item}
               isActive={activeTab === item.id}
               onClick={() => onTabChange(item.id)}
+              onPrefetch={() => onPrefetch?.(item.id)}
             />
           ))}
         </SidebarMenu>
@@ -433,6 +441,7 @@ function CategoryGroup({
                   item={item}
                   isActive={activeTab === item.id}
                   onClick={() => onTabChange(item.id)}
+                  onPrefetch={() => onPrefetch?.(item.id)}
                 />
               ))}
             </SidebarMenu>
@@ -447,6 +456,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
   const menuCategories = useMenuCategories();
+  const { prefetch } = usePrefetchRoute();
 
   return (
     <Sidebar
@@ -490,6 +500,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
               category={category}
               activeTab={activeTab}
               onTabChange={onTabChange}
+              onPrefetch={prefetch}
             />
           ))}
         </ScrollArea>
