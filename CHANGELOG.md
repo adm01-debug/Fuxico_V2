@@ -1707,6 +1707,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Filtro do historico de tracking na URL (#133) by @adm01-debug in [#133](https://github.com/adm01-debug/fuxico/pull/133)
 - UI de lembretes de follow-up (painel de vencidos + agendamento) (#135) by @adm01-debug in [#135](https://github.com/adm01-debug/fuxico/pull/135)
 - Telas de auditoria de RLS e postura de seguranca no admin (#113) by @adm01-debug in [#113](https://github.com/adm01-debug/fuxico/pull/113)
+- Pre-visualizacao do publico do teste A/B antes de disparar (#136) by @adm01-debug in [#136](https://github.com/adm01-debug/fuxico/pull/136)
 
 ### 🐛 Correções
 
@@ -1824,6 +1825,10 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Registrar auditoria de email no envio e alinhar direction ao CHECK (#122) by @adm01-debug in [#122](https://github.com/adm01-debug/fuxico/pull/122)
 - Build de producao quebrado pelo precache do stats.html no PWA (#126) by @adm01-debug in [#126](https://github.com/adm01-debug/fuxico/pull/126)
 - Le config do Bitrix24 em bitrix24_config (integracao estava 100% quebrada) (#127) by @adm01-debug in [#127](https://github.com/adm01-debug/fuxico/pull/127)
+- Devolve execucao de calculate_domain_deliverability ao usuario logado (#137) by @adm01-debug in [#137](https://github.com/adm01-debug/fuxico/pull/137)
+- Libera get_tracking_monthly_stats para o usuario logado (#119) by @adm01-debug in [#119](https://github.com/adm01-debug/fuxico/pull/119)
+- Leitura das proprias tentativas de login e fim da escrita direta (RLS + NOT NULL) (#117) by @adm01-debug in [#117](https://github.com/adm01-debug/fuxico/pull/117)
+- Logs e reenvio de webhooks alinhados ao schema (#134) by @adm01-debug in [#134](https://github.com/adm01-debug/fuxico/pull/134)
 
 ### 📚 Documentação
 
@@ -1860,6 +1865,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
@@ -1947,6 +1953,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Corrige VITE_SUPABASE_ANON_KEY -> VITE_SUPABASE_PUBLISHABLE_KEY na doc de env (#76) by @adm01-debug in [#76](https://github.com/adm01-debug/fuxico/pull/76)
 - Valida as 9 CHECK constraints que estavam como NOT VALID (#88) by @adm01-debug in [#88](https://github.com/adm01-debug/fuxico/pull/88)
 - Recupera 11 bumps de dependencia das PRs #71/#72/#55/#78 (#91) by @adm01-debug in [#91](https://github.com/adm01-debug/fuxico/pull/91)
+- Desacopla deploy das edge functions do deploy do front (#123) by @adm01-debug in [#123](https://github.com/adm01-debug/fuxico/pull/123)
 
 ### 🧪 Testes
 
