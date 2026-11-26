@@ -46,6 +46,7 @@ const ALLOWED = new Set([
   "admin_list_health_score_snapshots",
   "admin_list_critical_alerts",
   "admin_critical_alerts_summary",
+  "count_dsar_sla_misses",
 ]);
 
 interface RpcBody {
