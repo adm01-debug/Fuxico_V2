@@ -19,7 +19,7 @@ servers:
   - url: https://{project-ref}.supabase.co/functions/v1
     variables:
       project-ref:
-        default: blopallcxuotfutblkoe
+        default: xmyvefffgltlrobazrmg
 
 security:
   - bearerAuth: []

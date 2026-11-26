@@ -2,7 +2,7 @@
  * mcp-query — Proxy SQL com service_role para o MCP Worker (FUXICO - V2)
  *
  * Deploy via Lovable send_message (ou CLI com SUPABASE_ACCESS_TOKEN):
- *   supabase functions deploy mcp-query --project-ref blopallcxuotfutblkoe --no-verify-jwt
+ *   supabase functions deploy mcp-query --project-ref xmyvefffgltlrobazrmg --no-verify-jwt
  *
  * Segurança:
  *  - Autenticação por header x-mcp-secret (valor em secret Lovable MCP_SECRET)

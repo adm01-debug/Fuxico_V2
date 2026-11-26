@@ -15,7 +15,7 @@
     INTERVALS: FUXICO_CONFIG.INTERVALS,
     FEATURES: FUXICO_CONFIG.FEATURES,
   } : {
-    SUPABASE_URL: 'https://npjfwzzapbtcguoupozd.supabase.co',
+    SUPABASE_URL: 'https://xmyvefffgltlrobazrmg.supabase.co',
     get API_URL() { return `${this.SUPABASE_URL}/functions/v1`; },
     ENDPOINTS: {
       CREATE_TRACKING: '/create-tracking',
@@ -40,7 +40,7 @@
   };
 
   const DASHBOARD_URL = (typeof FUXICO_CONFIG !== 'undefined' && FUXICO_CONFIG.DASHBOARD_URL)
-    || 'https://fuxico.lovable.app';
+    || 'https://fuxico-v2.vercel.app';
 
   // ============================================
   // ESTADO GLOBAL

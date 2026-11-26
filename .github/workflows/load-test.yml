@@ -51,7 +51,7 @@ jobs:
         run: |
           if [ -z "$BASE_URL" ]; then
             echo "::warning::LOAD_TEST_BASE_URL não configurado; usando fallback público."
-            export BASE_URL="https://blopallcxuotfutblkoe.supabase.co"
+            export BASE_URL="https://xmyvefffgltlrobazrmg.supabase.co"
           fi
           k6 run tests/load/track-endpoints.k6.js --summary-export=tests/load/summary.json
 
