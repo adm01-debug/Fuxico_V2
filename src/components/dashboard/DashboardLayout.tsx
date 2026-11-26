@@ -62,6 +62,7 @@ const SmartSegmentationTab = lazy(() => import('@/components/dashboard/SmartSegm
 const TrackingHistoryTab = lazy(() => import('@/pages/TrackingAnalytics'));
 const ApiKeysTab = lazy(() => import('@/components/dashboard/ApiKeysTab'));
 const CustomDomainsTab = lazy(() => import('@/components/dashboard/CustomDomainsTab'));
+const PollsTab = lazy(() => import('@/components/dashboard/PollsTab'));
 
 // =============================================================================
 // MAPEAMENTO DE COMPONENTES
@@ -84,6 +85,7 @@ const TAB_COMPONENTS: Record<TabId, React.LazyExoticComponent<React.ComponentTyp
   followup: FollowUpTab,
   insights: ReportsTab,
   campaigns: CampaignsTab,
+  polls: PollsTab,
   abtesting: ABTestingTab,
   unsubscribe: UnsubscribeTab,
   sequences: SequencesTab,
@@ -123,6 +125,7 @@ const TAB_LABELS: Record<TabId, string> = {
   followup: 'Follow-up',
   insights: 'Insights IA',
   campaigns: 'Campanhas',
+  polls: 'Enquetes',
   abtesting: 'Teste A/B',
   unsubscribe: 'Exclusão',
   sequences: 'Sequências',

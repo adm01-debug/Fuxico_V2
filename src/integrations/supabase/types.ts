@@ -2404,6 +2404,128 @@ export type Database = {
         };
         Relationships: [];
       };
+      poll_options: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          poll_id: string
+          sort_order: number
+          votes_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          poll_id: string
+          sort_order?: number
+          votes_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          poll_id?: string
+          sort_order?: number
+          votes_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          option_id: string
+          poll_id: string
+          voter_email: string | null
+          voter_ip: string | null
+          voter_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          option_id: string
+          poll_id: string
+          voter_email?: string | null
+          voter_ip?: string | null
+          voter_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          option_id?: string
+          poll_id?: string
+          voter_email?: string | null
+          voter_ip?: string | null
+          voter_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          allow_multiple_votes: boolean
+          created_at: string
+          expires_at: string | null
+          id: string
+          options: Json
+          question: string
+          status: string
+          total_votes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_multiple_votes?: boolean
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          options?: Json
+          question: string
+          status?: string
+          total_votes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_multiple_votes?: boolean
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          options?: Json
+          question?: string
+          status?: string
+          total_votes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       query_performance_snapshots: {
         Row: {
           cache_hit_ratio_pct: number | null;

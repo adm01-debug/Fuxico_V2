@@ -30,6 +30,7 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const MFAVerify = lazy(() => import('./pages/MFAVerify'));
 const SignDocument = lazy(() => import('./pages/SignDocument'));
+const VotePoll = lazy(() => import('./pages/VotePoll'));
 const Permissions = lazy(() => import('./pages/Permissions'));
 const Roles = lazy(() => import('./pages/Roles'));
 const TwoFactorAuth = lazy(() => import('./pages/TwoFactorAuth'));
@@ -91,6 +92,7 @@ const App = () => {
                             <Route path="/verify-email" element={<VerifyEmail />} />
                             <Route path="/mfa-verify" element={<MFAVerify />} />
                             <Route path="/sign/:token" element={<SignDocument />} />
+                            <Route path="/poll/:id" element={<VotePoll />} />
                             {/* Protected routes - require authentication */}
                             <Route
                               path="/dashboard"
