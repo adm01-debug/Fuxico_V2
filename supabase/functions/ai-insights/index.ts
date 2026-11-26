@@ -50,7 +50,15 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
     const { period, trackingId, includeRecommendations } = validation.data
     log.info('Validated request', { period, trackingId, userId: user.id })
 
-    const { data: stats } = await supabaseClient
+    // email_stats_mv e materialized view (nao suporta RLS) e por isso e legivel
+    // apenas por service_role; o recorte por usuario continua garantido pelo
+    // filtro user_id, que usa o id do JWT ja validado por auth.getUser() acima.
+    const adminClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    const { data: stats } = await adminClient
       .from('email_stats_mv')
       .select('*')
       .eq('user_id', user.id)

@@ -6,6 +6,11 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+// Auditoria das paginas publicas: precisa do cenario ANONIMO. Com o storageState
+// autenticado do projeto 'chromium', a landing '/' cai no dashboard e a auditoria
+// mede a tela errada (sidebar/widgets) em vez da pagina publica.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 const PUBLIC_ROUTES = [
   { path: '/', name: 'Landing' },
   { path: '/auth', name: 'Auth' },
