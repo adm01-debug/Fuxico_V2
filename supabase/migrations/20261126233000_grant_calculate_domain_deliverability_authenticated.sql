@@ -1,0 +1,22 @@
+-- =============================================================================
+-- Restaura EXECUTE de public.calculate_domain_deliverability(uuid) para authenticated
+--
+-- Causa raiz: a migration 20260712112658 recriou a funcao com CREATE OR REPLACE (o que
+-- zera a ACL) e a onda de hardening 20261125224500 passou a conceder EXECUTE a
+-- authenticated apenas para a allowlist dela. calculate_domain_deliverability, embora
+-- consumida pelo front via supabase.rpc() e listada na 20260713123228, ficou de fora.
+--
+-- Evidencia (probe real com JWT de usuario autenticado, ANTES do fix):
+--   POST /rest/v1/rpc/calculate_domain_deliverability {"p_user_id":"<proprio uuid>"}
+--   -> HTTP 403 {"code":"42501","message":"permission denied for function calculate_domain_deliverability"}
+--
+-- Impacto: falhavam 100% para o usuario logado a aba Deliverability
+-- (src/components/dashboard/DeliverabilityTab.tsx -> useDeliverability) e o botao de
+-- verificacao de alertas de bounce (BounceAlertsTab / DashboardSidebar -> useBounceAlerts.checkAlerts).
+--
+-- Seguranca: a funcao e SECURITY DEFINER e ja barra leitura cruzada entre tenants
+--   IF auth.uid() IS NULL OR auth.uid() <> p_user_id THEN RAISE EXCEPTION 'forbidden' (42501);
+-- por isso o grant a authenticated nao amplia superficie de dados.
+-- =============================================================================
+REVOKE EXECUTE ON FUNCTION public.calculate_domain_deliverability(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.calculate_domain_deliverability(uuid) TO authenticated, service_role;
