@@ -1793,6 +1793,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Remove a edge function migrate-helper, que expunha a service_role key (#96) by @adm01-debug in [#96](https://github.com/adm01-debug/fuxico/pull/96)
 - Trava tailwindcss em ^3.4.17 para o build voltar a compilar (#98) by @adm01-debug in [#98](https://github.com/adm01-debug/fuxico/pull/98)
 - Exige token de cron nos 6 endpoints internos que respondiam sem autenticacao (#99) by @adm01-debug in [#99](https://github.com/adm01-debug/fuxico/pull/99)
+- Alinha o k6 de tracking com os endpoints reais em producao (#97) by @adm01-debug in [#97](https://github.com/adm01-debug/fuxico/pull/97)
 
 ### 📚 Documentação
 
@@ -1829,6 +1830,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 
