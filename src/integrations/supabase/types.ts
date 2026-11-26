@@ -2406,6 +2406,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      push_notifications: {
+        Row: {
+          body: string;
+          created_at: string;
+          data: Json | null;
+          icon: string | null;
+          id: string;
+          read_at: string | null;
+          sent_by: string | null;
+          title: string;
+          url: string | null;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          data?: Json | null;
+          icon?: string | null;
+          id?: string;
+          read_at?: string | null;
+          sent_by?: string | null;
+          title: string;
+          url?: string | null;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          data?: Json | null;
+          icon?: string | null;
+          id?: string;
+          read_at?: string | null;
+          sent_by?: string | null;
+          title?: string;
+          url?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       rate_limit_logs: {
         Row: {
           city: string | null;
