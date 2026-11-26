@@ -77,21 +77,29 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
 
     const { action, email, trackingId, eventType, data } = validation.data
 
-    // Buscar config Bitrix24 do usuário
-    const { data: prefs } = await supabaseClient
-      .from('user_preferences')
-      .select('bitrix24_webhook_url, bitrix24_user_id')
+    // A config vive em public.bitrix24_config (a tabela que a UI le e escreve);
+    // user_preferences nunca teve coluna bitrix24_webhook_url, entao a leitura
+    // antiga falhava com 42703 e toda chamada respondia "Bitrix24 not configured".
+    const { data: cfg } = await supabaseClient
+      .from('bitrix24_config')
+      .select('webhook_url, enabled')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (!prefs?.bitrix24_webhook_url) {
+    if (!cfg?.webhook_url) {
       return secureJsonResponse({ error: 'Bitrix24 not configured' }, 400, corsHeaders)
     }
 
+    if (cfg.enabled === false) {
+      return secureJsonResponse({ error: 'Bitrix24 integration disabled' }, 400, corsHeaders)
+    }
+
     // Validate webhook URL to prevent SSRF
-    if (!isWebhookUrlSafe(prefs.bitrix24_webhook_url)) {
+    if (!isWebhookUrlSafe(cfg.webhook_url)) {
       return secureJsonResponse({ error: 'Bitrix24 webhook URL is not allowed' }, 400, corsHeaders)
     }
+
+    const webhookUrl = cfg.webhook_url
 
     let result: BitrixSyncResult = { success: false }
 
@@ -102,18 +110,18 @@ export const handler = async (req: Request, corsHeaders: Record<string, string>)
       switch (action) {
         case 'sync_contact':
           if (email) {
-            innerResult = await syncContact(prefs.bitrix24_webhook_url, email, data as BitrixContactData)
+            innerResult = await syncContact(webhookUrl, email, data as BitrixContactData)
           }
           break
         case 'create_deal':
-          innerResult = await createDeal(prefs.bitrix24_webhook_url, data as BitrixDealData)
+          innerResult = await createDeal(webhookUrl, data as BitrixDealData)
           break
         case 'register_activity':
-          innerResult = await registerActivity(prefs.bitrix24_webhook_url, data as BitrixActivityData)
+          innerResult = await registerActivity(webhookUrl, data as BitrixActivityData)
           break
         case 'sync_email_event':
           if (trackingId && eventType) {
-            innerResult = await syncEmailEvent(prefs.bitrix24_webhook_url, trackingId, eventType, data as Record<string, string>)
+            innerResult = await syncEmailEvent(webhookUrl, trackingId, eventType, data as Record<string, string>)
           }
           break
       }
