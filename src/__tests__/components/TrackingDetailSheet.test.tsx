@@ -10,6 +10,13 @@ vi.mock('@/features/tracking/hooks/use-tracking', () => ({
   useEmailDetail: (trackingId: string) => useEmailDetailMock(trackingId),
 }));
 
+// O detalhe agora embute o controle de lembretes; sem mock, o hook puxaria o
+// cliente Supabase (exige VITE_SUPABASE_URL) e o react-query sem provider.
+vi.mock('@/hooks/use-follow-up-reminders', () => ({
+  usePendingReminders: () => ({ data: [] }),
+  useCreateReminder: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+
 function detail(overrides: Partial<EmailDetailResponse> = {}): EmailDetailResponse {
   return {
     email: {
