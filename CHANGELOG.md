@@ -1697,6 +1697,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Grafico mensal de tracking na pagina /analytics de tracking (#118) by @adm01-debug in [#118](https://github.com/adm01-debug/fuxico/pull/118)
 - Prefetch do chunk das tabs ao passar o mouse no menu lateral (#120) by @adm01-debug in [#120](https://github.com/adm01-debug/fuxico/pull/120)
 - Aba de auditoria de emails e alertas de fraude no painel de auditoria (#121) by @adm01-debug in [#121](https://github.com/adm01-debug/fuxico/pull/121)
+- Fluxo completo de assinatura de documentos com pagina publica por token (#124) by @adm01-debug in [#124](https://github.com/adm01-debug/fuxico/pull/124)
 
 ### 🐛 Correções
 
@@ -1812,6 +1813,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Consolida fluxo de MFA com backup codes hasheados e enrollment real (#108) by @adm01-debug in [#108](https://github.com/adm01-debug/fuxico/pull/108)
 - Alertas de bounce leem dados reais de tracked_emails (#115) by @adm01-debug in [#115](https://github.com/adm01-debug/fuxico/pull/115)
 - Registrar auditoria de email no envio e alinhar direction ao CHECK (#122) by @adm01-debug in [#122](https://github.com/adm01-debug/fuxico/pull/122)
+- Build de producao quebrado pelo precache do stats.html no PWA (#126) by @adm01-debug in [#126](https://github.com/adm01-debug/fuxico/pull/126)
 
 ### 📚 Documentação
 
@@ -1848,6 +1850,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
