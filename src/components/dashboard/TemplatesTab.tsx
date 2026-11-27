@@ -14,27 +14,80 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Copy, Plus, Trash2, Eye, Check, Loader2 } from 'lucide-react';
+import { Copy, Plus, Trash2, Eye, Check, Loader2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
-import { useEmailTemplates } from '@/hooks/use-email-templates';
+import { useEmailTemplates, type EmailTemplate } from '@/hooks/use-email-templates';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { createTracking } from '@/features/tracking/lib/tracking-api';
 import { extractTrackableLinks, injectTracking } from '@/features/tracking/lib/render-tracking';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
+import { UnsavedChangesDialog } from '@/components/navigation/UnsavedChangesDialog';
+
+const EMPTY_TEMPLATE = { name: '', subject: '', body: '', category: 'Geral' };
 
 function TemplatesTabBase() {
-  const { templates, isLoading, createTemplate, deleteTemplate, incrementUsage } =
+  const { templates, isLoading, createTemplate, updateTemplate, deleteTemplate, incrementUsage } =
     useEmailTemplates();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<(typeof templates)[0] | null>(null);
   const [isPreparing, setIsPreparing] = useState<string | null>(null);
-  const [newTemplate, setNewTemplate] = useState({
-    name: '',
-    subject: '',
-    body: '',
-    category: 'Geral',
-  });
+  const [newTemplate, setNewTemplate] = useState(EMPTY_TEMPLATE);
+  const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
+  const [editForm, setEditForm] = useState(EMPTY_TEMPLATE);
+
+  const createIsDirty = Object.entries(newTemplate).some(
+    ([key, value]) => value !== EMPTY_TEMPLATE[key as keyof typeof EMPTY_TEMPLATE]
+  );
+  const editIsDirty =
+    editingTemplate !== null &&
+    (editForm.name !== editingTemplate.name ||
+      editForm.subject !== editingTemplate.subject ||
+      editForm.body !== editingTemplate.body ||
+      editForm.category !== editingTemplate.category);
+
+  const createGuard = useUnsavedChanges({ when: isCreateOpen && createIsDirty });
+  const editGuard = useUnsavedChanges({ when: editIsDirty });
+
+  const closeCreate = () => {
+    createGuard.confirmClose(() => {
+      setNewTemplate(EMPTY_TEMPLATE);
+      setIsCreateOpen(false);
+    });
+  };
+
+  const closeEdit = () => {
+    editGuard.confirmClose(() => {
+      setEditingTemplate(null);
+      setEditForm(EMPTY_TEMPLATE);
+    });
+  };
+
+  const handleOpenEdit = (template: EmailTemplate) => {
+    setEditingTemplate(template);
+    setEditForm({
+      name: template.name,
+      subject: template.subject,
+      body: template.body,
+      category: template.category,
+    });
+  };
+
+  const handleUpdateTemplate = async () => {
+    if (!editingTemplate) return;
+    if (!editForm.name.trim() || !editForm.subject.trim() || !editForm.body.trim()) {
+      toast.error('Preencha todos os campos');
+      return;
+    }
+    try {
+      await updateTemplate.mutateAsync({ id: editingTemplate.id, ...editForm });
+      setEditingTemplate(null);
+      setEditForm(EMPTY_TEMPLATE);
+    } catch {
+      // erro já notificado pelo hook
+    }
+  };
 
   const handleCopyTemplate = async (template: (typeof templates)[0]) => {
     setIsPreparing(template.id);
@@ -86,7 +139,7 @@ function TemplatesTabBase() {
     }
 
     await createTemplate.mutateAsync(newTemplate);
-    setNewTemplate({ name: '', subject: '', body: '', category: 'Geral' });
+    setNewTemplate(EMPTY_TEMPLATE);
     setIsCreateOpen(false);
   };
 
@@ -130,7 +183,10 @@ function TemplatesTabBase() {
               <CardTitle>Templates de Email</CardTitle>
               <CardDescription>Templates prontos com pixel de tracking integrado</CardDescription>
             </div>
-            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <Dialog
+              open={isCreateOpen}
+              onOpenChange={(o) => (o ? setIsCreateOpen(true) : closeCreate())}
+            >
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
@@ -260,6 +316,14 @@ function TemplatesTabBase() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => handleOpenEdit(template)}
+                            aria-label={`Editar ${template.name}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleCopyTemplate(template)}
                             disabled={isPreparing === template.id}
                             aria-label="Copiar com tracking"
@@ -319,6 +383,89 @@ function TemplatesTabBase() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={editingTemplate !== null}
+        onOpenChange={(o) => {
+          if (!o) closeEdit();
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Editar Template</DialogTitle>
+            <DialogDescription>
+              Ajuste nome, categoria, assunto e corpo. As variáveis {'{{nome}}'} permanecem
+              disponíveis.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nome do Template</Label>
+                <Input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Categoria</Label>
+                <Input
+                  value={editForm.category}
+                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Assunto</Label>
+              <Input
+                value={editForm.subject}
+                onChange={(e) => setEditForm({ ...editForm, subject: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Corpo do Email</Label>
+              <Textarea
+                className="min-h-[200px]"
+                value={editForm.body}
+                onChange={(e) => setEditForm({ ...editForm, body: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeEdit}
+                disabled={updateTemplate.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleUpdateTemplate}
+                disabled={updateTemplate.isPending || !editIsDirty}
+              >
+                {updateTemplate.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Check className="mr-2 h-4 w-4" />
+                )}
+                Salvar alterações
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <UnsavedChangesDialog
+        open={createGuard.isBlocked}
+        onConfirm={createGuard.discard}
+        onCancel={createGuard.keepEditing}
+      />
+      <UnsavedChangesDialog
+        open={editGuard.isBlocked}
+        onConfirm={editGuard.discard}
+        onCancel={editGuard.keepEditing}
+      />
     </div>
   );
 }

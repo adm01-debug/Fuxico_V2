@@ -21,7 +21,7 @@ export interface UnsavedChangesDialogProps {
 
 /**
  * Dialog acessível para acompanhar o hook `useUnsavedChanges`.
- * Use-o passando `onConfirm={confirmNavigation}` e `onCancel={cancelNavigation}`.
+ * Use-o passando `onConfirm={discard}` e `onCancel={keepEditing}`.
  */
 export function UnsavedChangesDialog({
   open,
