@@ -22,6 +22,8 @@ import { Plus, Copy, Check, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
 import { useCreateReminder } from '@/hooks/use-follow-up-reminders';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
+import { UnsavedChangesDialog } from '@/components/navigation/UnsavedChangesDialog';
 
 interface CreateTrackingDialogProps {
   open?: boolean;
@@ -108,6 +110,18 @@ function CreateTrackingDialogBase({
     setResult(null);
   };
 
+  const guard = useUnsavedChanges({
+    when: open && !result && (recipientEmail !== '' || subject !== '' || links !== ''),
+  });
+
+  const handleOpenChange = (next: boolean) => {
+    if (next) {
+      setOpen(true);
+      return;
+    }
+    guard.confirmClose(handleClose);
+  };
+
   const defaultTrigger = (
     <Button className="gap-2">
       <Plus className="h-4 w-4" />
@@ -116,7 +130,7 @@ function CreateTrackingDialogBase({
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       {trigger !== null && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
       <DialogContent
         role="dialog"
@@ -291,6 +305,13 @@ function CreateTrackingDialogBase({
           </>
         )}
       </DialogContent>
+
+      <UnsavedChangesDialog
+        open={guard.isBlocked}
+        onConfirm={guard.discard}
+        onCancel={guard.keepEditing}
+        description="O formulário tem dados que ainda não foram salvos. Se sair agora, eles serão perdidos."
+      />
     </Dialog>
   );
 }
