@@ -21,6 +21,8 @@ import {
 import { EmailSequence, useCreateSequence } from '@/features/sequences/hooks/useEmailSequences';
 import { Loader2 } from 'lucide-react';
 import { log } from '@/lib/logger';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
+import { UnsavedChangesDialog } from '@/components/navigation/UnsavedChangesDialog';
 
 interface CreateSequenceDialogProps {
   open: boolean;
@@ -33,7 +35,27 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
   const [description, setDescription] = useState('');
   const [triggerType, setTriggerType] = useState<EmailSequence['trigger_type']>('manual');
 
+  const isDirty = name !== '' || description !== '' || triggerType !== 'manual';
+  const guard = useUnsavedChanges({ when: open && isDirty });
+
   const createSequence = useCreateSequence();
+
+  const resetForm = () => {
+    setName('');
+    setDescription('');
+    setTriggerType('manual');
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    if (next) {
+      onOpenChange(true);
+      return;
+    }
+    guard.confirmClose(() => {
+      resetForm();
+      onOpenChange(false);
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,9 +67,7 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
         trigger_type: triggerType,
       });
 
-      setName('');
-      setDescription('');
-      setTriggerType('manual');
+      resetForm();
       onOpenChange(false);
       onSuccess?.(sequence);
     } catch (error) {
@@ -56,7 +76,7 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Nova Sequência de Email</DialogTitle>
@@ -114,7 +134,7 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={!name || createSequence.isPending}>
@@ -124,6 +144,13 @@ export function CreateSequenceDialog({ open, onOpenChange, onSuccess }: CreateSe
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <UnsavedChangesDialog
+        open={guard.isBlocked}
+        onConfirm={guard.discard}
+        onCancel={guard.keepEditing}
+        description="A nova sequência tem dados que ainda não foram salvos. Se sair agora, eles serão perdidos."
+      />
     </Dialog>
   );
 }
