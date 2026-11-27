@@ -14,6 +14,8 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { buildPollUrl, useCreatePoll } from '@/features/polls/hooks/use-polls';
 import { Check, Copy, Plus, Trash2, Vote } from 'lucide-react';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
+import { UnsavedChangesDialog } from '@/components/navigation/UnsavedChangesDialog';
 
 interface PollFormDialogProps {
   open: boolean;
@@ -32,6 +34,15 @@ export function PollFormDialog({ open, onOpenChange }: PollFormDialogProps) {
   const [createdUrl, setCreatedUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const isDirty =
+    createdUrl === null &&
+    (question.trim() !== '' ||
+      allowMultipleVotes ||
+      expiresInDays !== '' ||
+      options.some((option) => option.trim() !== ''));
+
+  const guard = useUnsavedChanges({ when: open && isDirty });
+
   function resetForm() {
     setQuestion('');
     setOptions(['', '']);
@@ -42,8 +53,14 @@ export function PollFormDialog({ open, onOpenChange }: PollFormDialogProps) {
   }
 
   function handleOpenChange(next: boolean) {
-    if (!next) resetForm();
-    onOpenChange(next);
+    if (next) {
+      onOpenChange(true);
+      return;
+    }
+    guard.confirmClose(() => {
+      resetForm();
+      onOpenChange(false);
+    });
   }
 
   function updateOption(index: number, value: string) {
@@ -218,6 +235,14 @@ export function PollFormDialog({ open, onOpenChange }: PollFormDialogProps) {
           )}
         </DialogFooter>
       </DialogContent>
+
+      <UnsavedChangesDialog
+        open={guard.isBlocked}
+        onConfirm={guard.discard}
+        onCancel={guard.keepEditing}
+        description="A enquete tem dados que ainda não foram publicados. Se sair agora, eles serão perdidos."
+        confirmLabel="Descartar enquete"
+      />
     </Dialog>
   );
 }
