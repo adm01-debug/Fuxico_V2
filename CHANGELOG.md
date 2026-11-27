@@ -1711,6 +1711,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Busca global por dados reais (emails, documentos, links, modelos, campanhas) (#139) by @adm01-debug in [#139](https://github.com/adm01-debug/fuxico/pull/139)
 - Editar template de email e aviso de alteracoes nao salvas (#141) by @adm01-debug in [#141](https://github.com/adm01-debug/fuxico/pull/141)
 - Aviso de alteracoes nao salvas no editor de sequencias (#143) by @adm01-debug in [#143](https://github.com/adm01-debug/fuxico/pull/143)
+- Guard de alteracoes nao salvas em enquetes e rastreamento (#145) by @adm01-debug in [#145](https://github.com/adm01-debug/fuxico/pull/145)
 
 ### 🐛 Correções
 
@@ -1870,6 +1871,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
