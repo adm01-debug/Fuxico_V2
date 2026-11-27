@@ -1907,6 +1907,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
+- Update changelog [skip ci] by @github-actions[bot]
 
 ### 🔐 Segurança
 
@@ -1963,6 +1964,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Valida as 9 CHECK constraints que estavam como NOT VALID (#88) by @adm01-debug in [#88](https://github.com/adm01-debug/fuxico/pull/88)
 - Recupera 11 bumps de dependencia das PRs #71/#72/#55/#78 (#91) by @adm01-debug in [#91](https://github.com/adm01-debug/fuxico/pull/91)
 - Desacopla deploy das edge functions do deploy do front (#123) by @adm01-debug in [#123](https://github.com/adm01-debug/fuxico/pull/123)
+- Elimina vulnerabilidades high/low via overrides (#144) by @adm01-debug in [#144](https://github.com/adm01-debug/fuxico/pull/144)
 
 ### 🧪 Testes
 
