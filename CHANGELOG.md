@@ -1830,6 +1830,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Libera get_tracking_monthly_stats para o usuario logado (#119) by @adm01-debug in [#119](https://github.com/adm01-debug/fuxico/pull/119)
 - Leitura das proprias tentativas de login e fim da escrita direta (RLS + NOT NULL) (#117) by @adm01-debug in [#117](https://github.com/adm01-debug/fuxico/pull/117)
 - Logs e reenvio de webhooks alinhados ao schema (#134) by @adm01-debug in [#134](https://github.com/adm01-debug/fuxico/pull/134)
+- Migrations de RPCs admin e cron com sintaxe valida (faltava ';' nos delimitadores) (#138) by @adm01-debug in [#138](https://github.com/adm01-debug/fuxico/pull/138)
+- Restaura triggers ausentes de tracking e de user_preferences (#140) by @adm01-debug in [#140](https://github.com/adm01-debug/fuxico/pull/140)
 
 ### 📚 Documentação
 
@@ -1866,6 +1868,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
