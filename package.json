@@ -22,8 +22,13 @@
     "lint-staged": "lint-staged"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md,css}": ["prettier --write"]
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.3.0",
@@ -129,6 +134,9 @@
   },
   "overrides": {
     "@babel/core@^7": "7.29.6",
+    "brace-expansion@^2": "2.1.7",
+    "dompurify@^3": "3.5.0",
+    "fast-uri@^3": "3.1.9",
     "form-data@^4": "4.0.6",
     "glob@^10": "10.5.0",
     "serialize-javascript@^7": "7.1.3",
