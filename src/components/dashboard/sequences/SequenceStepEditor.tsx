@@ -32,6 +32,8 @@ import {
   useDeleteStep,
 } from '@/features/sequences/hooks/useEmailSequences';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
+import { UnsavedChangesDialog } from '@/components/navigation/UnsavedChangesDialog';
 
 interface SequenceStepEditorProps {
   steps: SequenceStep[];
@@ -58,6 +60,41 @@ interface StepFormData {
   is_active: boolean;
 }
 
+const EMPTY_STEP: StepFormData = {
+  subject: '',
+  body: '',
+  delay_days: 1,
+  delay_hours: 0,
+  trigger_condition: 'always',
+  is_active: true,
+};
+
+type StepFormField = keyof StepFormData;
+
+const STEP_FIELDS: StepFormField[] = [
+  'subject',
+  'body',
+  'delay_days',
+  'delay_hours',
+  'trigger_condition',
+  'is_active',
+];
+
+function stepToFormData(step: SequenceStep): StepFormData {
+  return {
+    subject: step.subject,
+    body: step.body,
+    delay_days: step.delay_days,
+    delay_hours: step.delay_hours,
+    trigger_condition: step.trigger_condition,
+    is_active: step.is_active,
+  };
+}
+
+function formDataDiffers(current: StepFormData, baseline: StepFormData): boolean {
+  return STEP_FIELDS.some((field) => current[field] !== baseline[field]);
+}
+
 function StepCard({
   step,
   index,
@@ -69,32 +106,41 @@ function StepCard({
   onDelete: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState<StepFormData>({
-    subject: step.subject,
-    body: step.body,
-    delay_days: step.delay_days,
-    delay_hours: step.delay_hours,
-    trigger_condition: step.trigger_condition,
-    is_active: step.is_active,
+  const [formData, setFormData] = useState<StepFormData>(() => stepToFormData(step));
+  const guard = useUnsavedChanges({
+    when: isOpen && formDataDiffers(formData, stepToFormData(step)),
   });
-  const [hasChanges, setHasChanges] = useState(false);
 
   const updateStep = useUpdateStep();
 
   const handleChange = <K extends keyof StepFormData>(key: K, value: StepFormData[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
-    setHasChanges(true);
   };
 
   const handleSave = async () => {
     await updateStep.mutateAsync({ id: step.id, ...formData });
-    setHasChanges(false);
   };
 
+  const handleOpenChange = (next: boolean) => {
+    if (!next) {
+      guard.confirmClose(() => {
+        setFormData(stepToFormData(step));
+        setIsOpen(false);
+      });
+      return;
+    }
+    setIsOpen(true);
+  };
+
+  const handleDeleteClick = () => {
+    guard.confirmClose(onDelete);
+  };
+
+  const hasChanges = formDataDiffers(formData, stepToFormData(step));
   const condition = triggerConditionLabels[step.trigger_condition];
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+    <Collapsible open={isOpen} onOpenChange={handleOpenChange}>
       <Card className={`transition-all ${!step.is_active ? 'opacity-60' : ''}`}>
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer py-3 transition-colors hover:bg-muted/50">
@@ -201,7 +247,7 @@ function StepCard({
               </div>
 
               <div className="flex items-center gap-2">
-                <Button variant="destructive" size="sm" onClick={onDelete}>
+                <Button variant="destructive" size="sm" onClick={handleDeleteClick}>
                   <Trash2 className="mr-1 h-4 w-4" />
                   Remover
                 </Button>
@@ -216,23 +262,34 @@ function StepCard({
           </CardContent>
         </CollapsibleContent>
       </Card>
+
+      <UnsavedChangesDialog
+        open={guard.isBlocked}
+        onConfirm={guard.discard}
+        onCancel={guard.keepEditing}
+        description="Esta etapa tem alterações que ainda não foram salvas. Se fechar agora, elas serão perdidas."
+        confirmLabel="Descartar alterações"
+      />
     </Collapsible>
   );
 }
 
 export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProps) {
   const [isAddingStep, setIsAddingStep] = useState(false);
-  const [newStep, setNewStep] = useState<StepFormData>({
-    subject: '',
-    body: '',
-    delay_days: 1,
-    delay_hours: 0,
-    trigger_condition: 'always',
-    is_active: true,
+  const [newStep, setNewStep] = useState<StepFormData>(EMPTY_STEP);
+  const newStepGuard = useUnsavedChanges({
+    when: isAddingStep && formDataDiffers(newStep, EMPTY_STEP),
   });
 
   const createStep = useCreateStep();
   const deleteStep = useDeleteStep();
+
+  const cancelAddStep = () => {
+    newStepGuard.confirmClose(() => {
+      setNewStep(EMPTY_STEP);
+      setIsAddingStep(false);
+    });
+  };
 
   const handleAddStep = async () => {
     await createStep.mutateAsync({
@@ -240,14 +297,7 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
       step_order: steps.length + 1,
       ...newStep,
     });
-    setNewStep({
-      subject: '',
-      body: '',
-      delay_days: 1,
-      delay_hours: 0,
-      trigger_condition: 'always',
-      is_active: true,
-    });
+    setNewStep(EMPTY_STEP);
     setIsAddingStep(false);
   };
 
@@ -362,7 +412,7 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsAddingStep(false)}>
+              <Button variant="outline" onClick={cancelAddStep}>
                 Cancelar
               </Button>
               <Button
@@ -382,6 +432,13 @@ export function SequenceStepEditor({ steps, sequenceId }: SequenceStepEditorProp
           </Button>
         )
       )}
+
+      <UnsavedChangesDialog
+        open={newStepGuard.isBlocked}
+        onConfirm={newStepGuard.discard}
+        onCancel={newStepGuard.keepEditing}
+        description="A nova etapa tem conteúdo que ainda não foi adicionado. Se cancelar agora, ele será perdido."
+      />
     </div>
   );
 }
