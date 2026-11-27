@@ -1709,6 +1709,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Telas de auditoria de RLS e postura de seguranca no admin (#113) by @adm01-debug in [#113](https://github.com/adm01-debug/fuxico/pull/113)
 - Pre-visualizacao do publico do teste A/B antes de disparar (#136) by @adm01-debug in [#136](https://github.com/adm01-debug/fuxico/pull/136)
 - Busca global por dados reais (emails, documentos, links, modelos, campanhas) (#139) by @adm01-debug in [#139](https://github.com/adm01-debug/fuxico/pull/139)
+- Editar template de email e aviso de alteracoes nao salvas (#141) by @adm01-debug in [#141](https://github.com/adm01-debug/fuxico/pull/141)
 
 ### 🐛 Correções
 
@@ -1868,6 +1869,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Add final audit v2 - all verified ✅ by @adm01-debug
 - Add CRUD improvements documentation [18/18] by @adm01-debug
 - Add technical documentation README by @adm01-debug
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
